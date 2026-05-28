@@ -344,6 +344,24 @@ Executable guardrail:
 - `box_fifty_audit_certificate`
 - `test_box_fifty_finite_audit`
 
+### Added: Exact Box-60 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le60$. The box-$50$ residual table is reused, and forty-one additional
+explicit midpoint representatives complete the sign/swap residual cases in the
+larger box.
+
+As before, this is not an extrapolated bounded-search statement: every residual
+row is an explicit midpoint identity, and the test enumerates the finite box
+while keeping one-step targets and the known distance-three orbit separate.
+
+Executable guardrail:
+
+- `BOX_SIXTY_RESIDUAL_CERTIFICATES`
+- `box_sixty_residual_certificate`
+- `box_sixty_audit_certificate`
+- `test_box_sixty_finite_audit`
+
 ### Added: General Euclid Strip Template
 
 For any legal direction $U=(u,v)$, nonzero strip coordinate $q$, and nonzero
