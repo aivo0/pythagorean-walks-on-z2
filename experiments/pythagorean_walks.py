@@ -33,6 +33,18 @@ def sign_swap_orbit(point: Point) -> frozenset[Point]:
     return frozenset(orbit)
 
 
+def signed_swap_point(point: Point, x_sign: int, y_sign: int, swap: bool = False) -> Point:
+    """Apply a sign-change and optional coordinate-swap graph automorphism."""
+
+    if x_sign not in (-1, 1) or y_sign not in (-1, 1):
+        raise ValueError("x_sign and y_sign must be -1 or 1")
+
+    x, y = point
+    if swap:
+        x, y = y, x
+    return (x_sign * x, y_sign * y)
+
+
 KNOWN_DISTANCE_THREE_ORBIT: frozenset[Point] = frozenset(
     point
     for representative in KNOWN_DISTANCE_THREE_REPRESENTATIVES
@@ -256,6 +268,37 @@ def scale_certificate(certificate: Certificate, factor: int) -> Certificate:
         target=(factor * target_x, factor * target_y),
         midpoint=(factor * midpoint_x, factor * midpoint_y),
     )
+
+
+def sign_swap_certificate(certificate: Certificate, target: Point) -> Certificate | None:
+    """Transport a certificate to a requested sign/swap image of its target."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                transformed_target = signed_swap_point(
+                    certificate.target,
+                    x_sign,
+                    y_sign,
+                    swap,
+                )
+                if transformed_target != target:
+                    continue
+
+                transformed = Certificate(
+                    target=target,
+                    midpoint=signed_swap_point(
+                        certificate.midpoint,
+                        x_sign,
+                        y_sign,
+                        swap,
+                    ),
+                )
+                if not transformed.valid():
+                    raise AssertionError("sign/swap transform produced an invalid certificate")
+                return transformed
+
+    return None
 
 
 def gaussian_multiply(point: Point, multiplier: Point) -> Point:
@@ -536,7 +579,218 @@ SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS: tuple[tuple[Point, Point], ...] = (
     ((3, 4), (140, 171)),
     ((12, 5), (77, 36)),
     ((15, 8), (56, 33)),
+    ((9, 40), (16, 63)),
+    ((12, 5), (187, 84)),
+    ((40, -9), (63, -16)),
+    ((5, -12), (84, -187)),
+    ((5, 12), (84, 187)),
+    ((40, 9), (63, 16)),
+    ((12, -5), (187, -84)),
+    ((9, -40), (16, -63)),
+    ((28, 45), (33, 56)),
+    ((12, 5), (247, 96)),
+    ((45, -28), (56, -33)),
+    ((5, 12), (96, 247)),
+    ((5, -12), (96, -247)),
+    ((45, 28), (56, 33)),
+    ((12, -5), (247, -96)),
+    ((28, -45), (33, -56)),
+    ((15, 8), (208, 105)),
+    ((8, -15), (105, -208)),
+    ((8, 15), (105, 208)),
+    ((15, -8), (208, -105)),
+    ((7, -24), (60, -221)),
+    ((24, 7), (221, 60)),
+    ((24, -7), (221, -60)),
+    ((7, 24), (60, 221)),
+    ((5, -12), (168, -425)),
+    ((12, 5), (425, 168)),
+    ((12, -5), (425, -168)),
+    ((5, 12), (168, 425)),
+    ((20, -21), (297, -304)),
+    ((24, -7), (475, -132)),
+    ((7, 24), (132, 475)),
+    ((21, 20), (304, 297)),
+    ((84, -13), (143, -24)),
+    ((13, -84), (24, -143)),
+    ((13, 84), (24, 143)),
+    ((84, 13), (143, 24)),
+    ((21, -20), (304, -297)),
+    ((7, -24), (132, -475)),
+    ((24, 7), (475, 132)),
+    ((20, 21), (297, 304)),
+    ((48, -55), (133, -156)),
+    ((40, -9), (357, -76)),
+    ((55, 48), (156, 133)),
+    ((9, -40), (76, -357)),
+    ((9, 40), (76, 357)),
+    ((55, -48), (156, -133)),
+    ((40, 9), (357, 76)),
+    ((48, 55), (133, 156)),
+    ((35, -12), (408, -145)),
+    ((12, -35), (145, -408)),
+    ((12, 35), (145, 408)),
+    ((35, 12), (408, 145)),
+    ((35, -12), (468, -155)),
+    ((12, 35), (155, 468)),
+    ((21, 20), (460, 429)),
+    ((20, -21), (429, -460)),
+    ((20, 21), (429, 460)),
+    ((21, -20), (460, -429)),
+    ((12, -35), (155, -468)),
+    ((35, 12), (468, 155)),
+    ((117, 44), (140, 51)),
+    ((44, -117), (51, -140)),
+    ((44, 117), (51, 140)),
+    ((117, -44), (140, -51)),
 )
+
+
+BOX_TWENTY_RESIDUAL_CERTIFICATES: dict[Point, Point] = {
+    (10, 5): (-20, 21),
+    (13, 7): (-351, 280),
+    (13, 10): (-195, 400),
+    (16, 3): (-624, 315),
+    (16, 15): (-704, 840),
+    (17, 5): (-400, 561),
+    (17, 13): (-844, 633),
+    (20, 3): (-864, 990),
+    (20, 9): (-684, 912),
+}
+
+
+BOX_THIRTY_RESIDUAL_CERTIFICATES: dict[Point, Point] = {
+    **BOX_TWENTY_RESIDUAL_CERTIFICATES,
+    (22, 11): (-110, 96),
+    (23, 3): (-805, 348),
+    (23, 11): (-180, -385),
+    (25, 1): (-875, -300),
+    (25, 14): (-95, -168),
+    (26, 7): (-754, 672),
+    (26, 14): (-702, 560),
+    (26, 20): (-825, 440),
+    (26, 21): (-330, 288),
+    (26, 25): (-532, -855),
+    (28, 3): (-620, -861),
+    (28, 17): (-452, 339),
+    (28, 27): (-732, 549),
+    (29, 2): (-195, -28),
+    (30, 13): (-936, -75),
+}
+
+
+BOX_FORTY_RESIDUAL_CERTIFICATES: dict[Point, Point] = {
+    **BOX_THIRTY_RESIDUAL_CERTIFICATES,
+    (32, 6): (-1248, 630),
+    (32, 30): (-1860, 1395),
+    (33, 17): (-264, 77),
+    (34, 10): (-800, 1122),
+    (34, 26): (-1688, 1266),
+    (35, 2): (-1645, 492),
+    (35, 4): (-1197, 304),
+    (35, 8): (-1485, 1148),
+    (35, 26): (-520, -546),
+    (35, 33): (-1325, -1092),
+    (37, 3): (-1628, -885),
+    (37, 10): (-299, -180),
+    (37, 25): (-572, -555),
+    (37, 27): (-1924, -693),
+    (38, 1): (-42, 40),
+    (38, 15): (-1798, 120),
+    (38, 19): (-342, 280),
+    (39, 21): (-1573, -264),
+    (39, 23): (-1404, -53),
+    (39, 30): (-585, 1200),
+    (40, 6): (-1728, 1980),
+    (40, 18): (-1368, 1824),
+}
+
+
+BOX_FIFTY_RESIDUAL_CERTIFICATES: dict[Point, Point] = {
+    **BOX_FORTY_RESIDUAL_CERTIFICATES,
+    (41, 9): (-1980, 189),
+    (41, 12): (-4560, -4788),
+    (41, 14): (-1240, 1722),
+    (43, 7): (-2204, 3003),
+    (43, 9): (-4104, 3705),
+    (43, 30): (-2024, 3990),
+    (44, 17): (-4092, -256),
+    (44, 27): (-4240, 4452),
+    (44, 29): (-3036, -1027),
+    (44, 31): (-4180, 399),
+    (45, 29): (-2835, -972),
+    (46, 6): (-4320, -2106),
+    (46, 22): (-2024, 1518),
+    (46, 29): (-2550, 1976),
+    (47, 8): (-4386, 752),
+    (47, 10): (-3297, -3140),
+    (47, 13): (-3081, 4108),
+    (47, 21): (-4453, -804),
+    (47, 22): (-1929, 2572),
+    (47, 25): (-748, -1035),
+    (47, 29): (-3553, -396),
+    (47, 42): (-3080, -294),
+    (47, 43): (-2748, -1145),
+    (48, 9): (-4488, -4941),
+    (48, 37): (-4488, -665),
+    (48, 45): (-4320, -279),
+    (49, 2): (-575, -48),
+    (49, 5): (-3003, -4900),
+    (49, 29): (-2915, -2544),
+    (49, 36): (-3605, 1236),
+    (49, 45): (-1095, 2628),
+    (50, 2): (-3150, 800),
+    (50, 17): (-1480, 969),
+    (50, 23): (-2860, 1575),
+    (50, 25): (-3096, 553),
+    (50, 28): (-3975, 1408),
+}
+
+
+BOX_SIXTY_RESIDUAL_CERTIFICATES: dict[Point, Point] = {
+    **BOX_FIFTY_RESIDUAL_CERTIFICATES,
+    (51, 11): (-12, -5),
+    (51, 13): (-9, -12),
+    (51, 15): (-9, 40),
+    (51, 20): (6, -8),
+    (51, 38): (-165, -52),
+    (51, 39): (-36, -77),
+    (52, 14): (12, 5),
+    (52, 21): (12, -9),
+    (52, 28): (24, 7),
+    (52, 40): (-8, 15),
+    (52, 42): (-20, 21),
+    (52, 43): (-12, -5),
+    (52, 50): (-20, -15),
+    (53, 2): (5, -12),
+    (53, 33): (-55, -48),
+    (53, 47): (-7735, -4968),
+    (53, 50): (-51, -1300),
+    (55, 26): (-65, -156),
+    (55, 46): (-200, -1242),
+    (56, 6): (20, -21),
+    (56, 17): (12, -16),
+    (56, 34): (24, 10),
+    (56, 37): (-40, 9),
+    (56, 47): (-40, 75),
+    (56, 54): (-8, 6),
+    (57, 17): (-159, 212),
+    (57, 44): (12, -16),
+    (57, 49): (-3, 4),
+    (57, 56): (18, -24),
+    (58, 4): (-5, -12),
+    (58, 13): (406, -792),
+    (59, 13): (-4, -3),
+    (59, 33): (35, -12),
+    (59, 43): (-645, -860),
+    (59, 49): (-2385, -1484),
+    (59, 51): (4, 3),
+    (59, 58): (35, -12),
+    (60, 9): (12, -5),
+    (60, 13): (-36, -15),
+    (60, 26): (-12, 5),
+    (60, 27): (12, -9),
+}
 
 
 def first_lattice_certificate(
@@ -604,10 +858,20 @@ def small_prime_lattice_certificate(target: Point) -> Certificate | None:
     The encoded table covers the residue lines g/h congruent to:
     - +/-5 and +/-9 modulo 23;
     - +/-3 and +/-10 modulo 31;
-    - +/-10 and +/-11 modulo 37.
+    - +/-10 and +/-11 modulo 37;
     - +/-1 modulo 41;
     - +/-10, +/-13, +/-15, and +/-20 modulo 43;
-    - +/-4, +/-7, +/-11, +/-12, +/-17, and +/-20 modulo 47.
+    - +/-4, +/-7, +/-11, +/-12, +/-17, and +/-20 modulo 47;
+    - +/-13, +/-17, +/-28, and +/-30 modulo 73;
+    - +/-8, +/-19, +/-31, and +/-35 modulo 83;
+    - +/-13 and +/-41 modulo 89;
+    - +/-22 and +/-34 modulo 107;
+    - +/-45 and +/-46 modulo 109;
+    - +/-14, +/-19, +/-33, +/-56, +/-66, and +/-69 modulo 157;
+    - +/-18, +/-34, +/-48, and +/-56 modulo 173;
+    - +/-12 and +/-15 modulo 179;
+    - +/-13, +/-44, +/-87, and +/-90 modulo 191;
+    - +/-86 and +/-92 modulo 193.
     Scalar multiples of the basis directions are already one-step targets and
     return None from this two-step constructor.
     """
@@ -684,6 +948,12 @@ def half_leg_strip_certificate(
     return euclid_strip_certificate(direction, q, v * t // 2)
 
 
+def half_leg_unit_coordinate_certificate(direction: Point, t: int) -> Certificate | None:
+    """Unit-coordinate specialization of the half-leg strip family."""
+
+    return half_leg_strip_certificate(direction, q=1, t=t)
+
+
 def consecutive_direction_strip_certificate(
     target: Point,
     odd_leg: int,
@@ -717,6 +987,58 @@ def consecutive_direction_strip_certificate(
         q,
         numerator // denominator,
     )
+
+
+def integer_slope_consecutive_ray_certificate(
+    slope: int,
+    multiplier: int,
+    odd_leg: int,
+) -> Certificate | None:
+    """Certificate for targets (slope * n, n) from signed consecutive strips."""
+
+    return rational_slope_consecutive_ray_certificate(
+        (slope, 1),
+        multiplier,
+        odd_leg,
+    )
+
+
+def rational_slope_consecutive_ray_certificate(
+    ray: Point,
+    multiplier: int,
+    odd_leg: int,
+) -> Certificate | None:
+    """Certificate for targets n * ray from signed consecutive strips."""
+
+    if odd_leg < 3 or odd_leg % 2 == 0:
+        raise ValueError("odd_leg must be an odd integer at least 3")
+    ray_x, ray_y = ray
+    if multiplier == 0 or ray_y == 0:
+        return None
+
+    target = (ray_x * multiplier, ray_y * multiplier)
+    even_leg = (odd_leg * odd_leg - 1) // 2
+    modulus = odd_leg * odd_leg + 1
+    for direction_sign in (1, -1):
+        numerator = (
+            even_leg * ray_x
+            + direction_sign * odd_leg * ray_y * (ray_y * multiplier - 1)
+        )
+        denominator = ray_y * modulus
+        if numerator % denominator != 0:
+            continue
+
+        certificate = euclid_strip_certificate(
+            (direction_sign * odd_leg, even_leg),
+            ray_y * multiplier,
+            numerator // denominator,
+        )
+        if certificate is not None:
+            if certificate.target != target:
+                raise AssertionError("rational-slope ray formula produced the wrong target")
+            return certificate
+
+    return None
 
 
 def two_one_ray_consecutive_certificate(
@@ -1142,6 +1464,68 @@ class PythagoreanTriple:
         )
 
 
+def pythagorean_triple_orthogonal_lattice_certificate(
+    target: Point,
+    triple: PythagoreanTriple,
+) -> Certificate | None:
+    """Certificate from a triple direction and its quarter-turn rotation."""
+
+    if not triple.valid():
+        raise ValueError("triple must be a positive Pythagorean triple")
+
+    leg_a, leg_b = triple.legs
+    return lattice_two_step_certificate(
+        target,
+        (leg_a, leg_b),
+        (-leg_b, leg_a),
+    )
+
+
+def consecutive_leg_pythagorean_triple(index: int) -> PythagoreanTriple:
+    """Return the index-th positive triple with consecutive legs.
+
+    The odd sum z = a + (a + 1) and hypotenuse c satisfy z^2 - 2c^2 = -1.
+    Multiplication by 3 + 2 sqrt(2) gives the next positive solution.
+    """
+
+    if index < 0:
+        raise ValueError("index must be nonnegative")
+
+    odd_sum = 7
+    hypotenuse = 5
+    for _ in range(index):
+        odd_sum, hypotenuse = (
+            3 * odd_sum + 4 * hypotenuse,
+            2 * odd_sum + 3 * hypotenuse,
+        )
+
+    first_leg = (odd_sum - 1) // 2
+    return PythagoreanTriple(first_leg, first_leg + 1, hypotenuse)
+
+
+def consecutive_leg_swap_lattice_certificate(
+    target: Point,
+    index: int,
+) -> Certificate | None:
+    """Certificate from the swap lattice of a consecutive-leg triple.
+
+    For legs (a, a + 1), the pairs (a, a + 1),(a + 1, a) and
+    (a, -a - 1),(a + 1, -a) cover the exact congruence lines
+    g + h == 0 and g - h == 0 modulo 2a + 1, up to the usual one-step
+    zero-coefficient cases.
+    """
+
+    triple = consecutive_leg_pythagorean_triple(index)
+    first_leg, second_leg = triple.legs
+    return first_lattice_certificate(
+        target,
+        (
+            ((first_leg, second_leg), (second_leg, first_leg)),
+            ((first_leg, -second_leg), (second_leg, -first_leg)),
+        ),
+    )
+
+
 def generate_pythagorean_triples(m_limit: int, scale_limit: int) -> list[PythagoreanTriple]:
     """Generate triples d(m^2-k^2), 2dmk, d(m^2+k^2) within parameter limits."""
 
@@ -1388,6 +1772,98 @@ def theorem3_certificate(
     return certificate
 
 
+def theorem3_line_certificate(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    h: int,
+) -> Certificate | None:
+    """Generate a signed Theorem 3 certificate using h as the free parameter."""
+
+    if x_sign not in (-1, 1) or y_sign not in (-1, 1):
+        raise ValueError("x_sign and y_sign must be -1 or 1")
+    if not triple.valid():
+        raise ValueError("triple must be a positive Pythagorean triple")
+    if h == 0:
+        return None
+
+    a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+    denominator = c - x_sign * a
+    numerator = (c + y_sign * b) * h - 1
+    if numerator % denominator != 0:
+        return None
+
+    g = numerator // denominator
+    if g == 0:
+        return None
+
+    return theorem3_certificate((g, h), triple, x_sign, y_sign)
+
+
+def theorem3_quadratic_strip_certificate(target: Point, parameter_n: int) -> Certificate | None:
+    """Recognize the first quadratic-strip corollaries of Theorem 3.
+
+    For n >= 1, the consecutive Euclid triples with parameters (n + 1, n)
+    produce certificates for
+
+        (2 h n^2 - 1, h) and (g, 2 g n^2 + 1)
+
+    whenever the fixed coordinate is nonzero.
+    """
+
+    if parameter_n < 1:
+        raise ValueError("parameter_n must be positive")
+
+    g, h = target
+    if g == 0 or h == 0:
+        return None
+
+    n = parameter_n
+    hypotenuse = 2 * n * n + 2 * n + 1
+
+    if g == 2 * h * n * n - 1:
+        return theorem3_certificate(
+            target,
+            PythagoreanTriple(2 * n * (n + 1), 2 * n + 1, hypotenuse),
+            x_sign=1,
+            y_sign=-1,
+        )
+
+    if h == 2 * g * n * n + 1:
+        return theorem3_certificate(
+            target,
+            PythagoreanTriple(2 * n + 1, 2 * n * (n + 1), hypotenuse),
+            x_sign=1,
+            y_sign=-1,
+        )
+
+    return None
+
+
+def theorem3_quadratic_strip_orbit_certificate(
+    target: Point,
+    parameter_n: int,
+) -> Certificate | None:
+    """Symmetric certificate for sign/swap images of the quadratic strips."""
+
+    if parameter_n < 1:
+        raise ValueError("parameter_n must be positive")
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                base = theorem3_quadratic_strip_certificate(candidate_target, parameter_n)
+                if base is None:
+                    continue
+
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
 def theorem3_certificates(
     target: Point,
     triples: Iterable[PythagoreanTriple],
@@ -1453,3 +1929,230 @@ def horizontal_axis_proof_certificate(n: int) -> Certificate | None:
     if odd_record is None:
         return None
     return odd_record.certificate
+
+
+def axis_orbit_proof_certificate(target: Point) -> Certificate | None:
+    """Symmetric axis certificate for horizontal or vertical targets with |n| >= 3."""
+
+    g, h = target
+    if h == 0 and abs(g) >= 3:
+        base = horizontal_axis_proof_certificate(abs(g))
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=((1 if g > 0 else -1) * midpoint_x, midpoint_y),
+        )
+
+    if g == 0 and abs(h) >= 3:
+        base = horizontal_axis_proof_certificate(abs(h))
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(midpoint_y, (1 if h > 0 else -1) * midpoint_x),
+        )
+
+    return None
+
+
+def box_twenty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 20."""
+
+    for base_target, midpoint in BOX_TWENTY_RESIDUAL_CERTIFICATES.items():
+        certificate = sign_swap_certificate(Certificate(base_target, midpoint), target)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def box_twenty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 20.
+
+    One-step targets and known distance-three exceptions intentionally return
+    None; the finite audit handles those cases separately.
+    """
+
+    g, h = target
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+    if max(abs(g), abs(h)) > 20:
+        return None
+
+    for constructor in (
+        axis_orbit_proof_certificate,
+        determinant_seven_lattice_certificate,
+        determinant_thirteen_lattice_certificate,
+        determinant_seventeen_lattice_certificate,
+        small_prime_lattice_certificate,
+        two_one_ray_even_orbit_certificate,
+        two_one_ray_explicit_base_orbit_certificate,
+        box_twenty_residual_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def box_thirty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 30."""
+
+    for base_target, midpoint in BOX_THIRTY_RESIDUAL_CERTIFICATES.items():
+        certificate = sign_swap_certificate(Certificate(base_target, midpoint), target)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def box_thirty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 30.
+
+    One-step targets and known distance-three exceptions intentionally return
+    None; the finite audit handles those cases separately.
+    """
+
+    g, h = target
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+    if max(abs(g), abs(h)) > 30:
+        return None
+
+    for constructor in (
+        axis_orbit_proof_certificate,
+        determinant_seven_lattice_certificate,
+        determinant_thirteen_lattice_certificate,
+        determinant_seventeen_lattice_certificate,
+        small_prime_lattice_certificate,
+        two_one_ray_even_orbit_certificate,
+        two_one_ray_explicit_base_orbit_certificate,
+        box_thirty_residual_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def box_forty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 40."""
+
+    for base_target, midpoint in BOX_FORTY_RESIDUAL_CERTIFICATES.items():
+        certificate = sign_swap_certificate(Certificate(base_target, midpoint), target)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def box_forty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 40.
+
+    One-step targets and known distance-three exceptions intentionally return
+    None; the finite audit handles those cases separately.
+    """
+
+    g, h = target
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+    if max(abs(g), abs(h)) > 40:
+        return None
+
+    for constructor in (
+        axis_orbit_proof_certificate,
+        determinant_seven_lattice_certificate,
+        determinant_thirteen_lattice_certificate,
+        determinant_seventeen_lattice_certificate,
+        small_prime_lattice_certificate,
+        two_one_ray_even_orbit_certificate,
+        two_one_ray_explicit_base_orbit_certificate,
+        box_forty_residual_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def box_fifty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 50."""
+
+    for base_target, midpoint in BOX_FIFTY_RESIDUAL_CERTIFICATES.items():
+        certificate = sign_swap_certificate(Certificate(base_target, midpoint), target)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def box_fifty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 50.
+
+    One-step targets and known distance-three exceptions intentionally return
+    None; the finite audit handles those cases separately.
+    """
+
+    g, h = target
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+    if max(abs(g), abs(h)) > 50:
+        return None
+
+    for constructor in (
+        axis_orbit_proof_certificate,
+        determinant_seven_lattice_certificate,
+        determinant_thirteen_lattice_certificate,
+        determinant_seventeen_lattice_certificate,
+        small_prime_lattice_certificate,
+        two_one_ray_even_orbit_certificate,
+        two_one_ray_explicit_base_orbit_certificate,
+        box_fifty_residual_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def box_sixty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 60."""
+
+    for base_target, midpoint in BOX_SIXTY_RESIDUAL_CERTIFICATES.items():
+        certificate = sign_swap_certificate(Certificate(base_target, midpoint), target)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def box_sixty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 60.
+
+    One-step targets and known distance-three exceptions intentionally return
+    None; the finite audit handles those cases separately.
+    """
+
+    g, h = target
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+    if max(abs(g), abs(h)) > 60:
+        return None
+
+    for constructor in (
+        axis_orbit_proof_certificate,
+        determinant_seven_lattice_certificate,
+        determinant_thirteen_lattice_certificate,
+        determinant_seventeen_lattice_certificate,
+        small_prime_lattice_certificate,
+        two_one_ray_even_orbit_certificate,
+        two_one_ray_explicit_base_orbit_certificate,
+        box_sixty_residual_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    return None

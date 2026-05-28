@@ -4,6 +4,11 @@ import unittest
 
 from experiments.pythagorean_walks import (
     Certificate,
+    BOX_FIFTY_RESIDUAL_CERTIFICATES,
+    BOX_FORTY_RESIDUAL_CERTIFICATES,
+    BOX_SIXTY_RESIDUAL_CERTIFICATES,
+    BOX_THIRTY_RESIDUAL_CERTIFICATES,
+    BOX_TWENTY_RESIDUAL_CERTIFICATES,
     EXPLICIT_TWO_ONE_RAY_BASE_CERTIFICATES,
     EXPLICIT_TWO_ONE_RAY_FINITE_AUDIT_CERTIFICATES,
     KNOWN_DISTANCE_THREE_ORBIT,
@@ -11,9 +16,22 @@ from experiments.pythagorean_walks import (
     PythagoreanTriple,
     SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS,
     affine_consecutive_hypotenuse_certificate,
+    axis_orbit_proof_certificate,
+    box_fifty_audit_certificate,
+    box_fifty_residual_certificate,
+    box_forty_audit_certificate,
+    box_forty_residual_certificate,
+    box_sixty_audit_certificate,
+    box_sixty_residual_certificate,
+    box_thirty_audit_certificate,
+    box_thirty_residual_certificate,
+    box_twenty_audit_certificate,
+    box_twenty_residual_certificate,
     bounded_two_step_search,
     canonical_known_distance_three_representative,
     consecutive_direction_strip_certificate,
+    consecutive_leg_pythagorean_triple,
+    consecutive_leg_swap_lattice_certificate,
     consecutive_parameter_odd_axis_certificate,
     consecutive_hypotenuse_unit_coordinate_certificate,
     diagonal_pythagorean_multiplier_certificate,
@@ -32,11 +50,13 @@ from experiments.pythagorean_walks import (
     gaussian_quotient_if_integer,
     gaussian_transform_certificate,
     half_leg_strip_certificate,
+    half_leg_unit_coordinate_certificate,
     horizontal_axis_certificate_table,
     horizontal_axis_proof_certificate,
     is_prime,
     is_square,
     is_two_step_certificate,
+    integer_slope_consecutive_ray_certificate,
     lattice_coefficients,
     lattice_two_step_certificate,
     missing_residues,
@@ -45,17 +65,24 @@ from experiments.pythagorean_walks import (
     path_is_valid,
     possible_integer_distance_differences,
     pythagorean_leg_completion,
+    pythagorean_triple_orthogonal_lattice_certificate,
     prime_determinant_lattice_certificate,
+    rational_slope_consecutive_ray_certificate,
     residue_witnesses,
     scale_certificate,
     same_projective_class_mod,
     shared_leg_axis_certificate_records,
     shared_leg_axis_certificate_table,
+    sign_swap_certificate,
     sign_swap_orbit,
+    signed_swap_point,
     small_prime_lattice_certificate,
     theorem1_three_step_path,
     theorem3_certificate,
     theorem3_certificates,
+    theorem3_line_certificate,
+    theorem3_quadratic_strip_certificate,
+    theorem3_quadratic_strip_orbit_certificate,
     two_one_ray_consecutive_certificate,
     two_one_ray_consecutive_orbit_certificate,
     two_one_ray_even_certificate,
@@ -185,6 +212,27 @@ class CertificateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             scale_certificate(base, 0)
 
+    def test_sign_swap_certificate_transport(self):
+        base = Certificate(target=(3, 2), midpoint=(24, -18))
+        self.assertTrue(base.valid())
+
+        for swap in (False, True):
+            for x_sign in (-1, 1):
+                for y_sign in (-1, 1):
+                    target = signed_swap_point(base.target, x_sign, y_sign, swap)
+                    transformed = sign_swap_certificate(base, target)
+                    self.assertIsNotNone(transformed)
+                    self.assertEqual(transformed.target, target)
+                    self.assertEqual(
+                        transformed.midpoint,
+                        signed_swap_point(base.midpoint, x_sign, y_sign, swap),
+                    )
+                    self.assertTrue(transformed.valid())
+
+        self.assertIsNone(sign_swap_certificate(base, (5, 5)))
+        with self.assertRaises(ValueError):
+            signed_swap_point((1, 2), 0, 1)
+
     def test_gaussian_transform_preserves_certificates_when_nondegenerate(self):
         base = Certificate(target=(1, 1), midpoint=(4, -3))
         self.assertEqual(gaussian_multiply((1, 1), (5, 12)), (-7, 17))
@@ -287,6 +335,75 @@ class CertificateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             lattice_two_step_certificate((1, 1), (1, 1), (4, 3))
 
+    def test_pythagorean_triple_orthogonal_lattice_family(self):
+        triples = (
+            PythagoreanTriple(3, 4, 5),
+            PythagoreanTriple(5, 12, 13),
+            PythagoreanTriple(8, 15, 17),
+            PythagoreanTriple(7, 24, 25),
+        )
+
+        for triple in triples:
+            leg_a, leg_b = triple.legs
+            rotation = (-leg_b, leg_a)
+            modulus = triple.hypotenuse * triple.hypotenuse
+            self.assertEqual(determinant((leg_a, leg_b), rotation), modulus)
+
+            for r in range(-5, 6):
+                for s in range(-5, 6):
+                    if r == 0 and s == 0:
+                        continue
+
+                    target = (
+                        r * leg_a - s * leg_b,
+                        r * leg_b + s * leg_a,
+                    )
+                    self.assertEqual(
+                        lattice_coefficients(target, (leg_a, leg_b), rotation),
+                        (r, s),
+                    )
+
+                    cert = pythagorean_triple_orthogonal_lattice_certificate(
+                        target,
+                        triple,
+                    )
+                    if r == 0 or s == 0:
+                        self.assertIsNone(cert)
+                        self.assertTrue(edge((0, 0), target))
+                    else:
+                        self.assertIsNotNone(cert)
+                        self.assertEqual(cert.target, target)
+                        self.assertEqual(cert.midpoint, (r * leg_a, r * leg_b))
+                        self.assertTrue(cert.valid())
+
+            for g in range(-70, 71):
+                for h in range(-70, 71):
+                    target = (g, h)
+                    if target == (0, 0):
+                        continue
+
+                    covered = (
+                        (leg_a * g + leg_b * h) % modulus == 0
+                        and (leg_a * h - leg_b * g) % modulus == 0
+                    )
+                    cert = pythagorean_triple_orthogonal_lattice_certificate(
+                        target,
+                        triple,
+                    )
+                    if not covered:
+                        self.assertIsNone(cert)
+                    elif cert is None:
+                        self.assertTrue(edge((0, 0), target))
+                    else:
+                        self.assertEqual(cert.target, target)
+                        self.assertTrue(cert.valid())
+
+        with self.assertRaises(ValueError):
+            pythagorean_triple_orthogonal_lattice_certificate(
+                (1, 1),
+                PythagoreanTriple(1, 1, 2),
+            )
+
     def test_prime_determinant_lattice_line_criterion(self):
         self.assertTrue(is_prime(17))
         self.assertFalse(is_prime(21))
@@ -350,6 +467,54 @@ class CertificateTests(unittest.TestCase):
                     self.assertEqual(cert.target, target)
                     self.assertTrue(cert.valid())
 
+    def test_consecutive_leg_swap_lattice_family(self):
+        expected_triples = [
+            PythagoreanTriple(3, 4, 5),
+            PythagoreanTriple(20, 21, 29),
+            PythagoreanTriple(119, 120, 169),
+            PythagoreanTriple(696, 697, 985),
+            PythagoreanTriple(4059, 4060, 5741),
+        ]
+        for index, expected in enumerate(expected_triples):
+            triple = consecutive_leg_pythagorean_triple(index)
+            self.assertEqual(triple, expected)
+            self.assertTrue(triple.valid())
+            self.assertEqual(triple.leg_b, triple.leg_a + 1)
+            self.assertEqual(
+                (triple.leg_a + triple.leg_b) ** 2
+                - 2 * triple.hypotenuse * triple.hypotenuse,
+                -1,
+            )
+
+        for index in range(4):
+            triple = consecutive_leg_pythagorean_triple(index)
+            modulus = triple.leg_a + triple.leg_b
+            for g in range(-140, 141):
+                for h in range(-140, 141):
+                    target = (g, h)
+                    if target == (0, 0):
+                        continue
+
+                    covered = (g + h) % modulus == 0 or (g - h) % modulus == 0
+                    cert = consecutive_leg_swap_lattice_certificate(target, index)
+                    if not covered:
+                        self.assertIsNone(cert)
+                    elif cert is None:
+                        self.assertTrue(edge((0, 0), target))
+                    else:
+                        self.assertEqual(cert.target, target)
+                        self.assertTrue(cert.valid())
+
+        cert = consecutive_leg_swap_lattice_certificate((240, -1), 2)
+        self.assertIsNotNone(cert)
+        self.assertEqual(cert.target, (240, -1))
+        self.assertTrue(cert.valid())
+
+        with self.assertRaises(ValueError):
+            consecutive_leg_pythagorean_triple(-1)
+        with self.assertRaises(ValueError):
+            consecutive_leg_swap_lattice_certificate((1, 1), -1)
+
     def test_determinant_thirteen_congruence_families(self):
         for g in range(-80, 81):
             for h in range(-80, 81):
@@ -387,11 +552,16 @@ class CertificateTests(unittest.TestCase):
                     self.assertTrue(cert.valid())
 
     def test_additional_small_prime_congruence_families(self):
+        self.assertEqual(len(SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS), 98)
+
         slopes_by_modulus = {}
         for first_direction, second_direction in SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS:
             modulus = abs(determinant(first_direction, second_direction))
             self.assertTrue(is_prime(modulus))
-            self.assertIn(modulus, {23, 31, 37, 41, 43, 47})
+            self.assertIn(
+                modulus,
+                {23, 31, 37, 41, 43, 47, 73, 83, 89, 107, 109, 157, 173, 179, 191, 193},
+            )
 
             first_x, first_y = first_direction
             slope = (first_x * pow(first_y, -1, modulus)) % modulus
@@ -406,6 +576,16 @@ class CertificateTests(unittest.TestCase):
                 41: {1, 40},
                 43: {10, 13, 15, 20, 23, 28, 30, 33},
                 47: {4, 7, 11, 12, 17, 20, 27, 30, 35, 36, 40, 43},
+                73: {13, 17, 28, 30, 43, 45, 56, 60},
+                83: {8, 19, 31, 35, 48, 52, 64, 75},
+                89: {13, 41, 48, 76},
+                107: {22, 34, 73, 85},
+                109: {45, 46, 63, 64},
+                157: {14, 19, 33, 56, 66, 69, 88, 91, 101, 124, 138, 143},
+                173: {18, 34, 48, 56, 117, 125, 139, 155},
+                179: {12, 15, 164, 167},
+                191: {13, 44, 87, 90, 101, 104, 147, 178},
+                193: {86, 92, 101, 107},
             },
         )
 
@@ -433,6 +613,318 @@ class CertificateTests(unittest.TestCase):
                 else:
                     self.assertEqual(cert.target, target)
                     self.assertTrue(cert.valid())
+
+    def test_box_twenty_finite_audit(self):
+        self.assertEqual(
+            set(BOX_TWENTY_RESIDUAL_CERTIFICATES),
+            {
+                (10, 5),
+                (13, 7),
+                (13, 10),
+                (16, 3),
+                (16, 15),
+                (17, 5),
+                (17, 13),
+                (20, 3),
+                (20, 9),
+            },
+        )
+
+        for base_target, midpoint in BOX_TWENTY_RESIDUAL_CERTIFICATES.items():
+            base_certificate = Certificate(target=base_target, midpoint=midpoint)
+            self.assertTrue(base_certificate.valid())
+            for orbit_target in sign_swap_orbit(base_target):
+                certificate = box_twenty_residual_certificate(orbit_target)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, orbit_target)
+                self.assertTrue(certificate.valid())
+
+        for g in range(-20, 21):
+            for h in range(-20, 21):
+                target = (g, h)
+                certificate = box_twenty_audit_certificate(target)
+
+                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+                    self.assertIsNone(certificate)
+                    continue
+
+                if edge((0, 0), target):
+                    if certificate is not None:
+                        self.assertEqual(certificate.target, target)
+                        self.assertTrue(certificate.valid())
+                    continue
+
+                self.assertIsNotNone(certificate, target)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(box_twenty_audit_certificate((21, 1)))
+
+    def test_box_thirty_finite_audit(self):
+        additional_targets = {
+            (22, 11),
+            (23, 3),
+            (23, 11),
+            (25, 1),
+            (25, 14),
+            (26, 7),
+            (26, 14),
+            (26, 20),
+            (26, 21),
+            (26, 25),
+            (28, 3),
+            (28, 17),
+            (28, 27),
+            (29, 2),
+            (30, 13),
+        }
+        self.assertEqual(
+            set(BOX_THIRTY_RESIDUAL_CERTIFICATES),
+            set(BOX_TWENTY_RESIDUAL_CERTIFICATES) | additional_targets,
+        )
+
+        for base_target, midpoint in BOX_THIRTY_RESIDUAL_CERTIFICATES.items():
+            base_certificate = Certificate(target=base_target, midpoint=midpoint)
+            self.assertTrue(base_certificate.valid())
+            for orbit_target in sign_swap_orbit(base_target):
+                certificate = box_thirty_residual_certificate(orbit_target)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, orbit_target)
+                self.assertTrue(certificate.valid())
+
+        for g in range(-30, 31):
+            for h in range(-30, 31):
+                target = (g, h)
+                certificate = box_thirty_audit_certificate(target)
+
+                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+                    self.assertIsNone(certificate)
+                    continue
+
+                if edge((0, 0), target):
+                    if certificate is not None:
+                        self.assertEqual(certificate.target, target)
+                        self.assertTrue(certificate.valid())
+                    continue
+
+                self.assertIsNotNone(certificate, target)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(box_thirty_audit_certificate((31, 1)))
+
+    def test_box_forty_finite_audit(self):
+        additional_targets = {
+            (32, 6),
+            (32, 30),
+            (33, 17),
+            (34, 10),
+            (34, 26),
+            (35, 2),
+            (35, 4),
+            (35, 8),
+            (35, 26),
+            (35, 33),
+            (37, 3),
+            (37, 10),
+            (37, 25),
+            (37, 27),
+            (38, 1),
+            (38, 15),
+            (38, 19),
+            (39, 21),
+            (39, 23),
+            (39, 30),
+            (40, 6),
+            (40, 18),
+        }
+        self.assertEqual(
+            set(BOX_FORTY_RESIDUAL_CERTIFICATES),
+            set(BOX_THIRTY_RESIDUAL_CERTIFICATES) | additional_targets,
+        )
+
+        for base_target, midpoint in BOX_FORTY_RESIDUAL_CERTIFICATES.items():
+            base_certificate = Certificate(target=base_target, midpoint=midpoint)
+            self.assertTrue(base_certificate.valid())
+            for orbit_target in sign_swap_orbit(base_target):
+                certificate = box_forty_residual_certificate(orbit_target)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, orbit_target)
+                self.assertTrue(certificate.valid())
+
+        for g in range(-40, 41):
+            for h in range(-40, 41):
+                target = (g, h)
+                certificate = box_forty_audit_certificate(target)
+
+                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+                    self.assertIsNone(certificate)
+                    continue
+
+                if edge((0, 0), target):
+                    if certificate is not None:
+                        self.assertEqual(certificate.target, target)
+                        self.assertTrue(certificate.valid())
+                    continue
+
+                self.assertIsNotNone(certificate, target)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(box_forty_audit_certificate((41, 1)))
+
+    def test_box_fifty_finite_audit(self):
+        additional_targets = {
+            (41, 9),
+            (41, 12),
+            (41, 14),
+            (43, 7),
+            (43, 9),
+            (43, 30),
+            (44, 17),
+            (44, 27),
+            (44, 29),
+            (44, 31),
+            (45, 29),
+            (46, 6),
+            (46, 22),
+            (46, 29),
+            (47, 8),
+            (47, 10),
+            (47, 13),
+            (47, 21),
+            (47, 22),
+            (47, 25),
+            (47, 29),
+            (47, 42),
+            (47, 43),
+            (48, 9),
+            (48, 37),
+            (48, 45),
+            (49, 2),
+            (49, 5),
+            (49, 29),
+            (49, 36),
+            (49, 45),
+            (50, 2),
+            (50, 17),
+            (50, 23),
+            (50, 25),
+            (50, 28),
+        }
+        self.assertEqual(
+            set(BOX_FIFTY_RESIDUAL_CERTIFICATES),
+            set(BOX_FORTY_RESIDUAL_CERTIFICATES) | additional_targets,
+        )
+
+        for base_target, midpoint in BOX_FIFTY_RESIDUAL_CERTIFICATES.items():
+            base_certificate = Certificate(target=base_target, midpoint=midpoint)
+            self.assertTrue(base_certificate.valid())
+            for orbit_target in sign_swap_orbit(base_target):
+                certificate = box_fifty_residual_certificate(orbit_target)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, orbit_target)
+                self.assertTrue(certificate.valid())
+
+        for g in range(-50, 51):
+            for h in range(-50, 51):
+                target = (g, h)
+                certificate = box_fifty_audit_certificate(target)
+
+                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+                    self.assertIsNone(certificate)
+                    continue
+
+                if edge((0, 0), target):
+                    if certificate is not None:
+                        self.assertEqual(certificate.target, target)
+                        self.assertTrue(certificate.valid())
+                    continue
+
+                self.assertIsNotNone(certificate, target)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(box_fifty_audit_certificate((51, 1)))
+
+    def test_box_sixty_finite_audit(self):
+        additional_targets = {
+            (51, 11),
+            (51, 13),
+            (51, 15),
+            (51, 20),
+            (51, 38),
+            (51, 39),
+            (52, 14),
+            (52, 21),
+            (52, 28),
+            (52, 40),
+            (52, 42),
+            (52, 43),
+            (52, 50),
+            (53, 2),
+            (53, 33),
+            (53, 47),
+            (53, 50),
+            (55, 26),
+            (55, 46),
+            (56, 6),
+            (56, 17),
+            (56, 34),
+            (56, 37),
+            (56, 47),
+            (56, 54),
+            (57, 17),
+            (57, 44),
+            (57, 49),
+            (57, 56),
+            (58, 4),
+            (58, 13),
+            (59, 13),
+            (59, 33),
+            (59, 43),
+            (59, 49),
+            (59, 51),
+            (59, 58),
+            (60, 9),
+            (60, 13),
+            (60, 26),
+            (60, 27),
+        }
+        self.assertEqual(
+            set(BOX_SIXTY_RESIDUAL_CERTIFICATES),
+            set(BOX_FIFTY_RESIDUAL_CERTIFICATES) | additional_targets,
+        )
+
+        for base_target, midpoint in BOX_SIXTY_RESIDUAL_CERTIFICATES.items():
+            base_certificate = Certificate(target=base_target, midpoint=midpoint)
+            self.assertTrue(base_certificate.valid())
+            for orbit_target in sign_swap_orbit(base_target):
+                certificate = box_sixty_residual_certificate(orbit_target)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, orbit_target)
+                self.assertTrue(certificate.valid())
+
+        for g in range(-60, 61):
+            for h in range(-60, 61):
+                target = (g, h)
+                certificate = box_sixty_audit_certificate(target)
+
+                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+                    self.assertIsNone(certificate)
+                    continue
+
+                if edge((0, 0), target):
+                    if certificate is not None:
+                        self.assertEqual(certificate.target, target)
+                        self.assertTrue(certificate.valid())
+                    continue
+
+                self.assertIsNotNone(certificate, target)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(box_sixty_audit_certificate((61, 1)))
 
     def test_euclid_strip_template(self):
         for direction in ((3, 4), (15, 8), (-5, 12), (7, -24)):
@@ -506,6 +998,37 @@ class CertificateTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 half_leg_strip_certificate(bad_direction, 1, 1)
 
+    def test_half_leg_unit_coordinate_family(self):
+        for direction in ((3, 4), (5, 12), (15, 8), (7, 24), (21, 20), (-3, 4), (5, -12)):
+            u, v = direction
+            for t in range(-25, 26):
+                cert = half_leg_unit_coordinate_certificate(direction, t)
+                if t == 0:
+                    self.assertIsNone(cert)
+                    continue
+
+                expected_x = (
+                    t * (u * u - v)
+                    + u * v * (1 + 2 * v - u * u) * t * t // 4
+                )
+                expected = half_leg_strip_certificate(direction, 1, t)
+                self.assertEqual(cert, expected)
+                self.assertIsNotNone(cert)
+                self.assertEqual(cert.target, (expected_x, 1))
+                self.assertTrue(cert.valid())
+
+        for m in range(2, 18):
+            direction = (2 * m - 1, 2 * m * (m - 1))
+            for t in range(-20, 21):
+                self.assertEqual(
+                    half_leg_unit_coordinate_certificate(direction, t),
+                    consecutive_hypotenuse_unit_coordinate_certificate(m, t),
+                )
+
+        for bad_direction in ((8, 15), (6, 8), (1, 1)):
+            with self.assertRaises(ValueError):
+                half_leg_unit_coordinate_certificate(bad_direction, 1)
+
     def test_consecutive_direction_strip_solver(self):
         for odd_leg in range(3, 40, 2):
             even_leg = (odd_leg * odd_leg - 1) // 2
@@ -552,6 +1075,154 @@ class CertificateTests(unittest.TestCase):
         for bad_odd_leg in (1, 2, 4):
             with self.assertRaises(ValueError):
                 consecutive_direction_strip_certificate((5, 1), bad_odd_leg)
+
+    def test_integer_slope_consecutive_ray_family(self):
+        for odd_leg in range(3, 28, 2):
+            even_leg = (odd_leg * odd_leg - 1) // 2
+            modulus = odd_leg * odd_leg + 1
+            for slope in range(-6, 7):
+                for multiplier in range(-90, 91):
+                    cert = integer_slope_consecutive_ray_certificate(
+                        slope,
+                        multiplier,
+                        odd_leg,
+                    )
+
+                    expected = None
+                    if multiplier != 0:
+                        target = (slope * multiplier, multiplier)
+                        for direction_sign in (1, -1):
+                            numerator = (
+                                even_leg * slope
+                                + direction_sign * odd_leg * (multiplier - 1)
+                            )
+                            if numerator % modulus != 0:
+                                continue
+
+                            expected = euclid_strip_certificate(
+                                (direction_sign * odd_leg, even_leg),
+                                multiplier,
+                                numerator // modulus,
+                            )
+                            if expected is not None:
+                                self.assertEqual(expected.target, target)
+                                break
+
+                    self.assertEqual(cert, expected)
+                    if cert is not None:
+                        self.assertTrue(cert.valid())
+
+            for slope in range(-4, 5):
+                for direction_sign in (1, -1):
+                    residue = (
+                        1
+                        + direction_sign * slope * odd_leg * even_leg
+                    ) % modulus
+                    for quotient in range(-6, 7):
+                        multiplier = quotient * modulus + residue
+                        if multiplier == 0:
+                            continue
+
+                        cert = integer_slope_consecutive_ray_certificate(
+                            slope,
+                            multiplier,
+                            odd_leg,
+                        )
+                        raw = euclid_strip_certificate(
+                            (direction_sign * odd_leg, even_leg),
+                            multiplier,
+                            (
+                                even_leg * slope
+                                + direction_sign * odd_leg * (multiplier - 1)
+                            ) // modulus,
+                        )
+                        if raw is not None:
+                            self.assertIsNotNone(cert)
+                            self.assertEqual(cert.target, (slope * multiplier, multiplier))
+                            self.assertTrue(cert.valid())
+
+        for odd_leg in range(3, 30, 2):
+            for multiplier in range(1, 250):
+                self.assertEqual(
+                    integer_slope_consecutive_ray_certificate(2, multiplier, odd_leg),
+                    two_one_ray_consecutive_certificate(multiplier, odd_leg),
+                )
+
+        self.assertIsNone(integer_slope_consecutive_ray_certificate(2, 0, 3))
+        for bad_odd_leg in (1, 2, 4):
+            with self.assertRaises(ValueError):
+                integer_slope_consecutive_ray_certificate(2, 5, bad_odd_leg)
+
+    def test_rational_slope_consecutive_ray_family(self):
+        rays = (
+            (1, 2),
+            (2, 3),
+            (5, 2),
+            (-3, 2),
+            (4, -3),
+            (-5, -2),
+        )
+        for odd_leg in range(3, 22, 2):
+            even_leg = (odd_leg * odd_leg - 1) // 2
+            modulus = odd_leg * odd_leg + 1
+            for ray in rays:
+                ray_x, ray_y = ray
+                for multiplier in range(-45, 46):
+                    cert = rational_slope_consecutive_ray_certificate(
+                        ray,
+                        multiplier,
+                        odd_leg,
+                    )
+
+                    expected = None
+                    if multiplier != 0:
+                        target = (ray_x * multiplier, ray_y * multiplier)
+                        for direction_sign in (1, -1):
+                            numerator = (
+                                even_leg * ray_x
+                                + direction_sign
+                                * odd_leg
+                                * ray_y
+                                * (ray_y * multiplier - 1)
+                            )
+                            denominator = ray_y * modulus
+                            if numerator % denominator != 0:
+                                continue
+
+                            expected = euclid_strip_certificate(
+                                (direction_sign * odd_leg, even_leg),
+                                ray_y * multiplier,
+                                numerator // denominator,
+                            )
+                            if expected is not None:
+                                self.assertEqual(expected.target, target)
+                                break
+
+                    self.assertEqual(cert, expected)
+                    if cert is not None:
+                        self.assertTrue(cert.valid())
+
+        for odd_leg in range(3, 24, 2):
+            for slope in range(-5, 6):
+                for multiplier in range(-60, 61):
+                    self.assertEqual(
+                        rational_slope_consecutive_ray_certificate(
+                            (slope, 1),
+                            multiplier,
+                            odd_leg,
+                        ),
+                        integer_slope_consecutive_ray_certificate(
+                            slope,
+                            multiplier,
+                            odd_leg,
+                        ),
+                    )
+
+        self.assertIsNone(rational_slope_consecutive_ray_certificate((3, 0), 5, 3))
+        self.assertIsNone(rational_slope_consecutive_ray_certificate((3, 2), 0, 3))
+        for bad_odd_leg in (1, 2, 4):
+            with self.assertRaises(ValueError):
+                rational_slope_consecutive_ray_certificate((3, 2), 5, bad_odd_leg)
 
     def test_two_one_ray_consecutive_family(self):
         for odd_leg in range(3, 42, 2):
@@ -890,6 +1561,115 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(cert.midpoint, (40, -75))
         self.assertTrue(cert.valid())
 
+    def test_paper_theorem3_line_constructor(self):
+        triples = (
+            PythagoreanTriple(4, 3, 5),
+            PythagoreanTriple(3, 4, 5),
+            PythagoreanTriple(8, 15, 17),
+            PythagoreanTriple(5, 12, 13),
+        )
+        for triple in triples:
+            a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+            for x_sign in (-1, 1):
+                for y_sign in (-1, 1):
+                    denominator = c - x_sign * a
+                    for h in range(-60, 61):
+                        cert = theorem3_line_certificate(triple, x_sign, y_sign, h)
+                        if h == 0:
+                            self.assertIsNone(cert)
+                            continue
+
+                        numerator = (c + y_sign * b) * h - 1
+                        if numerator % denominator != 0:
+                            self.assertIsNone(cert)
+                            continue
+
+                        g = numerator // denominator
+                        if g == 0:
+                            self.assertIsNone(cert)
+                            continue
+
+                        expected = theorem3_certificate((g, h), triple, x_sign, y_sign)
+                        self.assertEqual(cert, expected)
+                        self.assertIsNotNone(cert)
+                        self.assertEqual(cert.target, (g, h))
+                        self.assertTrue(cert.valid())
+
+        self.assertEqual(
+            theorem3_line_certificate(PythagoreanTriple(4, 3, 5), 1, -1, 2),
+            theorem3_certificate((3, 2), PythagoreanTriple(4, 3, 5), 1, -1),
+        )
+        self.assertIsNone(theorem3_line_certificate(PythagoreanTriple(4, 3, 5), 1, -1, 0))
+        with self.assertRaises(ValueError):
+            theorem3_line_certificate(PythagoreanTriple(1, 1, 2), 1, -1, 1)
+        with self.assertRaises(ValueError):
+            theorem3_line_certificate(PythagoreanTriple(3, 4, 5), 0, -1, 1)
+
+    def test_theorem3_quadratic_strip_family(self):
+        for parameter_n in range(1, 10):
+            hypotenuse = 2 * parameter_n * parameter_n + 2 * parameter_n + 1
+            first_triple = PythagoreanTriple(
+                2 * parameter_n * (parameter_n + 1),
+                2 * parameter_n + 1,
+                hypotenuse,
+            )
+            second_triple = PythagoreanTriple(
+                2 * parameter_n + 1,
+                2 * parameter_n * (parameter_n + 1),
+                hypotenuse,
+            )
+            self.assertTrue(first_triple.valid())
+            self.assertTrue(second_triple.valid())
+
+            for h in range(-20, 21):
+                if h == 0:
+                    continue
+                target = (2 * h * parameter_n * parameter_n - 1, h)
+                cert = theorem3_quadratic_strip_certificate(target, parameter_n)
+                self.assertEqual(
+                    cert,
+                    theorem3_certificate(target, first_triple, 1, -1),
+                )
+                self.assertIsNotNone(cert)
+                self.assertTrue(cert.valid())
+
+                for orbit_target in sign_swap_orbit(target):
+                    orbit_cert = theorem3_quadratic_strip_orbit_certificate(
+                        orbit_target,
+                        parameter_n,
+                    )
+                    self.assertIsNotNone(orbit_cert)
+                    self.assertEqual(orbit_cert.target, orbit_target)
+                    self.assertTrue(orbit_cert.valid())
+
+            for g in range(-20, 21):
+                if g == 0:
+                    continue
+                target = (g, 2 * g * parameter_n * parameter_n + 1)
+                cert = theorem3_quadratic_strip_certificate(target, parameter_n)
+                self.assertEqual(
+                    cert,
+                    theorem3_certificate(target, second_triple, 1, -1),
+                )
+                self.assertIsNotNone(cert)
+                self.assertTrue(cert.valid())
+
+                for orbit_target in sign_swap_orbit(target):
+                    orbit_cert = theorem3_quadratic_strip_orbit_certificate(
+                        orbit_target,
+                        parameter_n,
+                    )
+                    self.assertIsNotNone(orbit_cert)
+                    self.assertEqual(orbit_cert.target, orbit_target)
+                    self.assertTrue(orbit_cert.valid())
+
+        self.assertIsNone(theorem3_quadratic_strip_certificate((2, 1), 1))
+        self.assertIsNone(theorem3_quadratic_strip_orbit_certificate((2, 1), 1))
+        with self.assertRaises(ValueError):
+            theorem3_quadratic_strip_certificate((1, 1), 0)
+        with self.assertRaises(ValueError):
+            theorem3_quadratic_strip_orbit_certificate((1, 1), 0)
+
     def test_paper_theorem3_rejects_non_matching_relations(self):
         triples = [PythagoreanTriple(3, 4, 5), PythagoreanTriple(4, 3, 5)]
         self.assertEqual(theorem3_certificates((2, 1), triples), ())
@@ -997,6 +1777,40 @@ class AxisFamilyTests(unittest.TestCase):
 
         for n in (1, 2):
             self.assertIsNone(horizontal_axis_proof_certificate(n))
+
+    def test_axis_orbit_proof_certificate(self):
+        for n in range(3, 302):
+            base = horizontal_axis_proof_certificate(n)
+            self.assertIsNotNone(base)
+
+            for target in ((n, 0), (-n, 0), (0, n), (0, -n)):
+                cert = axis_orbit_proof_certificate(target)
+                self.assertIsNotNone(cert)
+                self.assertEqual(cert.target, target)
+                self.assertTrue(cert.valid())
+
+            positive_vertical = axis_orbit_proof_certificate((0, n))
+            self.assertEqual(
+                positive_vertical.midpoint,
+                (base.midpoint[1], base.midpoint[0]),
+            )
+
+            negative_horizontal = axis_orbit_proof_certificate((-n, 0))
+            self.assertEqual(
+                negative_horizontal.midpoint,
+                (-base.midpoint[0], base.midpoint[1]),
+            )
+
+        for target in (
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (0, 1),
+            (0, 2),
+            (1, 1),
+            (2, 1),
+        ):
+            self.assertIsNone(axis_orbit_proof_certificate(target))
 
     def test_shared_leg_generator_records_are_valid(self):
         records = shared_leg_axis_certificate_records(m_limit=12, scale_limit=6, n_max=80)
