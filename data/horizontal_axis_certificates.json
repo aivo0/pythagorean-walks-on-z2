@@ -1,0 +1,106 @@
+{
+  "description": "Recorded two-step certificates for horizontal-axis targets. These are executable examples, not proof by themselves.",
+  "target_family": "(n, 0)",
+  "known_horizontal_axis_exceptions": [
+    {
+      "n": 1,
+      "status": "proved distance 3 in the paper"
+    },
+    {
+      "n": 2,
+      "status": "proved distance 3 in the paper"
+    }
+  ],
+  "certificates": [
+    {
+      "n": 3,
+      "midpoint": [-7, 24],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 4,
+      "midpoint": [-5, 12],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 5,
+      "midpoint": [-22, 120],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 6,
+      "midpoint": [3, 4],
+      "source": "midpoint family"
+    },
+    {
+      "n": 7,
+      "midpoint": [-9, 12],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 8,
+      "midpoint": [4, 3],
+      "source": "midpoint family"
+    },
+    {
+      "n": 9,
+      "midpoint": [-6, 8],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 10,
+      "midpoint": [5, 12],
+      "source": "midpoint family"
+    },
+    {
+      "n": 11,
+      "midpoint": [-5, 12],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 12,
+      "midpoint": [6, 8],
+      "source": "midpoint family"
+    },
+    {
+      "n": 13,
+      "midpoint": [-32, 24],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 14,
+      "midpoint": [7, 24],
+      "source": "midpoint family"
+    },
+    {
+      "n": 15,
+      "midpoint": [-90, 56],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 16,
+      "midpoint": [8, 15],
+      "source": "midpoint family"
+    },
+    {
+      "n": 17,
+      "midpoint": [7, 24],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 18,
+      "midpoint": [9, 40],
+      "source": "midpoint family"
+    },
+    {
+      "n": 19,
+      "midpoint": [-16, 12],
+      "source": "bounded direct search"
+    },
+    {
+      "n": 20,
+      "midpoint": [10, 24],
+      "source": "midpoint family"
+    }
+  ]
+}
