@@ -65,8 +65,8 @@ Executable guardrail:
 Observation: both the quadratic family and the bounded shared-leg generator
 hit every odd residue class modulo $24$ within the recorded bounds.
 
-This is explicitly not a proof of the odd case. It rules out a simple
-modulo-$24$ obstruction in the current data.
+This was explicitly not a proof of the odd case. It ruled out a simple
+modulo-$24$ obstruction in the sampled data.
 
 Executable guardrail:
 
@@ -78,3 +78,40 @@ Executable guardrail:
 Artifact:
 
 - `data/shared_leg_residue_coverage.md`
+
+### Promoted: Consecutive-Parameter Formula For Odd Targets
+
+The odd horizontal-axis case is now proved by scaling the Euclid triples with
+parameter pairs $(n+1,n)$ and $(n,n-1)$.
+
+For every odd $n\ge3$, set
+$$
+a=\frac{(n-1)(2n+1)}2,\qquad
+b=\frac{(n+1)(2n-1)}2,\qquad
+y=n(n^2-1).
+$$
+Then $b-a=n$, and the scaled Euclid identities give a shared-leg certificate
+$$
+(0,0)\to(-a,y)\to(n,0).
+$$
+
+Executable guardrail:
+
+- `consecutive_parameter_odd_axis_certificate`
+- `test_consecutive_parameter_formula_covers_odd_axis_points`
+
+### Promoted: Full Horizontal-Axis Case Split
+
+The final proof now covers:
+
+- $n=3$ by the odd formula;
+- $n=4$ by the explicit certificate $(-5,12)$;
+- even $n\ge6$ by the midpoint lemma;
+- odd $n\ge5$ by the odd formula.
+
+Executable guardrail:
+
+- `explicit_axis_certificate`
+- `horizontal_axis_proof_certificate`
+- `test_explicit_axis_certificate_covers_four`
+- `test_horizontal_axis_proof_certificate_case_split`

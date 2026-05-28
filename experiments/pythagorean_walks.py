@@ -147,6 +147,14 @@ def midpoint_axis_certificate(n: int) -> Certificate | None:
     return Certificate(target=(n, 0), midpoint=(half, partner_leg))
 
 
+def explicit_axis_certificate(n: int) -> Certificate | None:
+    """Recorded exceptional certificates not covered by the even midpoint rule."""
+
+    if n == 4:
+        return Certificate(target=(4, 0), midpoint=(-5, 12))
+    return None
+
+
 @dataclass(frozen=True, order=True)
 class PythagoreanTriple:
     leg_a: int
@@ -371,3 +379,54 @@ def euclid_parameter_difference_certificate(m: int, t: int) -> SharedLegAxisCert
         second_hypotenuse=second_hypotenuse,
         relation="difference",
     )
+
+
+def consecutive_parameter_odd_axis_certificate(n: int) -> SharedLegAxisCertificate | None:
+    """Certificate for every odd horizontal target n >= 3.
+
+    The construction scales the Euclid triples with parameter pairs (n + 1, n)
+    and (n, n - 1).  The scale factors (n - 1) / 2 and (n + 1) / 2 make their
+    even legs equal to n(n^2 - 1), while their odd legs differ by n.
+    """
+
+    if n < 3 or n % 2 == 0:
+        return None
+
+    first_scale = (n - 1) // 2
+    second_scale = (n + 1) // 2
+
+    shared_leg = n * (n * n - 1)
+    first_horizontal_leg = first_scale * (2 * n + 1)
+    second_horizontal_leg = second_scale * (2 * n - 1)
+    first_hypotenuse = first_scale * (2 * n * n + 2 * n + 1)
+    second_hypotenuse = second_scale * (2 * n * n - 2 * n + 1)
+
+    return SharedLegAxisCertificate(
+        target_n=second_horizontal_leg - first_horizontal_leg,
+        midpoint=(-first_horizontal_leg, shared_leg),
+        shared_leg=shared_leg,
+        first_horizontal_leg=first_horizontal_leg,
+        second_horizontal_leg=second_horizontal_leg,
+        first_hypotenuse=first_hypotenuse,
+        second_hypotenuse=second_hypotenuse,
+        relation="difference",
+    )
+
+
+def horizontal_axis_proof_certificate(n: int) -> Certificate | None:
+    """Certificate supplied by the written proof for every horizontal n >= 3."""
+
+    if n < 3:
+        return None
+
+    explicit = explicit_axis_certificate(n)
+    if explicit is not None:
+        return explicit
+
+    if n % 2 == 0:
+        return midpoint_axis_certificate(n)
+
+    odd_record = consecutive_parameter_odd_axis_certificate(n)
+    if odd_record is None:
+        return None
+    return odd_record.certificate

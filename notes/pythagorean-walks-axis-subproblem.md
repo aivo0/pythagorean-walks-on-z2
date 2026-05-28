@@ -3,18 +3,18 @@
 Date: 2026-05-28  
 Paper: Jan Willemson, "Pythagorean walks on $\mathbb{Z}^2$", arXiv:2605.20831v1.
 
-## Selected Open Aspect
+## Horizontal-Axis Target
 
 The paper's central open conjecture says that the only vertices at graph distance $3$ from $O=(0,0)$ are $(1,0)$, $(2,0)$, $(2,1)$ and their symmetric counterparts.
 
-I will focus first on the horizontal-axis slice:
+This note proves the horizontal-axis slice:
 
 **Target statement.** For every integer $n \ge 3$,
 $$
 d((0,0),(n,0)) \le 2.
 $$
 
-This is a strict subproblem of the conjecture. It is worth isolating because Theorem 3 in the paper assumes $g,h \ne 0$, so it does not directly cover targets with $h=0$. The paper proves that $(1,0)$ and $(2,0)$ have distance $3$; the conjecture predicts that every later axis point has distance $2$.
+This is a strict subproblem of the conjecture. It is worth isolating because Theorem 3 in the paper assumes $g,h \ne 0$, so it does not directly cover targets with $h=0$. The paper proves that $(1,0)$ and $(2,0)$ have distance $3$; the result below proves that every later horizontal-axis point has a two-step path from the origin.
 
 ## Two-Step Certificate
 
@@ -83,6 +83,7 @@ Observations:
 - The midpoint construction works whenever $n/2$ is a leg of a Pythagorean triangle: choose $x=n/2$ and a nonzero $y$ with $(n/2)^2+y^2$ square.
 - In fact this covers every even $n\ge 6$. The earlier note that it did not cover all even $n$ was false: the certificate found first by a bounded search need not be the midpoint certificate.
 - Several odd $n$ have certificates with $x<0$, so allowing the intermediate point to lie outside the segment from $(0,0)$ to $(n,0)$ seems essential.
+- The odd case is now resolved by the consecutive-parameter Euclid construction below. The small certificates in the table are retained as executable examples; they are not always the certificates produced by the final formula.
 
 ## Lemma: Even Horizontal Targets
 
@@ -115,6 +116,76 @@ $$
 $$
 The paper proves $n=2$ is a genuine distance-$3$ exception.
 
+## Lemma: Odd Horizontal Targets
+
+For every odd integer $n\ge3$, there is a two-step path from $(0,0)$ to $(n,0)$.
+
+Let
+$$
+\alpha=\frac{n-1}{2},\qquad \beta=\frac{n+1}{2}.
+$$
+These are positive integers. Use Euclid's formula with consecutive parameter pairs $(n+1,n)$ and $(n,n-1)$:
+$$
+(2n+1)^2+\bigl(2n(n+1)\bigr)^2=(2n^2+2n+1)^2,
+$$
+and
+$$
+(2n-1)^2+\bigl(2n(n-1)\bigr)^2=(2n^2-2n+1)^2.
+$$
+Scale the first triple by $\alpha$ and the second by $\beta$. Their even legs become equal because
+$$
+\alpha\,2n(n+1)=\beta\,2n(n-1)=n(n^2-1).
+$$
+Set
+$$
+\begin{aligned}
+a&=\alpha(2n+1),&
+b&=\beta(2n-1),&
+y&=n(n^2-1),\\
+c&=\alpha(2n^2+2n+1),&
+d&=\beta(2n^2-2n+1).
+\end{aligned}
+$$
+Then the scaled triples give
+$$
+a^2+y^2=c^2,\qquad b^2+y^2=d^2.
+$$
+Their horizontal legs differ by exactly $n$:
+$$
+b-a
+=\frac{(n+1)(2n-1)-(n-1)(2n+1)}{2}
+=n.
+$$
+Therefore $P=(-a,y)$ certifies the target $(n,0)$, since the first horizontal displacement has length $a$ and the second has length $n+a=b$:
+$$
+(0,0)\to(-a,y)\to(n,0).
+$$
+The edge restrictions hold because $a>0$, $b>0$, and $y=n(n^2-1)>0$, so $x=-a$ is neither $0$ nor $n$ and the vertical displacement is nonzero.
+
+For example, $n=3$ gives $a=7$, $b=10$, and $y=24$, hence the recorded certificate
+$$
+(0,0)\to(-7,24)\to(3,0).
+$$
+
+## Theorem: Horizontal-Axis Statement
+
+For every integer $n\ge3$,
+$$
+d((0,0),(n,0))\le2.
+$$
+
+Proof. Split into the required cases.
+
+- If $n=3$, the odd-target lemma gives the explicit certificate $(-7,24)$.
+- If $n=4$, the explicit certificate $(-5,12)$ works because
+  $$
+  (-5)^2+12^2=13^2,\qquad (4-(-5))^2+12^2=15^2.
+  $$
+- If $n\ge6$ is even, the midpoint lemma applies.
+- If $n\ge5$ is odd, the odd-target lemma applies.
+
+In every case the displayed intermediate point has nonzero vertical displacement and both horizontal displacements are nonzero, so it is a legal two-step path in the Pythagorean-walk graph. This proves the target statement.
+
 ## Shared-Leg Generator For Axis Certificates
 
 A two-step certificate for $(n,0)$ is equivalent to two Pythagorean triples sharing the vertical leg $|y|$. If
@@ -137,7 +208,7 @@ Current bounded audit:
 - targets $3\le n\le200$;
 - every odd $n$ in that range has at least one generated shared-leg certificate.
 
-This is not a proof of the odd case. It is useful evidence and, more importantly, a reproducible certificate source for testing proposed residue-class lemmas.
+This bounded audit was not a proof of the odd case. It remains useful evidence and, more importantly, a reproducible certificate source for testing proposed residue-class lemmas.
 
 ## Lemma: A Quadratic Shared-Leg Family
 
@@ -192,12 +263,10 @@ Two sources were checked:
 
 Both sources contain witnesses for every odd residue class modulo $24$.
 
-This does not prove the odd case. It is a useful negative result for proof
-search: there is no simple obstruction among the odd residue classes modulo
-$24$ in the current data. The next step should be stronger than residue
-sampling, for example a construction that covers every odd multiple of a
-specified base family, or a parametrized family whose image can be matched to
-an infinite arithmetic or divisibility class.
+This did not prove the odd case and is not used in the final theorem. It remains
+as a proof-search artifact: there was no simple obstruction among the odd
+residue classes modulo $24$ in the sampled data. The odd case is instead proved
+by the consecutive-parameter Euclid construction above.
 
 ## Possible Source Typo To Track
 
@@ -211,83 +280,12 @@ $$
 $$
 I left the paper transcription faithful to the source and record the issue here.
 
-## Attack Plan
-
-1. Formalize the subproblem and keep it executable.
-
-Prove the certificate criterion above as a lemma, including all non-horizontal and non-vertical edge restrictions. This becomes the target interface for every later construction.
-
-At the same time, maintain a verification suite in `tests/` and reusable predicates in `experiments/`. The suite should be treated as part of the research log, not as an afterthought: every new lemma, conjectural family, and counterexample should get an executable check.
-
-Current command:
-
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-2. Build a certificate generator from paired Pythagorean triples.
-
-Use Euclid's formula
-$$
-(A,B,C)=d(m^2-k^2,2mk,m^2+k^2)
-$$
-with scaling, and force two triples to share one leg:
-$$
-y=B_1=B_2,\qquad n=|A_1-A_2|.
-$$
-Track the alternative cases where the shared leg is the odd leg in one triple and the even leg in the other.
-
-3. Split by easy infinite families.
-
-Start with classes where an explicit formula is visible:
-
-- $n=2a$ with $a\ge3$, via midpoint certificates. This proves all even $n\ge6$.
-- $n$ equal to the difference of two legs in triples sharing a common leg.
-- $n$ equal to the sum of two such legs, corresponding to certificates with $x<0$.
-
-Each family should produce a lemma with a certificate formula and a checklist for excluded small cases.
-
-4. Turn the remaining cases into modular coverage.
-
-For a chosen family of shared-leg triples, compute the set of residues of $n$ covered modulo a natural modulus $M$. Increase the family until either all residues except $1,2$ are covered or the missing residues show a real obstruction.
-
-5. If modular coverage stalls, switch to the factor equation.
-
-Use
-$$
-x=\frac{rs+n^2}{2n},\qquad y^2=\left(\frac{s+r}{2}\right)^2-x^2
-$$
-and search for structured choices of $r,s$ as functions of $n$ that make $y^2$ square. This is likely to expose Pell-type or elliptic-curve structure.
-
-6. Maintain proof and computation in lockstep.
-
-For every proposed construction:
-
-- record the formula for $(x,y,u,v)$;
-- verify algebraically that $u^2=x^2+y^2$ and $v^2=(x-n)^2+y^2$;
-- record edge exclusions;
-- run a bounded search for counterexamples in the claimed residue class;
-- only then promote the construction to a lemma.
-
-7. Expand the verification suite whenever confusion appears.
-
-The author reports that previous AI attempts got lost in unproductive lines of reasoning. The guardrail here is to make mistaken hypotheses cheap to falsify. When a new idea is proposed, add tests in one of these categories:
-
-- **Predicate tests:** validate low-level graph definitions, especially the no-horizontal/no-vertical edge rule.
-- **Certificate tests:** verify explicit paths from the paper and from our constructions.
-- **Negative bounded searches:** for claimed obstructions, search a large box and fail if a certificate is found. These are not proofs, but they catch many unreasonable obstruction hypotheses early.
-- **Formula tests:** for any parametrized family, test many parameter values and assert that every produced midpoint is a valid two-step certificate.
-- **Regression tests:** when a hypothesis fails, keep the counterexample as a test so the same mistake is not reintroduced under a different name.
-- **Coverage tests:** for a stated finite range or residue class, assert that the generator covers exactly what the note says it covers.
-
-The suite should never be allowed to blur the line between a bounded search and a proof. Bounded tests can disprove universal claims and increase confidence in constructions; exact algebraic lemmas remain necessary for proof.
-
 ## Verification Suite Status
 
-Initial files:
+The executable workspace mirrors the final proof and the proof-search artifacts:
 
-- `experiments/pythagorean_walks.py`: square tests, edge predicates, path validation, two-step certificate validation, and bounded certificate search.
-- `tests/test_pythagorean_walks.py`: checks paper examples, graph edge restrictions, the known three-step path to $(1,0)$, the horizontal-axis certificates for $3\le n\le20$, and bounded negative checks for $(1,0),(2,0),(2,1)$.
+- `experiments/pythagorean_walks.py`: square tests, edge predicates, path validation, two-step certificate validation, bounded certificate search, formula constructors, and `horizontal_axis_proof_certificate`, which encodes the final case split.
+- `tests/test_pythagorean_walks.py`: checks paper examples, graph edge restrictions, the known three-step path to $(1,0)$, the horizontal-axis certificates for $3\le n\le20$, formula families, the final theorem case split, and bounded negative checks for $(1,0),(2,0),(2,1)$.
 - `data/horizontal_axis_certificates.json`: reusable recorded certificates and known horizontal-axis exceptions.
 - `data/shared_leg_residue_coverage.md`: residue witness audit for the symbolic family and bounded shared-leg generator.
 - `notes/verification-changelog.md`: audit trail for corrected hypotheses, new guardrails, and the tests that enforce them.
@@ -295,13 +293,16 @@ Initial files:
 Current passing result:
 
 ```text
-Ran 16 tests in 0.861s
+Ran 19 tests
 OK
 ```
 
 Current executable additions:
 
 - Parametrized tests check the implemented midpoint formula for every even $n$ from $6$ through $400$.
+- The explicit $n=4$ certificate is exposed as `explicit_axis_certificate` and tested directly.
+- The consecutive-parameter odd formula is tested for every odd $n$ from $3$ through $401$.
+- `horizontal_axis_proof_certificate` is tested for every integer $3\le n\le501$.
 - Shared-leg generator tests validate every produced certificate for a small parameter box.
 - A bounded audit test records that the shared-leg generator covers every odd $n$ through $200$ with $m\le30$ and $d\le10$.
 - The quadratic shared-leg family $n=t(m^2+mt+1)$ is tested for $2\le m<50$ and $1\le t<20$.
@@ -309,14 +310,6 @@ Current executable additions:
 - Bounded search results now label missing certificates as `not_found_within_bound`, not as impossibility proofs.
 - Certificate examples for $3\le n\le20$ are stored in JSON and validated by the test suite.
 
-Immediate improvements needed:
-
-- Convert the residue audit into stronger infinite-family coverage; residue witnesses alone do not prove any full congruence class.
-- Keep extending `notes/verification-changelog.md` when a hypothesis fails or graduates into a tested lemma.
-
-## Next Notes To Add
-
-- A small script or table that groups certificates by shared-leg pattern.
-- A divisibility or parametrized-family coverage table that goes beyond residues.
-- A proof attempt for the midpoint family and for one non-midpoint family, likely covering $n\equiv 3,4,5 \pmod 8$ or a similar coarse split.
-- Changelog entries for each failed idea or promoted lemma.
+The suite should never be read as a substitute for the algebraic proof above.
+Its role is to verify the implemented formulas and prevent previous false
+proof-search claims from being reintroduced.

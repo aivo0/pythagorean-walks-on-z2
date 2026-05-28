@@ -6,10 +6,13 @@ from experiments.pythagorean_walks import (
     Certificate,
     KNOWN_DISTANCE_THREE_REPRESENTATIVES,
     bounded_two_step_search,
+    consecutive_parameter_odd_axis_certificate,
     edge,
     euclid_parameter_difference_certificate,
+    explicit_axis_certificate,
     find_two_step_certificate,
     horizontal_axis_certificate_table,
+    horizontal_axis_proof_certificate,
     is_square,
     is_two_step_certificate,
     missing_residues,
@@ -112,6 +115,53 @@ class AxisFamilyTests(unittest.TestCase):
 
         for n in (3, 4, 5):
             self.assertIsNone(midpoint_axis_certificate(n))
+
+    def test_explicit_axis_certificate_covers_four(self):
+        cert = explicit_axis_certificate(4)
+        self.assertIsNotNone(cert)
+        self.assertEqual(cert.target, (4, 0))
+        self.assertEqual(cert.midpoint, (-5, 12))
+        self.assertTrue(cert.valid())
+
+        for n in (1, 2, 3, 5, 6):
+            self.assertIsNone(explicit_axis_certificate(n))
+
+    def test_consecutive_parameter_formula_covers_odd_axis_points(self):
+        for n in range(3, 402, 2):
+            record = consecutive_parameter_odd_axis_certificate(n)
+            self.assertIsNotNone(record)
+
+            first_horizontal = (n - 1) * (2 * n + 1) // 2
+            second_horizontal = (n + 1) * (2 * n - 1) // 2
+            shared_leg = n * (n * n - 1)
+
+            self.assertEqual(record.target_n, n)
+            self.assertEqual(record.midpoint, (-first_horizontal, shared_leg))
+            self.assertEqual(record.first_horizontal_leg, first_horizontal)
+            self.assertEqual(record.second_horizontal_leg, second_horizontal)
+            self.assertEqual(
+                record.first_hypotenuse,
+                (n - 1) * (2 * n * n + 2 * n + 1) // 2,
+            )
+            self.assertEqual(
+                record.second_hypotenuse,
+                (n + 1) * (2 * n * n - 2 * n + 1) // 2,
+            )
+            self.assertEqual(second_horizontal - first_horizontal, n)
+            self.assertTrue(record.valid())
+
+        for n in (1, 2, 4, 6):
+            self.assertIsNone(consecutive_parameter_odd_axis_certificate(n))
+
+    def test_horizontal_axis_proof_certificate_case_split(self):
+        for n in range(3, 502):
+            cert = horizontal_axis_proof_certificate(n)
+            self.assertIsNotNone(cert)
+            self.assertEqual(cert.target, (n, 0))
+            self.assertTrue(cert.valid())
+
+        for n in (1, 2):
+            self.assertIsNone(horizontal_axis_proof_certificate(n))
 
     def test_shared_leg_generator_records_are_valid(self):
         records = shared_leg_axis_certificate_records(m_limit=12, scale_limit=6, n_max=80)
