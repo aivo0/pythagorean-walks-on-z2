@@ -7,10 +7,10 @@ Willemson's paper `Pythagorean walks on Z^2`
 The graph has an edge for a displacement $(dx,dy)$ exactly when both coordinate
 changes are nonzero and $dx^2+dy^2$ is a square.
 
-The paper proves that the graph has diameter $3$, proves the known
-distance-$3$ representatives $(1,0)$, $(2,0)$, and $(2,1)$, gives one infinite
+The paper proves that the graph has diameter 3, proves the known
+distance 3 representatives $(1,0)$, $(2,0)$, and $(2,1)$, gives one infinite
 family of two-step certificates, and conjectures that these representatives and
-their sign/swap images are the only distance-$3$ vertices.
+their sign/swap images are the only distance 3 vertices.
 
 ## ELI5 Visualization
 
@@ -18,7 +18,7 @@ their sign/swap images are the only distance-$3$ vertices.
 
 The animation shows the core idea: dots are lattice points, allowed jumps are
 non-horizontal/non-vertical Pythagorean jumps, some nearby points still need
-detours, and the known distance-$3$ candidates are tiny points near the origin.
+detours, and the known distance 3 candidates are tiny points near the origin.
 
 ## Status
 
@@ -32,7 +32,7 @@ original paper:
   $d((0,0),(n,0))\le2$.
 - By sign changes and coordinate swap, every axis target is now classified:
   only $(\pm1,0)$, $(\pm2,0)$, $(0,\pm1)$, and $(0,\pm2)$ remain in the known
-  distance-$3$ orbit.
+  distance 3 orbit.
 - The paper's diameter-three spanning construction is executable for every
   target, and the paper's obstruction arguments for $(1,0)$, $(2,0)$, and
   $(2,1)$ are tracked as symbolic guardrails.
@@ -95,7 +95,7 @@ algebraic certificate constructors, not bounded searches:
 
 ## Exceptional Ray Progress
 
-The primitive target $(2,1)$ remains a known distance-$3$ obstruction, but many
+The primitive target $(2,1)$ remains a known distance 3 obstruction, but many
 nontrivial multiples on its ray are now proved to have distance at most $2$:
 
 - All even positive multipliers.
