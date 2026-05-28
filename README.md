@@ -12,6 +12,14 @@ distance-$3$ representatives $(1,0)$, $(2,0)$, and $(2,1)$, gives one infinite
 family of two-step certificates, and conjectures that these representatives and
 their sign/swap images are the only distance-$3$ vertices.
 
+## ELI5 Visualization
+
+![ELI5 animation of Pythagorean walks](assets/pythagorean-walks-eli5.gif)
+
+The animation shows the core idea: dots are lattice points, allowed jumps are
+non-horizontal/non-vertical Pythagorean jumps, some nearby points still need
+detours, and the known distance-$3$ candidates are tiny points near the origin.
+
 ## Status
 
 The full conjecture is still open in this workspace: the project has not proved
@@ -138,9 +146,15 @@ ranges.
   Reusable predicates, certificate validators, bounded searches, and
   parametrized certificate generators.
 
+- `experiments/render_eli5_gif.py`
+  Reproducible renderer for the README animation.
+
 - `tests/test_pythagorean_walks.py`  
   Verification suite for graph predicates, paper examples, known exceptions,
   explicit certificates, formula families, and bounded coverage audits.
+
+- `assets/pythagorean-walks-eli5.gif`
+  ELI5 animation for the problem statement.
 
 - `data/horizontal_axis_certificates.json`  
   Reusable two-step certificates for $3\le n\le20$ and known horizontal-axis
