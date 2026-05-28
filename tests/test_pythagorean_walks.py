@@ -160,6 +160,7 @@ from experiments.pythagorean_walks import (
     has_divisor_three_or_seven_mod_ten,
     has_two_one_ray_mod_130_divisor,
     has_two_one_ray_mod_2210_divisor,
+    has_two_one_ray_mod_64090_divisor,
     horizontal_axis_certificate_table,
     horizontal_axis_proof_certificate,
     is_prime,
@@ -222,6 +223,8 @@ from experiments.pythagorean_walks import (
     theorem3_ray_pell_divisor_certificate,
     two_one_ray_consecutive_certificate,
     two_one_ray_consecutive_orbit_certificate,
+    two_one_ray_divisor_lift_certificate,
+    two_one_ray_divisor_lift_orbit_certificate,
     two_one_ray_even_certificate,
     two_one_ray_even_orbit_certificate,
     two_one_ray_explicit_base_certificate,
@@ -237,6 +240,7 @@ from experiments.pythagorean_walks import (
     two_one_ray_mod260_skeleton_orbit_certificate,
     two_one_ray_mod260_skeleton_residues,
     two_one_ray_mod_2210_divisor_residues,
+    two_one_ray_mod_64090_divisor_residues,
     two_one_ray_complement_divisor_certificate,
     two_one_ray_complement_divisor_period,
     two_one_ray_complement_divisor_residues,
@@ -247,8 +251,11 @@ from experiments.pythagorean_walks import (
     two_one_ray_mod_ten_divisor_orbit_certificate,
     two_one_ray_mod_thirty_four_divisor_certificate,
     two_one_ray_mod_thirty_four_divisor_orbit_certificate,
+    two_one_ray_mod_fifty_eight_divisor_certificate,
+    two_one_ray_mod_fifty_eight_divisor_orbit_certificate,
     two_one_ray_mod_twenty_six_divisor_certificate,
     two_one_ray_mod_twenty_six_divisor_orbit_certificate,
+    two_one_ray_seed_certificate,
     two_one_ray_three_mod_four_certificate,
     two_one_ray_three_mod_four_orbit_certificate,
     unit_coordinate_500_audit_certificate,
@@ -4623,6 +4630,82 @@ class CertificateTests(unittest.TestCase):
                 two_one_ray_mod_thirty_four_divisor_orbit_certificate(target)
             )
 
+    def test_two_one_ray_mod_fifty_eight_divisor_family(self):
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-21, -20)),
+            tuple(range(7, 1682, 58)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-21, 20)),
+            tuple(range(25, 1682, 58)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((21, -20)),
+            tuple(range(33, 1682, 58)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((21, 20)),
+            tuple(range(51, 1682, 58)),
+        )
+
+        self.assertEqual(
+            two_one_ray_complement_divisor_period((-21, -20)),
+            (58, (7,)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_sieve_residue_classes(
+                ((-21, -20), (-21, 20), (21, -20), (21, 20))
+            ),
+            (58, (7, 25, 33, 51)),
+        )
+
+        examples = (
+            (7, (-210, -200)),
+            (25, (-29022, 27640)),
+            (33, (50610, -48200)),
+            (51, (11802, 11240)),
+        )
+        for multiplier, midpoint in examples:
+            cert = two_one_ray_mod_fifty_eight_divisor_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+
+        for multiplier in range(1, 800):
+            has_mod_fifty_eight_divisor = any(
+                divisor % 58 in (7, 25, 33, 51)
+                for divisor in positive_divisors(multiplier)
+            )
+            cert = two_one_ray_mod_fifty_eight_divisor_certificate(multiplier)
+            if not has_mod_fifty_eight_divisor:
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = two_one_ray_mod_fifty_eight_divisor_orbit_certificate(
+                    target
+                )
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (22, 11), (158, 79), (0, 7), (14, 0)):
+            self.assertIsNone(
+                two_one_ray_mod_fifty_eight_divisor_orbit_certificate(target)
+            )
+
     def test_complement_divisor_sieve_residue_compression(self):
         self.assertEqual(
             minimal_periodic_residue_classes(12, (1, 5, 7, 11)),
@@ -4650,22 +4733,28 @@ class CertificateTests(unittest.TestCase):
             (15, 8),
             (-15, -8),
             (-15, 8),
+            (-21, -20),
+            (-21, 20),
+            (21, -20),
+            (21, 20),
         )
         modulus, residues = two_one_ray_complement_divisor_sieve_residue_classes(
             directions
         )
         expected_residues = tuple(
             residue
-            for residue in range(2210)
+            for residue in range(64090)
             if (
                 residue % 10 in (3, 7)
                 or residue % 26 in (3, 7, 19, 23)
                 or residue % 34 in (7, 13, 21, 27)
+                or residue % 58 in (7, 25, 33, 51)
             )
         )
-        self.assertEqual(modulus, 2210)
+        self.assertEqual(modulus, 64090)
         self.assertEqual(residues, expected_residues)
-        self.assertEqual(two_one_ray_mod_2210_divisor_residues(), expected_residues)
+        self.assertEqual(two_one_ray_mod_64090_divisor_residues(), expected_residues)
+        self.assertEqual(len(two_one_ray_mod_64090_divisor_residues()), 23270)
         self.assertEqual(len(two_one_ray_mod_2210_divisor_residues()), 754)
 
         for n in range(1, 2000):
@@ -4673,9 +4762,21 @@ class CertificateTests(unittest.TestCase):
                 divisor % 10 in (3, 7)
                 or divisor % 26 in (3, 7, 19, 23)
                 or divisor % 34 in (7, 13, 21, 27)
+                or divisor % 58 in (7, 25, 33, 51)
                 for divisor in positive_divisors(n)
             )
-            self.assertEqual(has_two_one_ray_mod_2210_divisor(n), expected, n)
+            previous_expected = any(
+                divisor % 10 in (3, 7)
+                or divisor % 26 in (3, 7, 19, 23)
+                or divisor % 34 in (7, 13, 21, 27)
+                for divisor in positive_divisors(n)
+            )
+            self.assertEqual(
+                has_two_one_ray_mod_2210_divisor(n),
+                previous_expected,
+                n,
+            )
+            self.assertEqual(has_two_one_ray_mod_64090_divisor(n), expected, n)
             self.assertEqual(
                 has_divisor_in_residue_classes(n, modulus, residues),
                 expected,
@@ -4687,6 +4788,79 @@ class CertificateTests(unittest.TestCase):
                 expected,
                 n,
             )
+
+    def test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes(self):
+        self.assertIsNone(two_one_ray_seed_certificate(1529))
+        self.assertEqual(
+            two_one_ray_divisor_lift_certificate(1529),
+            scale_certificate(two_one_ray_divisor_lift_certificate(11), 139),
+        )
+        examples = (
+            (121, (290, 696)),
+            (869, (-11210, 26904)),
+            (961, (42904722, -40861640)),
+            (1529, (1390, -3336)),
+            (1889, (54010, 129624)),
+        )
+        for multiplier, midpoint in examples:
+            cert = two_one_ray_divisor_lift_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = two_one_ray_divisor_lift_orbit_certificate(target)
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        residual_primes = (
+            229,
+            269,
+            281,
+            389,
+            509,
+            521,
+            541,
+            821,
+            941,
+            1009,
+            1049,
+            1201,
+            1249,
+            1289,
+            1321,
+            1361,
+            1409,
+            1429,
+            1481,
+            1549,
+            1601,
+            1621,
+            1669,
+            1861,
+            1949,
+        )
+        self.assertEqual(
+            tuple(
+                multiplier
+                for multiplier in range(2, 2000)
+                if two_one_ray_divisor_lift_certificate(multiplier) is None
+            ),
+            residual_primes,
+        )
+        self.assertTrue(all(is_prime(multiplier) for multiplier in residual_primes))
+
+        for target in ((2, 1), (458, 229), (0, 121), (242, 0)):
+            self.assertIsNone(two_one_ray_divisor_lift_orbit_certificate(target))
 
     def test_mod_ten_divisor_residual_prime_factor_reduction(self):
         self.assertEqual(prime_factors(1), ())
@@ -4928,6 +5102,8 @@ class CertificateTests(unittest.TestCase):
                 two_one_ray_mod_ten_divisor_certificate,
                 two_one_ray_mod_twenty_six_divisor_certificate,
                 two_one_ray_mod_thirty_four_divisor_certificate,
+                two_one_ray_mod_fifty_eight_divisor_certificate,
+                two_one_ray_divisor_lift_certificate,
                 two_one_ray_explicit_base_certificate,
                 two_one_ray_finite_audit_certificate,
             ):

@@ -6801,6 +6801,20 @@ TWO_ONE_RAY_MOD_THIRTY_FOUR_DIRECTIONS: tuple[Point, ...] = (
     (-15, 8),
 )
 
+TWO_ONE_RAY_MOD_FIFTY_EIGHT_DIRECTIONS: tuple[Point, ...] = (
+    (-21, -20),
+    (-21, 20),
+    (21, -20),
+    (21, 20),
+)
+
+TWO_ONE_RAY_MOD_SEVENTY_FOUR_DIRECTIONS: tuple[Point, ...] = (
+    (-35, 12),
+    (-35, -12),
+    (35, 12),
+    (35, -12),
+)
+
 
 def two_one_ray_mod_twenty_six_divisor_certificate(
     multiplier: int,
@@ -6906,6 +6920,106 @@ def two_one_ray_mod_thirty_four_divisor_orbit_certificate(
     return None
 
 
+def two_one_ray_mod_fifty_eight_divisor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from a divisor ``7``, ``25``, ``33``, or ``51`` modulo ``58``."""
+
+    return two_one_ray_complement_divisor_sieve_certificate(
+        multiplier,
+        TWO_ONE_RAY_MOD_FIFTY_EIGHT_DIRECTIONS,
+    )
+
+
+def two_one_ray_mod_fifty_eight_divisor_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate from a ``7``/``25``/``33``/``51 mod 58`` divisor."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_mod_fifty_eight_divisor_certificate(abs_h)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    if abs_h == 2 * abs_g:
+        base = two_one_ray_mod_fifty_eight_divisor_certificate(abs_g)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_y,
+                (1 if h > 0 else -1) * midpoint_x,
+            ),
+        )
+
+    return None
+
+
+def two_one_ray_mod_seventy_four_divisor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from a divisor ``7``, ``23``, ``51``, or ``67`` modulo ``74``."""
+
+    return two_one_ray_complement_divisor_sieve_certificate(
+        multiplier,
+        TWO_ONE_RAY_MOD_SEVENTY_FOUR_DIRECTIONS,
+    )
+
+
+def two_one_ray_mod_seventy_four_divisor_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate from a ``7``/``23``/``51``/``67 mod 74`` divisor."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_mod_seventy_four_divisor_certificate(abs_h)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    if abs_h == 2 * abs_g:
+        base = two_one_ray_mod_seventy_four_divisor_certificate(abs_g)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_y,
+                (1 if h > 0 else -1) * midpoint_x,
+            ),
+        )
+
+    return None
+
+
 def two_one_ray_mod_130_divisor_residues() -> tuple[int, ...]:
     """Divisor residues modulo 130 covered by the mod-10 or mod-26 families."""
 
@@ -6948,6 +7062,145 @@ def has_two_one_ray_mod_2210_divisor(multiplier: int) -> bool:
         2210,
         two_one_ray_mod_2210_divisor_residues(),
     )
+
+
+def two_one_ray_mod_64090_divisor_residues() -> tuple[int, ...]:
+    """Divisor residues modulo 64090 covered through the mod-58 family."""
+
+    return tuple(
+        residue
+        for residue in range(64090)
+        if (
+            residue % 10 in (3, 7)
+            or residue % 26 in (3, 7, 19, 23)
+            or residue % 34 in (7, 13, 21, 27)
+            or residue % 58 in (7, 25, 33, 51)
+        )
+    )
+
+
+def has_two_one_ray_mod_64090_divisor(multiplier: int) -> bool:
+    """Return whether the combined mod-10/mod-26/mod-34/mod-58 sieve applies."""
+
+    return has_divisor_in_residue_classes(
+        multiplier,
+        64090,
+        two_one_ray_mod_64090_divisor_residues(),
+    )
+
+
+def two_one_ray_mod_2371330_divisor_residues() -> tuple[int, ...]:
+    """Divisor residues modulo 2371330 covered through the mod-74 family."""
+
+    return tuple(
+        residue
+        for residue in range(2371330)
+        if (
+            residue % 10 in (3, 7)
+            or residue % 26 in (3, 7, 19, 23)
+            or residue % 34 in (7, 13, 21, 27)
+            or residue % 58 in (7, 25, 33, 51)
+            or residue % 74 in (7, 23, 51, 67)
+        )
+    )
+
+
+def has_two_one_ray_mod_2371330_divisor(multiplier: int) -> bool:
+    """Return whether the combined divisor sieve through the mod-74 layer applies."""
+
+    return has_divisor_in_residue_classes(
+        multiplier,
+        2371330,
+        two_one_ray_mod_2371330_divisor_residues(),
+    )
+
+
+def two_one_ray_seed_certificate(multiplier: int) -> Certificate | None:
+    """Certificate from the current exact infinite families on the ``(2,1)`` ray."""
+
+    for constructor in (
+        two_one_ray_mod260_skeleton_certificate,
+        two_one_ray_mod_ten_divisor_certificate,
+        two_one_ray_mod_twenty_six_divisor_certificate,
+        two_one_ray_mod_thirty_four_divisor_certificate,
+        two_one_ray_mod_fifty_eight_divisor_certificate,
+        two_one_ray_mod_seventy_four_divisor_certificate,
+        two_one_ray_explicit_base_certificate,
+    ):
+        certificate = constructor(multiplier)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+@cache
+def two_one_ray_divisor_lift_certificate(multiplier: int) -> Certificate | None:
+    """Scale a certified proper divisor on the ``(2,1)`` ray.
+
+    If a proper divisor ``q`` of ``n`` already has a two-step certificate for
+    ``(2q,q)``, scaling that certificate by ``n/q`` certifies ``(2n,n)``.
+    Thus once the prime multipliers are handled, every composite multiplier
+    follows automatically.
+    """
+
+    if multiplier <= 0:
+        return None
+
+    certificate = two_one_ray_seed_certificate(multiplier)
+    if certificate is not None:
+        return certificate
+
+    for divisor in positive_divisors(multiplier):
+        if divisor == 1 or divisor == multiplier:
+            continue
+
+        base = two_one_ray_divisor_lift_certificate(divisor)
+        if base is None:
+            continue
+
+        certificate = scale_certificate(base, multiplier // divisor)
+        if not certificate.valid():
+            raise AssertionError("divisor-lift ray certificate did not scale correctly")
+        return certificate
+
+    return None
+
+
+def two_one_ray_divisor_lift_orbit_certificate(target: Point) -> Certificate | None:
+    """Symmetric certificate from divisor-lift closure on the ``(2,1)`` ray."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_divisor_lift_certificate(abs_h)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    if abs_h == 2 * abs_g:
+        base = two_one_ray_divisor_lift_certificate(abs_g)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_y,
+                (1 if h > 0 else -1) * midpoint_x,
+            ),
+        )
+
+    return None
 
 
 def two_one_ray_mod260_skeleton_certificate(multiplier: int) -> Certificate | None:

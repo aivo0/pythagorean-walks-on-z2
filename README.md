@@ -105,10 +105,13 @@ nontrivial multiples on its ray are now proved to have distance at most $2$:
   $9$.
 - A mod-$260$ refinement from the fixed $u=5$ strip.
 - Parallel-divisor families covering multipliers with a divisor $3$ or $7$
-  modulo $10$, and multipliers with a divisor $3$, $7$, $19$, or $23$ modulo
-  $26$.
+  modulo $10$; $3$, $7$, $19$, or $23$ modulo $26$; $7$, $13$, $21$, or $27$
+  modulo $34$; or $7$, $25$, $33$, or $51$ modulo $58$.
 - Scaling families from exact base rows $n=3,29,41,53,61,73$.
 - A finite exact audit for every multiplier $2\le n\le500$ on $(2n,n)$.
+- Divisor-lift closure now scales any certified proper divisor on the
+  exceptional ray; with the current seed families, the unresolved multipliers
+  below $2000$ are all prime.
 
 ## Finite Audits
 
@@ -175,7 +178,7 @@ python3 -m unittest discover -s tests -v
 Current expected result:
 
 ```text
-Ran 123 tests
+Ran 125 tests
 OK
 ```
 

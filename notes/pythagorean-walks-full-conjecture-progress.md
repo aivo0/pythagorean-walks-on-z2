@@ -3640,7 +3640,7 @@ $$
 $$
 for one of the direction periods $(m_U,R_U)$.
 
-The first three small direction layers are:
+The first four small direction layers are:
 $$
 \begin{array}{c|c|c}
 \text{triple} & U & q\text{-classes}\\
@@ -3649,7 +3649,9 @@ $$
 5\text{-}12\text{-}13 & (5,12),(-5,12),(5,-12),(-5,-12)
   & 3,7,19,23\pmod {26}\\
 8\text{-}15\text{-}17 & (15,-8),(15,8),(-15,-8),(-15,8)
-  & 7,13,21,27\pmod {34}.
+  & 7,13,21,27\pmod {34}\\
+20\text{-}21\text{-}29 & (-21,-20),(-21,20),(21,-20),(21,20)
+  & 7,25,33,51\pmod {58}.
 \end{array}
 $$
 For example, with $U=(15,-8)$ one has
@@ -3661,19 +3663,28 @@ which is integral for every $q\equiv7\pmod {34}$. The other three
 $8$-$15$-$17$ rows are the signed variants, giving classes
 $13,21,27\pmod {34}$.
 
+The next layer uses the $20$-$21$-$29$ directions. With $U=(-21,-20)$,
+$$
+D=19dq,\qquad A=-62dq,\qquad
+r=\frac{d(361q^2-124q-1)}{1682},
+$$
+which is integral for every $q\equiv7\pmod {58}$. The other three signed
+directions give quotient classes $25,33,51\pmod {58}$.
+
 The combined small-direction sieve has quotient period
 $$
-\operatorname{lcm}(10,26,34)=2210.
+\operatorname{lcm}(10,26,34,58)=64090.
 $$
 The covered quotient-divisor residues are exactly the classes that are
 $3$ or $7$ modulo $10$, or $3,7,19,23$ modulo $26$, or $7,13,21,27$ modulo
-$34$; this is a set of $754$ residue classes modulo $2210$.
+$34$, or $7,25,33,51$ modulo $58$; this is a set of $23270$ residue classes
+modulo $64090$.
 This number is not a search box and not a periodic claim about $n$ itself. It
 is only a compact representation of the divisor classes already certified by
 the finite direction set. It immediately promotes former finite-audit
-residuals such as $41$, $61$, $89$, and $109$ to infinite divisor families,
-because those multipliers themselves are divisors in one of the mod-$34$
-classes.
+residuals such as $41$, $61$, $89$, $109$, $181$, $199$, and $239$ to
+infinite divisor families, because those multipliers themselves are divisors in
+one of the certified quotient classes.
 
 This gives a more principled route than enlarging boxes: classify the quotient
 classes $(m_U,R_U)$ produced by signed Pythagorean directions, then prove that
@@ -3691,10 +3702,62 @@ Executable guardrail:
 - `two_one_ray_complement_divisor_sieve_certificate`
 - `two_one_ray_mod_2210_divisor_residues`
 - `has_two_one_ray_mod_2210_divisor`
+- `two_one_ray_mod_64090_divisor_residues`
+- `has_two_one_ray_mod_64090_divisor`
 - `two_one_ray_mod_thirty_four_divisor_certificate`
 - `two_one_ray_mod_thirty_four_divisor_orbit_certificate`
+- `two_one_ray_mod_fifty_eight_divisor_certificate`
+- `two_one_ray_mod_fifty_eight_divisor_orbit_certificate`
 - `test_two_one_ray_mod_thirty_four_divisor_family`
+- `test_two_one_ray_mod_fifty_eight_divisor_family`
 - `test_complement_divisor_sieve_residue_compression`
+
+## Divisor-Lift Reduction To Prime Multipliers
+
+There is another multiplicative closure that is independent of the particular
+parallel direction used to certify a base multiplier. If $q\mid n$ and
+$(2q,q)$ has a two-step certificate with midpoint $P$, then scaling the whole
+certificate by $n/q$ gives a certificate for $(2n,n)$:
+$$
+P\longmapsto \frac{n}{q}P.
+$$
+Both edge lengths scale by $n/q$, so square lengths remain square. Therefore
+the exceptional-ray problem reduces to seed certificates for prime multipliers:
+once every prime $p>1$ on the ray is certified, every composite multiplier is
+certified by scaling a certified prime divisor.
+
+The helper `two_one_ray_divisor_lift_certificate` makes this closure
+executable. It first tries the current exact seed families:
+
+- the mod-$260$ skeleton;
+- the mod-$10$, mod-$26$, mod-$34$, and mod-$58$ complement-divisor sieves;
+- the promoted exact base rows.
+
+If none applies directly, it recursively checks proper divisors and scales the
+first certified divisor certificate it finds. For instance, $1529=11\cdot139$
+is not a current seed multiplier, but $11$ is certified by the mod-$260$
+skeleton, so scaling the certificate for $(22,11)$ by $139$ certifies
+$(3058,1529)$.
+
+This is a principled narrowing of the remaining target. With the current seed
+families, the multipliers below $2000$ that still fail the divisor-lift
+constructor are exactly
+$$
+\begin{gathered}
+229,269,281,389,509,521,541,821,941,1009,1049,1201,1249,1289,\\
+1321,1361,1409,1429,1481,1549,1601,1621,1669,1861,1949,
+\end{gathered}
+$$
+and every one of these is prime. The next proof-search target is therefore not
+larger multiplier boxes, but residue/divisor mechanisms that catch the
+remaining prime classes.
+
+Executable guardrail:
+
+- `two_one_ray_seed_certificate`
+- `two_one_ray_divisor_lift_certificate`
+- `two_one_ray_divisor_lift_orbit_certificate`
+- `test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes`
 
 ## Explicit Base Multipliers On The Exceptional Ray
 

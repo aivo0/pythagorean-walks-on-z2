@@ -1461,14 +1461,28 @@ q \pmod {34} & U\\
 \end{array}
 $$
 Thus every positive multiplier with a divisor in one of those four classes has
-an exact two-step certificate. Together with the mod-$10$ and mod-$26$ divisor
-families, this gives a combined small-direction quotient period
+an exact two-step certificate.
+
+The next $20$-$21$-$29$ layer gives:
 $$
-\operatorname{lcm}(10,26,34)=2210.
+\begin{array}{c|c}
+q \pmod {58} & U\\
+\hline
+7 & (-21,-20)\\
+25 & (-21,20)\\
+33 & (21,-20)\\
+51 & (21,20).
+\end{array}
+$$
+Together with the mod-$10$, mod-$26$, and mod-$34$ divisor families, this gives
+a combined small-direction quotient period
+$$
+\operatorname{lcm}(10,26,34,58)=64090.
 $$
 The covered quotient-divisor residues are exactly the classes that are
 $3$ or $7$ modulo $10$, or $3,7,19,23$ modulo $26$, or $7,13,21,27$ modulo
-$34$; this gives $754$ residue classes modulo $2210$.
+$34$, or $7,25,33,51$ modulo $58$; this gives $23270$ residue classes modulo
+$64090$.
 The period is only a compact way to store divisor classes; it is not a finite
 box and not a periodic condition on the multiplier itself.
 
@@ -1481,10 +1495,42 @@ Executable guardrail:
 - `two_one_ray_complement_divisor_sieve_certificate`
 - `two_one_ray_mod_2210_divisor_residues`
 - `has_two_one_ray_mod_2210_divisor`
+- `two_one_ray_mod_64090_divisor_residues`
+- `has_two_one_ray_mod_64090_divisor`
 - `two_one_ray_mod_thirty_four_divisor_certificate`
 - `two_one_ray_mod_thirty_four_divisor_orbit_certificate`
+- `two_one_ray_mod_fifty_eight_divisor_certificate`
+- `two_one_ray_mod_fifty_eight_divisor_orbit_certificate`
 - `test_two_one_ray_mod_thirty_four_divisor_family`
+- `test_two_one_ray_mod_fifty_eight_divisor_family`
 - `test_complement_divisor_sieve_residue_compression`
+
+### Added: Divisor-Lift Reduction On The $(2,1)$ Ray
+
+Any certified multiplier on the $(2,1)$ ray now acts as a certified divisor
+seed. If $q\mid n$ and $(2q,q)$ has midpoint $P$, then scaling by $n/q$
+certifies $(2n,n)$. The new divisor-lift constructor first tries the current
+exact seed families, then recursively scales the first certified proper divisor.
+
+This changes the residual target from all leftover multipliers to leftover
+prime multipliers. With the current seeds, the multipliers below $2000$ not
+covered by divisor-lift are exactly
+$$
+\begin{gathered}
+229,269,281,389,509,521,541,821,941,1009,1049,1201,1249,1289,\\
+1321,1361,1409,1429,1481,1549,1601,1621,1669,1861,1949,
+\end{gathered}
+$$
+and all are prime. Composite examples such as $1529=11\cdot139$ are now
+certified by scaling a smaller seed certificate rather than by adding midpoint
+rows.
+
+Executable guardrail:
+
+- `two_one_ray_seed_certificate`
+- `two_one_ray_divisor_lift_certificate`
+- `two_one_ray_divisor_lift_orbit_certificate`
+- `test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes`
 
 ### Added: Even Multiples Of The $(2,1)$ Ray
 
