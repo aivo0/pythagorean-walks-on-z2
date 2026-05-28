@@ -63,6 +63,79 @@ Executable guardrail:
 - `test_known_exception_symbolic_obstruction_cases`
 - `test_y_squared_minus_y_plus_one_square_lemma`
 
+### Added: Signed Length-Difference Conic Slice Probe
+
+The distance-difference parameter from the known obstruction proof is now also
+used constructively. For a target $T=(g,h)$, midpoint
+$P=K(u,v)$, primitive Pythagorean direction $(u,v,c)$, and signed length
+difference $d=|OP|-|TP|$, the two-step condition reduces to
+$$
+2K(gu+hv-dc)=g^2+h^2-d^2.
+$$
+
+The bounded constructor tests this divisibility condition over primitive
+Pythagorean directions and signed $d$ values ordered by increasing $|d|$. This
+is intentionally recorded as a discovery/probe layer rather than a theorem-level
+classification.
+
+The signed form of Theorem 3 is now recognized as the unit-denominator case of
+the same identity: for positive $g,h$, use $K=gh$ and $d=g-h$, so
+`gu + hv - dc = 1` is exactly the paper's linear relation after substituting
+the signed Pythagorean direction.
+
+The first exact lift from this viewpoint is the divisor-strengthened Theorem 3:
+replace the constant $1$ by a nonzero divisor $q$ of $gh$. The midpoint is
+scaled down from the paper's $gh$ coefficient to $gh/q$, and degenerate
+horizontal or vertical graph steps are rejected.
+
+The same strengthened theorem now has a ray-facing constructor. For target
+$n(p,q)$, the divisor is $nL$, where
+$$
+L=(c+s_yb)q-(c-s_xa)p.
+$$
+Thus a fixed triple and sign pair certifies all multipliers with $L\mid pqn$.
+The case $|L|=1$ covers an entire ray; on the exceptional ray $(2,1)$ this
+recovers infinite multiplier classes without touching the primitive obstruction.
+The fixed-divisor calculation is now exposed separately as the multiplier
+modulus $|L|/\gcd(|L|,|pq|)$, so a ray family can be tracked as an exact
+residue-class statement instead of as repeated pointwise searches.
+
+A Pell-parametrized subfamily of the ray divisors is also encoded. Taking
+Euclid parameters $m=x+y$, $n=y$ and signs $(1,-1)$ gives
+$L=qx^2-2py^2$; swapping the Euclid legs gives $L=2qy^2-px^2$. Thus primitive
+ray coverage can be attacked through divisor conditions for these binary
+quadratic forms, while multiplier coverage uses the same modulus formula.
+
+The same calculation is now exposed in a more general fixed-linear-delta
+recognizer. For a fixed legal direction $(u,v)$ and
+$d=\alpha g+\beta h$, the divisibility condition
+$$
+2(gu+hv-dc)\mid g^2+h^2-d^2
+$$
+gives a direct two-step midpoint when the quotient is positive and
+nondegenerate.
+
+Executable guardrail:
+
+- `primitive_pythagorean_directions`
+- `signed_delta_values`
+- `delta_slice_certificate`
+- `linear_delta_direction_certificate`
+- `test_delta_slice_direction_generator_and_delta_order`
+- `test_delta_slice_certificate_formula`
+- `test_theorem3_is_unit_delta_slice_case`
+- `test_linear_delta_direction_certificate`
+- `theorem3_divisor_certificate`
+- `test_theorem3_divisor_generalization`
+- `theorem3_ray_divisor`
+- `theorem3_ray_divisor_certificate`
+- `theorem3_ray_divisor_modulus`
+- `theorem3_ray_pell_divisor_certificate`
+- `test_theorem3_ray_divisor_family`
+- `test_theorem3_ray_divisor_modulus`
+- `test_theorem3_ray_pell_divisor_family`
+- `test_delta_slice_bounded_discovery_probe`
+
 ### Added: Diameter-Three Path Constructor
 
 The paper's spanning identity
@@ -142,6 +215,127 @@ Executable guardrail:
 - `lattice_coefficients`
 - `lattice_two_step_certificate`
 - `test_lattice_coefficients_build_two_step_certificates`
+
+### Added: Parallel-Direction Divisor Reduction
+
+The one-direction version of the lattice problem is now encoded as an exact
+divisor criterion. Fix a legal direction $U=(u,v)$ with $u^2+v^2=c^2$ and look
+for a midpoint $rU$. For target $T=(g,h)$, write
+$$
+A=T\cdot U,\qquad D=\det(U,T).
+$$
+The condition $|T-rU|^2=s^2$ is equivalent to
+$$
+(c^2r-A)^2-c^2s^2=-D^2,
+$$
+which factors as
+$$
+\bigl(cs-(c^2r-A)\bigr)\bigl(cs+(c^2r-A)\bigr)=D^2.
+$$
+Thus a positive divisor of $D^2$ determines a candidate first-step coefficient
+$r$, and the certificate checker validates the resulting midpoint. This gives a
+finite target-facing divisor test for every fixed first-step direction.
+The divisor data is now represented as a Pythagorean-completion witness:
+if $D^2=FG$, then $B=(G-F)/2$ and $H=(G+F)/2$ satisfy $B^2+D^2=H^2$; the
+direction accepts the completion when $H$ is divisible by the direction length
+and $B+T\cdot U$ is divisible by the squared direction length.
+The signed standard completions of a leg are also named separately: factors
+$1,D^2$ for odd determinant legs, and $2,D^2/2$ for even determinant legs.
+This gives a closed congruence subfamily inside the broader divisor-completion
+criterion.
+The finite-direction standard-completion cover is separated from the full
+divisor cover. It has an explicit guardrail counterexample: $(1,92)$ is not
+covered by standard completions for parameter bound $8$, while the full
+direction cover succeeds using direction $(4,3)$ and the nonstandard factor
+$5$ of $365^2$.
+That counterexample is now generalized: for every integer $t$, the target
+$(1,25t+17)$ is certified by direction $(4,3)$, factor $5$, and midpoint
+$(4r,3r)$ with $r=40t^2+55t+19$. The sign/swap orbit is handled by a
+target-facing constructor.
+The next residual layer is now represented by a bounded-factor cover helper:
+after standard completions, the helper tries only nonstandard factors up to a
+fixed bound. The guardrail records that standard completions plus bounded
+factors through $1000$ cover the primitive positive-quadrant sample through
+$80$, again as discovery evidence rather than a proof.
+For the unit-coordinate slice, fixed direction/factor pairs now expose their
+accepted residue classes for $(1,h)$ directly. This promotes examples such as
+the factor-five family $h\equiv17\pmod {25}$ and the factor-four family
+$h\equiv12\pmod {20}$ into reusable congruence families with sign/swap
+transport.
+The same fixed direction/factor criterion is now ray-facing. For a ray
+$R=(p,q)$ and target $T=nR$, put
+$$
+A_0=R\cdot U,\qquad D_0=\det(U,R).
+$$
+The forced coefficient is
+$$
+r(n)=\frac{(n^2D_0^2/F-F)/2+nA_0}{c^2},
+$$
+when $F\mid n^2D_0^2$, so the arithmetic condition depends only on the
+multiplier $n$ modulo $2c^2F$. The new ray helper enumerates those multiplier
+classes and then runs the ordinary certificate check on the actual target.
+On the exceptional ray $(2,1)$, direction $(4,3)$ with factor $2$ gives the
+exact class $n\equiv2\pmod5$ in natural modulus $100$, while direction
+$(-4,-3)$ with factor $2$ gives $n\equiv3\pmod5$; the primitive obstruction is
+not hidden, because the final graph check still rejects the degenerate first
+representatives.
+The full two-dimensional direction $(4,3)$, factor-$5$ congruence family is
+also named. Its modulus is $250$; exactly $1250$ residue classes have integral
+first-step coefficients, and $1188$ of them produce valid nondegenerate
+certificates in the fundamental representative box.
+
+Corrected guardrail: the $1188$ valid-representative count is not itself a
+periodic certificate-class condition. Nondegeneracy is pointwise after the
+periodic integrality check. The class represented by $(3,6)$ is the retained
+counterexample: $(3,6)$ has an integral coefficient but a degenerate graph
+step, while the same residue class contains the valid translated target
+$(253,6)$ with midpoint $(8808,6606)$.
+For fixed direction and factor, the arithmetic conditions are now exposed with
+their natural modulus $2c^2F$, making each such subfamily an explicit quadratic
+congruence class before the final nondegeneracy check. Small fixed-factor
+residue classes can now be enumerated directly, separating modular coverage
+from target-size searches.
+The finite-direction candidate constructor applies this exact test over all
+signed primitive Pythagorean directions up to a chosen Euclid parameter. With
+parameter $8$, the guardrail covers primitive positive-quadrant non-edge targets
+through $1000$ without using residual midpoint tables. This remains bounded
+evidence only, but the former scratch range is now an executable guardrail.
+
+Executable guardrail:
+
+- `positive_divisors`
+- `ParallelDirectionFactorWitness`
+- `standard_pythagorean_completion_factors`
+- `parallel_direction_factor_witness`
+- `parallel_direction_standard_completion_certificate`
+- `parallel_direction_standard_completion_cover_certificate`
+- `unit_coordinate_factor_five_parallel_certificate`
+- `unit_coordinate_factor_five_parallel_orbit_certificate`
+- `unit_coordinate_parallel_factor_residues`
+- `unit_coordinate_parallel_factor_orbit_certificate`
+- `ray_multiplier`
+- `ray_parallel_factor_residues`
+- `ray_parallel_factor_certificate`
+- `four_three_factor_five_parallel_certificate`
+- `parallel_direction_bounded_factor_cover_certificate`
+- `parallel_direction_factor_modulus`
+- `parallel_direction_factor_coefficient`
+- `parallel_direction_factor_residue_classes`
+- `parallel_direction_factor_certificate_residue_classes`
+- `parallel_direction_factor_residue_certificate`
+- `parallel_direction_factor_certificate`
+- `parallel_direction_certificate`
+- `parallel_direction_cover_certificate`
+- `test_parallel_direction_divisor_reduction`
+- `test_parallel_direction_standard_completion_family`
+- `test_parallel_direction_standard_completion_cover_probe`
+- `test_unit_coordinate_factor_five_parallel_family`
+- `test_unit_coordinate_parallel_factor_residue_family`
+- `test_ray_parallel_factor_residue_family`
+- `test_four_three_factor_five_parallel_congruence_family`
+- `test_parallel_direction_bounded_factor_cover_probe`
+- `test_parallel_direction_factor_residue_classes`
+- `test_parallel_direction_candidate_cover_probe`
 
 ### Added: Orthogonal Triple Lattice Family
 
@@ -362,6 +556,614 @@ Executable guardrail:
 - `box_sixty_audit_certificate`
 - `test_box_sixty_finite_audit`
 
+### Added: Exact Box-70 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le70$. The box-$60$ residual table is reused, and fifty-one additional
+explicit midpoint representatives complete the sign/swap residual cases in the
+larger box.
+
+The promoted statement is still deliberately finite: every residual row is an
+explicit midpoint identity, and the test enumerates the entire box while
+separating one-step targets from the known distance-three orbit.
+
+Executable guardrail:
+
+- `BOX_SEVENTY_RESIDUAL_CERTIFICATES`
+- `box_seventy_residual_certificate`
+- `box_seventy_audit_certificate`
+- `test_box_seventy_finite_audit`
+
+### Added: Determinant-53 And Determinant-67 Congruence Families
+
+The prime-determinant lattice table now includes exact congruence families
+modulo $53$ and modulo $67$:
+
+- modulo $53$: $g\equiv\pm14h$ or $g\equiv\pm19h$;
+- modulo $67$: $g\equiv\pm16h$ or $g\equiv\pm21h$.
+
+Each congruence line is backed by an explicit pair of legal Pythagorean
+directions with determinant $\pm p$, so this is an infinite lattice-family
+extension rather than a bounded search claim.
+
+Some older finite fallback rows now lie in these new congruence families. They
+remain in the cumulative audit tables as directly checked midpoint identities;
+the finite tables are not asserted to be minimal.
+
+Executable guardrail:
+
+- `SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS`
+- `small_prime_lattice_certificate`
+- `test_additional_small_prime_congruence_families`
+
+### Added: Further Prime-Determinant Congruence Families
+
+The prime-determinant lattice table now includes another exact batch:
+
+- modulo $149$: $g\equiv\pm54h$ or $g\equiv\pm69h$;
+- modulo $211$: $g\equiv\pm51h$ or $g\equiv\pm91h$;
+- modulo $239$: $g\equiv\pm h$;
+- modulo $241$: $g\equiv\pm101h$ or $g\equiv\pm105h$;
+- modulo $251$: $g\equiv\pm31h$ or $g\equiv\pm81h$;
+- modulo $269$: $g\equiv\pm32h$ or $g\equiv\pm42h$.
+
+As before, every row is an explicit pair of legal Pythagorean directions with
+determinant $\pm p$, so the promoted claim is an infinite congruence-family
+claim, not bounded evidence.
+
+Executable guardrail:
+
+- `SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS`
+- `small_prime_lattice_certificate`
+- `test_additional_small_prime_congruence_families`
+
+### Added: Exact Box-80 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le80$. This layer reuses the exact families, the unit-coordinate
+finite audit, target-facing strip recognizers over fixed finite parameter
+ranges, and the box-$70$ residual table, then adds forty-eight explicit
+residual midpoint representatives.
+
+The promoted statement is finite and exact: the test enumerates the whole box,
+keeps one-step targets and known distance-three targets separate, and validates
+each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_EIGHTY_RESIDUAL_CERTIFICATES`
+- `box_eighty_residual_certificate`
+- `box_eighty_audit_certificate`
+- `test_box_eighty_finite_audit`
+
+### Added: Exact Box-90 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le90$. This layer reuses the box-$80$ audit, applies the exact
+constructors to the new outer ring, and adds forty-six explicit residual
+midpoint representatives.
+
+The promoted statement is finite and exact: the test enumerates the whole box,
+keeps one-step targets and known distance-three targets separate, and validates
+each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_NINETY_RESIDUAL_CERTIFICATES`
+- `box_ninety_residual_certificate`
+- `box_ninety_audit_certificate`
+- `test_box_ninety_finite_audit`
+
+### Added: Exact Box-100 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le100$. This layer reuses the box-$90$ audit, applies the same exact
+constructors to the new outer ring, and adds fifty-eight explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_HUNDRED_RESIDUAL_CERTIFICATES`
+- `box_one_hundred_residual_certificate`
+- `box_one_hundred_audit_certificate`
+- `test_box_one_hundred_finite_audit`
+
+### Added: Exact Box-110 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le110$. This layer reuses the box-$100$ audit, applies the same exact
+constructors to the new outer ring, and adds sixty-five explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_TEN_RESIDUAL_CERTIFICATES`
+- `box_one_ten_residual_certificate`
+- `box_one_ten_audit_certificate`
+- `test_box_one_ten_finite_audit`
+
+### Added: Exact Box-120 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le120$. This layer reuses the box-$110$ audit, applies the same exact
+constructors to the new outer ring, and adds eighty explicit residual midpoint
+representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_TWENTY_RESIDUAL_CERTIFICATES`
+- `box_one_twenty_residual_certificate`
+- `box_one_twenty_audit_certificate`
+- `test_box_one_twenty_finite_audit`
+
+### Added: Exact Box-130 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le130$. This layer reuses the box-$120$ audit, applies the same exact
+constructors to the new outer ring, and adds seventy-six explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_THIRTY_RESIDUAL_CERTIFICATES`
+- `box_one_thirty_residual_certificate`
+- `box_one_thirty_audit_certificate`
+- `test_box_one_thirty_finite_audit`
+
+### Added: Exact Box-140 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le140$. This layer reuses the box-$130$ audit, applies the same exact
+constructors to the new outer ring, and adds eighty-seven explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_FORTY_RESIDUAL_CERTIFICATES`
+- `box_one_forty_residual_certificate`
+- `box_one_forty_audit_certificate`
+- `test_box_one_forty_finite_audit`
+
+### Added: Exact Box-150 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le150$. This layer reuses the box-$140$ audit, applies the same exact
+constructors to the new outer ring, and adds ninety-eight explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_FIFTY_RESIDUAL_CERTIFICATES`
+- `box_one_fifty_residual_certificate`
+- `box_one_fifty_audit_certificate`
+- `test_box_one_fifty_finite_audit`
+
+### Added: Exact Box-160 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le160$. This layer reuses the box-$150$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred two explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_SIXTY_RESIDUAL_CERTIFICATES`
+- `box_one_sixty_residual_certificate`
+- `box_one_sixty_audit_certificate`
+- `test_box_one_sixty_finite_audit`
+
+### Added: Exact Box-170 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le170$. This layer reuses the box-$160$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_SEVENTY_RESIDUAL_CERTIFICATES`
+- `box_one_seventy_residual_certificate`
+- `box_one_seventy_audit_certificate`
+- `test_box_one_seventy_finite_audit`
+
+### Added: Exact Box-180 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le180$. This layer reuses the box-$170$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred six explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_EIGHTY_RESIDUAL_CERTIFICATES`
+- `box_one_eighty_residual_certificate`
+- `box_one_eighty_audit_certificate`
+- `test_box_one_eighty_finite_audit`
+
+### Added: Exact Box-190 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le190$. This layer reuses the box-$180$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred forty-one explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_ONE_NINETY_RESIDUAL_CERTIFICATES`
+- `box_one_ninety_residual_certificate`
+- `box_one_ninety_audit_certificate`
+- `test_box_one_ninety_finite_audit`
+
+### Added: Exact Box-200 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le200$. This layer reuses the box-$190$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred ten explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_HUNDRED_RESIDUAL_CERTIFICATES`
+- `box_two_hundred_residual_certificate`
+- `box_two_hundred_audit_certificate`
+- `test_box_two_hundred_finite_audit`
+
+### Added: Exact Box-210 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le210$. This layer reuses the box-$200$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred twenty-nine explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_TEN_RESIDUAL_CERTIFICATES`
+- `box_two_ten_residual_certificate`
+- `box_two_ten_audit_certificate`
+- `test_box_two_ten_finite_audit`
+
+### Added: Exact Box-220 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le220$. This layer reuses the box-$210$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred thirty-four explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_TWENTY_RESIDUAL_CERTIFICATES`
+- `box_two_twenty_residual_certificate`
+- `box_two_twenty_audit_certificate`
+- `test_box_two_twenty_finite_audit`
+
+### Added: Exact Box-230 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le230$. This layer reuses the box-$220$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred sixty-three explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_THIRTY_RESIDUAL_CERTIFICATES`
+- `box_two_thirty_residual_certificate`
+- `box_two_thirty_audit_certificate`
+- `test_box_two_thirty_finite_audit`
+
+### Added: Exact Box-240 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le240$. This layer reuses the box-$230$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred sixty-two explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_FORTY_RESIDUAL_CERTIFICATES`
+- `box_two_forty_residual_certificate`
+- `box_two_forty_audit_certificate`
+- `test_box_two_forty_finite_audit`
+
+### Added: Exact Box-250 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le250$. This layer reuses the box-$240$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred seventy-three explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_FIFTY_RESIDUAL_CERTIFICATES`
+- `box_two_fifty_residual_certificate`
+- `box_two_fifty_audit_certificate`
+- `test_box_two_fifty_finite_audit`
+
+### Added: Exact Box-260 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le260$. This layer reuses the box-$250$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred sixty-seven explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_SIXTY_RESIDUAL_CERTIFICATES`
+- `box_two_sixty_residual_certificate`
+- `box_two_sixty_audit_certificate`
+- `test_box_two_sixty_finite_audit`
+
+### Added: Exact Box-270 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le270$. This layer reuses the box-$260$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred seventy-three explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_SEVENTY_RESIDUAL_CERTIFICATES`
+- `box_two_seventy_residual_certificate`
+- `box_two_seventy_audit_certificate`
+- `test_box_two_seventy_finite_audit`
+
+### Added: Exact Box-280 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le280$. This layer reuses the box-$270$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred seventy-eight explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_EIGHTY_RESIDUAL_CERTIFICATES`
+- `box_two_eighty_residual_certificate`
+- `box_two_eighty_audit_certificate`
+- `test_box_two_eighty_finite_audit`
+
+### Added: Exact Box-290 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le290$. This layer reuses the box-$280$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred ninety-seven explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_TWO_NINETY_RESIDUAL_CERTIFICATES`
+- `box_two_ninety_residual_certificate`
+- `box_two_ninety_audit_certificate`
+- `test_box_two_ninety_finite_audit`
+
+### Added: Exact Box-300 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le300$. This layer reuses the box-$290$ audit, applies the same exact
+constructors to the new outer ring, and adds one hundred ninety-two explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_HUNDRED_RESIDUAL_CERTIFICATES`
+- `box_three_hundred_residual_certificate`
+- `box_three_hundred_audit_certificate`
+- `test_box_three_hundred_finite_audit`
+
+### Added: Exact Box-310 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le310$. This layer reuses the box-$300$ audit, applies the same exact
+constructors to the new outer ring, and adds two hundred nineteen explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_TEN_RESIDUAL_CERTIFICATES`
+- `box_three_ten_residual_certificate`
+- `box_three_ten_audit_certificate`
+- `test_box_three_ten_finite_audit`
+
+### Added: Exact Box-320 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le320$. This layer reuses the box-$310$ audit, applies the same exact
+constructors to the new outer ring, and adds two hundred six explicit residual
+midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_TWENTY_RESIDUAL_CERTIFICATES`
+- `box_three_twenty_residual_certificate`
+- `box_three_twenty_audit_certificate`
+- `test_box_three_twenty_finite_audit`
+
+### Added: Exact Box-330 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le330$. This layer reuses the box-$320$ audit, applies the same exact
+constructors to the new outer ring, and adds two hundred thirty-one explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_THIRTY_RESIDUAL_CERTIFICATES`
+- `box_three_thirty_residual_certificate`
+- `box_three_thirty_audit_certificate`
+- `test_box_three_thirty_finite_audit`
+
+### Added: Exact Box-340 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le340$. This layer reuses the box-$330$ audit, applies the same exact
+constructors to the new outer ring, and adds two hundred thirty-seven explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_FORTY_RESIDUAL_CERTIFICATES`
+- `box_three_forty_residual_certificate`
+- `box_three_forty_audit_certificate`
+- `test_box_three_forty_finite_audit`
+
+### Added: Exact Box-350 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le350$. This layer reuses the box-$340$ audit, applies the same exact
+constructors to the new outer ring, and adds two hundred forty-six explicit
+residual midpoint representatives.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate.
+
+Executable guardrail:
+
+- `BOX_THREE_FIFTY_RESIDUAL_CERTIFICATES`
+- `box_three_fifty_residual_certificate`
+- `box_three_fifty_audit_certificate`
+- `test_box_three_fifty_finite_audit`
+
+### Added: Exact Box-360 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le360$. This layer reuses the box-$350$ audit, applies the same exact
+constructors to the new outer ring, and then uses the finite-direction
+parallel-cover constructor with parameter bound $8$ for the remaining shell
+targets. No residual midpoint rows are needed in
+`BOX_THREE_SIXTY_RESIDUAL_CERTIFICATES`.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+box, keeps one-step targets and known distance-three targets separate, and
+validates each returned two-step certificate. The finite-direction cover remains
+a theorem candidate, not an unbounded proof.
+
+Executable guardrail:
+
+- `BOX_THREE_SIXTY_RESIDUAL_CERTIFICATES`
+- `box_three_sixty_residual_certificate`
+- `box_three_sixty_audit_certificate`
+- `test_box_three_sixty_finite_audit`
+
+### Added: Exact Box-500 Finite Audit
+
+The finite audit now extends to every non-exception target with
+$|g|,|h|\le500$. This layer reuses the box-$360$ audit, applies the same exact
+constructors to the remaining finite box, and then uses the finite-direction
+parallel-cover constructor with parameter bound $8$ for all remaining targets.
+No residual midpoint rows are needed in `BOX_FIVE_HUNDRED_RESIDUAL_CERTIFICATES`.
+
+The promoted statement remains finite and exact: the test enumerates the whole
+signed box, keeps one-step targets and known distance-three targets separate,
+validates each returned two-step certificate, and checks rejection outside the
+box. The finite-direction cover remains a theorem candidate, not an unbounded
+proof.
+
+Executable guardrail:
+
+- `BOX_FIVE_HUNDRED_RESIDUAL_CERTIFICATES`
+- `box_five_hundred_residual_certificate`
+- `box_five_hundred_audit_certificate`
+- `test_box_five_hundred_finite_audit`
+
 ### Added: General Euclid Strip Template
 
 For any legal direction $U=(u,v)$, nonzero strip coordinate $q$, and nonzero
@@ -459,6 +1261,231 @@ Executable guardrail:
 - `two_one_ray_consecutive_orbit_certificate`
 - `test_two_one_ray_consecutive_family`
 
+### Added: Three-Mod-Four Multipliers On The $(2,1)$ Ray
+
+The companion consecutive-strip family now has a named congruence corollary:
+every positive multiplier $n\equiv3\pmod4$ on the target ray $(2n,n)$ has a
+two-step certificate. For $n\ge7$, write $u=(n-1)/2$ and use the explicit
+midpoint
+$$
+P=(2u,1-u^2).
+$$
+The edge lengths are $u^2+1$ and $u^2+2u+2$. The remaining case $n=3$ is
+handled by the existing exact base row. Sign/swap images are handled by the
+orbit constructor.
+
+Executable guardrail:
+
+- `two_one_ray_three_mod_four_certificate`
+- `two_one_ray_three_mod_four_orbit_certificate`
+- `test_two_one_ray_three_mod_four_family`
+
+### Added: Five-Or-Seventeen-Mod-Twenty Multipliers On The $(2,1)$ Ray
+
+The odd-leg $u=3$ consecutive-strip specialization now has a named corollary:
+every positive multiplier $n\equiv5$ or $17\pmod {20}$ on the target ray
+$(2n,n)$ has a two-step certificate. For $n=10t-5$, use
+$$
+P=(3r,4r),\qquad r=2(t^2+t-1),
+$$
+and for $n=10t+7$, use
+$$
+P=(-3r,4r),\qquad r=2(t^2+t-1).
+$$
+The excluded degeneration in the general first signed strip would require
+$t=2$, which is not in the $5\pmod {20}$ subfamily. Sign/swap images are
+handled by the orbit constructor.
+
+Executable guardrail:
+
+- `two_one_ray_five_or_seventeen_mod_twenty_certificate`
+- `two_one_ray_five_or_seventeen_mod_twenty_orbit_certificate`
+- `test_two_one_ray_five_or_seventeen_mod_twenty_family`
+
+### Added: Mod-20 Skeleton On The $(2,1)$ Ray
+
+The exact ray families now reduce the positive multiplier problem on the
+exceptional ray to two residue classes. Even multipliers, the
+$3\pmod4$ family, and the $5$/$17\pmod {20}$ consecutive-strip family cover all
+classes modulo $20$ except $1,9,13$. The fixed parallel-direction family with
+$U=(-4,-3)$ and factor $2$ covers the remaining class $13\pmod {20}$: for
+$n=5t+3$ it gives
+$$
+r=t^2-t-1,\qquad P=(-4r,-3r).
+$$
+The degenerate representative $n=3$ is already handled by the $3\pmod4$
+family. Thus the only multiplier classes not covered by this modular skeleton
+are
+$$
+n\equiv1,9\pmod {20}.
+$$
+This is an infinite-family reduction, not a finite audit.
+The helper `two_one_ray_mod20_skeleton_residues` records the exact finite
+residue split modulo $20$, so this statement is not inferred from the bounded
+multiplier loop in the test.
+
+Executable guardrail:
+
+- `two_one_ray_mod20_skeleton_certificate`
+- `two_one_ray_mod20_skeleton_orbit_certificate`
+- `two_one_ray_mod20_skeleton_residues`
+- `test_two_one_ray_mod20_skeleton_family`
+
+### Added: Mod-260 Skeleton On The $(2,1)$ Ray
+
+The fixed $u=5$ consecutive-strip specialization refines the mod-$20$
+skeleton. Combining periods modulo $\operatorname{lcm}(20,26)=260$, the
+additional residue classes
+$$
+n\equiv69,89,121,141\pmod {260}
+$$
+are covered. The exact uncovered residue list modulo $260$ is now recorded in
+`two_one_ray_mod260_skeleton_residues`, leaving
+$$
+\begin{gathered}
+1,9,21,29,41,49,61,81,101,109,129,149,\\
+161,169,181,189,201,209,221,229,241,249.
+\end{gathered}
+$$
+
+Executable guardrail:
+
+- `two_one_ray_mod260_skeleton_certificate`
+- `two_one_ray_mod260_skeleton_orbit_certificate`
+- `two_one_ray_mod260_skeleton_residues`
+- `test_two_one_ray_mod260_skeleton_family`
+
+### Added: Mod-Ten Divisor Family On The $(2,1)$ Ray
+
+The parallel-direction divisor method now gives a divisor criterion on the
+exceptional ray. Write $n=dq$. If $q\equiv3\pmod {10}$, use direction
+$U=(3,-4)$ and factor $F=d$; then
+$$
+r=\frac{d(121q^2+4q-1)}{50}.
+$$
+If $q\equiv7\pmod {10}$, use $U=(-3,4)$ and factor $F=d$; then
+$$
+r=\frac{d(121q^2-4q-1)}{50}.
+$$
+The congruence on $q$ makes the relevant numerator divisible by $50$, and the
+ordinary certificate checker verifies the nondegenerate graph steps.
+
+Consequently every positive multiplier with a divisor $3$ or $7$ modulo $10$
+is covered. After the mod-$20$ skeleton, any still-uncovered multiplier on the
+exceptional ray must therefore have all divisors congruent to $1$ or $9$ modulo
+$10$; for the odd non-multiple-of-$5$ residuals, equivalently all prime factors
+are $1$ or $9$ modulo $10$. The new arithmetic helpers make this residual
+condition executable instead of leaving it as prose.
+
+Executable guardrail:
+
+- `has_divisor_three_or_seven_mod_ten`
+- `all_prime_factors_one_or_nine_mod_ten`
+- `prime_factors`
+- `two_one_ray_complement_divisor_residues`
+- `two_one_ray_complement_divisor_certificate`
+- `two_one_ray_mod_ten_divisor_certificate`
+- `two_one_ray_mod_ten_divisor_orbit_certificate`
+- `test_two_one_ray_mod_ten_divisor_family`
+- `test_mod_ten_divisor_residual_prime_factor_reduction`
+
+### Added: Mod-26 Divisor Family On The $(2,1)$ Ray
+
+The complement-factor parallel construction now has a second small instance
+from the $5$-$12$-$13$ directions. For $n=dq$, use factor $F=d$. The quotient
+classes and directions are
+$$
+\begin{array}{c|c}
+q \pmod {26} & U\\
+\hline
+3 & (5,12)\\
+7 & (-5,12)\\
+19 & (5,-12)\\
+23 & (-5,-12).
+\end{array}
+$$
+Thus every positive multiplier with a divisor in one of those four classes has
+an exact two-step certificate. This is recorded as a divisor/factorization
+sieve, not as a periodic condition on the multiplier.
+
+Executable guardrail:
+
+- `two_one_ray_mod_twenty_six_divisor_certificate`
+- `two_one_ray_mod_twenty_six_divisor_orbit_certificate`
+- `test_two_one_ray_mod_twenty_six_divisor_family`
+
+### Added: Combined Mod-130 Divisor Sieve On The $(2,1)$ Ray
+
+The mod-$10$ and mod-$26$ divisor sieves now have a combined arithmetic
+guardrail modulo
+$$
+\operatorname{lcm}(10,26)=130.
+$$
+The covered divisor residues are
+$$
+\begin{gathered}
+3,7,13,17,19,23,27,29,33,37,43,45,47,49,53,55,57,59,63,67,\\
+71,73,75,77,81,83,85,87,93,97,101,103,107,111,113,117,123,127
+\pmod {130}.
+\end{gathered}
+$$
+This records the combined result as an exact factorization sieve rather than a
+periodic condition on the multiplier. It also catches examples such as
+$361=19^2$: the mod-$10$ residual prime-factor condition alone would not
+exclude it, but divisor $19$ is covered modulo $130$.
+
+Executable guardrail:
+
+- `has_divisor_in_residue_classes`
+- `two_one_ray_mod_130_divisor_residues`
+- `has_two_one_ray_mod_130_divisor`
+- `test_combined_mod_130_divisor_residual_reduction`
+
+### Added: Complement-Divisor Sieve And Mod-34 Family
+
+The complement-factor construction is now represented as a reusable divisor
+sieve over signed Pythagorean directions. For each direction, the factor-one
+quotient residues are compressed from their natural modulus $2|U|^2$ to the
+minimal period when possible, and finite direction sets can be combined by
+taking a periodic residue union.
+
+The new $8$-$15$-$17$ instance gives:
+$$
+\begin{array}{c|c}
+q \pmod {34} & U\\
+\hline
+7 & (15,-8)\\
+13 & (15,8)\\
+21 & (-15,-8)\\
+27 & (-15,8).
+\end{array}
+$$
+Thus every positive multiplier with a divisor in one of those four classes has
+an exact two-step certificate. Together with the mod-$10$ and mod-$26$ divisor
+families, this gives a combined small-direction quotient period
+$$
+\operatorname{lcm}(10,26,34)=2210.
+$$
+The covered quotient-divisor residues are exactly the classes that are
+$3$ or $7$ modulo $10$, or $3,7,19,23$ modulo $26$, or $7,13,21,27$ modulo
+$34$; this gives $754$ residue classes modulo $2210$.
+The period is only a compact way to store divisor classes; it is not a finite
+box and not a periodic condition on the multiplier itself.
+
+Executable guardrail:
+
+- `minimal_periodic_residue_classes`
+- `periodic_residue_union`
+- `two_one_ray_complement_divisor_period`
+- `two_one_ray_complement_divisor_sieve_residue_classes`
+- `two_one_ray_complement_divisor_sieve_certificate`
+- `two_one_ray_mod_2210_divisor_residues`
+- `has_two_one_ray_mod_2210_divisor`
+- `two_one_ray_mod_thirty_four_divisor_certificate`
+- `two_one_ray_mod_thirty_four_divisor_orbit_certificate`
+- `test_two_one_ray_mod_thirty_four_divisor_family`
+- `test_complement_divisor_sieve_residue_compression`
+
 ### Added: Even Multiples Of The $(2,1)$ Ray
 
 The paper's certificate for $(2,4)$ swaps to a certificate for $(4,2)$, and the
@@ -539,6 +1566,76 @@ Executable guardrail:
 - `test_affine_consecutive_hypotenuse_family`
 - `test_unit_coordinate_consecutive_hypotenuse_family`
 - `test_unit_coordinate_multiple_of_five_family`
+
+### Added: Target-Facing Affine Consecutive-Hypotenuse Solver
+
+The affine consecutive-hypotenuse strip now has a direct recognizer for a
+requested target $(g,q)$. For fixed $m\ge2$, with
+$u=2m-1$, $v=2m(m-1)$, and $c=m^2+(m-1)^2$, it checks exactly
+$$
+v\mid q(1-q),\qquad cq\mid g-uq(1-q)/v,
+$$
+then recovers $t$ and delegates to the explicit affine certificate. A symmetric
+wrapper also applies coordinate swap.
+
+Executable guardrail:
+
+- `affine_consecutive_hypotenuse_target_certificate`
+- `affine_consecutive_hypotenuse_orbit_certificate`
+- `test_affine_consecutive_hypotenuse_target_solver`
+
+### Added: Target-Facing Half-Leg Strip Solver
+
+The half-leg strip now has an exact recognizer for arbitrary nonzero strip
+coordinate $q$, not just the unit-coordinate specialization. For fixed
+odd-even legal direction $U=(u,v)$ and target $(g,q)$, it first checks
+$v\mid q(1-q)$, then solves the resulting quadratic in $t$:
+$$
+\frac{uv(1+2v-u^2)}4t^2+q(u^2-v)t+u\frac{q(1-q)}v=g.
+$$
+The solver delegates any integral root to the existing half-leg certificate,
+so all standard nondegeneracy checks remain centralized.
+
+Executable guardrail:
+
+- `half_leg_strip_target_certificate`
+- `half_leg_strip_orbit_certificate`
+- `test_half_leg_strip_target_solver`
+
+### Added: Target-Facing Half-Leg Unit-Coordinate Solver
+
+The half-leg unit-coordinate family now has an exact recognizer. For a legal
+odd-even direction $U=(u,v)$ and target $(g,1)$, it solves
+$$
+\frac{uv(1+2v-u^2)}4t^2+(u^2-v)t=g
+$$
+by the discriminant criterion, then delegates to the existing explicit
+half-leg certificate. A sign/swap wrapper gives the corresponding symmetric
+unit-coordinate targets.
+
+Executable guardrail:
+
+- `half_leg_unit_coordinate_target_certificate`
+- `half_leg_unit_coordinate_orbit_certificate`
+- `test_half_leg_unit_coordinate_target_solver`
+
+### Added: Exact Unit-Coordinate Audit Through 500
+
+The unit-coordinate slice now has a finite exact audit: every target in the
+sign/swap orbit of $(n,1)$ with $|n|\le500$ is certified, except for the known
+distance-three orbit. The audit uses existing exact families first and then
+twenty-two explicit residual midpoint representatives.
+
+This is a finite statement only. The residual rows are retained as directly
+checked midpoint identities, not as a claim that the unit-coordinate line has
+been classified.
+
+Executable guardrail:
+
+- `UNIT_COORDINATE_500_RESIDUAL_CERTIFICATES`
+- `unit_coordinate_500_residual_certificate`
+- `unit_coordinate_500_audit_certificate`
+- `test_unit_coordinate_finite_audit_to_500`
 
 ### Deferred: Broad Unit-Coordinate Strip Table Search
 
