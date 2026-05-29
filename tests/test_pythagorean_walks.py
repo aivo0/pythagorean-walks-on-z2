@@ -3,6 +3,8 @@ from math import gcd, isqrt
 from pathlib import Path
 import unittest
 
+import pytest
+
 from experiments.pythagorean_walks import (
     Certificate,
     BOX_EIGHTY_RESIDUAL_CERTIFICATES,
@@ -468,6 +470,31 @@ from experiments.pythagorean_walks import (
 
 
 ARTIFACT_DIR = Path(__file__).resolve().parents[1] / "data"
+
+
+def assert_finite_box_audit(bound, audit_certificate):
+    """Shared finite-box audit check with low per-target assertion overhead."""
+
+    origin = (0, 0)
+    known_orbit = KNOWN_DISTANCE_THREE_ORBIT
+    for g in range(-bound, bound + 1):
+        for h in range(-bound, bound + 1):
+            target = (g, h)
+            certificate = audit_certificate(target)
+
+            if target == origin or target in known_orbit:
+                assert certificate is None, target
+                continue
+
+            if edge(origin, target):
+                if certificate is not None:
+                    assert certificate.target == target
+                    assert certificate.valid(), target
+                continue
+
+            assert certificate is not None, target
+            assert certificate.target == target
+            assert certificate.valid(), target
 
 
 class BasicGraphPredicateTests(unittest.TestCase):
@@ -2285,6 +2312,7 @@ class CertificateTests(unittest.TestCase):
         self.assertIsNotNone(shifted)
         self.assertTrue(shifted.valid())
 
+    @pytest.mark.perf
     def test_parallel_direction_factor_integrality_strip_intersection_residue_count(self):
         self.assertEqual(
             parallel_direction_factor_integrality_strip_intersection_residue_count(
@@ -2516,6 +2544,7 @@ class CertificateTests(unittest.TestCase):
             80,
         )
 
+    @pytest.mark.perf
     def test_parallel_direction_candidate_cover_probe(self):
         for target in KNOWN_DISTANCE_THREE_ORBIT:
             self.assertIsNone(parallel_direction_cover_certificate(target, 8), target)
@@ -3146,6 +3175,7 @@ class CertificateTests(unittest.TestCase):
         )
         self.assertIsNone(pythagorean_layered_structural_certificate((2, 1)))
 
+    @pytest.mark.perf
     def test_pythagorean_layered_split_cover_closes_sample_to_1000(self):
         self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS, 23)
         self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR, 179)
@@ -3371,6 +3401,7 @@ class CertificateTests(unittest.TestCase):
             ),
         )
 
+    @pytest.mark.perf
     def test_conjugate_ideal_divisor_obligation_census(self):
         witness = parallel_direction_conjugate_ideal_witness((151, 338), (-9, 40))
         self.assertIsNotNone(witness)
@@ -6651,28 +6682,12 @@ class CertificateTests(unittest.TestCase):
 
         self.assertIsNone(box_three_sixty_audit_certificate((361, 1)))
 
+    @pytest.mark.perf
     def test_box_five_hundred_finite_audit(self):
         self.assertEqual(BOX_FIVE_HUNDRED_RESIDUAL_CERTIFICATES, {})
         self.assertIsNone(box_five_hundred_residual_certificate((500, 1)))
 
-        for g in range(-500, 501):
-            for h in range(-500, 501):
-                target = (g, h)
-                certificate = box_five_hundred_audit_certificate(target)
-
-                if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-                    self.assertIsNone(certificate)
-                    continue
-
-                if edge((0, 0), target):
-                    if certificate is not None:
-                        self.assertEqual(certificate.target, target)
-                        self.assertTrue(certificate.valid())
-                    continue
-
-                self.assertIsNotNone(certificate, target)
-                self.assertEqual(certificate.target, target)
-                self.assertTrue(certificate.valid())
+        assert_finite_box_audit(500, box_five_hundred_audit_certificate)
 
         self.assertIsNone(box_five_hundred_audit_certificate((501, 1)))
 

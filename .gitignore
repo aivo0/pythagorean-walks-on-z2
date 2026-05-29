@@ -3,3 +3,4 @@ __pycache__/
 .agents/
 .codex/
 .lake/
+rust/pythagorean_walks_fast/target/

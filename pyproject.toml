@@ -1,0 +1,21 @@
+[build-system]
+requires = ["maturin>=1.8,<2"]
+build-backend = "maturin"
+
+[project]
+name = "pythagorean-walks-fast"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Rust acceleration kernels for the Pythagorean walks verification suite"
+
+[tool.maturin]
+manifest-path = "rust/pythagorean_walks_fast/Cargo.toml"
+module-name = "pythagorean_walks_fast"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "perf: exhaustive performance-sensitive guardrail tests",
+]

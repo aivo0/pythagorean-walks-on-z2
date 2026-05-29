@@ -12,6 +12,11 @@ from itertools import combinations
 from math import gcd, isqrt, lcm
 from typing import Iterable
 
+try:
+    import pythagorean_walks_fast as _fast
+except ImportError:
+    _fast = None
+
 
 Point = tuple[int, int]
 DivisorExponentSummand = tuple[int, int, int, tuple[int, ...]]
@@ -138,6 +143,8 @@ def positive_divisors(n: int) -> tuple[int, ...]:
 
     if n <= 0:
         raise ValueError("n must be positive")
+    if _fast is not None:
+        return tuple(_fast.positive_divisors(n))
 
     divisors = [1]
     for prime, exponent in prime_power_factorization(n):
@@ -156,6 +163,8 @@ def prime_power_factorization(n: int) -> tuple[tuple[int, int], ...]:
 
     if n <= 0:
         raise ValueError("n must be positive")
+    if _fast is not None:
+        return tuple(tuple(row) for row in _fast.prime_power_factorization(n))
 
     remaining = n
     prime_powers: list[tuple[int, int]] = []
@@ -186,6 +195,8 @@ def prime_factors(n: int) -> tuple[int, ...]:
 
     if n <= 0:
         raise ValueError("n must be positive")
+    if _fast is not None:
+        return tuple(_fast.prime_factors(n))
 
     factors: list[int] = []
     remaining = n
@@ -269,6 +280,10 @@ def has_divisor_in_residue_classes(
 
     if modulus <= 0:
         raise ValueError("modulus must be positive")
+    if n <= 0:
+        raise ValueError("n must be positive")
+    if _fast is not None:
+        return _fast.has_divisor_in_residue_classes(n, modulus, tuple(residues))
 
     residue_set = {residue % modulus for residue in residues}
     return any(
@@ -283,6 +298,8 @@ def divisor_residue_classes(n: int, modulus: int) -> tuple[int, ...]:
         raise ValueError("n must be positive")
     if modulus <= 0:
         raise ValueError("modulus must be positive")
+    if _fast is not None:
+        return tuple(_fast.divisor_residue_classes(n, modulus))
 
     residues = {1 % modulus}
     for prime, exponent in prime_power_factorization(n):
@@ -576,6 +593,8 @@ def all_prime_factors_one_or_nine_mod_ten(n: int) -> bool:
 
 
 def edge_delta(dx: int, dy: int) -> bool:
+    if _fast is not None:
+        return _fast.edge_delta(dx, dy)
     return dx != 0 and dy != 0 and is_square(dx * dx + dy * dy)
 
 
@@ -626,6 +645,8 @@ def theorem1_three_step_path(target: Point) -> tuple[Point, ...]:
 
 
 def is_two_step_certificate(target: Point, midpoint: Point) -> bool:
+    if _fast is not None:
+        return _fast.certificate_valid(target, midpoint)
     gx, gy = target
     x, y = midpoint
     return edge_delta(x, y) and edge_delta(gx - x, gy - y)
@@ -3212,6 +3233,8 @@ def parallel_direction_standard_completion_strip_intersection_linear_row_witness
 def parallel_direction_factor_modulus(direction: Point, factor: int) -> int:
     """Return the natural modulus for a fixed direction/factor criterion."""
 
+    if _fast is not None:
+        return _fast.parallel_direction_factor_modulus(direction, factor)
     if not edge_delta(*direction):
         raise ValueError("direction must be a legal Pythagorean edge vector")
     if factor <= 0:
@@ -3350,6 +3373,11 @@ def parallel_direction_factor_residue_classes(
 ) -> frozenset[Point]:
     """Residue classes where one direction/factor has an integral coefficient."""
 
+    if _fast is not None:
+        return frozenset(
+            _fast.parallel_direction_factor_residue_classes(direction, factor)
+        )
+
     modulus = parallel_direction_factor_modulus(direction, factor)
     residues: set[Point] = set()
     for g in range(modulus):
@@ -3419,6 +3447,15 @@ def parallel_direction_factor_integrality_strip_intersection_residue_count(
     This intentionally counts the modular coefficient-integrality condition,
     before the pointwise certificate nondegeneracy check.
     """
+
+    if _fast is not None:
+        return _fast.parallel_direction_factor_integrality_strip_intersection_residue_count(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            factor_direction,
+            factor,
+        )
 
     if not edge_delta(*strip_direction):
         raise ValueError("strip direction must be a legal Pythagorean edge vector")
@@ -3580,6 +3617,12 @@ def parallel_direction_certificate(
     direction: Point,
 ) -> Certificate | None:
     """Search the exact divisor criterion for one fixed first-step direction."""
+
+    if _fast is not None:
+        midpoint = _fast.parallel_direction_certificate_midpoint(target, direction)
+        if midpoint is None:
+            return None
+        return Certificate(target=target, midpoint=midpoint)
 
     witness = parallel_direction_witness(target, direction)
     if witness is None:
@@ -3754,6 +3797,8 @@ def ray_parallel_factor_residues(
 
     if ray[0] == 0 and ray[1] == 0:
         raise ValueError("ray must be nonzero")
+    if _fast is not None:
+        return tuple(_fast.ray_parallel_factor_residues(ray, direction, factor))
 
     modulus = parallel_direction_factor_modulus(direction, factor)
     residues: list[int] = []
@@ -3922,6 +3967,11 @@ def parallel_direction_cover_certificate(
 
     if max_parameter < 2:
         raise ValueError("max_parameter must be at least 2")
+    if _fast is not None:
+        midpoint = _fast.parallel_direction_cover_midpoint(target, max_parameter)
+        if midpoint is None:
+            return None
+        return Certificate(target=target, midpoint=midpoint)
 
     for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
         max_parameter
@@ -4141,6 +4191,30 @@ def pythagorean_lattice_pair_witness(
     max_determinant: int | None = None,
 ) -> PythagoreanLatticePairWitness | None:
     """First bounded-index Pythagorean lattice-pair witness for a target."""
+
+    if _fast is not None:
+        row = _fast.pythagorean_lattice_pair_witness(
+            target,
+            max_parameter,
+            max_determinant,
+        )
+        if row is None:
+            return None
+        (
+            first_direction,
+            second_direction,
+            determinant_value,
+            first_coefficient,
+            second_coefficient,
+        ) = row
+        return PythagoreanLatticePairWitness(
+            target=target,
+            first_direction=first_direction,
+            second_direction=second_direction,
+            determinant=determinant_value,
+            first_coefficient=first_coefficient,
+            second_coefficient=second_coefficient,
+        )
 
     for first_direction, second_direction in pythagorean_lattice_direction_pairs(
         max_parameter,
@@ -10178,6 +10252,17 @@ BOX_FIVE_HUNDRED_RESIDUAL_LOOKUP = _residual_certificate_lookup(
     BOX_FIVE_HUNDRED_RESIDUAL_CERTIFICATES
 )
 
+FAST_LATTICE_PAIR_TABLES: dict[tuple[tuple[Point, Point], ...], str] = {}
+if _fast is not None:
+    for _name, _pairs in (
+        ("determinant_seven", DETERMINANT_SEVEN_DIRECTION_PAIRS),
+        ("determinant_thirteen", DETERMINANT_THIRTEEN_DIRECTION_PAIRS),
+        ("determinant_seventeen", DETERMINANT_SEVENTEEN_DIRECTION_PAIRS),
+        ("small_prime", SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS),
+    ):
+        _fast.register_lattice_pairs(_name, _pairs)
+        FAST_LATTICE_PAIR_TABLES[_pairs] = _name
+
 
 def first_lattice_certificate(
     target: Point,
@@ -10185,8 +10270,17 @@ def first_lattice_certificate(
 ) -> Certificate | None:
     """Return the first two-edge lattice certificate from a list of pairs."""
 
+    pair_tuple = tuple(direction_pairs)
+    if _fast is not None:
+        table_name = FAST_LATTICE_PAIR_TABLES.get(pair_tuple)
+        if table_name is not None:
+            midpoint = _fast.first_registered_lattice_midpoint(table_name, target)
+            if midpoint is None:
+                return None
+            return Certificate(target=target, midpoint=midpoint)
+
     for first_direction, second_direction, pair_determinant, determinant_is_prime in (
-        _lattice_pair_metadata(tuple(direction_pairs))
+        _lattice_pair_metadata(pair_tuple)
     ):
         if determinant_is_prime:
             certificate = _prime_determinant_lattice_certificate_with_determinant(
@@ -14334,33 +14428,9 @@ def box_twenty_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_twenty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 20.
+    """Certificate used by the exact finite audit for |g|, |h| <= 20."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 20:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_twenty_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 20)
 
 
 @cache
@@ -14372,33 +14442,9 @@ def box_thirty_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_thirty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 30.
+    """Certificate used by the exact finite audit for |g|, |h| <= 30."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 30:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_thirty_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 30)
 
 
 @cache
@@ -14410,33 +14456,9 @@ def box_forty_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_forty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 40.
+    """Certificate used by the exact finite audit for |g|, |h| <= 40."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 40:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_forty_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 40)
 
 
 @cache
@@ -14448,33 +14470,9 @@ def box_fifty_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_fifty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 50.
+    """Certificate used by the exact finite audit for |g|, |h| <= 50."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 50:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_fifty_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 50)
 
 
 @cache
@@ -14486,33 +14484,9 @@ def box_sixty_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_sixty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 60.
+    """Certificate used by the exact finite audit for |g|, |h| <= 60."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 60:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_sixty_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 60)
 
 
 @cache
@@ -14524,33 +14498,9 @@ def box_seventy_residual_certificate(target: Point) -> Certificate | None:
 
 @cache
 def box_seventy_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 70.
+    """Certificate used by the exact finite audit for |g|, |h| <= 70."""
 
-    One-step targets and known distance-three exceptions intentionally return
-    None; the finite audit handles those cases separately.
-    """
-
-    g, h = target
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(g), abs(h)) > 70:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        box_seventy_residual_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return box_audit_certificate(target, 70)
 
 
 @cache
@@ -14616,52 +14566,128 @@ def unit_coordinate_500_audit_certificate(target: Point) -> Certificate | None:
     return unit_coordinate_500_residual_certificate(target)
 
 
-@cache
-def box_eighty_residual_certificate(target: Point) -> Certificate | None:
-    """Explicit residual certificates for the finite audit box |g|, |h| <= 80."""
+BOX_AUDIT_BOUNDS: tuple[int, ...] = (
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    130,
+    140,
+    150,
+    160,
+    170,
+    180,
+    190,
+    200,
+    210,
+    220,
+    230,
+    240,
+    250,
+    260,
+    270,
+    280,
+    290,
+    300,
+    310,
+    320,
+    330,
+    340,
+    350,
+    360,
+    500,
+)
 
-    return BOX_EIGHTY_RESIDUAL_LOOKUP.get(target)
+BOX_RESIDUAL_CERTIFICATE_NAMES = {
+    20: "box_twenty_residual_certificate",
+    30: "box_thirty_residual_certificate",
+    40: "box_forty_residual_certificate",
+    50: "box_fifty_residual_certificate",
+    60: "box_sixty_residual_certificate",
+    70: "box_seventy_residual_certificate",
+    80: "box_eighty_residual_certificate",
+    90: "box_ninety_residual_certificate",
+    100: "box_one_hundred_residual_certificate",
+    110: "box_one_ten_residual_certificate",
+    120: "box_one_twenty_residual_certificate",
+    130: "box_one_thirty_residual_certificate",
+    140: "box_one_forty_residual_certificate",
+    150: "box_one_fifty_residual_certificate",
+    160: "box_one_sixty_residual_certificate",
+    170: "box_one_seventy_residual_certificate",
+    180: "box_one_eighty_residual_certificate",
+    190: "box_one_ninety_residual_certificate",
+    200: "box_two_hundred_residual_certificate",
+    210: "box_two_ten_residual_certificate",
+    220: "box_two_twenty_residual_certificate",
+    230: "box_two_thirty_residual_certificate",
+    240: "box_two_forty_residual_certificate",
+    250: "box_two_fifty_residual_certificate",
+    260: "box_two_sixty_residual_certificate",
+    270: "box_two_seventy_residual_certificate",
+    280: "box_two_eighty_residual_certificate",
+    290: "box_two_ninety_residual_certificate",
+    300: "box_three_hundred_residual_certificate",
+    310: "box_three_ten_residual_certificate",
+    320: "box_three_twenty_residual_certificate",
+    330: "box_three_thirty_residual_certificate",
+    340: "box_three_forty_residual_certificate",
+    350: "box_three_fifty_residual_certificate",
+    360: "box_three_sixty_residual_certificate",
+    500: "box_five_hundred_residual_certificate",
+}
+
+BOX_BASE_CONSTRUCTORS = (
+    axis_orbit_proof_certificate,
+    determinant_seven_lattice_certificate,
+    determinant_thirteen_lattice_certificate,
+    determinant_seventeen_lattice_certificate,
+    small_prime_lattice_certificate,
+    two_one_ray_even_orbit_certificate,
+    two_one_ray_explicit_base_orbit_certificate,
+)
+
+BOX_EXTENDED_CONSTRUCTORS = BOX_BASE_CONSTRUCTORS + (
+    unit_coordinate_500_audit_certificate,
+    diagonal_pythagorean_multiplier_certificate,
+)
+
+BOX_HALF_LEG_STRIP_DIRECTIONS: tuple[Point, ...] = (
+    (3, 4),
+    (5, 12),
+    (7, 24),
+    (9, 40),
+    (11, 60),
+    (13, 84),
+    (15, 8),
+    (15, 112),
+    (17, 144),
+    (21, 20),
+    (-3, 4),
+    (5, -12),
+)
 
 
-@cache
-def box_eighty_audit_certificate(target: Point) -> Certificate | None:
-    """Certificate used by the exact finite audit for |g|, |h| <= 80."""
-
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 80:
-        return None
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-        box_seventy_residual_certificate,
-    ):
+def _first_box_constructor_certificate(
+    target: Point,
+    constructors: Iterable,
+) -> Certificate | None:
+    for constructor in constructors:
         certificate = constructor(target)
         if certificate is not None:
             return certificate
+    return None
 
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
+
+def _box_tail_certificate(target: Point) -> Certificate | None:
+    for direction in BOX_HALF_LEG_STRIP_DIRECTIONS:
         certificate = half_leg_strip_orbit_certificate(target, direction)
         if certificate is not None:
             return certificate
@@ -14676,7 +14702,81 @@ def box_eighty_audit_certificate(target: Point) -> Certificate | None:
         if certificate is not None:
             return certificate
 
-    return box_eighty_residual_certificate(target)
+    return None
+
+
+def _box_stage_bound(radius: int, requested_bound: int) -> int:
+    if requested_bound not in BOX_RESIDUAL_CERTIFICATE_NAMES:
+        raise ValueError("unsupported finite audit bound")
+    if radius > requested_bound:
+        return -1
+    if requested_bound <= 70:
+        return requested_bound
+    if radius <= 80:
+        return 80
+    for bound in BOX_AUDIT_BOUNDS:
+        if bound >= 90 and radius <= bound <= requested_bound:
+            return bound
+    return -1
+
+
+def _box_residual_certificate(target: Point, bound: int) -> Certificate | None:
+    return globals()[BOX_RESIDUAL_CERTIFICATE_NAMES[bound]](target)
+
+
+@cache
+def box_audit_certificate(target: Point, bound: int) -> Certificate | None:
+    """Certificate used by a finite audit box without cascading through lower boxes."""
+
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    radius = max(abs(target[0]), abs(target[1]))
+    stage_bound = _box_stage_bound(radius, bound)
+    if stage_bound < 0:
+        return None
+    if stage_bound != bound:
+        return box_audit_certificate(target, stage_bound)
+
+    if stage_bound <= 70:
+        certificate = _first_box_constructor_certificate(target, BOX_BASE_CONSTRUCTORS)
+        if certificate is not None:
+            return certificate
+        return _box_residual_certificate(target, stage_bound)
+
+    certificate = _first_box_constructor_certificate(target, BOX_EXTENDED_CONSTRUCTORS)
+    if certificate is not None:
+        return certificate
+
+    if stage_bound == 80:
+        certificate = box_seventy_residual_certificate(target)
+        if certificate is not None:
+            return certificate
+
+    if stage_bound >= 360:
+        certificate = parallel_direction_cover_certificate(target, 8)
+        if certificate is not None:
+            return certificate
+
+    certificate = _box_tail_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    return _box_residual_certificate(target, stage_bound)
+
+
+@cache
+def box_eighty_residual_certificate(target: Point) -> Certificate | None:
+    """Explicit residual certificates for the finite audit box |g|, |h| <= 80."""
+
+    return BOX_EIGHTY_RESIDUAL_LOOKUP.get(target)
+
+
+@cache
+def box_eighty_audit_certificate(target: Point) -> Certificate | None:
+    """Certificate used by the exact finite audit for |g|, |h| <= 80."""
+
+    return box_audit_certificate(target, 80)
 
 
 @cache
@@ -14690,59 +14790,7 @@ def box_ninety_residual_certificate(target: Point) -> Certificate | None:
 def box_ninety_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 90."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 90:
-        return None
-
-    certificate = box_eighty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_ninety_residual_certificate(target)
+    return box_audit_certificate(target, 90)
 
 
 @cache
@@ -14756,59 +14804,7 @@ def box_one_hundred_residual_certificate(target: Point) -> Certificate | None:
 def box_one_hundred_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 100."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 100:
-        return None
-
-    certificate = box_ninety_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_hundred_residual_certificate(target)
+    return box_audit_certificate(target, 100)
 
 
 @cache
@@ -14822,59 +14818,7 @@ def box_one_ten_residual_certificate(target: Point) -> Certificate | None:
 def box_one_ten_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 110."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 110:
-        return None
-
-    certificate = box_one_hundred_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_ten_residual_certificate(target)
+    return box_audit_certificate(target, 110)
 
 
 @cache
@@ -14888,59 +14832,7 @@ def box_one_twenty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_twenty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 120."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 120:
-        return None
-
-    certificate = box_one_ten_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_twenty_residual_certificate(target)
+    return box_audit_certificate(target, 120)
 
 
 @cache
@@ -14954,59 +14846,7 @@ def box_one_thirty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_thirty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 130."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 130:
-        return None
-
-    certificate = box_one_twenty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_thirty_residual_certificate(target)
+    return box_audit_certificate(target, 130)
 
 
 @cache
@@ -15020,59 +14860,7 @@ def box_one_forty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_forty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 140."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 140:
-        return None
-
-    certificate = box_one_thirty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_forty_residual_certificate(target)
+    return box_audit_certificate(target, 140)
 
 
 @cache
@@ -15086,59 +14874,7 @@ def box_one_fifty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_fifty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 150."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 150:
-        return None
-
-    certificate = box_one_forty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_fifty_residual_certificate(target)
+    return box_audit_certificate(target, 150)
 
 
 @cache
@@ -15152,59 +14888,7 @@ def box_one_sixty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_sixty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 160."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 160:
-        return None
-
-    certificate = box_one_fifty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_sixty_residual_certificate(target)
+    return box_audit_certificate(target, 160)
 
 
 @cache
@@ -15218,59 +14902,7 @@ def box_one_seventy_residual_certificate(target: Point) -> Certificate | None:
 def box_one_seventy_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 170."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 170:
-        return None
-
-    certificate = box_one_sixty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_seventy_residual_certificate(target)
+    return box_audit_certificate(target, 170)
 
 
 @cache
@@ -15284,59 +14916,7 @@ def box_one_eighty_residual_certificate(target: Point) -> Certificate | None:
 def box_one_eighty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 180."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 180:
-        return None
-
-    certificate = box_one_seventy_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_eighty_residual_certificate(target)
+    return box_audit_certificate(target, 180)
 
 
 @cache
@@ -15350,59 +14930,7 @@ def box_one_ninety_residual_certificate(target: Point) -> Certificate | None:
 def box_one_ninety_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 190."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 190:
-        return None
-
-    certificate = box_one_eighty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_one_ninety_residual_certificate(target)
+    return box_audit_certificate(target, 190)
 
 
 @cache
@@ -15416,59 +14944,7 @@ def box_two_hundred_residual_certificate(target: Point) -> Certificate | None:
 def box_two_hundred_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 200."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 200:
-        return None
-
-    certificate = box_one_ninety_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_hundred_residual_certificate(target)
+    return box_audit_certificate(target, 200)
 
 
 @cache
@@ -15482,59 +14958,7 @@ def box_two_ten_residual_certificate(target: Point) -> Certificate | None:
 def box_two_ten_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 210."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 210:
-        return None
-
-    certificate = box_two_hundred_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_ten_residual_certificate(target)
+    return box_audit_certificate(target, 210)
 
 
 @cache
@@ -15548,59 +14972,7 @@ def box_two_twenty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_twenty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 220."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 220:
-        return None
-
-    certificate = box_two_ten_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_twenty_residual_certificate(target)
+    return box_audit_certificate(target, 220)
 
 
 @cache
@@ -15614,59 +14986,7 @@ def box_two_thirty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_thirty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 230."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 230:
-        return None
-
-    certificate = box_two_twenty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_thirty_residual_certificate(target)
+    return box_audit_certificate(target, 230)
 
 
 @cache
@@ -15680,59 +15000,7 @@ def box_two_forty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_forty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 240."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 240:
-        return None
-
-    certificate = box_two_thirty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_forty_residual_certificate(target)
+    return box_audit_certificate(target, 240)
 
 
 @cache
@@ -15746,59 +15014,7 @@ def box_two_fifty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_fifty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 250."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 250:
-        return None
-
-    certificate = box_two_forty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_fifty_residual_certificate(target)
+    return box_audit_certificate(target, 250)
 
 
 @cache
@@ -15812,59 +15028,7 @@ def box_two_sixty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_sixty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 260."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 260:
-        return None
-
-    certificate = box_two_fifty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_sixty_residual_certificate(target)
+    return box_audit_certificate(target, 260)
 
 
 @cache
@@ -15878,59 +15042,7 @@ def box_two_seventy_residual_certificate(target: Point) -> Certificate | None:
 def box_two_seventy_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 270."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 270:
-        return None
-
-    certificate = box_two_sixty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_seventy_residual_certificate(target)
+    return box_audit_certificate(target, 270)
 
 
 @cache
@@ -15944,59 +15056,7 @@ def box_two_eighty_residual_certificate(target: Point) -> Certificate | None:
 def box_two_eighty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 280."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 280:
-        return None
-
-    certificate = box_two_seventy_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_eighty_residual_certificate(target)
+    return box_audit_certificate(target, 280)
 
 
 @cache
@@ -16010,59 +15070,7 @@ def box_two_ninety_residual_certificate(target: Point) -> Certificate | None:
 def box_two_ninety_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 290."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 290:
-        return None
-
-    certificate = box_two_eighty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_two_ninety_residual_certificate(target)
+    return box_audit_certificate(target, 290)
 
 
 @cache
@@ -16076,59 +15084,7 @@ def box_three_hundred_residual_certificate(target: Point) -> Certificate | None:
 def box_three_hundred_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 300."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 300:
-        return None
-
-    certificate = box_two_ninety_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_hundred_residual_certificate(target)
+    return box_audit_certificate(target, 300)
 
 
 @cache
@@ -16142,59 +15098,7 @@ def box_three_ten_residual_certificate(target: Point) -> Certificate | None:
 def box_three_ten_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 310."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 310:
-        return None
-
-    certificate = box_three_hundred_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_ten_residual_certificate(target)
+    return box_audit_certificate(target, 310)
 
 
 @cache
@@ -16208,59 +15112,7 @@ def box_three_twenty_residual_certificate(target: Point) -> Certificate | None:
 def box_three_twenty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 320."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 320:
-        return None
-
-    certificate = box_three_ten_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_twenty_residual_certificate(target)
+    return box_audit_certificate(target, 320)
 
 
 @cache
@@ -16274,59 +15126,7 @@ def box_three_thirty_residual_certificate(target: Point) -> Certificate | None:
 def box_three_thirty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 330."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 330:
-        return None
-
-    certificate = box_three_twenty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_thirty_residual_certificate(target)
+    return box_audit_certificate(target, 330)
 
 
 @cache
@@ -16340,59 +15140,7 @@ def box_three_forty_residual_certificate(target: Point) -> Certificate | None:
 def box_three_forty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 340."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 340:
-        return None
-
-    certificate = box_three_thirty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_forty_residual_certificate(target)
+    return box_audit_certificate(target, 340)
 
 
 @cache
@@ -16406,59 +15154,7 @@ def box_three_fifty_residual_certificate(target: Point) -> Certificate | None:
 def box_three_fifty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 350."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 350:
-        return None
-
-    certificate = box_three_forty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_fifty_residual_certificate(target)
+    return box_audit_certificate(target, 350)
 
 
 @cache
@@ -16472,63 +15168,7 @@ def box_three_sixty_residual_certificate(target: Point) -> Certificate | None:
 def box_three_sixty_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 360."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 360:
-        return None
-
-    certificate = box_three_fifty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    certificate = parallel_direction_cover_certificate(target, 8)
-    if certificate is not None:
-        return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_three_sixty_residual_certificate(target)
+    return box_audit_certificate(target, 360)
 
 
 @cache
@@ -16542,63 +15182,7 @@ def box_five_hundred_residual_certificate(target: Point) -> Certificate | None:
 def box_five_hundred_audit_certificate(target: Point) -> Certificate | None:
     """Certificate used by the exact finite audit for |g|, |h| <= 500."""
 
-    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
-        return None
-    if max(abs(target[0]), abs(target[1])) > 500:
-        return None
-
-    certificate = box_three_sixty_audit_certificate(target)
-    if certificate is not None:
-        return certificate
-
-    for constructor in (
-        axis_orbit_proof_certificate,
-        determinant_seven_lattice_certificate,
-        determinant_thirteen_lattice_certificate,
-        determinant_seventeen_lattice_certificate,
-        small_prime_lattice_certificate,
-        two_one_ray_even_orbit_certificate,
-        two_one_ray_explicit_base_orbit_certificate,
-        unit_coordinate_500_audit_certificate,
-        diagonal_pythagorean_multiplier_certificate,
-    ):
-        certificate = constructor(target)
-        if certificate is not None:
-            return certificate
-
-    certificate = parallel_direction_cover_certificate(target, 8)
-    if certificate is not None:
-        return certificate
-
-    for direction in (
-        (3, 4),
-        (5, 12),
-        (7, 24),
-        (9, 40),
-        (11, 60),
-        (13, 84),
-        (15, 8),
-        (15, 112),
-        (17, 144),
-        (21, 20),
-        (-3, 4),
-        (5, -12),
-    ):
-        certificate = half_leg_strip_orbit_certificate(target, direction)
-        if certificate is not None:
-            return certificate
-
-    for m in range(2, 18):
-        certificate = affine_consecutive_hypotenuse_orbit_certificate(target, m)
-        if certificate is not None:
-            return certificate
-
-    for parameter_n in range(1, 17):
-        certificate = theorem3_quadratic_strip_orbit_certificate(target, parameter_n)
-        if certificate is not None:
-            return certificate
-
-    return box_five_hundred_residual_certificate(target)
+    return box_audit_certificate(target, 500)
 
 
 @cache

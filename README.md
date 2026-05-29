@@ -200,6 +200,11 @@ extrapolated outside their stated ranges.
   paper examples, known exceptions, explicit certificates, formula families,
   and bounded coverage audits.
 
+- `rust/pythagorean_walks_fast`: PyO3/maturin extension with compiled kernels
+  for the performance-sensitive test guards. Build it with
+  `maturin develop --release`; the Python helpers fall back to pure Python if
+  the extension is not installed.
+
 - `assets/pythagorean-walks-eli5.gif`: ELI5 animation for the problem
   statement.
 
@@ -214,6 +219,19 @@ extrapolated outside their stated ranges.
 
 - `lakefile.toml` and `lean-toolchain`: Lake project configuration for the Lean
   formalization.
+
+## Test Workflow
+
+Install the Rust-backed accelerator before running the frequently used Python
+suite:
+
+```bash
+maturin develop --release
+pytest -q --durations=20
+```
+
+The pytest configuration in `pyproject.toml` sets the repository root on
+`PYTHONPATH` and registers the `perf` marker for exhaustive guardrail tests.
 
 ## Lean Formalization
 
