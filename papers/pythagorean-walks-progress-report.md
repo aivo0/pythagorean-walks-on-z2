@@ -7,12 +7,14 @@ as proofs rather than only as proof-search notes.  It is intended to be read
 beside Jan Willemson's paper "Pythagorean walks on `Z^2`"
 (`arXiv:2605.20831v1`, 20 May 2026).
 
-The report does not prove the full conjecture.  It proves three complete slices
-that are now part of this workspace:
+The report does not prove the full conjecture.  It records the complete
+theorem slices that are now part of this workspace, including:
 
 1. the axis slice;
-2. the full sign/swap orbit of the `(1,3)` ray;
-3. the non-primitive part of the exceptional `(2,1)` ray.
+2. full sign/swap ray and ray-fan slices from the signed Theorem 3 rows;
+3. consecutive-Euclid and consecutive-hypotenuse strip slices;
+4. unit-coordinate congruence rows from fixed-direction parallel factors;
+5. the non-primitive part of the exceptional `(2,1)` ray.
 
 The broader non-axis proof program is summarized at the end, with explicit
 separation between theorem-level statements and finite computational guardrails.
@@ -490,11 +492,253 @@ Executable guardrails:
 - `test_affine_consecutive_hypotenuse_family`
 - `test_affine_consecutive_hypotenuse_target_solver`
 
+## 4.11. The Consecutive-Hypotenuse Unit-Coordinate Subline
+
+The unit-coordinate specialization of Section 4.10 is now a named infinite
+slice.  For `m >= 2`, let
+
+```text
+c=m^2+(m-1)^2,      u=2m-1,      v=2m(m-1).
+```
+
+Then every nonzero integer `t` gives a two-step certificate for `(ct,1)`.
+The midpoint is
+
+```text
+((2m-1)R, 2m(m-1)R),
+R=(2m-1)t - 2(m(m-1)t)^2.
+```
+
+The second edge is Euclid's
+
+```text
+(2AB, B^2-A^2),      A=m(m-1)t,      B=(2m-1)A-1.
+```
+
+The Lean row `certificateValid_consecutiveHypotenuseUnitCoordinate` proves that
+the affine-strip nondegeneracy hypotheses are automatic for `q=1` and `t != 0`.
+The Python wrapper `unit_coordinate_consecutive_hypotenuse_certificate` gives
+the sign/swap orbit; the case `m=2` recovers the multiple-of-five
+unit-coordinate family.
+
+Executable guardrails:
+
+- `certificateValid_consecutiveHypotenuseUnitCoordinate`
+- `consecutive_hypotenuse_unit_coordinate_certificate`
+- `unit_coordinate_consecutive_hypotenuse_certificate`
+- `unit_coordinate_multiple_of_five_certificate`
+- `test_unit_coordinate_consecutive_hypotenuse_family`
+- `test_unit_coordinate_multiple_of_five_family`
+
+## 4.12. The Half-Leg Unit-Coordinate Row
+
+The generic half-leg strip also gives a Lean-backed unit-coordinate theorem.
+Let `(u,4z)` be a Pythagorean edge direction with `u` odd and `u,z != 0`.  For
+every nonzero integer `t`, put
+
+```text
+A=2zt,      B=uA-1,      R=ut-z(u^2-1)t^2.
+```
+
+Then the target
+
+```text
+(uR+2AB, 1)
+```
+
+has midpoint `(uR,4zR)`.  The second edge is `(2AB,B^2-A^2)`, so it is a
+Pythagorean edge by Euclid's formula.  The parity constraints make the usual
+strip nondegeneracy automatic: `R` cannot vanish because it would force an odd
+integer to equal an even one, and `B-A` and `B+A` are odd.
+
+The Lean row `certificateValid_halfLegUnitCoordinate` proves the full
+parametric row.  The executable target-facing solver recognizes the same
+quadratic family and the orbit wrapper applies sign changes and coordinate
+swap.
+
+Executable guardrails:
+
+- `certificateValid_halfLegUnitCoordinate`
+- `half_leg_unit_coordinate_certificate`
+- `half_leg_unit_coordinate_target_certificate`
+- `half_leg_unit_coordinate_orbit_certificate`
+- `test_half_leg_unit_coordinate_family`
+- `test_half_leg_unit_coordinate_target_solver`
+
+## 4.13. The Factor-Five Unit-Coordinate Congruence Row
+
+The first nonstandard fixed-direction parallel-factor unit-coordinate family is
+also now Lean-backed. For every integer `t`, set
+
+```text
+h=25t+17,      r=40t^2+55t+19.
+```
+
+Then `(1,h)` has midpoint `(4r,3r)`.  The second edge is
+
+```text
+(1-4r, h-3r),
+```
+
+and its squared length is
+
+```text
+(5(40t^2+52t+17))^2.
+```
+
+The Lean row `certificateValid_unitCoordinateFactorFiveParallel` proves the
+parametric identity and nondegeneracy checks.  This is exactly the `(4,3)`
+fixed-direction parallel-factor construction with factor `5`; the Python orbit
+wrapper gives all sign/swap images.
+
+Executable guardrails:
+
+- `certificateValid_unitCoordinateFactorFiveParallel`
+- `unit_coordinate_factor_five_parallel_certificate`
+- `unit_coordinate_factor_five_parallel_orbit_certificate`
+- `test_unit_coordinate_factor_five_parallel_family`
+
+## 4.14. The Factor-Four Unit-Coordinate Congruence Row
+
+The companion fixed-direction parallel-factor row uses direction `(-3,-4)` and
+factor `4`.  For every integer `t`, set
+
+```text
+h=20t+12,      r=18t^2+16t+3.
+```
+
+Then `(1,h)` has midpoint `(-3r,-4r)`.  The second edge is
+
+```text
+(1+3r, h+4r),
+```
+
+with squared length
+
+```text
+(90t^2+96t+26)^2.
+```
+
+The Lean row `certificateValid_unitCoordinateFactorFourParallel` proves the
+parametric identity and nondegeneracy checks.  The Python constructor exposes
+the same row and the orbit wrapper gives all sign/swap images.
+
+Executable guardrails:
+
+- `certificateValid_unitCoordinateFactorFourParallel`
+- `unit_coordinate_factor_four_parallel_certificate`
+- `unit_coordinate_factor_four_parallel_orbit_certificate`
+- `test_unit_coordinate_factor_four_parallel_family`
+
+## 4.15. The One-Mod-Five Unit-Coordinate Congruence Row
+
+The factor-one fixed-direction parallel-factor row with direction `(4,-3)`
+closes an entire unit-coordinate residue class modulo `5`. For every integer
+`t`, set
+
+```text
+h=5t+1,      r=8t^2+5t+1.
+```
+
+Then `(1,h)` has midpoint `(4r,-3r)`. The second edge is
+
+```text
+(1-4r, h+3r),
+```
+
+with squared length
+
+```text
+(40t^2+28t+5)^2.
+```
+
+The Lean row `certificateValid_unitCoordinateOneModFiveParallel` proves the
+parametric identity and nondegeneracy checks. The Python constructor exposes
+the same row and the orbit wrapper gives all sign/swap images.
+
+Executable guardrails:
+
+- `certificateValid_unitCoordinateOneModFiveParallel`
+- `unit_coordinate_one_mod_five_parallel_certificate`
+- `unit_coordinate_one_mod_five_parallel_orbit_certificate`
+- `test_unit_coordinate_one_mod_five_parallel_family`
+
+## 4.16. The Seven-Mod-Ten Unit-Coordinate Congruence Row
+
+The factor-one fixed-direction parallel-factor row with direction `(3,4)`
+closes the odd part of the `h ≡ 2,3 mod 5` unit-coordinate layer.
+
+For every integer `t`, set
+
+```text
+h=10t+7,      r=18t^2+22t+7.
+```
+
+Then `(1,h)` has midpoint
+
+```text
+P=(3r,4r).
+```
+
+The first edge is legal.  Indeed,
+
+```text
+|P|^2=(3r)^2+(4r)^2=(5r)^2,
+```
+
+and `r` is positive for every integer `t`, since
+
+```text
+72r=(36t+22)^2+20.
+```
+
+The second displacement is
+
+```text
+(1,h)-P=(1-3r,h-4r).
+```
+
+Its two coordinates are nonzero because
+
+```text
+1-3r       = -2(3t+2)(9t+5),
+h-4r       = -3(2t+1)(12t+7),
+```
+
+and none of the four displayed linear factors can vanish at an integer `t`.
+A direct expansion gives the square-length identity
+
+```text
+(1-3r)^2+(h-4r)^2=(90t^2+102t+29)^2.
+```
+
+Thus `P` is a two-step certificate for `(1,10t+7)`.
+
+By the sign/swap transport from Section 2, the same proof gives every
+sign/swap image.  In particular, changing the sign of the second coordinate
+changes `10t+7` into a number congruent to `3 mod 10`, so the orbit form covers
+both unit-coordinate classes `h ≡ 7` and `h ≡ 3 mod 10`.
+
+This written proof is the prose version of the Lean theorem
+`certificateValid_unitCoordinateSevenModTenParallel`, which proves the
+parametric square identity and all nondegeneracy checks.  The orbit step uses
+the same sign/swap proof infrastructure as Section 2
+(`certificateValid_signedSwapPoint` and the Python `sign_swap_certificate`).
+The Python constructor exposes the base row, and the orbit wrapper applies
+those existing transport proofs to all sign/swap images.
+
+Executable guardrails:
+
+- `certificateValid_unitCoordinateSevenModTenParallel`
+- `unit_coordinate_seven_mod_ten_parallel_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_orbit_certificate`
+- `test_unit_coordinate_seven_mod_ten_parallel_family`
+
 ## 5. The Exceptional `(2,1)` Ray
 
-The primitive target `(2,1)` is a known distance-three obstruction.  The newest
-complete theorem in this workspace is that every non-primitive multiple of that
-ray has a two-step certificate.
+The primitive target `(2,1)` is a known distance-three obstruction.  A complete
+theorem in this workspace is that every non-primitive multiple of that ray has
+a two-step certificate.
 
 **Theorem 5.1.**  For every integer `N` with `|N|>1`, the target `(2N,N)` and
 every sign/swap image of it has distance at most two from the origin.
@@ -883,7 +1127,18 @@ algebra used by the proof program:
   explicit ray rows `certificateValid_twoOneRayMultipleOfThree` and
   `certificateValid_oneThreeRayTheorem3`;
 - Lean-proved affine consecutive-hypotenuse strip row:
-  `certificateValid_affineConsecutiveHypotenuseStrip`;
+  `certificateValid_affineConsecutiveHypotenuseStrip` and
+  `certificateValid_consecutiveHypotenuseUnitCoordinate`;
+- Lean-proved half-leg unit-coordinate row:
+  `certificateValid_halfLegUnitCoordinate`;
+- Lean-proved factor-five unit-coordinate row:
+  `certificateValid_unitCoordinateFactorFiveParallel`;
+- Lean-proved factor-four unit-coordinate row:
+  `certificateValid_unitCoordinateFactorFourParallel`;
+- Lean-proved one-mod-five unit-coordinate row:
+  `certificateValid_unitCoordinateOneModFiveParallel`;
+- Lean-proved seven-mod-ten unit-coordinate row:
+  `certificateValid_unitCoordinateSevenModTenParallel`;
 - Lean-proved Cramer/lattice certificate constructors:
   `cramerTarget_eq_add_smul`, `latticeCertificateValid`,
   `latticeCertificateValid_of_cramer`,
