@@ -570,9 +570,39 @@ The most important source files are:
 - `notes/verification-changelog.md`: audit trail for promoted lemmas,
   corrections, and guardrails.
 
-The repository also has an initial Lean 4/mathlib formalization seed:
+The repository also has a Lean 4/mathlib formalization of the core certificate
+algebra used by the proof program:
 
-- `PythagoreanWalks/Certificate.lean`: certificate validity, scaling of legal
-  steps, and the two-edge lattice certificate constructor;
+- `PythagoreanWalks/Certificate.lean`: definitions of integer points, legal
+  Pythagorean steps, and two-step certificate validity;
+- Lean-proved scaling closure for legal steps and certificates, corresponding
+  to `normSq_smul`, `legalStep_smul`, and `certificateValid_smul`;
+- Lean-proved sign/swap transport for legal steps and certificates,
+  corresponding to `normSq_signedSwapPoint`,
+  `legalStep_signedSwapPoint`, and `certificateValid_signedSwapPoint`;
+- Lean-proved Gaussian multiplication and Gaussian-divisor certificate
+  transport, including `normSq_gaussianMul`,
+  `certificateValid_gaussianMul`,
+  `gaussianMul_eq_of_quotient_components`, and
+  `certificateValid_gaussianDivisor_of_quotient_components`;
+- Lean-proved diagonal Gaussian row certificates:
+  `diagonalBaseCertificateValid`, `certificateValid_diagonalGaussianMultiplier`,
+  and `certificateValid_diagonalGaussianRow`;
+- Lean-proved Cramer/lattice certificate constructors:
+  `cramerTarget_eq_add_smul`, `latticeCertificateValid`,
+  `latticeCertificateValid_of_cramer`, and
+  `exists_latticeCertificateValid_of_cramer`;
+- Lean-proved fixed-direction parallel-factor certificate machinery:
+  `normSq_mul_normSq_sub_smul`,
+  `normSq_sub_smul_of_parallelFactor`,
+  `isIntSquare_sub_smul_of_parallelFactor`, and
+  `parallelFactorCertificateValid_of_nondegenerate`;
+- Lean-proved CRT and root-residue algebra:
+  `crtModEq_compat`, `exists_int_crt_of_gcd_modEq`, and
+  `gaussianRootResidue_sq_neg_one`;
 - `lakefile.toml`, `lean-toolchain`, and `lake-manifest.json`: Lake/mathlib
   project metadata.
+
+These Lean checks prove reusable algebraic constructors and congruence lemmas.
+They do not yet formalize Theorem 4.1, Theorem 5.1, or the paper's
+distance-three obstruction proofs as end-to-end Lean statements.

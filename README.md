@@ -18,9 +18,9 @@ sign/swap images are the only distance-`3` vertices.
 Start with [papers/pythagorean-walks-progress-report.md](papers/pythagorean-walks-progress-report.md)
 for a paper-style account of the current proved results and how to check them.
 It consolidates the definitions, symmetry reductions, axis theorem,
-non-primitive exceptional-ray theorem, and executable guardrails. The longer
-full-conjecture note remains the research notebook for proof-search machinery
-and open directions.
+non-primitive exceptional-ray theorem, executable guardrails, and Lean
+theorem-kernel checks. The longer full-conjecture note remains the research
+notebook for proof-search machinery and open directions.
 
 ## ELI5 Visualization
 
@@ -59,6 +59,11 @@ What is now proved or encoded:
 - A finite-direction parallel-divisor cover is now ray-lifted as a theorem
   candidate: proving the primitive representative is covered immediately
   certifies every nonzero multiple of that representative.
+- The Lean formalization now proves the core certificate algebra used by the
+  proof program: scaling and sign/swap transport, Gaussian multiplication and
+  divisor transport, an explicit diagonal Gaussian row, Cramer-style lattice
+  certificates, fixed-direction parallel-factor certificates, CRT compatibility
+  and existence, and a Gaussian root-residue lemma.
 
 ## Main Complete Results
 
@@ -214,8 +219,11 @@ extrapolated outside their stated ranges.
 - `data/shared_leg_residue_coverage.md`: bounded residue witness table for the
   quadratic family and shared-leg generator.
 
-- `PythagoreanWalks/Certificate.lean`: Lean/mathlib formalization seed for
-  certificate validity and the two-edge lattice constructor.
+- `PythagoreanWalks/Certificate.lean`: Lean/mathlib formalization of
+  certificate validity and algebraic certificate constructors: scaling,
+  sign/swap transport, Gaussian transport and divisibility, a diagonal Gaussian
+  row, Cramer/lattice constructors, fixed-direction parallel-factor
+  certificates, CRT lemmas, and a Gaussian root-residue lemma.
 
 - `lakefile.toml` and `lean-toolchain`: Lake project configuration for the Lean
   formalization.
@@ -236,9 +244,27 @@ The pytest configuration in `pyproject.toml` sets the repository root on
 ## Lean Formalization
 
 This repository includes a Lean 4/mathlib project for theorem-kernel checks of
-the algebraic reductions. The current starting point formalizes certificate
-validity and the two-edge lattice certificate constructor in
-`PythagoreanWalks/Certificate.lean`.
+the algebraic reductions. `PythagoreanWalks/Certificate.lean` currently proves:
+
+- the core definitions of points, legal Pythagorean steps, and two-step
+  certificate validity;
+- scaling of legal steps and certificates by any nonzero integer;
+- independent sign-change and coordinate-swap transport for legal steps and
+  certificates;
+- Gaussian multiplication preserving square norms, plus certificate transport
+  through square-norm Gaussian multipliers;
+- a target-facing Gaussian-divisor criterion from dot/determinant quotient
+  components;
+- the base diagonal certificate for `(1,1)` and its parametrized Gaussian row;
+- Cramer-style two-edge lattice certificate constructors;
+- a fixed-direction parallel-factor certificate criterion;
+- integer CRT compatibility and existence lemmas;
+- a Gaussian root-residue lemma proving that a conjugate-divisibility residue is
+  a square root of `-1` modulo the Gaussian norm.
+
+The axis theorem and the non-primitive exceptional-ray classification are still
+documented as written algebraic proofs and executable guardrails, not as Lean
+theorems.
 
 Lean setup follows the mathlib downstream-project pattern:
 
