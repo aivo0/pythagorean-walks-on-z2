@@ -14,6 +14,7 @@ OUTPUT = ROOT / "assets" / "pythagorean-walks-eli5.gif"
 
 WIDTH = 960
 HEIGHT = 560
+FRAME_DURATION_MS = 280
 BG = (255, 249, 238)
 GRID = (224, 211, 188)
 AXIS = (166, 148, 119)
@@ -329,6 +330,7 @@ def frame_big_picture() -> Image.Image:
             "What we proved here",
             "All axis dots after 2",
             "are at most two hops away.",
+            "So are later (2,1) multiples.",
             "The full non-axis claim",
             "is still open.",
         ],
@@ -359,7 +361,7 @@ def main() -> None:
         OUTPUT,
         save_all=True,
         append_images=frames[1:],
-        duration=115,
+        duration=FRAME_DURATION_MS,
         loop=0,
         optimize=True,
     )

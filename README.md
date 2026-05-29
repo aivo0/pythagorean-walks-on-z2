@@ -1,169 +1,159 @@
 # Pythagorean Walks Research Workspace
 
-This workspace studies the Pythagorean-walk graph on `Z^2` from Jan
+This repository studies the Pythagorean-walk graph on `Z^2` from Jan
 Willemson's paper `Pythagorean walks on Z^2`
 (`arXiv:2605.20831v1`, 20 May 2026).
 
 The graph has an edge for a displacement `(dx, dy)` exactly when both coordinate
-changes are nonzero and `dx^2 + dy^2` is a square.
+changes are nonzero and `dx^2 + dy^2` is a square. In other words, legal moves
+are non-horizontal, non-vertical Pythagorean jumps.
 
-The paper proves that the graph has diameter 3, proves the known
-distance 3 representatives `(1,0)`, `(2,0)`, and `(2,1)`, gives one infinite
-family of two-step certificates, and conjectures that these representatives and
-their sign/swap images are the only distance 3 vertices.
+The paper proves that the graph has diameter `3`, proves that `(1,0)`, `(2,0)`,
+and `(2,1)` are distance-`3` representatives, gives one infinite family of
+two-step certificates, and conjectures that these representatives and their
+sign/swap images are the only distance-`3` vertices.
 
 ## ELI5 Visualization
 
 ![ELI5 animation of Pythagorean walks](assets/pythagorean-walks-eli5.gif)
 
 The animation shows the core idea: dots are lattice points, allowed jumps are
-non-horizontal/non-vertical Pythagorean jumps, some nearby points still need
-detours, and the known distance 3 candidates are tiny points near the origin.
+non-horizontal/non-vertical Pythagorean jumps, nearby points can still need
+detours, and the known distance-`3` candidates are tiny points near the origin.
 
-## Status
+## Current Status
 
-The full conjecture is still open in this workspace: the project has not proved
-that every non-axis non-exception target has a two-step certificate.
+The full conjecture is still open in this workspace. The remaining global task
+is to prove that every non-axis primitive target outside the known
+distance-`3` orbit has a two-step certificate.
 
-The project has, however, proved and encoded several results beyond the
-original paper:
+What is now proved or encoded:
 
-- The horizontal-axis slice is complete. For every integer `n >= 3`,
-  `d((0,0),(n,0)) <= 2`.
-- By sign changes and coordinate swap, every axis target is now classified:
-  only the sign/swap images of `(1,0)` and `(2,0)` remain in the known distance
-  3 orbit.
-- The paper's diameter-three spanning construction is executable for every
-  target, and the paper's obstruction arguments for `(1,0)`, `(2,0)`, and
-  `(2,1)` are tracked as symbolic guardrails.
-- Many exact infinite two-step families are recorded, including lattice,
-  Gaussian-transform, Euclid-strip, parallel-divisor, signed-Theorem-3, and
-  exceptional-ray families.
+- The known distance-`3` orbit is explicit:
+  `(+/-1,0)`, `(0,+/-1)`, `(+/-2,0)`, `(0,+/-2)`, `(+/-2,+/-1)`, and
+  `(+/-1,+/-2)`.
+- The full axis case is classified. Every horizontal or vertical target with
+  absolute nonzero coordinate at least `3` has a two-step certificate.
+- The full exceptional `(2,1)` ray is classified. For every integer `n` with
+  `|n| > 1`, the target `(2n,n)` and all sign/swap images have two-step
+  certificates; the primitive `|n| = 1` targets are exactly the known
+  distance-`3` obstructions on that ray.
+- The paper's diameter-`3` construction is executable for every target, and
+  the paper's no-two-step arguments for `(1,0)`, `(2,0)`, and `(2,1)` are
+  tracked as symbolic guardrails.
 - Exact finite audits certify every non-exception target in the signed box
-  `|g|, |h| <= 500`, every non-exception unit-coordinate target with
-  `|n| <= 500`, and every multiplier `2 <= n <= 500` on the ray `(2n,n)`.
+  `|g|, |h| <= 500` and every non-exception unit-coordinate target with
+  `|n| <= 500`.
+- Scaling promotes audited primitive certificates to entire rays: if a
+  primitive representative has an audited two-step certificate, every nonzero
+  multiple of that representative has one too.
+- A finite-direction parallel-divisor cover is now ray-lifted as a theorem
+  candidate: proving the primitive representative is covered immediately
+  certifies every nonzero multiple of that representative.
 
-## Main New Proof
+## Main Complete Results
 
-The horizontal-axis theorem is the main complete theorem added here:
+The horizontal-axis theorem is the first complete theorem added here:
 
 ```text
-For every integer n >= 3, d((0,0),(n,0)) <= 2.
+For every integer n with |n| >= 3, d((0,0),(n,0)) <= 2.
 ```
 
-The proof splits into the following cases:
+The proof splits into odd targets, even targets at least `6`, and the special
+target `4`. By coordinate swap it also proves the vertical axis. Together with
+the paper's obstruction proof for `(1,0)` and `(2,0)`, this resolves the axis
+part of the conjecture.
 
-- Odd `n >= 3` use a consecutive-parameter Euclid construction.
-- Even `n >= 6` use the midpoint construction, since every integer `a >= 3` is a
-  leg of an integer right triangle.
-- The remaining even target `n = 4` uses the explicit midpoint `(-5,12)`.
+The exceptional-ray theorem is the newest complete classification:
 
-This resolves the axis part of the paper's conjecture. The paper already proves
-that `(1,0)` and `(2,0)` have distance 3; the theorem above proves every later
-horizontal point has a two-step path, and symmetry gives the vertical axis.
+```text
+For every integer n with |n| > 1, d((0,0),(2n,n)) <= 2.
+```
 
-See `notes/pythagorean-walks-axis-subproblem.md` for the written proof and
-`horizontal_axis_proof_certificate` for the executable certificate constructor.
+The proof reduces multipliers to prime seeds. Even multipliers and primes
+`p == 3 mod 4` have direct certificate families. For primes `p == 1 mod 4`,
+Fermat's two-square theorem gives `p = x^2 + 4y^2`, which feeds a
+double-direction Pythagorean certificate. Composite multipliers scale a
+certified prime divisor. Sign changes and coordinate swap transport the result
+to the whole exceptional orbit.
 
-## Exact Families Beyond The Paper
+## Non-Axis Proof Program
 
-The non-axis proof notebook records several theorem-level families. These are
-algebraic certificate constructors, not bounded searches:
+The repository now contains several exact two-step certificate mechanisms beyond
+the original paper:
 
-- Certificate transport under sign changes and coordinate swap.
-- Scaling of any two-step certificate by a nonzero integer.
-- Square-norm Gaussian transformations and a target-facing Gaussian divisor
-  criterion.
-- A two-edge lattice criterion, with prime-determinant residue-line families.
-- Determinant-7, determinant-13, determinant-17, and additional small-prime
-  congruence families modulo 23, 31, 37, 41, 43, 47, 53, 67, 73, 83, 89, 107,
-  109, 149, 157, 173, 179, 191, 193, 211, 239, 241, 251, and 269.
-- An orthogonal lattice family from every positive Pythagorean triple.
-- A consecutive-leg swap-lattice family covering `g + h == 0` and
-  `g - h == 0` modulo each Pell-generated sum of consecutive Pythagorean legs.
-- A parallel-direction divisor reduction: for fixed first-step direction `U`,
-  the condition `|T - rU|^2` is a square and factors through divisors of
-  `det(U,T)^2`.
-- General Euclid strip, half-leg strip, unit-coordinate strip, and affine
-  consecutive-hypotenuse strip families, with target-facing recognizers.
-- A signed form of the paper's Theorem 3, a divisor-strengthened version
-  replacing the paper's constant 1 by any nonzero divisor of `gh`, and a
-  ray-facing multiplier-modulus form.
-- A quadratic-strip corollary of Theorem 3 covering the sign/swap orbit of
-  `(2hn^2 - 1,h)` and `(g,2gn^2 + 1)` for nonzero fixed coordinate.
+- certificate transport under sign changes and coordinate swap;
+- scaling of any two-step certificate by a nonzero integer;
+- square-norm Gaussian transforms and target-facing Gaussian divisibility;
+- two-edge lattice membership tests;
+- fixed-direction parallel divisor criteria;
+- signed length-difference conic-slice probes;
+- Euclid-strip, half-leg, unit-coordinate, and consecutive-direction families;
+- signed and divisor-strengthened versions of the paper's Theorem 3.
 
-## Exceptional Ray Progress
+The strongest current candidate for the remaining non-axis work is the
+parallel-direction divisor program. In primitive positive-quadrant samples, a
+layered structural stack covers all tested nontrivial targets through
+`1 <= g,h <= 1000`: promoted `3-4-5` rows, orthogonal lattice rows, bounded
+Pythagorean lattice-pair rows, standard determinant completions, and a bounded
+squareclass split layer. This is strong evidence and a useful proof roadmap,
+but it is not yet a global theorem.
 
-The primitive target `(2,1)` remains a known distance 3 obstruction, but many
-nontrivial multiples on its ray are now proved to have distance at most 2:
-
-- All even positive multipliers.
-- All positive multipliers `n == 3 mod 4`.
-- All positive multipliers `n == 5 or 17 mod 20`.
-- A mod-20 skeleton covering every positive multiplier class except 1 and 9.
-- A mod-260 refinement from the fixed `u = 5` strip.
-- Parallel-divisor families covering multipliers with a divisor 3 or 7 modulo
-  10; 3, 7, 19, or 23 modulo 26; 7, 13, 21, or 27 modulo 34; 7, 25, 33,
-  or 51 modulo 58.
-- Scaling families from exact base rows `n = 3, 29, 41, 53, 61, 73`.
-- A finite exact audit for every multiplier `2 <= n <= 500` on `(2n,n)`.
-- Divisor-lift closure now scales any certified proper divisor on the
-  exceptional ray; with the current seed families, the unresolved multipliers
-  below 2000 are all prime.
+The squareclass split layer has also been rewritten as infinite line families
+and then as Gaussian/beta congruence data. That makes the next proof target more
+specific: classify the fixed-direction congruence families, rather than grow
+larger midpoint or target boxes.
 
 ## Finite Audits
 
-The finite audits are exact statements: each residual row is an explicit
-midpoint identity, and every returned certificate is checked directly.
+The finite audits are exact statements: every returned row is an explicit
+midpoint identity, and every certificate is checked directly.
 
-Current finite coverage:
+Current finite guardrails:
 
-- Every non-exception target with `|g|, |h| <= 500`.
-- Every non-exception target in the sign/swap orbit of `(n,1)` with
-  `|n| <= 500`.
-- Every multiplier `2 <= n <= 500` on the exceptional ray `(2n,n)`.
+- every non-exception target with `|g|, |h| <= 500`;
+- every non-exception target in the sign/swap orbit of `(n,1)` with
+  `|n| <= 500`;
+- every multiplier `2 <= n <= 500` on the exceptional ray `(2n,n)`;
+- layered structural coverage of primitive positive-quadrant samples through
+  `1 <= g,h <= 1000`.
 
-These audits are not extrapolated to a theorem outside the stated finite
-ranges.
+Except where a theorem is stated explicitly above, finite audits are not
+extrapolated outside their stated ranges.
 
 ## Layout
 
-- `papers/pythagorean-walks-on-z2.md`  
-  Markdown notes/transcription from Jan Willemson's paper.
+- `papers/pythagorean-walks-on-z2.md`: Markdown notes/transcription from Jan
+  Willemson's paper.
 
-- `notes/pythagorean-walks-axis-subproblem.md`  
-  Main proof notebook for the horizontal-axis subproblem.
+- `notes/pythagorean-walks-axis-subproblem.md`: main proof notebook for the
+  horizontal-axis subproblem.
 
-- `notes/pythagorean-walks-full-conjecture-progress.md`
-  Current non-axis proof notebook: symmetry reduction, diameter-three upper
-  bound, lattice families, Euclid strip templates, signed Theorem 3
-  certificates, and remaining gap.
+- `notes/pythagorean-walks-full-conjecture-progress.md`: current non-axis proof
+  notebook: symmetry reduction, exact obstruction guardrails, certificate
+  families, finite audits, exceptional-ray classification, and remaining gap.
 
-- `notes/verification-changelog.md`  
-  Audit trail for corrected hypotheses, promoted lemmas, and executable
-  guardrails.
+- `notes/verification-changelog.md`: audit trail for corrected hypotheses,
+  promoted lemmas, and executable guardrails.
 
-- `experiments/pythagorean_walks.py`  
-  Reusable predicates, certificate validators, bounded searches, and
-  parametrized certificate generators.
+- `experiments/pythagorean_walks.py`: reusable predicates, certificate
+  validators, bounded searches, and parametrized certificate generators.
 
-- `experiments/render_eli5_gif.py`
-  Reproducible renderer for the README animation.
+- `experiments/render_eli5_gif.py`: reproducible renderer for the README
+  animation.
 
-- `tests/test_pythagorean_walks.py`  
-  Verification suite for graph predicates, paper examples, known exceptions,
-  explicit certificates, formula families, and bounded coverage audits.
+- `tests/test_pythagorean_walks.py`: verification suite for graph predicates,
+  paper examples, known exceptions, explicit certificates, formula families,
+  and bounded coverage audits.
 
-- `assets/pythagorean-walks-eli5.gif`
-  ELI5 animation for the problem statement.
+- `assets/pythagorean-walks-eli5.gif`: ELI5 animation for the problem
+  statement.
 
-- `data/horizontal_axis_certificates.json`  
-  Reusable two-step certificates for `3 <= n <= 20` and known horizontal-axis
-  exceptions.
+- `data/horizontal_axis_certificates.json`: reusable two-step certificates for
+  `3 <= n <= 20` and known horizontal-axis exceptions.
 
-- `data/shared_leg_residue_coverage.md`  
-  Bounded residue witness table for the quadratic family and shared-leg
-  generator.
+- `data/shared_leg_residue_coverage.md`: bounded residue witness table for the
+  quadratic family and shared-leg generator.
 
 ## Verification
 
@@ -176,13 +166,13 @@ python3 -m unittest discover -s tests -v
 Current expected result:
 
 ```text
-Ran 125 tests
+Ran 144 tests
 OK
 ```
 
 ## Evidence Discipline
 
-Bounded searches are treated as falsification tools, not proofs. A result such
-as `not_found_within_bound` means only that the current search box found no
-certificate. Exact algebraic lemmas are recorded separately in the proof notes
-and backed by formula tests where possible.
+Bounded searches are treated as falsification tools and discovery aids, not
+proofs. A result such as `not_found_within_bound` means only that the current
+search box found no certificate. Exact algebraic lemmas are recorded separately
+in the proof notes and backed by formula tests where possible.

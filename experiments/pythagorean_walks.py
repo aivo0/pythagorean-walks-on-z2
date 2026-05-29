@@ -197,6 +197,53 @@ def prime_factors(n: int) -> tuple[int, ...]:
     return tuple(factors)
 
 
+def squareclass_decomposition(n: int) -> tuple[int, int]:
+    """Return ``(q, a)`` with ``n = q*a^2`` and q squarefree."""
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+
+    squareclass = 1
+    square_part = 1
+    remaining = n
+    for prime in prime_factors(n):
+        exponent = 0
+        while remaining % prime == 0:
+            remaining //= prime
+            exponent += 1
+        if exponent % 2:
+            squareclass *= prime
+        square_part *= prime ** (exponent // 2)
+
+    return (squareclass, square_part)
+
+
+@cache
+def squarefree_numbers(limit: int) -> tuple[int, ...]:
+    """Positive squarefree integers up to a bound."""
+
+    if limit < 1:
+        raise ValueError("limit must be positive")
+
+    return tuple(
+        candidate
+        for candidate in range(1, limit + 1)
+        if squareclass_decomposition(candidate)[1] == 1
+    )
+
+
+def squarefree_divisors(n: int) -> tuple[int, ...]:
+    """Positive squarefree divisors of a positive integer."""
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+
+    divisors = [1]
+    for prime in prime_factors(n):
+        divisors.extend(divisor * prime for divisor in tuple(divisors))
+    return tuple(sorted(divisors))
+
+
 def has_divisor_three_or_seven_mod_ten(n: int) -> bool:
     """Return whether a positive integer has a divisor 3 or 7 modulo 10."""
 
@@ -633,6 +680,42 @@ def gaussian_multiply(point: Point, multiplier: Point) -> Point:
     return (a * x - b * y, a * y + b * x)
 
 
+def primitive_pythagorean_direction_gaussian_root(direction: Point) -> tuple[Point, Point]:
+    """Return ``(root, unit)`` with ``direction = unit * root^2``.
+
+    A primitive Pythagorean direction is a Gaussian square up to multiplication
+    by one of the four units.  The root has norm equal to the direction length.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if gcd(abs(direction[0]), abs(direction[1])) != 1:
+        raise ValueError("direction must be primitive")
+
+    hypotenuse = isqrt(direction[0] * direction[0] + direction[1] * direction[1])
+    roots: list[Point] = []
+    for real in range(1, isqrt(hypotenuse) + 1):
+        imaginary_square = hypotenuse - real * real
+        imaginary = isqrt(imaginary_square)
+        if imaginary == 0 or imaginary * imaginary != imaginary_square:
+            continue
+        for base in ((real, imaginary), (imaginary, real)):
+            for real_sign in (-1, 1):
+                for imaginary_sign in (-1, 1):
+                    candidate = (real_sign * base[0], imaginary_sign * base[1])
+                    if candidate not in roots:
+                        roots.append(candidate)
+
+    units: tuple[Point, ...] = ((1, 0), (-1, 0), (0, 1), (0, -1))
+    for root in roots:
+        root_square = gaussian_multiply(root, root)
+        for unit in units:
+            if gaussian_multiply(unit, root_square) == direction:
+                return (root, unit)
+
+    raise AssertionError("primitive Pythagorean direction had no Gaussian square root")
+
+
 def gaussian_transform_certificate(
     certificate: Certificate,
     multiplier: Point,
@@ -848,6 +931,89 @@ class ParallelDirectionFactorWitness:
         return Certificate(target=self.target, midpoint=self.midpoint)
 
 
+@dataclass(frozen=True)
+class ParallelDirectionSquareclassSplitWitness:
+    squareclass: int
+    split_factor: int
+    paired_split_factor: int
+    factor_witness: ParallelDirectionFactorWitness
+
+    @property
+    def target(self) -> Point:
+        return self.factor_witness.target
+
+    @property
+    def direction(self) -> Point:
+        return self.factor_witness.direction
+
+    @property
+    def factor(self) -> int:
+        return self.factor_witness.factor
+
+    @property
+    def midpoint(self) -> Point:
+        return self.factor_witness.midpoint
+
+    @property
+    def signed_paired_split_factor(self) -> int:
+        divisor = self.squareclass * self.split_factor
+        determinant_leg = self.factor_witness.determinant_leg
+        if determinant_leg % divisor != 0:
+            raise AssertionError("determinant leg lost the requested split factor")
+        return determinant_leg // divisor
+
+    @property
+    def certificate(self) -> Certificate:
+        return self.factor_witness.certificate
+
+
+@dataclass(frozen=True)
+class PrimitiveRayParallelDirectionWitness:
+    target: Point
+    primitive: Point
+    scale: int
+    base_witness: ParallelDirectionFactorWitness
+
+    @property
+    def midpoint(self) -> Point:
+        midpoint_x, midpoint_y = self.base_witness.midpoint
+        return (self.scale * midpoint_x, self.scale * midpoint_y)
+
+    @property
+    def certificate(self) -> Certificate:
+        return Certificate(target=self.target, midpoint=self.midpoint)
+
+
+@dataclass(frozen=True)
+class ParallelDirectionCoverWitnessCensus:
+    max_coordinate: int
+    max_parameter: int
+    target_count: int
+    uncovered_targets: tuple[Point, ...]
+    direction_counts: tuple[tuple[Point, int], ...]
+    factor_counts: tuple[tuple[int, int], ...]
+    direction_factor_counts: tuple[tuple[Point, int, int], ...]
+
+
+@dataclass(frozen=True)
+class PythagoreanLatticePairWitness:
+    target: Point
+    first_direction: Point
+    second_direction: Point
+    determinant: int
+    first_coefficient: int
+    second_coefficient: int
+
+    @property
+    def midpoint(self) -> Point:
+        ux, uy = self.first_direction
+        return (self.first_coefficient * ux, self.first_coefficient * uy)
+
+    @property
+    def certificate(self) -> Certificate:
+        return Certificate(target=self.target, midpoint=self.midpoint)
+
+
 def standard_pythagorean_completion_factors(leg: int) -> tuple[int, ...]:
     """Factors of leg^2 giving the two signed standard completions of a leg."""
 
@@ -948,6 +1114,767 @@ def parallel_direction_factor_certificate(
     if not certificate.valid():
         return None
     return certificate
+
+
+def parallel_direction_squareclass_split_witness(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+) -> ParallelDirectionSquareclassSplitWitness | None:
+    """Fixed squareclass split of the determinant-leg completion factor.
+
+    The factor tested is ``squareclass * split_factor^2``.  If it works, then
+    the paired factor has the same squareclass, so the determinant leg has the
+    form ``squareclass * split_factor * paired_split_factor``.
+    """
+
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+
+    factor = squareclass * split_factor * split_factor
+    factor_witness = parallel_direction_factor_witness(target, direction, factor)
+    if factor_witness is None or factor_witness.first_coefficient == 0:
+        return None
+    if not factor_witness.certificate.valid():
+        return None
+
+    determinant_square = factor_witness.determinant_leg * factor_witness.determinant_leg
+    paired_factor = determinant_square // factor
+    if paired_factor % squareclass != 0:
+        raise AssertionError("paired factor lost the requested squareclass")
+    paired_split_factor = isqrt(paired_factor // squareclass)
+    if squareclass * paired_split_factor * paired_split_factor != paired_factor:
+        raise AssertionError("paired factor is not in the requested squareclass")
+
+    return ParallelDirectionSquareclassSplitWitness(
+        squareclass=squareclass,
+        split_factor=split_factor,
+        paired_split_factor=paired_split_factor,
+        factor_witness=factor_witness,
+    )
+
+
+def parallel_direction_squareclass_split_certificate(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+) -> Certificate | None:
+    """Certificate from one fixed determinant squareclass/split row."""
+
+    witness = parallel_direction_squareclass_split_witness(
+        target,
+        direction,
+        squareclass,
+        split_factor,
+    )
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+def parallel_direction_squareclass_line_gaussian_numerator(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> Point:
+    """Return ``q * U * (a + ib)^2`` for a split-line row."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+    if signed_paired_split_factor == 0:
+        raise ValueError("signed_paired_split_factor must be nonzero")
+
+    split_root = (split_factor, signed_paired_split_factor)
+    split_square = gaussian_multiply(split_root, split_root)
+    product = gaussian_multiply(direction, split_square)
+    return (squareclass * product[0], squareclass * product[1])
+
+
+def parallel_direction_squareclass_line_split_quotient(
+    direction: Point,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> Point | None:
+    """Return ``(a+ib)/conj(alpha)`` for ``direction = unit*alpha^2``."""
+
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+    if signed_paired_split_factor == 0:
+        raise ValueError("signed_paired_split_factor must be nonzero")
+
+    root, _unit = primitive_pythagorean_direction_gaussian_root(direction)
+    conjugate_root = (root[0], -root[1])
+    return gaussian_quotient_if_integer(
+        (split_factor, signed_paired_split_factor),
+        conjugate_root,
+    )
+
+
+def primitive_pythagorean_direction_conjugate_root_residue(
+    direction: Point,
+) -> tuple[int, int]:
+    """Return ``(c, rho)`` for split roots divisible by ``conj(alpha)``.
+
+    If ``direction = unit*alpha^2`` and ``c = norm(alpha)``, then
+    ``a+i*b`` is divisible by ``conj(alpha)`` exactly when
+    ``b == rho*a mod c``.
+    """
+
+    root, _unit = primitive_pythagorean_direction_gaussian_root(direction)
+    root_real, root_imaginary = root
+    hypotenuse = root_real * root_real + root_imaginary * root_imaginary
+    residue = (-root_imaginary * pow(root_real % hypotenuse, -1, hypotenuse)) % (
+        hypotenuse
+    )
+    if (residue * residue + 1) % hypotenuse != 0:
+        raise AssertionError("conjugate-root residue is not a square root of -1")
+    return (hypotenuse, residue)
+
+
+def parallel_direction_squareclass_beta_split_root(
+    direction: Point,
+    beta: Point,
+) -> Point:
+    """Return ``conj(alpha) * beta`` for ``direction = unit*alpha^2``."""
+
+    if beta == (0, 0):
+        raise ValueError("beta must be nonzero")
+
+    root, _unit = primitive_pythagorean_direction_gaussian_root(direction)
+    conjugate_root = (root[0], -root[1])
+    return gaussian_multiply(conjugate_root, beta)
+
+
+def squareclass_beta_integral(squareclass: int, beta: Point) -> bool:
+    """Return whether ``q*beta^2/2`` is a Gaussian integer."""
+
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if beta == (0, 0):
+        raise ValueError("beta must be nonzero")
+
+    beta_x, beta_y = beta
+    if squareclass % 2 == 0:
+        return True
+    return (beta_x - beta_y) % 2 == 0
+
+
+def beta_square_is_axis_degenerate(beta: Point) -> bool:
+    """Return whether ``beta^2`` has a zero coordinate."""
+
+    if beta == (0, 0):
+        raise ValueError("beta must be nonzero")
+
+    beta_x, beta_y = beta
+    return beta_x == 0 or beta_y == 0 or abs(beta_x) == abs(beta_y)
+
+
+def parallel_direction_squareclass_beta_quotient(
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> Point | None:
+    """Unfiltered second-step quotient from the beta-parametrized family."""
+
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if beta == (0, 0):
+        raise ValueError("beta must be nonzero")
+
+    if not squareclass_beta_integral(squareclass, beta):
+        return None
+
+    _root, unit = primitive_pythagorean_direction_gaussian_root(direction)
+    beta_square = gaussian_multiply(beta, beta)
+    numerator = (squareclass * beta_square[0], squareclass * beta_square[1])
+
+    return gaussian_multiply(unit, (numerator[0] // 2, numerator[1] // 2))
+
+
+def parallel_direction_squareclass_beta_second_step(
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> Point | None:
+    """Legal second edge from the beta-parametrized split-line family."""
+
+    second_step = parallel_direction_squareclass_beta_quotient(
+        direction,
+        squareclass,
+        beta,
+    )
+    if second_step is None:
+        return None
+    if beta_square_is_axis_degenerate(beta):
+        return None
+    if not edge_delta(*second_step):
+        return None
+    return second_step
+
+
+def parallel_direction_squareclass_conjugate_ideal_split_roots(
+    direction: Point,
+    determinant_leg: int,
+    squareclass: int,
+) -> tuple[tuple[int, int, Point], ...]:
+    """Legal split roots from the conjugate-root ideal and determinant level.
+
+    Returned rows are ``(a, b, beta)`` with ``a > 0``, ``D = q*a*b``, and
+    ``a+i*b = conj(alpha)*beta`` for ``direction = unit*alpha^2``.
+    """
+
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if determinant_leg == 0 or determinant_leg % squareclass != 0:
+        return ()
+
+    hypotenuse, residue = primitive_pythagorean_direction_conjugate_root_residue(
+        direction
+    )
+    split_product = determinant_leg // squareclass
+    roots: list[tuple[int, int, Point]] = []
+    for split_factor in positive_divisors(abs(split_product)):
+        signed_paired_split_factor = split_product // split_factor
+        if (signed_paired_split_factor - residue * split_factor) % hypotenuse != 0:
+            continue
+        beta = parallel_direction_squareclass_line_split_quotient(
+            direction,
+            split_factor,
+            signed_paired_split_factor,
+        )
+        if beta is None:
+            raise AssertionError("conjugate-root residue gave a nonintegral beta")
+        if parallel_direction_squareclass_beta_second_step(
+            direction,
+            squareclass,
+            beta,
+        ) is None:
+            continue
+        roots.append((split_factor, signed_paired_split_factor, beta))
+    return tuple(roots)
+
+
+def parallel_direction_squareclass_beta_line_certificate(
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+    first_coefficient: int,
+) -> Certificate | None:
+    """Certificate from the beta-parametrized split-line family."""
+
+    second_step = parallel_direction_squareclass_beta_second_step(
+        direction,
+        squareclass,
+        beta,
+    )
+    if second_step is None:
+        return None
+
+    u, v = direction
+    midpoint = (first_coefficient * u, first_coefficient * v)
+    target = (midpoint[0] + second_step[0], midpoint[1] + second_step[1])
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        return None
+    return certificate
+
+
+def parallel_direction_squareclass_beta_target_coefficient(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> int | None:
+    """First-step coefficient if a target lies on one beta split line."""
+
+    second_step = parallel_direction_squareclass_beta_second_step(
+        direction,
+        squareclass,
+        beta,
+    )
+    if second_step is None:
+        return None
+
+    quotient = gaussian_quotient_if_integer(
+        (target[0] - second_step[0], target[1] - second_step[1]),
+        direction,
+    )
+    if quotient is None or quotient[1] != 0:
+        return None
+    return quotient[0]
+
+
+def parallel_direction_squareclass_beta_determinant_residue(
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> int | None:
+    """Determinant level ``det(direction, W)`` of one legal beta split line."""
+
+    second_step = parallel_direction_squareclass_beta_second_step(
+        direction,
+        squareclass,
+        beta,
+    )
+    if second_step is None:
+        return None
+    return determinant(direction, second_step)
+
+
+def parallel_direction_squareclass_beta_determinant_target_coefficient(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> int | None:
+    """First-step coefficient from the determinant level of one beta split line."""
+
+    second_step = parallel_direction_squareclass_beta_second_step(
+        direction,
+        squareclass,
+        beta,
+    )
+    if second_step is None:
+        return None
+    if determinant(direction, target) != determinant(direction, second_step):
+        return None
+
+    return ray_multiplier(
+        (target[0] - second_step[0], target[1] - second_step[1]),
+        direction,
+    )
+
+
+def parallel_direction_squareclass_beta_determinant_target_certificate(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> Certificate | None:
+    """Target-facing beta certificate using only the determinant line label."""
+
+    first_coefficient = parallel_direction_squareclass_beta_determinant_target_coefficient(
+        target,
+        direction,
+        squareclass,
+        beta,
+    )
+    if first_coefficient is None:
+        return None
+    return parallel_direction_squareclass_beta_line_certificate(
+        direction,
+        squareclass,
+        beta,
+        first_coefficient,
+    )
+
+
+def parallel_direction_squareclass_conjugate_ideal_certificate(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+) -> Certificate | None:
+    """Target-facing certificate from conjugate-root ideal divisor roots."""
+
+    determinant_leg = determinant(direction, target)
+    for _split_factor, _signed_paired_split_factor, beta in (
+        parallel_direction_squareclass_conjugate_ideal_split_roots(
+            direction,
+            determinant_leg,
+            squareclass,
+        )
+    ):
+        certificate = parallel_direction_squareclass_beta_determinant_target_certificate(
+            target,
+            direction,
+            squareclass,
+            beta,
+        )
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def parallel_direction_conjugate_ideal_split_roots(
+    target: Point,
+    direction: Point,
+) -> tuple[tuple[int, int, int, Point], ...]:
+    """All legal ``(q, a, b, beta)`` ideal rows for one target and direction."""
+
+    determinant_leg = determinant(direction, target)
+    if determinant_leg == 0:
+        return ()
+
+    roots: list[tuple[int, int, int, Point]] = []
+    for squareclass in squarefree_divisors(abs(determinant_leg)):
+        for split_factor, signed_paired_split_factor, beta in (
+            parallel_direction_squareclass_conjugate_ideal_split_roots(
+                direction,
+                determinant_leg,
+                squareclass,
+            )
+        ):
+            roots.append(
+                (
+                    squareclass,
+                    split_factor,
+                    signed_paired_split_factor,
+                    beta,
+                )
+            )
+    return tuple(roots)
+
+
+def parallel_direction_conjugate_ideal_certificate(
+    target: Point,
+    direction: Point,
+) -> Certificate | None:
+    """Exact fixed-direction split certificate over squarefree determinant divisors."""
+
+    for squareclass, _split_factor, _signed_paired_split_factor, beta in (
+        parallel_direction_conjugate_ideal_split_roots(target, direction)
+    ):
+        certificate = parallel_direction_squareclass_beta_determinant_target_certificate(
+            target,
+            direction,
+            squareclass,
+            beta,
+        )
+        if certificate is not None:
+            return certificate
+    return None
+
+
+@cache
+def parallel_direction_conjugate_ideal_cover_certificate(
+    target: Point,
+    max_parameter: int,
+) -> Certificate | None:
+    """Finite-direction exact split cover using conjugate-root divisor roots."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        certificate = parallel_direction_conjugate_ideal_certificate(target, (u, v))
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def parallel_direction_squareclass_beta_target_certificate(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    beta: Point,
+) -> Certificate | None:
+    """Target-facing certificate from one beta-parametrized split line."""
+
+    first_coefficient = parallel_direction_squareclass_beta_target_coefficient(
+        target,
+        direction,
+        squareclass,
+        beta,
+    )
+    if first_coefficient is None:
+        return None
+    return parallel_direction_squareclass_beta_line_certificate(
+        direction,
+        squareclass,
+        beta,
+        first_coefficient,
+    )
+
+
+def parallel_direction_squareclass_line_root_quotient(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> Point | None:
+    """Second-step quotient after factoring a primitive direction as a square."""
+
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+    if signed_paired_split_factor == 0:
+        raise ValueError("signed_paired_split_factor must be nonzero")
+
+    split_quotient = parallel_direction_squareclass_line_split_quotient(
+        direction,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if split_quotient is None:
+        return None
+
+    return parallel_direction_squareclass_beta_quotient(
+        direction,
+        squareclass,
+        split_quotient,
+    )
+
+
+def parallel_direction_squareclass_line_congruence_holds(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> bool:
+    """Return whether one signed split satisfies the line congruences.
+
+    Fix a legal direction ``U=(u,v)`` with length ``c`` and integers
+    ``q,a,b`` with ``q`` squarefree.  The determinant split
+    ``D=qab`` and the completion leg ``L=q(b^2-a^2)/2`` define a second edge
+
+        W = (-L U + D U_perp) / c^2,  U_perp=(-v,u).
+
+    This predicate checks the cleared congruence system that makes the length
+    and both coordinates of ``W`` integral.  It does not exclude horizontal or
+    vertical ``W``; `parallel_direction_squareclass_line_second_step` performs
+    that final graph-edge check.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+    if signed_paired_split_factor == 0:
+        raise ValueError("signed_paired_split_factor must be nonzero")
+
+    u, v = direction
+    direction_norm = u * u + v * v
+    hypotenuse = isqrt(direction_norm)
+    paired = signed_paired_split_factor
+    split_sum = paired * paired + split_factor * split_factor
+    if squareclass * split_sum % (2 * hypotenuse) != 0:
+        return False
+
+    gaussian_numerator = parallel_direction_squareclass_line_gaussian_numerator(
+        direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    gaussian_denominator = 2 * direction_norm
+    return (
+        gaussian_numerator[0] % gaussian_denominator == 0
+        and gaussian_numerator[1] % gaussian_denominator == 0
+    )
+
+
+def parallel_direction_squareclass_line_second_step(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> Point | None:
+    """Second edge vector for one determinant-squareclass line family."""
+
+    if not parallel_direction_squareclass_line_congruence_holds(
+        direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    ):
+        return None
+
+    u, v = direction
+    direction_norm = u * u + v * v
+    gaussian_numerator = parallel_direction_squareclass_line_gaussian_numerator(
+        direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    gaussian_denominator = 2 * direction_norm
+    second_step = (
+        gaussian_numerator[0] // gaussian_denominator,
+        gaussian_numerator[1] // gaussian_denominator,
+    )
+    if not edge_delta(*second_step):
+        return None
+    return second_step
+
+
+def parallel_direction_squareclass_line_certificate(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+    first_coefficient: int,
+) -> Certificate | None:
+    """Certificate from one determinant-squareclass line family.
+
+    When the split-line congruences define a legal second edge ``W``, every
+    target ``rU + W`` has midpoint ``rU``.  This is the line-family normal form
+    behind a squareclass split witness.
+    """
+
+    second_step = parallel_direction_squareclass_line_second_step(
+        direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if second_step is None:
+        return None
+
+    u, v = direction
+    midpoint = (first_coefficient * u, first_coefficient * v)
+    target = (midpoint[0] + second_step[0], midpoint[1] + second_step[1])
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        return None
+    return certificate
+
+
+@cache
+def parallel_direction_squareclass_line_residue_classes(
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+) -> tuple[int, tuple[int, ...]]:
+    """Signed paired-factor residues giving a squareclass line family.
+
+    For fixed ``U,q,a``, the line-family integrality conditions are periodic in
+    the signed paired factor ``b`` modulo ``2*|U|^2``.  The returned pair is the
+    minimal equivalent period and its accepted residue classes.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+
+    direction_norm = direction[0] * direction[0] + direction[1] * direction[1]
+    modulus = 2 * direction_norm
+    residues = []
+    for residue in range(modulus):
+        paired = residue if residue != 0 else modulus
+        second_step = parallel_direction_squareclass_line_second_step(
+            direction,
+            squareclass,
+            split_factor,
+            paired,
+        )
+        if second_step is not None:
+            residues.append(residue)
+
+    return minimal_periodic_residue_classes(modulus, residues)
+
+
+def parallel_direction_squareclass_line_residue_certificate(
+    target: Point,
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+) -> Certificate | None:
+    """Target-facing certificate from one squareclass line-residue strip."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if squareclass_decomposition(squareclass) != (squareclass, 1):
+        raise ValueError("squareclass must be squarefree")
+    if split_factor <= 0:
+        raise ValueError("split_factor must be positive")
+
+    det_value = determinant(direction, target)
+    if det_value == 0:
+        return None
+
+    determinant_divisor = squareclass * split_factor
+    if det_value % determinant_divisor != 0:
+        return None
+
+    paired = det_value // determinant_divisor
+    period, residues = parallel_direction_squareclass_line_residue_classes(
+        direction,
+        squareclass,
+        split_factor,
+    )
+    if paired % period not in residues:
+        return None
+
+    u, v = direction
+    direction_norm = u * u + v * v
+    factor_difference = squareclass * (paired * paired - split_factor * split_factor)
+    if factor_difference % 2 != 0:
+        return None
+
+    other_leg = factor_difference // 2
+    dot_product = target[0] * u + target[1] * v
+    first_coefficient_numerator = dot_product + other_leg
+    if first_coefficient_numerator % direction_norm != 0:
+        return None
+
+    certificate = parallel_direction_squareclass_line_certificate(
+        direction,
+        squareclass,
+        split_factor,
+        paired,
+        first_coefficient_numerator // direction_norm,
+    )
+    if certificate is None or certificate.target != target:
+        return None
+    return certificate
+
+
+def parallel_direction_witness(
+    target: Point,
+    direction: Point,
+) -> ParallelDirectionFactorWitness | None:
+    """First valid determinant-completion witness for one fixed direction."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    det_value = determinant(direction, target)
+    if det_value == 0:
+        return None
+
+    for factor in positive_divisors(det_value * det_value):
+        witness = parallel_direction_factor_witness(target, direction, factor)
+        if witness is None or witness.first_coefficient == 0:
+            continue
+        if witness.certificate.valid():
+            return witness
+
+    return None
 
 
 def parallel_direction_standard_completion_certificate(
@@ -1060,19 +1987,10 @@ def parallel_direction_certificate(
 ) -> Certificate | None:
     """Search the exact divisor criterion for one fixed first-step direction."""
 
-    if not edge_delta(*direction):
-        raise ValueError("direction must be a legal Pythagorean edge vector")
-
-    det_value = determinant(direction, target)
-    if det_value == 0:
+    witness = parallel_direction_witness(target, direction)
+    if witness is None:
         return None
-
-    for factor in positive_divisors(det_value * det_value):
-        certificate = parallel_direction_factor_certificate(target, direction, factor)
-        if certificate is not None:
-            return certificate
-
-    return None
+    return witness.certificate
 
 
 @cache
@@ -1269,6 +2187,68 @@ def four_three_factor_five_parallel_certificate(target: Point) -> Certificate | 
     return parallel_direction_factor_certificate(target, (4, 3), 5)
 
 
+PARALLEL_DIRECTION_PROMOTED_345_DIRECTIONS: tuple[Point, ...] = (
+    (-4, -3),
+    (-4, 3),
+    (-3, -4),
+    (-3, 4),
+    (3, -4),
+    (3, 4),
+    (4, -3),
+    (4, 3),
+)
+
+PARALLEL_DIRECTION_PROMOTED_345_FACTORS: tuple[int, ...] = (
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    25,
+)
+
+PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS: tuple[tuple[Point, int], ...] = tuple(
+    (direction, factor)
+    for direction in PARALLEL_DIRECTION_PROMOTED_345_DIRECTIONS
+    for factor in PARALLEL_DIRECTION_PROMOTED_345_FACTORS
+)
+
+PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER = 4
+PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER = 25
+PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT = 1435
+PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER = 8
+PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS = 23
+PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR = 179
+PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER = 8
+
+
+@cache
+def parallel_direction_promoted_345_factor_witness(
+    target: Point,
+) -> ParallelDirectionFactorWitness | None:
+    """First promoted signed ``3-4-5`` direction/factor witness for a target."""
+
+    for direction, factor in PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS:
+        witness = parallel_direction_factor_witness(target, direction, factor)
+        if witness is None or witness.first_coefficient == 0:
+            continue
+        if witness.certificate.valid():
+            return witness
+    return None
+
+
+def parallel_direction_promoted_345_factor_certificate(target: Point) -> Certificate | None:
+    """Certificate from the promoted dominant signed ``3-4-5`` fixed rows."""
+
+    witness = parallel_direction_promoted_345_factor_witness(target)
+    if witness is None:
+        return None
+    return witness.certificate
+
+
 @cache
 def parallel_direction_cover_certificate(
     target: Point,
@@ -1292,6 +2272,344 @@ def parallel_direction_cover_certificate(
             return certificate
 
     return None
+
+
+@cache
+def parallel_direction_cover_witness(
+    target: Point,
+    max_parameter: int,
+) -> ParallelDirectionFactorWitness | None:
+    """First finite-direction determinant-completion witness for a target."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        witness = parallel_direction_witness(target, (u, v))
+        if witness is not None:
+            return witness
+
+    return None
+
+
+def _sorted_count_items(counts):
+    return tuple(
+        sorted(
+            counts.items(),
+            key=lambda item: (-item[1], item[0]),
+        )
+    )
+
+
+def parallel_direction_cover_witness_census(
+    max_coordinate: int,
+    max_parameter: int,
+) -> ParallelDirectionCoverWitnessCensus:
+    """Census of first finite-direction witnesses on primitive positive targets."""
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    target_count = 0
+    uncovered: list[Point] = []
+    direction_counts: dict[Point, int] = {}
+    factor_counts: dict[int, int] = {}
+    direction_factor_counts: dict[tuple[Point, int], int] = {}
+
+    for g in range(1, max_coordinate + 1):
+        for h in range(1, max_coordinate + 1):
+            target = (g, h)
+            if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                continue
+            if gcd(g, h) != 1:
+                continue
+
+            target_count += 1
+            witness = parallel_direction_cover_witness(target, max_parameter)
+            if witness is None:
+                uncovered.append(target)
+                continue
+
+            direction_counts[witness.direction] = direction_counts.get(witness.direction, 0) + 1
+            factor_counts[witness.factor] = factor_counts.get(witness.factor, 0) + 1
+            direction_factor = (witness.direction, witness.factor)
+            direction_factor_counts[direction_factor] = (
+                direction_factor_counts.get(direction_factor, 0) + 1
+            )
+
+    return ParallelDirectionCoverWitnessCensus(
+        max_coordinate=max_coordinate,
+        max_parameter=max_parameter,
+        target_count=target_count,
+        uncovered_targets=tuple(uncovered),
+        direction_counts=_sorted_count_items(direction_counts),
+        factor_counts=_sorted_count_items(factor_counts),
+        direction_factor_counts=tuple(
+            (direction, factor, count)
+            for (direction, factor), count in sorted(
+                direction_factor_counts.items(),
+                key=lambda item: (-item[1], item[0][0], item[0][1]),
+            )
+        ),
+    )
+
+
+@cache
+def pythagorean_orthogonal_lattice_cover_certificate(
+    target: Point,
+    max_parameter: int,
+) -> Certificate | None:
+    """Certificate from a Pythagorean direction and its quarter-turn rotation."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        certificate = lattice_two_step_certificate(target, (u, v), (-v, u))
+        if certificate is not None:
+            return certificate
+    return None
+
+
+@cache
+def pythagorean_lattice_direction_pairs(
+    max_parameter: int,
+    max_determinant: int | None = None,
+) -> tuple[tuple[Point, Point], ...]:
+    """Pairs of primitive Pythagorean directions with bounded parameters/index."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+    if max_determinant is not None and max_determinant <= 0:
+        raise ValueError("max_determinant must be positive")
+
+    directions = tuple(
+        (u, v)
+        for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+            max_parameter
+        )
+    )
+    pairs: list[tuple[Point, Point]] = []
+    for first_direction in directions:
+        for second_direction in directions:
+            pair_determinant = abs(determinant(first_direction, second_direction))
+            if pair_determinant == 0:
+                continue
+            if max_determinant is not None and pair_determinant > max_determinant:
+                continue
+            pairs.append((first_direction, second_direction))
+    return tuple(pairs)
+
+
+@cache
+def pythagorean_lattice_pair_witness(
+    target: Point,
+    max_parameter: int,
+    max_determinant: int | None = None,
+) -> PythagoreanLatticePairWitness | None:
+    """First bounded-index Pythagorean lattice-pair witness for a target."""
+
+    for first_direction, second_direction in pythagorean_lattice_direction_pairs(
+        max_parameter,
+        max_determinant,
+    ):
+        coefficients = lattice_coefficients(target, first_direction, second_direction)
+        if coefficients is None:
+            continue
+
+        first_coefficient, second_coefficient = coefficients
+        if first_coefficient == 0 or second_coefficient == 0:
+            continue
+
+        witness = PythagoreanLatticePairWitness(
+            target=target,
+            first_direction=first_direction,
+            second_direction=second_direction,
+            determinant=abs(determinant(first_direction, second_direction)),
+            first_coefficient=first_coefficient,
+            second_coefficient=second_coefficient,
+        )
+        if not witness.certificate.valid():
+            raise AssertionError("lattice-pair witness produced an invalid certificate")
+        return witness
+
+    return None
+
+
+def pythagorean_lattice_pair_cover_certificate(
+    target: Point,
+    max_parameter: int,
+    max_determinant: int | None = None,
+) -> Certificate | None:
+    """Certificate from a bounded-index pair of Pythagorean directions."""
+
+    witness = pythagorean_lattice_pair_witness(
+        target,
+        max_parameter,
+        max_determinant,
+    )
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+@cache
+def parallel_direction_squareclass_split_cover_witness(
+    target: Point,
+    max_parameter: int,
+    max_squareclass: int,
+    max_split_factor: int,
+) -> ParallelDirectionSquareclassSplitWitness | None:
+    """First finite direction/squareclass/split witness for a target."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+    if max_squareclass < 1:
+        raise ValueError("max_squareclass must be positive")
+    if max_split_factor < 1:
+        raise ValueError("max_split_factor must be positive")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        direction = (u, v)
+        det_value = determinant(direction, target)
+        if det_value == 0:
+            continue
+        for squareclass in squarefree_numbers(max_squareclass):
+            for split_factor in range(1, max_split_factor + 1):
+                if det_value % (squareclass * split_factor) != 0:
+                    continue
+                witness = parallel_direction_squareclass_split_witness(
+                    target,
+                    direction,
+                    squareclass,
+                    split_factor,
+                )
+                if witness is not None:
+                    return witness
+
+    return None
+
+
+def parallel_direction_squareclass_split_cover_certificate(
+    target: Point,
+    max_parameter: int,
+    max_squareclass: int,
+    max_split_factor: int,
+) -> Certificate | None:
+    """Certificate from bounded determinant squareclass/split rows."""
+
+    witness = parallel_direction_squareclass_split_cover_witness(
+        target,
+        max_parameter,
+        max_squareclass,
+        max_split_factor,
+    )
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+@cache
+def pythagorean_layered_structural_certificate(target: Point) -> Certificate | None:
+    """Fixed structural-layer certificate stack for primitive residual probes."""
+
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    constructors = (
+        parallel_direction_promoted_345_factor_certificate,
+        lambda point: pythagorean_orthogonal_lattice_cover_certificate(
+            point,
+            PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
+        ),
+        lambda point: pythagorean_lattice_pair_cover_certificate(
+            point,
+            PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+            PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
+        ),
+        lambda point: parallel_direction_standard_completion_cover_certificate(
+            point,
+            PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER,
+        ),
+    )
+    for constructor in constructors:
+        certificate = constructor(target)
+        if certificate is None:
+            continue
+        if not certificate.valid():
+            raise AssertionError("layered structural cover produced an invalid certificate")
+        return certificate
+
+    return None
+
+
+@cache
+def pythagorean_layered_split_certificate(target: Point) -> Certificate | None:
+    """Layered structural stack plus bounded squareclass determinant splits."""
+
+    certificate = pythagorean_layered_structural_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    certificate = parallel_direction_squareclass_split_cover_certificate(
+        target,
+        PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER,
+        PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS,
+        PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR,
+    )
+    if certificate is None:
+        return None
+    if not certificate.valid():
+        raise AssertionError("layered split cover produced an invalid certificate")
+    return certificate
+
+
+@cache
+def pythagorean_layered_conjugate_ideal_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Layered structural stack plus exact finite-direction split recognition."""
+
+    certificate = pythagorean_layered_structural_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    certificate = parallel_direction_conjugate_ideal_cover_certificate(
+        target,
+        PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER,
+    )
+    if certificate is None:
+        return None
+    if not certificate.valid():
+        raise AssertionError("layered conjugate-ideal cover produced an invalid certificate")
+    return certificate
+
+
+@cache
+def pythagorean_layered_parallel_certificate(target: Point) -> Certificate | None:
+    """Layered structural stack with the finite-direction divisor cover as fallback."""
+
+    certificate = pythagorean_layered_conjugate_ideal_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    certificate = parallel_direction_cover_certificate(
+        target,
+        PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER,
+    )
+    if certificate is None:
+        return None
+    if not certificate.valid():
+        raise AssertionError("layered parallel cover produced an invalid certificate")
+    return certificate
 
 
 def prime_determinant_lattice_certificate(
@@ -6679,6 +7997,47 @@ def two_one_ray_mod_ten_divisor_orbit_certificate(target: Point) -> Certificate 
 
 
 @cache
+def two_one_ray_complement_divisor_root(direction: Point) -> int | None:
+    """Minimal quotient class for the complement-divisor construction.
+
+    For ``T=q(2,1)`` and ``U=(u,v)``, the factor-one integrality condition is
+    equivalent to
+
+        ``(u - 2v)^2*q^2 + 2*(2u + v)*q - 1 == 0 mod 2*c^2``.
+
+    Primitive Pythagorean directions with odd ``u`` and
+    ``gcd(u - 2v, c) = 1`` have a single odd class modulo ``2c``.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    u, v = direction
+    norm_squared = u * u + v * v
+    c = isqrt(norm_squared)
+    if u % 2 == 0:
+        return None
+
+    linear = 2 * u + v
+    determinant_factor = u - 2 * v
+    if gcd(determinant_factor, c) != 1:
+        return None
+
+    root = (
+        -linear
+        * pow((determinant_factor * determinant_factor) % c, -1, c)
+    ) % c
+    root = root if root % 2 == 1 else root + c
+    if (
+        determinant_factor * determinant_factor * root * root
+        + 2 * linear * root
+        - 1
+    ) % (2 * c * c) != 0:
+        return None
+    return root
+
+
+@cache
 def two_one_ray_complement_divisor_residues(direction: Point) -> tuple[int, ...]:
     """Quotient residues for the complement-factor parallel construction.
 
@@ -6689,19 +8048,13 @@ def two_one_ray_complement_divisor_residues(direction: Point) -> tuple[int, ...]
     Scaling then covers every positive complement ``d``.
     """
 
-    modulus = parallel_direction_factor_modulus(direction, 1)
-    residues: list[int] = []
-    for residue in range(modulus):
-        quotient = residue if residue != 0 else modulus
-        certificate = ray_parallel_factor_certificate(
-            (2 * quotient, quotient),
-            (2, 1),
-            direction,
-            1,
-        )
-        if certificate is not None:
-            residues.append(residue)
-    return tuple(residues)
+    root = two_one_ray_complement_divisor_root(direction)
+    if root is None:
+        return ()
+
+    norm_squared = direction[0] * direction[0] + direction[1] * direction[1]
+    c = isqrt(norm_squared)
+    return tuple(range(root, 2 * c * c, 2 * c))
 
 
 @cache
@@ -6710,11 +8063,12 @@ def two_one_ray_complement_divisor_period(
 ) -> tuple[int, tuple[int, ...]]:
     """Minimal quotient period for one complement-divisor direction."""
 
-    modulus = parallel_direction_factor_modulus(direction, 1)
-    return minimal_periodic_residue_classes(
-        modulus,
-        two_one_ray_complement_divisor_residues(direction),
-    )
+    root = two_one_ray_complement_divisor_root(direction)
+    if root is None:
+        return (1, ())
+
+    c = isqrt(direction[0] * direction[0] + direction[1] * direction[1])
+    return (2 * c, (root,))
 
 
 def two_one_ray_complement_divisor_certificate(
@@ -6726,16 +8080,15 @@ def two_one_ray_complement_divisor_certificate(
     if multiplier <= 0:
         return None
 
-    modulus = parallel_direction_factor_modulus(direction, 1)
-    residues = set(two_one_ray_complement_divisor_residues(direction))
+    modulus, residues = two_one_ray_complement_divisor_period(direction)
+    residues = set(residues)
     target = (2 * multiplier, multiplier)
     for quotient in positive_divisors(multiplier):
         if quotient % modulus not in residues:
             continue
 
-        certificate = ray_parallel_factor_certificate(
+        certificate = parallel_direction_factor_certificate(
             target,
-            (2, 1),
             direction,
             multiplier // quotient,
         )
@@ -6744,6 +8097,743 @@ def two_one_ray_complement_divisor_certificate(
         return certificate
 
     return None
+
+
+def two_one_ray_square_determinant_factor_certificate(
+    multiplier: int,
+    direction: Point,
+) -> Certificate | None:
+    """Certificate using factor ``(u - 2v)^2`` for a fixed direction."""
+
+    if multiplier <= 0:
+        return None
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    modulus, residues = two_one_ray_square_determinant_factor_period(direction)
+    if multiplier % modulus not in residues:
+        return None
+
+    determinant_factor = direction[0] - 2 * direction[1]
+    return parallel_direction_factor_certificate(
+        (2 * multiplier, multiplier),
+        direction,
+        determinant_factor * determinant_factor,
+    )
+
+
+def two_one_ray_square_determinant_divisor_certificate(
+    multiplier: int,
+    direction: Point,
+) -> Certificate | None:
+    """Certificate from a divisor in a square-determinant factor class."""
+
+    if multiplier <= 0:
+        return None
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    modulus, residues = two_one_ray_square_determinant_factor_period(direction)
+    residue_set = set(residues)
+    if not residue_set:
+        return None
+
+    determinant_factor = direction[0] - 2 * direction[1]
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        if quotient % modulus not in residue_set:
+            continue
+
+        certificate = parallel_direction_factor_certificate(
+            target,
+            direction,
+            (multiplier // quotient) * determinant_factor * determinant_factor,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def two_one_ray_scaled_factor_divisor_certificate(
+    multiplier: int,
+    direction: Point,
+    base_factor: int,
+) -> Certificate | None:
+    """Scale a fixed direction/factor residue class through divisors."""
+
+    if multiplier <= 0:
+        return None
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if base_factor <= 0:
+        raise ValueError("base_factor must be positive")
+
+    modulus = parallel_direction_factor_modulus(direction, base_factor)
+    residues = set(ray_parallel_factor_residues((2, 1), direction, base_factor))
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        if quotient % modulus not in residues:
+            continue
+
+        certificate = parallel_direction_factor_certificate(
+            target,
+            direction,
+            (multiplier // quotient) * base_factor,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@cache
+def two_one_ray_determinant_split_factor_period(
+    direction: Point,
+    base_factor: int,
+) -> tuple[int, tuple[int, ...]]:
+    """Minimal quotient period for a split factor of ``(u - 2v)^2``.
+
+    For ``T=q(2,1)`` and ``U=(u,v)``, put
+    ``A=2u+v``, ``B=u-2v``, and ``c=|U|``.  If
+    ``base_factor * paired_factor = B^2`` and ``paired_factor`` is invertible
+    modulo ``c``, the fixed-factor coefficient condition collapses to the
+    double root
+
+        ``q * paired_factor + A == 0 mod c``.
+
+    The two parity lifts modulo ``2c`` are then checked against the exact
+    factor and coefficient congruences.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if base_factor <= 0:
+        raise ValueError("base_factor must be positive")
+
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    linear_factor = 2 * u + v
+    determinant_factor = u - 2 * v
+    determinant_square = determinant_factor * determinant_factor
+    if determinant_square == 0 or determinant_square % base_factor != 0:
+        return (1, ())
+
+    paired_factor = determinant_square // base_factor
+    if gcd(paired_factor, c) != 1:
+        return (1, ())
+
+    root_mod_hypotenuse = (
+        -linear_factor
+        * pow(paired_factor % c, -1, c)
+    ) % c
+    roots: list[int] = []
+    for root in (root_mod_hypotenuse, root_mod_hypotenuse + c):
+        if (paired_factor * root * root - base_factor) % 2 != 0:
+            continue
+        if (
+            paired_factor * root * root
+            + 2 * linear_factor * root
+            - base_factor
+        ) % (2 * c * c) != 0:
+            continue
+        roots.append(root % (2 * c))
+
+    return minimal_periodic_residue_classes(2 * c, roots)
+
+
+def two_one_ray_determinant_split_factor_certificate(
+    multiplier: int,
+    direction: Point,
+    base_factor: int,
+) -> Certificate | None:
+    """Certificate from a quotient in a split determinant-factor class."""
+
+    if multiplier <= 0:
+        return None
+
+    modulus, residues = two_one_ray_determinant_split_factor_period(
+        direction,
+        base_factor,
+    )
+    residue_set = set(residues)
+    if not residue_set:
+        return None
+
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        if quotient % modulus not in residue_set:
+            continue
+
+        certificate = parallel_direction_factor_certificate(
+            target,
+            direction,
+            (multiplier // quotient) * base_factor,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@cache
+def two_one_ray_hypotenuse_determinant_split_factor_layers(
+    hypotenuse: int,
+) -> tuple[tuple[Point, int], ...]:
+    """All nonempty determinant split-factor layers for one hypotenuse."""
+
+    layers: list[tuple[Point, int]] = []
+    for direction in pythagorean_directions_for_hypotenuse(hypotenuse):
+        determinant_factor = direction[0] - 2 * direction[1]
+        determinant_square = determinant_factor * determinant_factor
+        if determinant_square == 0:
+            continue
+
+        for base_factor in positive_divisors(determinant_square):
+            if two_one_ray_determinant_split_factor_period(
+                direction,
+                base_factor,
+            )[1]:
+                layers.append((direction, base_factor))
+
+    return tuple(layers)
+
+
+def two_one_ray_hypotenuse_determinant_split_factor_certificate(
+    multiplier: int,
+    hypotenuse: int,
+) -> Certificate | None:
+    """Certificate from all determinant split factors with one hypotenuse."""
+
+    if multiplier <= 0:
+        return None
+
+    for direction, base_factor in two_one_ray_hypotenuse_determinant_split_factor_layers(
+        hypotenuse
+    ):
+        certificate = two_one_ray_determinant_split_factor_certificate(
+            multiplier,
+            direction,
+            base_factor,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@dataclass(frozen=True)
+class TwoOneRayDeterminantSplitFactorWitness:
+    """Witness data for a determinant split-factor certificate."""
+
+    multiplier: int
+    quotient: int
+    direction: Point
+    hypotenuse: int
+    base_factor: int
+    paired_factor: int
+    period: int
+    residue: int
+
+    @property
+    def linear_factor(self) -> int:
+        return two_one_ray_determinant_coordinates(self.direction)[0]
+
+    @property
+    def determinant_factor(self) -> int:
+        return two_one_ray_determinant_coordinates(self.direction)[1]
+
+    @property
+    def scaled_factor(self) -> int:
+        return (self.multiplier // self.quotient) * self.base_factor
+
+    @property
+    def lift_parameter(self) -> int:
+        numerator = self.linear_factor + self.quotient * self.paired_factor
+        if numerator % self.hypotenuse != 0:
+            raise AssertionError("determinant split witness has nonintegral lift")
+        return numerator // self.hypotenuse
+
+    @property
+    def target(self) -> Point:
+        return (2 * self.multiplier, self.multiplier)
+
+    @property
+    def certificate(self) -> Certificate:
+        certificate = parallel_direction_factor_certificate(
+            self.target,
+            self.direction,
+            self.scaled_factor,
+        )
+        if certificate is None:
+            raise AssertionError("determinant split witness did not certify")
+        return certificate
+
+    def valid(self) -> bool:
+        return self.certificate.valid()
+
+
+def two_one_ray_determinant_paired_factor_root(
+    quotient: int,
+    paired_factor: int,
+    hypotenuse: int,
+) -> tuple[Point, int] | None:
+    """Recover a split direction from a fixed quotient, paired factor, and hypotenuse.
+
+    With ``F_0 H = B^2`` and ``H = paired_factor``, the split root condition is
+    ``A == -quotient*H mod c``.  The determinant coordinates must also satisfy
+    ``A^2 + B^2 = 5c^2``.  The finitely many lifts of ``A`` therefore recover
+    possible determinant factors ``B`` directly.
+    """
+
+    if quotient <= 0:
+        return None
+    if paired_factor <= 0:
+        raise ValueError("paired_factor must be positive")
+    if hypotenuse <= 0:
+        raise ValueError("hypotenuse must be positive")
+    if gcd(paired_factor, hypotenuse) != 1:
+        return None
+
+    residue = (-quotient * paired_factor) % hypotenuse
+    for lift in range(-3, 4):
+        linear_factor = residue + lift * hypotenuse
+        determinant_square = 5 * hypotenuse * hypotenuse - linear_factor * linear_factor
+        if determinant_square <= 0 or determinant_square % paired_factor != 0:
+            continue
+
+        determinant_factor_abs = isqrt(determinant_square)
+        if determinant_factor_abs * determinant_factor_abs != determinant_square:
+            continue
+
+        base_factor = determinant_square // paired_factor
+        for determinant_factor in sorted(
+            {-determinant_factor_abs, determinant_factor_abs}
+        ):
+            if (2 * linear_factor + determinant_factor) % 5 != 0:
+                continue
+            if (linear_factor - 2 * determinant_factor) % 5 != 0:
+                continue
+
+            direction = (
+                (2 * linear_factor + determinant_factor) // 5,
+                (linear_factor - 2 * determinant_factor) // 5,
+            )
+            if not edge_delta(*direction):
+                continue
+
+            period, residues = two_one_ray_determinant_split_factor_period(
+                direction,
+                base_factor,
+            )
+            if quotient % period in residues:
+                return (direction, base_factor)
+
+    return None
+
+
+def two_one_ray_determinant_paired_factor_lift_root(
+    quotient: int,
+    paired_factor: int,
+    lift_parameter: int,
+) -> tuple[Point, int, int] | None:
+    """Recover a split root from quotient, paired factor, and lift.
+
+    If ``A + quotient*paired_factor = lift*c``, then with
+    ``D = lift^2 - 5`` the determinant norm is equivalent to
+
+        ``X^2 + D*B^2 = 5*quotient^2*paired_factor^2``,
+
+    where ``X = D*c - lift*quotient*paired_factor``.  For ``D > 0`` this is a
+    finite exact search in the determinant factor ``B``.
+    """
+
+    if quotient <= 0:
+        return None
+    if paired_factor <= 0:
+        raise ValueError("paired_factor must be positive")
+
+    discriminant_factor = lift_parameter * lift_parameter - 5
+    if discriminant_factor <= 0:
+        return None
+
+    target_norm = 5 * quotient * quotient * paired_factor * paired_factor
+    max_determinant_factor = isqrt(target_norm // discriminant_factor)
+    for determinant_factor_abs in range(1, max_determinant_factor + 1):
+        determinant_square = determinant_factor_abs * determinant_factor_abs
+        if determinant_square % paired_factor != 0:
+            continue
+
+        x_square = target_norm - discriminant_factor * determinant_square
+        if x_square < 0:
+            continue
+
+        x_abs = isqrt(x_square)
+        if x_abs * x_abs != x_square:
+            continue
+
+        base_factor = determinant_square // paired_factor
+        for x_value in sorted({-x_abs, x_abs}):
+            numerator = x_value + lift_parameter * quotient * paired_factor
+            if numerator % discriminant_factor != 0:
+                continue
+
+            hypotenuse = numerator // discriminant_factor
+            if hypotenuse <= 0:
+                continue
+
+            linear_factor = (
+                lift_parameter * hypotenuse
+                - quotient * paired_factor
+            )
+            for determinant_factor in sorted(
+                {-determinant_factor_abs, determinant_factor_abs}
+            ):
+                if (2 * linear_factor + determinant_factor) % 5 != 0:
+                    continue
+                if (linear_factor - 2 * determinant_factor) % 5 != 0:
+                    continue
+
+                direction = (
+                    (2 * linear_factor + determinant_factor) // 5,
+                    (linear_factor - 2 * determinant_factor) // 5,
+                )
+                if not edge_delta(*direction):
+                    continue
+
+                period, residues = two_one_ray_determinant_split_factor_period(
+                    direction,
+                    base_factor,
+                )
+                if quotient % period in residues:
+                    return (direction, base_factor, hypotenuse)
+
+    return None
+
+
+def two_one_ray_determinant_split_factor_witness(
+    multiplier: int,
+    max_hypotenuse: int,
+) -> TwoOneRayDeterminantSplitFactorWitness | None:
+    """Find a determinant split-factor witness up to a hypotenuse bound.
+
+    This is a target-facing diagnostic for the exact split-factor families: it
+    searches quotient divisors and determinant split layers, not midpoint boxes.
+    A returned row is already a directly valid two-step certificate.
+    """
+
+    if multiplier <= 0:
+        return None
+    if max_hypotenuse <= 0:
+        raise ValueError("max_hypotenuse must be positive")
+
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        complement = multiplier // quotient
+        for hypotenuse in range(1, max_hypotenuse + 1):
+            for direction, base_factor in (
+                two_one_ray_hypotenuse_determinant_split_factor_layers(
+                    hypotenuse
+                )
+            ):
+                period, residues = two_one_ray_determinant_split_factor_period(
+                    direction,
+                    base_factor,
+                )
+                residue = quotient % period
+                if residue not in residues:
+                    continue
+
+                certificate = parallel_direction_factor_certificate(
+                    target,
+                    direction,
+                    complement * base_factor,
+                )
+                if certificate is None:
+                    continue
+
+                determinant_factor = direction[0] - 2 * direction[1]
+                return TwoOneRayDeterminantSplitFactorWitness(
+                    multiplier=multiplier,
+                    quotient=quotient,
+                    direction=direction,
+                    hypotenuse=hypotenuse,
+                    base_factor=base_factor,
+                    paired_factor=(
+                        determinant_factor
+                        * determinant_factor
+                        // base_factor
+                    ),
+                    period=period,
+                    residue=residue,
+                )
+
+    return None
+
+
+def two_one_ray_paired_factor_split_factor_witness(
+    multiplier: int,
+    paired_factor: int,
+    max_hypotenuse: int,
+) -> TwoOneRayDeterminantSplitFactorWitness | None:
+    """Find a determinant split witness by fixing the paired factor ``H``."""
+
+    if multiplier <= 0:
+        return None
+    if paired_factor <= 0:
+        raise ValueError("paired_factor must be positive")
+    if max_hypotenuse <= 0:
+        raise ValueError("max_hypotenuse must be positive")
+
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        complement = multiplier // quotient
+        for hypotenuse in range(1, max_hypotenuse + 1):
+            root = two_one_ray_determinant_paired_factor_root(
+                quotient,
+                paired_factor,
+                hypotenuse,
+            )
+            if root is None:
+                continue
+
+            direction, base_factor = root
+            certificate = parallel_direction_factor_certificate(
+                target,
+                direction,
+                complement * base_factor,
+            )
+            if certificate is None:
+                continue
+
+            period, residues = two_one_ray_determinant_split_factor_period(
+                direction,
+                base_factor,
+            )
+            residue = quotient % period
+            if residue not in residues:
+                continue
+
+            return TwoOneRayDeterminantSplitFactorWitness(
+                multiplier=multiplier,
+                quotient=quotient,
+                direction=direction,
+                hypotenuse=hypotenuse,
+                base_factor=base_factor,
+                paired_factor=paired_factor,
+                period=period,
+                residue=residue,
+            )
+
+    return None
+
+
+def two_one_ray_paired_factor_lift_witness(
+    multiplier: int,
+    paired_factor: int,
+    max_lift: int,
+) -> TwoOneRayDeterminantSplitFactorWitness | None:
+    """Find a determinant split witness by bounding the lift ``k``."""
+
+    if multiplier <= 0:
+        return None
+    if paired_factor <= 0:
+        raise ValueError("paired_factor must be positive")
+    if max_lift < 3:
+        raise ValueError("max_lift must be at least 3")
+
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        complement = multiplier // quotient
+        for lift_parameter in range(3, max_lift + 1):
+            root = two_one_ray_determinant_paired_factor_lift_root(
+                quotient,
+                paired_factor,
+                lift_parameter,
+            )
+            if root is None:
+                continue
+
+            direction, base_factor, hypotenuse = root
+            certificate = parallel_direction_factor_certificate(
+                target,
+                direction,
+                complement * base_factor,
+            )
+            if certificate is None:
+                continue
+
+            period, residues = two_one_ray_determinant_split_factor_period(
+                direction,
+                base_factor,
+            )
+            residue = quotient % period
+            if residue not in residues:
+                continue
+
+            return TwoOneRayDeterminantSplitFactorWitness(
+                multiplier=multiplier,
+                quotient=quotient,
+                direction=direction,
+                hypotenuse=hypotenuse,
+                base_factor=base_factor,
+                paired_factor=paired_factor,
+                period=period,
+                residue=residue,
+            )
+
+    return None
+
+
+def two_one_ray_double_direction_certificate(direction: Point) -> Certificate | None:
+    """Certificate with midpoint twice a Pythagorean direction.
+
+    For ``U=(u,v)`` with hypotenuse ``c`` and ``A=2u+v``, the multiplier
+    ``q=3c-A`` satisfies
+
+        ``|q(2,1)-2U| = |3q-2c|``.
+
+    Thus every nondegenerate positive row gives a two-step certificate.
+    """
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    u, v = direction
+    hypotenuse = isqrt(u * u + v * v)
+    multiplier = 3 * hypotenuse - (2 * u + v)
+    if multiplier <= 0:
+        return None
+
+    certificate = Certificate(
+        target=(2 * multiplier, multiplier),
+        midpoint=(2 * u, 2 * v),
+    )
+    if not certificate.valid():
+        return None
+    return certificate
+
+
+def two_one_ray_lift_three_square_endpoint_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Prime-seed certificate from the ``k=3``, ``H=1`` split endpoint."""
+
+    if multiplier <= 0:
+        return None
+    if not is_prime(multiplier):
+        return None
+
+    witness = two_one_ray_paired_factor_lift_witness(
+        multiplier,
+        paired_factor=1,
+        max_lift=3,
+    )
+    if witness is None:
+        return None
+
+    certificate = two_one_ray_double_direction_certificate(witness.direction)
+    if certificate is None:
+        raise AssertionError("lift-three witness did not give double direction row")
+    if certificate.target != witness.target:
+        raise AssertionError("lift-three double direction target mismatch")
+    return certificate
+
+
+def two_one_ray_prime_one_mod_four_double_direction_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate for primes ``1 mod 4`` via Fermat's two-square form.
+
+    For an odd prime ``p = 1 mod 4``, write ``p = x^2 + 4y^2``.  Setting
+    ``m=x+y`` and ``n=y`` gives the Pythagorean direction
+    ``U=(m^2-n^2, 2mn)`` and
+
+        ``p = 3|U| - (2u+v)``.
+
+    Hence the double-direction midpoint ``2U`` certifies ``(2p,p)``.
+    """
+
+    if multiplier <= 0 or multiplier % 4 != 1 or not is_prime(multiplier):
+        return None
+
+    for y in range(1, isqrt(multiplier // 4) + 1):
+        x_squared = multiplier - 4 * y * y
+        x = isqrt(x_squared)
+        if x <= 0 or x * x != x_squared:
+            continue
+
+        parameter_m = x + y
+        parameter_n = y
+        direction = (
+            parameter_m * parameter_m - parameter_n * parameter_n,
+            2 * parameter_m * parameter_n,
+        )
+        certificate = two_one_ray_double_direction_certificate(direction)
+        if certificate is None:
+            continue
+        if certificate.target != (2 * multiplier, multiplier):
+            raise AssertionError("one-mod-four double direction target mismatch")
+        return certificate
+
+    return None
+
+
+def two_one_ray_square_determinant_factor_sieve_certificate(
+    multiplier: int,
+    directions: Iterable[Point],
+) -> Certificate | None:
+    """Certificate from the first applicable square-determinant factor direction."""
+
+    if multiplier <= 0:
+        return None
+
+    for direction in directions:
+        certificate = two_one_ray_square_determinant_divisor_certificate(
+            multiplier,
+            direction,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@cache
+def two_one_ray_square_determinant_factor_residues(
+    direction: Point,
+) -> tuple[int, ...]:
+    """Natural-modulus residues for the factor ``(u - 2v)^2`` construction."""
+
+    modulus, residues = two_one_ray_square_determinant_factor_period(direction)
+    if not residues:
+        return ()
+
+    c = isqrt(direction[0] * direction[0] + direction[1] * direction[1])
+    root = residues[0]
+    return tuple(range(root, 2 * c * c, modulus))
+
+
+@cache
+def two_one_ray_square_determinant_factor_period(
+    direction: Point,
+) -> tuple[int, tuple[int, ...]]:
+    """Minimal multiplier period for factor ``(u - 2v)^2`` on the ``(2,1)`` ray."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    linear_factor = 2 * u + v
+    determinant_factor = u - 2 * v
+    if determinant_factor == 0:
+        return (1, ())
+
+    root = (-linear_factor) % c
+    if root % 2 != determinant_factor % 2:
+        root += c
+    return (2 * c, (root,))
 
 
 @cache
@@ -6769,8 +8859,8 @@ def two_one_ray_complement_divisor_sieve_certificate(
 
     direction_data: list[tuple[Point, int, frozenset[int]]] = []
     for direction in directions:
-        modulus = parallel_direction_factor_modulus(direction, 1)
-        residues = frozenset(two_one_ray_complement_divisor_residues(direction))
+        modulus, residues = two_one_ray_complement_divisor_period(direction)
+        residues = frozenset(residues)
         if residues:
             direction_data.append((direction, modulus, residues))
 
@@ -6781,15 +8871,755 @@ def two_one_ray_complement_divisor_sieve_certificate(
             if quotient % modulus not in residues:
                 continue
 
-            certificate = ray_parallel_factor_certificate(
+            certificate = parallel_direction_factor_certificate(
                 target,
-                (2, 1),
                 direction,
                 factor,
             )
             if certificate is None:
                 raise AssertionError("complement divisor sieve residue failed")
             return certificate
+
+    return None
+
+
+@cache
+def pythagorean_directions_for_hypotenuse(hypotenuse: int) -> tuple[Point, ...]:
+    """Primitive signed Pythagorean directions with a fixed hypotenuse."""
+
+    if hypotenuse <= 0:
+        raise ValueError("hypotenuse must be positive")
+
+    directions: list[Point] = []
+    for u in range(-hypotenuse + 1, hypotenuse):
+        if u == 0:
+            continue
+
+        v_squared = hypotenuse * hypotenuse - u * u
+        v_abs = isqrt(v_squared)
+        if v_abs == 0 or v_abs * v_abs != v_squared:
+            continue
+
+        for v in (-v_abs, v_abs):
+            if gcd(abs(u), abs(v)) == 1:
+                directions.append((u, v))
+
+    return tuple(sorted(set(directions)))
+
+
+@cache
+def two_one_ray_hypotenuse_divisor_directions(
+    hypotenuse: int,
+) -> tuple[Point, ...]:
+    """Directions with this hypotenuse that produce complement-divisor roots."""
+
+    return tuple(
+        direction
+        for direction in pythagorean_directions_for_hypotenuse(hypotenuse)
+        if two_one_ray_complement_divisor_root(direction) is not None
+    )
+
+
+@cache
+def two_one_ray_hypotenuse_divisor_residue_classes(
+    hypotenuse: int,
+) -> tuple[int, tuple[int, ...]]:
+    """Combined quotient classes from all root directions with one hypotenuse."""
+
+    return two_one_ray_complement_divisor_sieve_residue_classes(
+        two_one_ray_hypotenuse_divisor_directions(hypotenuse)
+    )
+
+
+def two_one_ray_hypotenuse_divisor_certificate(
+    multiplier: int,
+    hypotenuse: int,
+) -> Certificate | None:
+    """Certificate from all complement-divisor directions with one hypotenuse."""
+
+    return two_one_ray_complement_divisor_sieve_certificate(
+        multiplier,
+        two_one_ray_hypotenuse_divisor_directions(hypotenuse),
+    )
+
+
+@cache
+def two_one_ray_hypotenuse_square_factor_directions(
+    hypotenuse: int,
+) -> tuple[Point, ...]:
+    """Directions with this hypotenuse that produce square-factor classes."""
+
+    return tuple(
+        direction
+        for direction in pythagorean_directions_for_hypotenuse(hypotenuse)
+        if two_one_ray_square_determinant_factor_period(direction)[1]
+    )
+
+
+@cache
+def two_one_ray_hypotenuse_square_factor_residue_classes(
+    hypotenuse: int,
+) -> tuple[int, tuple[int, ...]]:
+    """Combined square-factor classes from all directions with one hypotenuse."""
+
+    return periodic_residue_union(
+        two_one_ray_square_determinant_factor_period(direction)
+        for direction in two_one_ray_hypotenuse_square_factor_directions(hypotenuse)
+    )
+
+
+def two_one_ray_hypotenuse_square_factor_certificate(
+    multiplier: int,
+    hypotenuse: int,
+) -> Certificate | None:
+    """Certificate from square-factor directions with one hypotenuse."""
+
+    return two_one_ray_square_determinant_factor_sieve_certificate(
+        multiplier,
+        two_one_ray_hypotenuse_square_factor_directions(hypotenuse),
+    )
+
+
+def two_one_ray_determinant_coordinates(direction: Point) -> tuple[int, int, int]:
+    """Return ``(A, B, c)`` with ``A+iB = (2+i)(u-iv)`` for a direction."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    u, v = direction
+    linear_factor, determinant_factor = gaussian_multiply((2, 1), (u, -v))
+    hypotenuse = isqrt(u * u + v * v)
+    return (linear_factor, determinant_factor, hypotenuse)
+
+
+def euclid_sqrt_minus_one_residues(parameter_m: int, parameter_k: int) -> tuple[int, int]:
+    """The two square roots of ``-1`` from Euclid parameters modulo ``m^2+k^2``."""
+
+    if parameter_m <= parameter_k or parameter_k <= 0:
+        raise ValueError("Euclid parameters must satisfy m > k > 0")
+    if gcd(parameter_m, parameter_k) != 1:
+        raise ValueError("Euclid parameters must be coprime")
+
+    hypotenuse = parameter_m * parameter_m + parameter_k * parameter_k
+    residue = (parameter_m * pow(parameter_k, -1, hypotenuse)) % hypotenuse
+    return tuple(sorted({residue, (-residue) % hypotenuse}))
+
+
+def two_one_ray_signed_euclid_root(
+    parameter_m: int,
+    parameter_k: int,
+    odd_leg_sign: int,
+    even_leg_sign: int,
+) -> "TwoOneRayDeterminantSliceRoot | None":
+    """Root for a signed odd-leg-first Euclid direction.
+
+    For ``u = s_o*(m^2-k^2)`` and ``v = s_e*2mk``, the inverse-root condition
+    is ``q*(u-2v) == +/- m/k mod c``.  The sign is positive exactly when
+    ``s_o`` and ``s_e`` agree.
+    """
+
+    if odd_leg_sign not in (-1, 1) or even_leg_sign not in (-1, 1):
+        raise ValueError("leg signs must be -1 or 1")
+    if parameter_m <= parameter_k or parameter_k <= 0:
+        raise ValueError("Euclid parameters must satisfy m > k > 0")
+    if gcd(parameter_m, parameter_k) != 1:
+        raise ValueError("Euclid parameters must be coprime")
+    if (parameter_m - parameter_k) % 2 == 0:
+        raise ValueError("Euclid parameters must have opposite parity")
+
+    odd_leg = parameter_m * parameter_m - parameter_k * parameter_k
+    even_leg = 2 * parameter_m * parameter_k
+    hypotenuse = parameter_m * parameter_m + parameter_k * parameter_k
+    direction = (odd_leg_sign * odd_leg, even_leg_sign * even_leg)
+    linear_factor, determinant_factor, _ = two_one_ray_determinant_coordinates(
+        direction
+    )
+    if gcd(determinant_factor, hypotenuse) != 1:
+        return None
+
+    sqrt_residue = (
+        parameter_m
+        * pow(parameter_k, -1, hypotenuse)
+    ) % hypotenuse
+    if odd_leg_sign != even_leg_sign:
+        sqrt_residue = (-sqrt_residue) % hypotenuse
+
+    root_mod_hypotenuse = (
+        sqrt_residue
+        * pow(determinant_factor % hypotenuse, -1, hypotenuse)
+    ) % hypotenuse
+    root = (
+        root_mod_hypotenuse
+        if root_mod_hypotenuse % 2 == 1
+        else root_mod_hypotenuse + hypotenuse
+    )
+
+    determinant_root = two_one_ray_determinant_slice_root(
+        linear_factor,
+        determinant_factor,
+        hypotenuse,
+    )
+    if determinant_root is None:
+        return None
+    if determinant_root.root != root:
+        raise AssertionError("signed Euclid root disagrees with determinant root")
+    return determinant_root
+
+
+@cache
+def two_one_ray_euclid_parameter_roots(
+    parameter_m: int,
+    parameter_k: int,
+) -> tuple["TwoOneRayDeterminantSliceRoot", ...]:
+    """All complement-divisor roots from one primitive Euclid parameter pair."""
+
+    roots: list[TwoOneRayDeterminantSliceRoot] = []
+    for odd_leg_sign in (-1, 1):
+        for even_leg_sign in (-1, 1):
+            root = two_one_ray_signed_euclid_root(
+                parameter_m,
+                parameter_k,
+                odd_leg_sign,
+                even_leg_sign,
+            )
+            if root is not None:
+                roots.append(root)
+    return tuple(sorted(roots, key=lambda root: (root.root, root.direction)))
+
+
+@cache
+def two_one_ray_euclid_parameter_residue_classes(
+    parameter_m: int,
+    parameter_k: int,
+) -> tuple[int, tuple[int, ...]]:
+    """Quotient classes modulo ``2*(m^2+k^2)`` from one Euclid pair."""
+
+    roots = two_one_ray_euclid_parameter_roots(parameter_m, parameter_k)
+    if not roots:
+        return (1, ())
+
+    modulus = roots[0].modulus
+    return (modulus, tuple(root.root for root in roots))
+
+
+def two_one_ray_euclid_parameter_certificate(
+    multiplier: int,
+    parameter_m: int,
+    parameter_k: int,
+) -> Certificate | None:
+    """Complement-divisor certificate from one Euclid parameter pair."""
+
+    if multiplier <= 0:
+        return None
+
+    roots = two_one_ray_euclid_parameter_roots(parameter_m, parameter_k)
+    target = (2 * multiplier, multiplier)
+    for quotient in positive_divisors(multiplier):
+        for root in roots:
+            if quotient % root.modulus != root.root:
+                continue
+
+            certificate = parallel_direction_factor_certificate(
+                target,
+                root.direction,
+                multiplier // quotient,
+            )
+            if certificate is None:
+                raise AssertionError("signed Euclid residue failed to certify")
+            return certificate
+
+    return None
+
+
+TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS: tuple[tuple[int, int], ...] = (
+    (7, 2),
+    (6, 5),
+    (13, 8),
+    (15, 4),
+    (15, 8),
+    (19, 4),
+    (17, 12),
+    (24, 19),
+    (37, 2),
+    (34, 19),
+    (41, 20),
+    (73, 62),
+    (116, 35),
+    (289, 266),
+    (8, 3),
+    (8, 5),
+    (20, 1),
+)
+
+
+@cache
+def two_one_ray_promoted_inverse_root_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from inverse-root Euclid layers promoted to exact seeds."""
+
+    if multiplier <= 0:
+        return None
+
+    for parameters in TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS:
+        certificate = two_one_ray_euclid_parameter_certificate(
+            multiplier,
+            *parameters,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@dataclass(frozen=True)
+class TwoOneRayDeterminantSliceRoot:
+    """Root data in coordinates adapted to the exceptional ray ``(2, 1)``."""
+
+    linear_factor: int
+    determinant_factor: int
+    hypotenuse: int
+    direction: Point
+    root: int
+
+    @property
+    def modulus(self) -> int:
+        return 2 * self.hypotenuse
+
+    @property
+    def sqrt_minus_one_residue(self) -> int:
+        return (self.root * self.determinant_factor) % self.hypotenuse
+
+    def certificate(self, multiplier: int) -> Certificate | None:
+        if multiplier <= 0 or multiplier % self.modulus != self.root:
+            return None
+        certificate = parallel_direction_factor_certificate(
+            (2 * multiplier, multiplier),
+            self.direction,
+            1,
+        )
+        if certificate is None:
+            raise AssertionError("determinant-slice root did not certify its target")
+        return certificate
+
+    @property
+    def square_endpoint_base_factor(self) -> int:
+        return self.determinant_factor * self.determinant_factor
+
+    @property
+    def square_endpoint_period(self) -> tuple[int, tuple[int, ...]]:
+        return two_one_ray_determinant_split_factor_period(
+            self.direction,
+            self.square_endpoint_base_factor,
+        )
+
+    def square_endpoint_certificate(self, multiplier: int) -> Certificate | None:
+        """Certificate from the square-factor endpoint of this determinant slice."""
+
+        if multiplier <= 0:
+            return None
+
+        period, residues = self.square_endpoint_period
+        if multiplier % period not in residues:
+            return None
+
+        certificate = parallel_direction_factor_certificate(
+            (2 * multiplier, multiplier),
+            self.direction,
+            self.square_endpoint_base_factor,
+        )
+        if certificate is None:
+            raise AssertionError("determinant-slice square endpoint did not certify")
+        return certificate
+
+
+def two_one_ray_determinant_slice_root(
+    linear_factor: int,
+    determinant_factor: int,
+    hypotenuse: int,
+) -> TwoOneRayDeterminantSliceRoot | None:
+    """Return a root from the ray-adapted determinant slice.
+
+    With ``A = 2u + v`` and ``B = u - 2v``, every direction satisfies
+    ``A^2 + B^2 = 5c^2``.  Conversely, such a triple reconstructs the
+    direction by ``u=(2A+B)/5`` and ``v=(A-2B)/5`` when those are integral.
+    The complement-divisor root condition is ``n*B^2 + A == 0 mod c``.
+    """
+
+    if hypotenuse <= 0:
+        raise ValueError("hypotenuse must be positive")
+
+    if (
+        linear_factor * linear_factor
+        + determinant_factor * determinant_factor
+        != 5 * hypotenuse * hypotenuse
+    ):
+        return None
+    if (2 * linear_factor + determinant_factor) % 5 != 0:
+        return None
+    if (linear_factor - 2 * determinant_factor) % 5 != 0:
+        return None
+
+    direction = (
+        (2 * linear_factor + determinant_factor) // 5,
+        (linear_factor - 2 * determinant_factor) // 5,
+    )
+    if not edge_delta(*direction):
+        return None
+    if direction[0] % 2 == 0 or gcd(determinant_factor, hypotenuse) != 1:
+        return None
+
+    root = (
+        -linear_factor
+        * pow((determinant_factor * determinant_factor) % hypotenuse, -1, hypotenuse)
+    ) % hypotenuse
+    root = root if root % 2 == 1 else root + hypotenuse
+
+    if root != two_one_ray_complement_divisor_root(direction):
+        raise AssertionError("determinant-slice root disagrees with direction root")
+
+    return TwoOneRayDeterminantSliceRoot(
+        linear_factor=linear_factor,
+        determinant_factor=determinant_factor,
+        hypotenuse=hypotenuse,
+        direction=direction,
+        root=root,
+    )
+
+
+@cache
+def two_one_ray_determinant_factor_roots(
+    determinant_factor: int,
+    max_hypotenuse: int,
+) -> tuple[TwoOneRayDeterminantSliceRoot, ...]:
+    """One-dimensional negative-Pell slice for a fixed determinant factor."""
+
+    if max_hypotenuse <= 0:
+        raise ValueError("max_hypotenuse must be positive")
+    if determinant_factor == 0:
+        return ()
+
+    roots: list[TwoOneRayDeterminantSliceRoot] = []
+    for hypotenuse in range(1, max_hypotenuse + 1):
+        linear_square = 5 * hypotenuse * hypotenuse - determinant_factor * determinant_factor
+        if linear_square < 0:
+            continue
+
+        linear_abs = isqrt(linear_square)
+        if linear_abs * linear_abs != linear_square:
+            continue
+
+        for linear_factor in sorted({-linear_abs, linear_abs}):
+            root = two_one_ray_determinant_slice_root(
+                linear_factor,
+                determinant_factor,
+                hypotenuse,
+            )
+            if root is not None:
+                roots.append(root)
+
+    return tuple(roots)
+
+
+def two_one_ray_determinant_slice_successor(
+    root: TwoOneRayDeterminantSliceRoot,
+) -> TwoOneRayDeterminantSliceRoot:
+    """Next valid root in the same determinant slice.
+
+    Multiplication by ``161 + 72*sqrt(5)`` preserves
+    ``A^2 - 5c^2 = -B^2`` and the congruence conditions that reconstruct
+    ``(u, v)`` from ``A=2u+v`` and ``B=u-2v``.  A unit step can still produce
+    a degenerate or non-coprime row, so this returns the next valid root after
+    one or more unit steps.
+    """
+
+    linear_factor = root.linear_factor
+    hypotenuse = root.hypotenuse
+    for _ in range(16):
+        linear_factor, hypotenuse = (
+            161 * linear_factor + 360 * hypotenuse,
+            72 * linear_factor + 161 * hypotenuse,
+        )
+        successor = two_one_ray_determinant_slice_root(
+            linear_factor,
+            root.determinant_factor,
+            hypotenuse,
+        )
+        if successor is not None:
+            return successor
+
+    raise AssertionError("determinant-slice successor found no valid root")
+
+
+def two_one_ray_determinant_slice_predecessor(
+    root: TwoOneRayDeterminantSliceRoot,
+) -> TwoOneRayDeterminantSliceRoot | None:
+    """Previous valid root in the same square-unit Pell orbit, if smaller."""
+
+    starting_hypotenuse = root.hypotenuse
+    linear_factor = root.linear_factor
+    hypotenuse = root.hypotenuse
+    for _ in range(16):
+        linear_factor, hypotenuse = (
+            161 * linear_factor - 360 * hypotenuse,
+            -72 * linear_factor + 161 * hypotenuse,
+        )
+        if hypotenuse <= 0 or hypotenuse >= starting_hypotenuse:
+            return None
+
+        predecessor = two_one_ray_determinant_slice_root(
+            linear_factor,
+            root.determinant_factor,
+            hypotenuse,
+        )
+        if predecessor is not None:
+            return predecessor
+
+    return None
+
+
+def two_one_ray_determinant_slice_reduced_root(
+    root: TwoOneRayDeterminantSliceRoot,
+) -> TwoOneRayDeterminantSliceRoot:
+    """Lowest root reached by repeatedly taking valid square-unit predecessors."""
+
+    current = root
+    while True:
+        predecessor = two_one_ray_determinant_slice_predecessor(current)
+        if predecessor is None:
+            return current
+        current = predecessor
+
+
+def two_one_ray_determinant_slice_orbit(
+    seed: TwoOneRayDeterminantSliceRoot,
+    count: int,
+) -> tuple[TwoOneRayDeterminantSliceRoot, ...]:
+    """First ``count`` roots in the Pell orbit generated by ``seed``."""
+
+    if count < 0:
+        raise ValueError("count must be nonnegative")
+
+    roots: list[TwoOneRayDeterminantSliceRoot] = []
+    current = seed
+    for _ in range(count):
+        roots.append(current)
+        current = two_one_ray_determinant_slice_successor(current)
+    return tuple(roots)
+
+
+def two_one_ray_determinant_slice_orbit_certificate(
+    multiplier: int,
+    seed: TwoOneRayDeterminantSliceRoot,
+    max_steps: int,
+) -> Certificate | None:
+    """Certificate from the first ``max_steps`` roots in one Pell orbit."""
+
+    if multiplier <= 0:
+        return None
+    if max_steps < 0:
+        raise ValueError("max_steps must be nonnegative")
+
+    for root in two_one_ray_determinant_slice_orbit(seed, max_steps):
+        certificate = root.certificate(multiplier)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def two_one_ray_determinant_square_endpoint_orbit_certificate(
+    multiplier: int,
+    seed: TwoOneRayDeterminantSliceRoot,
+    max_steps: int,
+) -> Certificate | None:
+    """Certificate from square-factor endpoints along one determinant-slice orbit."""
+
+    if multiplier <= 0:
+        return None
+    if max_steps < 0:
+        raise ValueError("max_steps must be nonnegative")
+
+    for root in two_one_ray_determinant_slice_orbit(seed, max_steps):
+        certificate = root.square_endpoint_certificate(multiplier)
+        if certificate is not None:
+            return certificate
+    return None
+
+
+def two_one_ray_determinant_divisor_root(
+    multiplier: int,
+    determinant_factor: int,
+    hypotenuse: int,
+) -> TwoOneRayDeterminantSliceRoot | None:
+    """Recover a determinant-slice root from the divisor condition.
+
+    A valid inverse-root certificate for multiplier ``n`` and determinant
+    factor ``B`` has ``c | n^2*B^2 + 1`` and
+    ``A == -n*B^2 mod c``.  The possible integer values of ``A`` lie within a
+    bounded set of lifts of that residue because ``A^2 + B^2 = 5c^2``.
+    """
+
+    if multiplier <= 0 or hypotenuse <= 0 or determinant_factor == 0:
+        return None
+
+    determinant_square = determinant_factor * determinant_factor
+    if (multiplier * multiplier * determinant_square + 1) % hypotenuse != 0:
+        return None
+
+    residue = (-multiplier * determinant_square) % hypotenuse
+    for lift in range(-3, 4):
+        root = two_one_ray_determinant_slice_root(
+            residue + lift * hypotenuse,
+            determinant_factor,
+            hypotenuse,
+        )
+        if root is not None and multiplier % root.modulus == root.root:
+            return root
+
+    return None
+
+
+def two_one_ray_determinant_divisor_certificate(
+    multiplier: int,
+    determinant_factor: int,
+    max_hypotenuse: int,
+) -> Certificate | None:
+    """Certificate by scanning hypotenuse divisors of ``n^2*B^2 + 1``."""
+
+    if multiplier <= 0:
+        return None
+    if max_hypotenuse <= 0:
+        raise ValueError("max_hypotenuse must be positive")
+
+    for hypotenuse in range(1, max_hypotenuse + 1):
+        root = two_one_ray_determinant_divisor_root(
+            multiplier,
+            determinant_factor,
+            hypotenuse,
+        )
+        if root is None:
+            continue
+
+        certificate = root.certificate(multiplier)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def two_one_ray_determinant_factor_certificate(
+    multiplier: int,
+    determinant_factor: int,
+    max_hypotenuse: int,
+) -> Certificate | None:
+    """Certificate from a bounded negative-Pell slice with fixed ``u - 2v``."""
+
+    if multiplier <= 0:
+        return None
+
+    for root in two_one_ray_determinant_factor_roots(
+        determinant_factor,
+        max_hypotenuse,
+    ):
+        certificate = root.certificate(multiplier)
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+@dataclass(frozen=True)
+class TwoOneRayInverseRootWitness:
+    """A factor-one inverse-root certificate witness for ``(2n, n)``."""
+
+    multiplier: int
+    direction: Point
+    hypotenuse: int
+    euclid_parameters: tuple[int, int]
+    root: int
+
+    @property
+    def linear_factor(self) -> int:
+        return two_one_ray_determinant_coordinates(self.direction)[0]
+
+    @property
+    def determinant_factor(self) -> int:
+        return two_one_ray_determinant_coordinates(self.direction)[1]
+
+    @property
+    def determinant_slice_root(self) -> TwoOneRayDeterminantSliceRoot:
+        root = two_one_ray_determinant_slice_root(
+            self.linear_factor,
+            self.determinant_factor,
+            self.hypotenuse,
+        )
+        if root is None:
+            raise AssertionError("inverse-root witness has no determinant slice")
+        return root
+
+    @property
+    def determinant_divisor_root(self) -> TwoOneRayDeterminantSliceRoot:
+        root = two_one_ray_determinant_divisor_root(
+            self.multiplier,
+            self.determinant_factor,
+            self.hypotenuse,
+        )
+        if root is None:
+            raise AssertionError("inverse-root witness has no divisor root")
+        return root
+
+    @property
+    def reduced_determinant_slice_root(self) -> TwoOneRayDeterminantSliceRoot:
+        return two_one_ray_determinant_slice_reduced_root(
+            self.determinant_slice_root
+        )
+
+    @property
+    def target(self) -> Point:
+        return (2 * self.multiplier, self.multiplier)
+
+    @property
+    def certificate(self) -> Certificate:
+        certificate = self.determinant_slice_root.certificate(self.multiplier)
+        if certificate is None:
+            raise AssertionError("inverse-root witness did not certify its target")
+        return certificate
+
+    def valid(self) -> bool:
+        return self.certificate.valid()
+
+
+def two_one_ray_inverse_root_witness(
+    multiplier: int,
+    max_parameter: int,
+) -> TwoOneRayInverseRootWitness | None:
+    """Search Euclid parameters for a factor-one root of ``multiplier``.
+
+    This is a bounded probe for the inverse problem: instead of enlarging a
+    midpoint box, find a primitive Pythagorean direction whose complement-
+    divisor root is congruent to the target multiplier modulo ``2c``.  A hit
+    immediately gives a factor-one parallel-direction certificate.
+    """
+
+    if multiplier <= 0:
+        return None
+
+    target = (2 * multiplier, multiplier)
+    for u, v, hypotenuse, m, k in primitive_pythagorean_directions(max_parameter):
+        root = two_one_ray_complement_divisor_root((u, v))
+        if root is None or multiplier % (2 * hypotenuse) != root:
+            continue
+
+        certificate = parallel_direction_factor_certificate(target, (u, v), 1)
+        if certificate is None:
+            raise AssertionError("inverse-root congruence failed to certify")
+        return TwoOneRayInverseRootWitness(
+            multiplier=multiplier,
+            direction=(u, v),
+            hypotenuse=hypotenuse,
+            euclid_parameters=(m, k),
+            root=root,
+        )
 
     return None
 
@@ -6815,6 +9645,98 @@ TWO_ONE_RAY_MOD_SEVENTY_FOUR_DIRECTIONS: tuple[Point, ...] = (
     (35, -12),
 )
 
+TWO_ONE_RAY_MOD_EIGHTY_TWO_DIRECTIONS: tuple[Point, ...] = (
+    (9, -40),
+    (9, 40),
+    (-9, -40),
+    (-9, 40),
+)
+
+TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES: tuple[int, ...] = (
+    13,
+    17,
+    37,
+    41,
+)
+
+TWO_ONE_RAY_PROMOTED_SCALED_FACTOR_LAYERS: tuple[tuple[Point, int], ...] = (
+    ((-12, 5), 22),
+    ((-12, -5), 2),
+    ((20, -21), 2),
+)
+
+TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES: tuple[int, ...] = (
+    17,
+    29,
+    37,
+    41,
+    53,
+    61,
+    73,
+    89,
+    97,
+    197,
+    401,
+)
+
+
+def two_one_ray_promoted_square_factor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from promoted square-determinant hypotenuse layers."""
+
+    if multiplier <= 0:
+        return None
+
+    for hypotenuse in TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES:
+        certificate = two_one_ray_hypotenuse_square_factor_certificate(
+            multiplier,
+            hypotenuse,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def two_one_ray_promoted_scaled_factor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from promoted scaled fixed-factor layers."""
+
+    if multiplier <= 0:
+        return None
+
+    for direction, base_factor in TWO_ONE_RAY_PROMOTED_SCALED_FACTOR_LAYERS:
+        certificate = two_one_ray_scaled_factor_divisor_certificate(
+            multiplier,
+            direction,
+            base_factor,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
+
+def two_one_ray_promoted_determinant_split_factor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from promoted determinant split-factor hypotenuse layers."""
+
+    if multiplier <= 0:
+        return None
+
+    for hypotenuse in TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES:
+        certificate = two_one_ray_hypotenuse_determinant_split_factor_certificate(
+            multiplier,
+            hypotenuse,
+        )
+        if certificate is not None:
+            return certificate
+
+    return None
+
 
 def two_one_ray_mod_twenty_six_divisor_certificate(
     multiplier: int,
@@ -6829,6 +9751,17 @@ def two_one_ray_mod_twenty_six_divisor_certificate(
         if certificate is not None:
             return certificate
     return None
+
+
+def two_one_ray_mod_twenty_six_square_factor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from a divisor in the square-factor class ``15 mod 26``."""
+
+    return two_one_ray_square_determinant_divisor_certificate(
+        multiplier,
+        (5, -12),
+    )
 
 
 def two_one_ray_mod_twenty_six_divisor_orbit_certificate(
@@ -7020,6 +9953,57 @@ def two_one_ray_mod_seventy_four_divisor_orbit_certificate(
     return None
 
 
+def two_one_ray_mod_eighty_two_divisor_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate from a divisor ``13``, ``29``, ``53``, or ``69`` modulo ``82``."""
+
+    return two_one_ray_complement_divisor_sieve_certificate(
+        multiplier,
+        TWO_ONE_RAY_MOD_EIGHTY_TWO_DIRECTIONS,
+    )
+
+
+def two_one_ray_mod_eighty_two_divisor_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate from a ``13``/``29``/``53``/``69 mod 82`` divisor."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_mod_eighty_two_divisor_certificate(abs_h)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    if abs_h == 2 * abs_g:
+        base = two_one_ray_mod_eighty_two_divisor_certificate(abs_g)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_y,
+                (1 if h > 0 else -1) * midpoint_x,
+            ),
+        )
+
+    return None
+
+
+@cache
 def two_one_ray_mod_130_divisor_residues() -> tuple[int, ...]:
     """Divisor residues modulo 130 covered by the mod-10 or mod-26 families."""
 
@@ -7040,6 +10024,7 @@ def has_two_one_ray_mod_130_divisor(multiplier: int) -> bool:
     )
 
 
+@cache
 def two_one_ray_mod_2210_divisor_residues() -> tuple[int, ...]:
     """Divisor residues modulo 2210 covered by the mod-10, mod-26, or mod-34 families."""
 
@@ -7064,6 +10049,7 @@ def has_two_one_ray_mod_2210_divisor(multiplier: int) -> bool:
     )
 
 
+@cache
 def two_one_ray_mod_64090_divisor_residues() -> tuple[int, ...]:
     """Divisor residues modulo 64090 covered through the mod-58 family."""
 
@@ -7089,6 +10075,7 @@ def has_two_one_ray_mod_64090_divisor(multiplier: int) -> bool:
     )
 
 
+@cache
 def two_one_ray_mod_2371330_divisor_residues() -> tuple[int, ...]:
     """Divisor residues modulo 2371330 covered through the mod-74 family."""
 
@@ -7122,10 +10109,18 @@ def two_one_ray_seed_certificate(multiplier: int) -> Certificate | None:
         two_one_ray_mod260_skeleton_certificate,
         two_one_ray_mod_ten_divisor_certificate,
         two_one_ray_mod_twenty_six_divisor_certificate,
+        two_one_ray_mod_twenty_six_square_factor_certificate,
+        two_one_ray_promoted_square_factor_certificate,
+        two_one_ray_promoted_scaled_factor_certificate,
         two_one_ray_mod_thirty_four_divisor_certificate,
         two_one_ray_mod_fifty_eight_divisor_certificate,
         two_one_ray_mod_seventy_four_divisor_certificate,
+        two_one_ray_mod_eighty_two_divisor_certificate,
+        two_one_ray_promoted_inverse_root_certificate,
         two_one_ray_explicit_base_certificate,
+        two_one_ray_promoted_determinant_split_factor_certificate,
+        two_one_ray_prime_one_mod_four_double_direction_certificate,
+        two_one_ray_lift_three_square_endpoint_certificate,
     ):
         certificate = constructor(multiplier)
         if certificate is not None:
@@ -7201,6 +10196,57 @@ def two_one_ray_divisor_lift_orbit_certificate(target: Point) -> Certificate | N
         )
 
     return None
+
+
+@cache
+def two_one_ray_prime_divisor_lift_certificate(multiplier: int) -> Certificate | None:
+    """Direct exceptional-ray certificate from prime seeds plus divisor lift.
+
+    Every multiplier ``n > 1`` has a prime divisor ``p``. Once every prime
+    multiplier ``p`` on the ``(2,1)`` ray has a seed certificate, scaling that
+    seed by ``n/p`` certifies ``(2n,n)`` without a recursive divisor search.
+    """
+
+    if multiplier <= 1:
+        return None
+
+    for prime in prime_factors(multiplier):
+        base = two_one_ray_seed_certificate(prime)
+        if base is None:
+            raise AssertionError(f"missing exceptional-ray prime seed for {prime}")
+
+        certificate = scale_certificate(base, multiplier // prime)
+        if certificate.target != (2 * multiplier, multiplier):
+            raise AssertionError("prime-divisor lift target mismatch")
+        if not certificate.valid():
+            raise AssertionError("prime-divisor lift produced an invalid certificate")
+        return certificate
+
+    return None
+
+
+def two_one_ray_prime_divisor_lift_orbit_certificate(target: Point) -> Certificate | None:
+    """Symmetric direct prime-divisor lift certificate on the exceptional ray."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_prime_divisor_lift_certificate(abs_h)
+    elif abs_h == 2 * abs_g:
+        base = two_one_ray_prime_divisor_lift_certificate(abs_g)
+    else:
+        return None
+
+    if base is None:
+        return None
+
+    certificate = sign_swap_certificate(base, target)
+    if certificate is None:
+        raise AssertionError("prime-divisor lift orbit transform missed target")
+    return certificate
 
 
 def two_one_ray_mod260_skeleton_certificate(multiplier: int) -> Certificate | None:
@@ -10588,3 +13634,123 @@ def box_five_hundred_audit_certificate(target: Point) -> Certificate | None:
             return certificate
 
     return box_five_hundred_residual_certificate(target)
+
+
+@cache
+def box_five_hundred_ray_lift_certificate(target: Point) -> Certificate | None:
+    """Scale the audited primitive representative for a target ray.
+
+    The finite box-500 audit certifies every non-exception target in that box.
+    If the primitive representative of ``target`` lies in the audited box and
+    has a two-step certificate there, scaling that certificate certifies the
+    requested target. Axis targets and the exceptional ``(2,1)`` ray use their
+    theorem-level helpers first.
+    """
+
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    certificate = axis_orbit_proof_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    certificate = two_one_ray_prime_divisor_lift_orbit_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    g, h = target
+    common_factor = gcd(abs(g), abs(h))
+    if common_factor == 0:
+        return None
+
+    primitive = (g // common_factor, h // common_factor)
+    if max(abs(primitive[0]), abs(primitive[1])) > 500:
+        return None
+
+    base = box_five_hundred_audit_certificate(primitive)
+    if base is None:
+        return None
+
+    certificate = scale_certificate(base, common_factor)
+    if certificate.target != target:
+        raise AssertionError("box-500 ray lift target mismatch")
+    if not certificate.valid():
+        raise AssertionError("box-500 ray lift produced an invalid certificate")
+    return certificate
+
+
+@cache
+def parallel_direction_primitive_ray_certificate(
+    target: Point,
+    max_parameter: int,
+) -> Certificate | None:
+    """Scale a finite-direction certificate from the primitive ray representative.
+
+    The finite-direction parallel cover is a primitive-ray candidate: if the
+    primitive representative of ``target`` has a certificate from the fixed
+    direction set, every nonzero multiple of that representative is certified by
+    scaling. Axis targets and solved non-primitive exceptional-ray targets are
+    handled by their theorem-level helpers first.
+    """
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    certificate = axis_orbit_proof_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    certificate = two_one_ray_prime_divisor_lift_orbit_certificate(target)
+    if certificate is not None:
+        return certificate
+
+    witness = parallel_direction_primitive_ray_witness(target, max_parameter)
+    if witness is None:
+        return None
+
+    certificate = witness.certificate
+    if certificate.target != target:
+        raise AssertionError("primitive-ray parallel-direction lift target mismatch")
+    if not certificate.valid():
+        raise AssertionError(
+            "primitive-ray parallel-direction lift produced an invalid certificate"
+        )
+    return certificate
+
+
+@cache
+def parallel_direction_primitive_ray_witness(
+    target: Point,
+    max_parameter: int,
+) -> PrimitiveRayParallelDirectionWitness | None:
+    """Finite-direction cover witness on the primitive representative of a ray."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    g, h = target
+    common_factor = gcd(abs(g), abs(h))
+    if common_factor == 0:
+        return None
+
+    primitive = (g // common_factor, h // common_factor)
+    if primitive in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    base_witness = parallel_direction_cover_witness(primitive, max_parameter)
+    if base_witness is None:
+        return None
+
+    witness = PrimitiveRayParallelDirectionWitness(
+        target=target,
+        primitive=primitive,
+        scale=common_factor,
+        base_witness=base_witness,
+    )
+    if not witness.certificate.valid():
+        raise AssertionError("primitive-ray witness produced an invalid certificate")
+    return witness

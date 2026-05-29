@@ -46,8 +46,24 @@ from experiments.pythagorean_walks import (
     KNOWN_DISTANCE_THREE_ORBIT,
     KNOWN_DISTANCE_THREE_REPRESENTATIVES,
     PythagoreanTriple,
+    PythagoreanLatticePairWitness,
     ParallelDirectionFactorWitness,
+    ParallelDirectionSquareclassSplitWitness,
+    ParallelDirectionCoverWitnessCensus,
+    PrimitiveRayParallelDirectionWitness,
+    PARALLEL_DIRECTION_PROMOTED_345_DIRECTIONS,
+    PARALLEL_DIRECTION_PROMOTED_345_FACTORS,
+    PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS,
+    PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
+    PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+    PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
+    PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER,
+    PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR,
+    PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS,
+    PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER,
     SMALL_PRIME_DETERMINANT_DIRECTION_PAIRS,
+    TwoOneRayDeterminantSliceRoot,
+    TwoOneRayInverseRootWitness,
     UNIT_COORDINATE_500_RESIDUAL_CERTIFICATES,
     affine_consecutive_hypotenuse_certificate,
     affine_consecutive_hypotenuse_orbit_certificate,
@@ -58,6 +74,7 @@ from experiments.pythagorean_walks import (
     box_fifty_audit_certificate,
     box_fifty_residual_certificate,
     box_five_hundred_audit_certificate,
+    box_five_hundred_ray_lift_certificate,
     box_five_hundred_residual_certificate,
     box_forty_audit_certificate,
     box_forty_residual_certificate,
@@ -139,6 +156,7 @@ from experiments.pythagorean_walks import (
     determinant_thirteen_lattice_certificate,
     delta_slice_certificate,
     edge,
+    euclid_sqrt_minus_one_residues,
     euclid_strip_certificate,
     euclid_parameter_difference_certificate,
     explicit_axis_certificate,
@@ -160,6 +178,7 @@ from experiments.pythagorean_walks import (
     has_divisor_three_or_seven_mod_ten,
     has_two_one_ray_mod_130_divisor,
     has_two_one_ray_mod_2210_divisor,
+    has_two_one_ray_mod_2371330_divisor,
     has_two_one_ray_mod_64090_divisor,
     horizontal_axis_certificate_table,
     horizontal_axis_proof_certificate,
@@ -176,7 +195,11 @@ from experiments.pythagorean_walks import (
     odd_residues,
     path_is_valid,
     parallel_direction_certificate,
+    beta_square_is_axis_degenerate,
     parallel_direction_bounded_factor_cover_certificate,
+    parallel_direction_conjugate_ideal_certificate,
+    parallel_direction_conjugate_ideal_cover_certificate,
+    parallel_direction_conjugate_ideal_split_roots,
     parallel_direction_cover_certificate,
     parallel_direction_factor_coefficient,
     parallel_direction_factor_certificate,
@@ -185,15 +208,56 @@ from experiments.pythagorean_walks import (
     parallel_direction_factor_residue_certificate,
     parallel_direction_factor_residue_classes,
     parallel_direction_factor_witness,
+    parallel_direction_squareclass_split_certificate,
+    parallel_direction_squareclass_split_cover_certificate,
+    parallel_direction_squareclass_split_cover_witness,
+    parallel_direction_squareclass_conjugate_ideal_certificate,
+    parallel_direction_squareclass_conjugate_ideal_split_roots,
+    parallel_direction_squareclass_beta_determinant_residue,
+    parallel_direction_squareclass_beta_determinant_target_certificate,
+    parallel_direction_squareclass_beta_determinant_target_coefficient,
+    parallel_direction_squareclass_beta_line_certificate,
+    parallel_direction_squareclass_beta_quotient,
+    parallel_direction_squareclass_beta_second_step,
+    parallel_direction_squareclass_beta_split_root,
+    parallel_direction_squareclass_beta_target_certificate,
+    parallel_direction_squareclass_beta_target_coefficient,
+    parallel_direction_squareclass_line_gaussian_numerator,
+    parallel_direction_squareclass_line_congruence_holds,
+    parallel_direction_squareclass_line_certificate,
+    parallel_direction_squareclass_line_residue_certificate,
+    parallel_direction_squareclass_line_residue_classes,
+    parallel_direction_squareclass_line_root_quotient,
+    parallel_direction_squareclass_line_split_quotient,
+    parallel_direction_squareclass_line_second_step,
+    parallel_direction_squareclass_split_witness,
+    primitive_pythagorean_direction_conjugate_root_residue,
+    parallel_direction_cover_witness_census,
+    parallel_direction_promoted_345_factor_certificate,
+    parallel_direction_promoted_345_factor_witness,
+    parallel_direction_primitive_ray_certificate,
+    parallel_direction_primitive_ray_witness,
     parallel_direction_standard_completion_cover_certificate,
     parallel_direction_standard_completion_certificate,
+    parallel_direction_witness,
+    parallel_direction_cover_witness,
     periodic_residue_union,
     positive_divisors,
     possible_integer_distance_differences,
     prime_factors,
+    primitive_pythagorean_direction_gaussian_root,
     primitive_pythagorean_directions,
     pythagorean_leg_completion,
+    pythagorean_directions_for_hypotenuse,
+    pythagorean_layered_parallel_certificate,
+    pythagorean_layered_conjugate_ideal_certificate,
+    pythagorean_layered_split_certificate,
+    pythagorean_layered_structural_certificate,
     pythagorean_triple_orthogonal_lattice_certificate,
+    pythagorean_orthogonal_lattice_cover_certificate,
+    pythagorean_lattice_direction_pairs,
+    pythagorean_lattice_pair_cover_certificate,
+    pythagorean_lattice_pair_witness,
     prime_determinant_lattice_certificate,
     rational_slope_consecutive_ray_certificate,
     ray_multiplier,
@@ -209,6 +273,10 @@ from experiments.pythagorean_walks import (
     signed_delta_values,
     signed_swap_point,
     small_prime_lattice_certificate,
+    squareclass_beta_integral,
+    squareclass_decomposition,
+    squarefree_divisors,
+    squarefree_numbers,
     standard_pythagorean_completion_factors,
     theorem1_three_step_path,
     theorem3_certificate,
@@ -221,6 +289,11 @@ from experiments.pythagorean_walks import (
     theorem3_ray_divisor_certificate,
     theorem3_ray_divisor_modulus,
     theorem3_ray_pell_divisor_certificate,
+    TwoOneRayDeterminantSplitFactorWitness,
+    TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES,
+    TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS,
+    TWO_ONE_RAY_PROMOTED_SCALED_FACTOR_LAYERS,
+    TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES,
     two_one_ray_consecutive_certificate,
     two_one_ray_consecutive_orbit_certificate,
     two_one_ray_divisor_lift_certificate,
@@ -233,6 +306,16 @@ from experiments.pythagorean_walks import (
     two_one_ray_five_or_seventeen_mod_twenty_orbit_certificate,
     two_one_ray_finite_audit_certificate,
     two_one_ray_finite_audit_orbit_certificate,
+    two_one_ray_hypotenuse_divisor_certificate,
+    two_one_ray_hypotenuse_divisor_directions,
+    two_one_ray_hypotenuse_divisor_residue_classes,
+    two_one_ray_hypotenuse_determinant_split_factor_certificate,
+    two_one_ray_hypotenuse_determinant_split_factor_layers,
+    two_one_ray_hypotenuse_square_factor_certificate,
+    two_one_ray_hypotenuse_square_factor_directions,
+    two_one_ray_hypotenuse_square_factor_residue_classes,
+    two_one_ray_inverse_root_witness,
+    two_one_ray_lift_three_square_endpoint_certificate,
     two_one_ray_mod20_skeleton_certificate,
     two_one_ray_mod20_skeleton_orbit_certificate,
     two_one_ray_mod20_skeleton_residues,
@@ -240,22 +323,65 @@ from experiments.pythagorean_walks import (
     two_one_ray_mod260_skeleton_orbit_certificate,
     two_one_ray_mod260_skeleton_residues,
     two_one_ray_mod_2210_divisor_residues,
+    two_one_ray_mod_2371330_divisor_residues,
     two_one_ray_mod_64090_divisor_residues,
     two_one_ray_complement_divisor_certificate,
     two_one_ray_complement_divisor_period,
     two_one_ray_complement_divisor_residues,
+    two_one_ray_complement_divisor_root,
     two_one_ray_complement_divisor_sieve_certificate,
     two_one_ray_complement_divisor_sieve_residue_classes,
+    two_one_ray_determinant_coordinates,
+    two_one_ray_determinant_factor_certificate,
+    two_one_ray_determinant_factor_roots,
+    two_one_ray_determinant_divisor_certificate,
+    two_one_ray_determinant_divisor_root,
+    two_one_ray_determinant_paired_factor_lift_root,
+    two_one_ray_determinant_paired_factor_root,
+    two_one_ray_determinant_split_factor_certificate,
+    two_one_ray_determinant_split_factor_period,
+    two_one_ray_determinant_split_factor_witness,
+    two_one_ray_determinant_slice_orbit,
+    two_one_ray_determinant_slice_orbit_certificate,
+    two_one_ray_determinant_slice_predecessor,
+    two_one_ray_determinant_slice_reduced_root,
+    two_one_ray_determinant_square_endpoint_orbit_certificate,
+    two_one_ray_determinant_slice_successor,
+    two_one_ray_determinant_slice_root,
+    two_one_ray_euclid_parameter_certificate,
+    two_one_ray_euclid_parameter_residue_classes,
+    two_one_ray_euclid_parameter_roots,
     two_one_ray_mod_130_divisor_residues,
     two_one_ray_mod_ten_divisor_certificate,
     two_one_ray_mod_ten_divisor_orbit_certificate,
+    two_one_ray_mod_eighty_two_divisor_certificate,
+    two_one_ray_mod_eighty_two_divisor_orbit_certificate,
     two_one_ray_mod_thirty_four_divisor_certificate,
     two_one_ray_mod_thirty_four_divisor_orbit_certificate,
     two_one_ray_mod_fifty_eight_divisor_certificate,
     two_one_ray_mod_fifty_eight_divisor_orbit_certificate,
+    two_one_ray_mod_seventy_four_divisor_certificate,
+    two_one_ray_mod_seventy_four_divisor_orbit_certificate,
     two_one_ray_mod_twenty_six_divisor_certificate,
     two_one_ray_mod_twenty_six_divisor_orbit_certificate,
+    two_one_ray_mod_twenty_six_square_factor_certificate,
+    two_one_ray_paired_factor_split_factor_witness,
+    two_one_ray_paired_factor_lift_witness,
+    two_one_ray_prime_divisor_lift_certificate,
+    two_one_ray_prime_divisor_lift_orbit_certificate,
+    two_one_ray_prime_one_mod_four_double_direction_certificate,
+    two_one_ray_promoted_determinant_split_factor_certificate,
+    two_one_ray_promoted_inverse_root_certificate,
+    two_one_ray_promoted_scaled_factor_certificate,
+    two_one_ray_promoted_square_factor_certificate,
     two_one_ray_seed_certificate,
+    two_one_ray_scaled_factor_divisor_certificate,
+    two_one_ray_double_direction_certificate,
+    two_one_ray_signed_euclid_root,
+    two_one_ray_square_determinant_divisor_certificate,
+    two_one_ray_square_determinant_factor_certificate,
+    two_one_ray_square_determinant_factor_period,
+    two_one_ray_square_determinant_factor_residues,
     two_one_ray_three_mod_four_certificate,
     two_one_ray_three_mod_four_orbit_certificate,
     unit_coordinate_500_audit_certificate,
@@ -600,6 +726,49 @@ class CertificateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             gaussian_divisor_certificate((1, 1), Certificate(target=(1, 0), midpoint=(1, 1)))
 
+    def test_primitive_pythagorean_direction_gaussian_root(self):
+        for direction in ((-9, 40), (-24, 7), (-40, 9), (3, 4), (4, -3)):
+            root, unit = primitive_pythagorean_direction_gaussian_root(direction)
+            root_square = gaussian_multiply(root, root)
+            self.assertEqual(gaussian_multiply(unit, root_square), direction)
+            self.assertEqual(root[0] * root[0] + root[1] * root[1], isqrt(
+                direction[0] * direction[0] + direction[1] * direction[1]
+            ))
+            self.assertIn(unit, ((1, 0), (-1, 0), (0, 1), (0, -1)))
+
+        self.assertEqual(
+            primitive_pythagorean_direction_conjugate_root_residue((-9, 40)),
+            (41, 9),
+        )
+        self.assertEqual(
+            primitive_pythagorean_direction_conjugate_root_residue((-24, 7)),
+            (25, 18),
+        )
+        for direction, split_root in (
+            ((-9, 40), (19, -239)),
+            ((-24, 7), (41, -37)),
+            ((-40, 9), (401, 81)),
+        ):
+            modulus, residue = primitive_pythagorean_direction_conjugate_root_residue(
+                direction
+            )
+            self.assertEqual((residue * residue + 1) % modulus, 0)
+            self.assertEqual(
+                (split_root[1] - residue * split_root[0]) % modulus,
+                0,
+            )
+            self.assertIsNotNone(
+                parallel_direction_squareclass_line_split_quotient(
+                    direction,
+                    *split_root,
+                )
+            )
+
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_direction_gaussian_root((6, 8))
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_direction_gaussian_root((1, 1))
+
     def test_diagonal_pythagorean_multiplier_family(self):
         for multiplier in ((1, 0), (0, 1), (5, 12), (12, 5), (-7, 24), (20, -21)):
             target = gaussian_multiply((1, 1), multiplier)
@@ -632,6 +801,16 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(positive_divisors(36), (1, 2, 3, 4, 6, 9, 12, 18, 36))
         with self.assertRaises(ValueError):
             positive_divisors(0)
+        self.assertEqual(squareclass_decomposition(201601), (1, 449))
+        self.assertEqual(squareclass_decomposition(722), (2, 19))
+        self.assertEqual(squarefree_numbers(10), (1, 2, 3, 5, 6, 7, 10))
+        self.assertEqual(squarefree_divisors(72), (1, 2, 3, 6))
+        with self.assertRaises(ValueError):
+            squareclass_decomposition(0)
+        with self.assertRaises(ValueError):
+            squarefree_numbers(0)
+        with self.assertRaises(ValueError):
+            squarefree_divisors(0)
 
         self.assertEqual(parallel_direction_factor_modulus((3, 4), 648), 32400)
         self.assertEqual(parallel_direction_factor_coefficient((39, 64), (3, 4), 648), 2)
@@ -651,11 +830,599 @@ class CertificateTests(unittest.TestCase):
         )
         self.assertEqual(witness.midpoint, (6, 8))
         self.assertTrue(witness.certificate.valid())
+        self.assertEqual(
+            parallel_direction_witness((39, 64), (3, 4)),
+            ParallelDirectionFactorWitness(
+                target=(39, 64),
+                direction=(3, 4),
+                factor=8,
+                determinant_leg=36,
+                other_leg=77,
+                scaled_hypotenuse=85,
+                second_length=17,
+                first_coefficient=18,
+            ),
+        )
 
         certificate = parallel_direction_factor_certificate((39, 64), (3, 4), 648)
         self.assertIsNotNone(certificate)
         self.assertEqual(certificate.midpoint, (6, 8))
         self.assertTrue(certificate.valid())
+
+        split_witness = parallel_direction_squareclass_split_witness(
+            (151, 338),
+            (-9, 40),
+            2,
+            19,
+        )
+        self.assertEqual(
+            split_witness,
+            ParallelDirectionSquareclassSplitWitness(
+                squareclass=2,
+                split_factor=19,
+                paired_split_factor=239,
+                factor_witness=ParallelDirectionFactorWitness(
+                    target=(151, 338),
+                    direction=(-9, 40),
+                    factor=722,
+                    determinant_leg=-9082,
+                    other_leg=56760,
+                    scaled_hypotenuse=57482,
+                    second_length=1402,
+                    first_coefficient=41,
+                ),
+            ),
+        )
+        self.assertEqual(split_witness.midpoint, (-369, 1640))
+        self.assertEqual(split_witness.signed_paired_split_factor, -239)
+        self.assertTrue(split_witness.certificate.valid())
+        self.assertEqual(
+            parallel_direction_squareclass_split_certificate((151, 338), (-9, 40), 2, 19),
+            split_witness.certificate,
+        )
+        line_certificate = parallel_direction_squareclass_line_certificate(
+            (-9, 40),
+            2,
+            19,
+            -239,
+            41,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_gaussian_numerator(
+                (-9, 40),
+                2,
+                19,
+                -239,
+            ),
+            (1748240, -4377324),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_second_step((-9, 40), 2, 19, -239),
+            (520, -1302),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_root_quotient((-9, 40), 2, 19, -239),
+            (520, -1302),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_split_quotient((-9, 40), 19, -239),
+            (-31, 21),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_split_root((-9, 40), (-31, 21)),
+            (19, -239),
+        )
+        self.assertTrue(squareclass_beta_integral(2, (-31, 21)))
+        self.assertTrue(squareclass_beta_integral(1, (19, -19)))
+        self.assertFalse(squareclass_beta_integral(1, (-31, 22)))
+        self.assertFalse(beta_square_is_axis_degenerate((-31, 21)))
+        self.assertTrue(beta_square_is_axis_degenerate((19, -19)))
+        self.assertTrue(beta_square_is_axis_degenerate((19, 0)))
+        self.assertEqual(
+            parallel_direction_squareclass_beta_quotient((-9, 40), 2, (-31, 21)),
+            (520, -1302),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_second_step((-9, 40), 2, (-31, 21)),
+            (520, -1302),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_determinant_residue(
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            -9082,
+        )
+        self.assertEqual(determinant((-9, 40), (151, 338)), -9082)
+        self.assertEqual(
+            parallel_direction_squareclass_conjugate_ideal_split_roots(
+                (-9, 40),
+                -9082,
+                2,
+            ),
+            ((19, -239, (-31, 21)),),
+        )
+        self.assertIn(
+            (2, 19, -239, (-31, 21)),
+            parallel_direction_conjugate_ideal_split_roots((151, 338), (-9, 40)),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_line_certificate(
+                (-9, 40),
+                2,
+                (-31, 21),
+                41,
+            ),
+            line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_certificate((151, 338), (-9, 40)),
+            line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_conjugate_ideal_certificate(
+                (151, 338),
+                (-9, 40),
+                2,
+            ),
+            line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_target_coefficient(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            41,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_determinant_target_coefficient(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            41,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_target_certificate(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_determinant_target_certificate(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            line_certificate,
+        )
+        self.assertTrue(
+            parallel_direction_squareclass_line_congruence_holds((-9, 40), 2, 19, -239)
+        )
+        self.assertEqual(line_certificate, split_witness.certificate)
+        shifted_line_certificate = parallel_direction_squareclass_line_certificate(
+            (-9, 40),
+            2,
+            19,
+            -239,
+            42,
+        )
+        self.assertIsNotNone(shifted_line_certificate)
+        self.assertEqual(shifted_line_certificate.target, (142, 378))
+        self.assertEqual(shifted_line_certificate.midpoint, (-378, 1680))
+        self.assertTrue(shifted_line_certificate.valid())
+        self.assertEqual(
+            parallel_direction_squareclass_beta_target_coefficient(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            42,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_determinant_target_coefficient(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            42,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_target_certificate(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            shifted_line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_determinant_target_certificate(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            shifted_line_certificate,
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_beta_target_certificate(
+                (151, 339),
+                (-9, 40),
+                2,
+                (-31, 21),
+            )
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_beta_determinant_target_certificate(
+                (151, 339),
+                (-9, 40),
+                2,
+                (-31, 21),
+            )
+        )
+
+        period, residues = parallel_direction_squareclass_line_residue_classes(
+            (-9, 40),
+            2,
+            19,
+        )
+        self.assertEqual(period, 3362)
+        self.assertEqual(len(residues), 81)
+        self.assertIn((-239) % period, residues)
+        self.assertNotIn((-238) % period, residues)
+        self.assertEqual(
+            parallel_direction_squareclass_line_residue_certificate(
+                (151, 338),
+                (-9, 40),
+                2,
+                19,
+            ),
+            split_witness.certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_residue_certificate(
+                (142, 378),
+                (-9, 40),
+                2,
+                19,
+            ),
+            shifted_line_certificate,
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_line_residue_certificate(
+                (151, 339),
+                (-9, 40),
+                2,
+                19,
+            )
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_residue_classes((-40, 9), 149, 401),
+            (82, (81,)),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_residue_classes((-24, 7), 34, 41),
+            (25, (13,)),
+        )
+        for direction, squareclass, split_factor in (
+            ((-9, 40), 2, 19),
+            ((-40, 9), 149, 401),
+            ((-24, 7), 34, 41),
+        ):
+            modulus = 2 * (direction[0] * direction[0] + direction[1] * direction[1])
+            for residue in range(modulus):
+                paired = residue if residue else modulus
+                split_quotient = parallel_direction_squareclass_line_split_quotient(
+                    direction,
+                    split_factor,
+                    paired,
+                )
+                expected = False
+                if split_quotient is not None:
+                    quotient_square = gaussian_multiply(split_quotient, split_quotient)
+                    expected = (
+                        (squareclass * quotient_square[0]) % 2 == 0
+                        and (squareclass * quotient_square[1]) % 2 == 0
+                    )
+                self.assertEqual(
+                    parallel_direction_squareclass_line_congruence_holds(
+                        direction,
+                        squareclass,
+                        split_factor,
+                        paired,
+                    ),
+                    expected,
+                    (direction, squareclass, split_factor, paired),
+                )
+
+        frontier_line_examples = (
+            ((199, 1462), (-24, -7), 115, 1, -293, 7874),
+            ((1262, 1781), (-24, 7), 34, 41, -37, -37),
+        )
+        for target, direction, squareclass, split_factor, paired, coefficient in (
+            frontier_line_examples
+        ):
+            certificate = parallel_direction_squareclass_line_certificate(
+                direction,
+                squareclass,
+                split_factor,
+                paired,
+                coefficient,
+            )
+            self.assertIsNotNone(certificate, target)
+            self.assertEqual(certificate.target, target)
+            self.assertTrue(certificate.valid())
+            gaussian_numerator = parallel_direction_squareclass_line_gaussian_numerator(
+                direction,
+                squareclass,
+                split_factor,
+                paired,
+            )
+            gaussian_denominator = 2 * (
+                direction[0] * direction[0] + direction[1] * direction[1]
+            )
+            self.assertEqual(
+                (
+                    gaussian_numerator[0] // gaussian_denominator,
+                    gaussian_numerator[1] // gaussian_denominator,
+                ),
+                (target[0] - certificate.midpoint[0], target[1] - certificate.midpoint[1]),
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_line_root_quotient(
+                    direction,
+                    squareclass,
+                    split_factor,
+                    paired,
+                ),
+                (target[0] - certificate.midpoint[0], target[1] - certificate.midpoint[1]),
+            )
+            split_quotient = parallel_direction_squareclass_line_split_quotient(
+                direction,
+                split_factor,
+                paired,
+            )
+            self.assertIsNotNone(split_quotient, target)
+            self.assertEqual(
+                parallel_direction_squareclass_beta_split_root(direction, split_quotient),
+                (split_factor, paired),
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_quotient(
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                (target[0] - certificate.midpoint[0], target[1] - certificate.midpoint[1]),
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_second_step(
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                (target[0] - certificate.midpoint[0], target[1] - certificate.midpoint[1]),
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_determinant_residue(
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                squareclass * split_factor * paired,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_determinant_residue(
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                determinant(direction, target),
+            )
+            self.assertIn(
+                (split_factor, paired, split_quotient),
+                parallel_direction_squareclass_conjugate_ideal_split_roots(
+                    direction,
+                    determinant(direction, target),
+                    squareclass,
+                ),
+            )
+            self.assertIn(
+                (squareclass, split_factor, paired, split_quotient),
+                parallel_direction_conjugate_ideal_split_roots(target, direction),
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_line_certificate(
+                    direction,
+                    squareclass,
+                    split_quotient,
+                    coefficient,
+                ),
+                certificate,
+            )
+            self.assertEqual(
+                parallel_direction_conjugate_ideal_certificate(target, direction),
+                certificate,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_conjugate_ideal_certificate(
+                    target,
+                    direction,
+                    squareclass,
+                ),
+                certificate,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_target_coefficient(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                coefficient,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_determinant_target_coefficient(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                coefficient,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_target_certificate(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                certificate,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_determinant_target_certificate(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                certificate,
+            )
+            quotient_square = gaussian_multiply(split_quotient, split_quotient)
+            self.assertEqual(
+                (squareclass * quotient_square[0]) % 2,
+                0,
+            )
+            self.assertEqual(
+                (squareclass * quotient_square[1]) % 2,
+                0,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_line_residue_certificate(
+                    target,
+                    direction,
+                    squareclass,
+                    split_factor,
+                ),
+                certificate,
+            )
+
+        self.assertIsNone(
+            parallel_direction_squareclass_line_certificate((-9, 40), 2, 19, -238, 41)
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_line_second_step((-9, 40), 2, 19, -238)
+        )
+        self.assertFalse(
+            parallel_direction_squareclass_line_congruence_holds((-9, 40), 2, 19, -238)
+        )
+        self.assertTrue(
+            parallel_direction_squareclass_line_congruence_holds((-9, 40), 2, 19, 171)
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_root_quotient((-9, 40), 2, 19, 171),
+            (0, -722),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_line_split_quotient((-9, 40), 19, 171),
+            (19, -19),
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_split_root((-9, 40), (19, -19)),
+            (19, 171),
+        )
+        self.assertTrue(squareclass_beta_integral(2, (19, -19)))
+        self.assertTrue(beta_square_is_axis_degenerate((19, -19)))
+        self.assertEqual(
+            parallel_direction_squareclass_beta_quotient((-9, 40), 2, (19, -19)),
+            (0, -722),
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_beta_second_step((-9, 40), 2, (19, -19))
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_beta_determinant_residue(
+                (-9, 40),
+                2,
+                (19, -19),
+            )
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_conjugate_ideal_split_roots(
+                (-9, 40),
+                2 * 19 * 171,
+                2,
+            ),
+            (),
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_line_second_step((-9, 40), 2, 19, 171)
+        )
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_split_witness((151, 338), (-9, 40), 4, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_split_witness((151, 338), (-9, 40), 2, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_certificate((-9, 40), 4, 1, 1, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_certificate((-9, 40), 2, 1, 0, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_second_step((-9, 40), 4, 1, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_second_step((-9, 40), 2, 1, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_congruence_holds((-9, 40), 4, 1, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_congruence_holds((-9, 40), 2, 1, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_gaussian_numerator((-9, 40), 4, 1, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_gaussian_numerator((-9, 40), 2, 1, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_root_quotient((-9, 40), 4, 1, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_root_quotient((-9, 40), 2, 1, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_split_quotient((-9, 40), 0, 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_line_split_quotient((-9, 40), 1, 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_split_root((-9, 40), (0, 0))
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_quotient((-9, 40), 4, (1, 1))
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_quotient((-9, 40), 2, (0, 0))
+        with self.assertRaises(ValueError):
+            squareclass_beta_integral(4, (1, 1))
+        with self.assertRaises(ValueError):
+            squareclass_beta_integral(1, (0, 0))
+        with self.assertRaises(ValueError):
+            beta_square_is_axis_degenerate((0, 0))
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_target_certificate(
+                (151, 338),
+                (-9, 40),
+                4,
+                (1, 1),
+            )
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_determinant_target_certificate(
+                (151, 338),
+                (-9, 40),
+                4,
+                (1, 1),
+            )
 
         searched = parallel_direction_certificate((39, 64), (3, 4))
         self.assertIsNotNone(searched)
@@ -683,6 +1450,7 @@ class CertificateTests(unittest.TestCase):
 
         self.assertIsNone(parallel_direction_factor_certificate((39, 64), (3, 4), 5))
         self.assertIsNone(parallel_direction_certificate((6, 8), (3, 4)))
+        self.assertIsNone(parallel_direction_witness((6, 8), (3, 4)))
         with self.assertRaises(ValueError):
             parallel_direction_factor_certificate((39, 64), (1, 1), 1)
         with self.assertRaises(ValueError):
@@ -691,6 +1459,8 @@ class CertificateTests(unittest.TestCase):
             parallel_direction_factor_modulus((1, 1), 1)
         with self.assertRaises(ValueError):
             parallel_direction_factor_coefficient((39, 64), (3, 4), 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_witness((39, 64), (1, 1))
 
     def test_parallel_direction_standard_completion_family(self):
         self.assertEqual(standard_pythagorean_completion_factors(0), ())
@@ -745,9 +1515,17 @@ class CertificateTests(unittest.TestCase):
         self.assertIsNotNone(certificate)
         self.assertEqual(certificate.midpoint, (2176, 1632))
         self.assertTrue(certificate.valid())
+        cover_witness = parallel_direction_cover_witness(nonstandard_target, 8)
+        self.assertIsNotNone(cover_witness)
+        self.assertEqual(cover_witness.direction, (-4, -3))
+        self.assertEqual(cover_witness.factor, 26645)
+        self.assertEqual(cover_witness.midpoint, (2176, 1632))
+        self.assertEqual(cover_witness.certificate, certificate)
 
         with self.assertRaises(ValueError):
             parallel_direction_standard_completion_cover_certificate((1, 5), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_cover_witness((1, 5), 1)
 
     def test_unit_coordinate_factor_five_parallel_family(self):
         for parameter_t in range(-20, 21):
@@ -1001,6 +1779,214 @@ class CertificateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             parallel_direction_cover_certificate((1, 1), 1)
 
+    def test_parallel_direction_cover_witness_census(self):
+        census = parallel_direction_cover_witness_census(30, 8)
+        self.assertIsInstance(census, ParallelDirectionCoverWitnessCensus)
+        self.assertEqual(census.max_coordinate, 30)
+        self.assertEqual(census.max_parameter, 8)
+        self.assertEqual(census.target_count, 543)
+        self.assertEqual(census.uncovered_targets, ())
+        self.assertEqual(
+            census.direction_counts[:6],
+            (
+                ((-4, -3), 311),
+                ((-4, 3), 167),
+                ((-3, -4), 31),
+                ((-3, 4), 16),
+                ((-12, 5), 5),
+                ((-12, -5), 4),
+            ),
+        )
+        self.assertEqual(
+            census.factor_counts[:8],
+            (
+                (1, 117),
+                (2, 47),
+                (3, 25),
+                (4, 24),
+                (9, 21),
+                (5, 17),
+                (8, 14),
+                (25, 14),
+            ),
+        )
+        self.assertEqual(
+            census.direction_factor_counts[:8],
+            (
+                ((-4, -3), 1, 70),
+                ((-4, -3), 2, 31),
+                ((-4, 3), 1, 30),
+                ((-4, -3), 3, 16),
+                ((-4, 3), 2, 15),
+                ((-4, -3), 4, 13),
+                ((-4, -3), 25, 11),
+                ((-4, -3), 9, 10),
+            ),
+        )
+
+        smaller = parallel_direction_cover_witness_census(30, 2)
+        self.assertGreater(len(smaller.uncovered_targets), 0)
+        self.assertIn((2, 29), smaller.uncovered_targets)
+
+        with self.assertRaises(ValueError):
+            parallel_direction_cover_witness_census(0, 8)
+        with self.assertRaises(ValueError):
+            parallel_direction_cover_witness_census(30, 1)
+
+    def test_parallel_direction_promoted_345_factor_cover(self):
+        self.assertEqual(
+            PARALLEL_DIRECTION_PROMOTED_345_DIRECTIONS,
+            (
+                (-4, -3),
+                (-4, 3),
+                (-3, -4),
+                (-3, 4),
+                (3, -4),
+                (3, 4),
+                (4, -3),
+                (4, 3),
+            ),
+        )
+        self.assertEqual(
+            PARALLEL_DIRECTION_PROMOTED_345_FACTORS,
+            (1, 2, 3, 4, 5, 6, 8, 9, 25),
+        )
+        self.assertEqual(len(PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS), 72)
+        self.assertIn(
+            ((-4, -3), 1),
+            PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS,
+        )
+        self.assertIn(
+            ((4, 3), 25),
+            PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS,
+        )
+
+        expected_witnesses = (
+            ((1, 5), (-4, -3), 1, (-20, -15)),
+            ((1, 17), (3, 4), 1, (141, 188)),
+            ((1, 92), (-3, -4), 4, (-1065, -1420)),
+            ((5, 20), (4, 3), 5, (80, 60)),
+        )
+        for target, direction, factor, midpoint in expected_witnesses:
+            witness = parallel_direction_promoted_345_factor_witness(target)
+            self.assertIsNotNone(witness, target)
+            self.assertEqual(witness.direction, direction)
+            self.assertEqual(witness.factor, factor)
+            self.assertEqual(witness.midpoint, midpoint)
+            certificate = parallel_direction_promoted_345_factor_certificate(target)
+            self.assertEqual(certificate, witness.certificate)
+            self.assertTrue(certificate.valid())
+
+        self.assertIsNone(parallel_direction_promoted_345_factor_certificate((2, 29)))
+        self.assertIsNone(parallel_direction_promoted_345_factor_witness((2, 29)))
+        self.assertIsNotNone(parallel_direction_cover_certificate((2, 29), 8))
+
+        covered_count = 0
+        misses: list[Point] = []
+        for g in range(1, 51):
+            for h in range(1, 51):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+
+                certificate = parallel_direction_promoted_345_factor_certificate(target)
+                if certificate is None:
+                    misses.append(target)
+                    continue
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+                covered_count += 1
+
+        self.assertEqual(covered_count, 1461)
+        self.assertEqual(len(misses), 68)
+        self.assertEqual(
+            tuple(misses[:8]),
+            (
+                (1, 38),
+                (2, 29),
+                (2, 49),
+                (5, 14),
+                (5, 26),
+                (5, 34),
+                (5, 46),
+                (7, 10),
+            ),
+        )
+        for target in misses:
+            certificate = parallel_direction_cover_certificate(target, 8)
+            self.assertIsNotNone(certificate, target)
+            self.assertTrue(certificate.valid())
+
+    def test_parallel_direction_primitive_ray_lift(self):
+        for target in ((0, 0), (1, 0), (2, 0), (2, 1)):
+            self.assertIsNone(parallel_direction_primitive_ray_certificate(target, 8))
+
+        for target in ((1000, 0), (0, -1000), (4000, 2000), (-2000, 4000)):
+            cert = parallel_direction_primitive_ray_certificate(target, 8)
+            self.assertIsNotNone(cert, target)
+            self.assertEqual(cert.target, target)
+            self.assertTrue(cert.valid())
+
+        examples = (
+            ((1, 501), 23),
+            ((601, 1000), 7),
+            ((997, 983), 11),
+            ((-1000, 601), 13),
+            ((14, 25), 29),
+            ((158, 391), 31),
+        )
+        for primitive, multiplier in examples:
+            target = (multiplier * primitive[0], multiplier * primitive[1])
+            base = parallel_direction_cover_certificate(primitive, 8)
+            self.assertIsNotNone(base, primitive)
+            cert = parallel_direction_primitive_ray_certificate(target, 8)
+            self.assertEqual(cert, scale_certificate(base, multiplier))
+            self.assertEqual(cert.target, target)
+            self.assertTrue(cert.valid())
+
+            base_witness = parallel_direction_cover_witness(primitive, 8)
+            self.assertIsNotNone(base_witness, primitive)
+            lifted_witness = parallel_direction_primitive_ray_witness(target, 8)
+            self.assertEqual(
+                lifted_witness,
+                PrimitiveRayParallelDirectionWitness(
+                    target=target,
+                    primitive=primitive,
+                    scale=multiplier,
+                    base_witness=base_witness,
+                ),
+            )
+            self.assertEqual(lifted_witness.certificate, cert)
+
+        witness = parallel_direction_primitive_ray_witness((23, 23 * 501), 8)
+        self.assertIsNotNone(witness)
+        self.assertEqual(witness.primitive, (1, 501))
+        self.assertEqual(witness.scale, 23)
+        self.assertEqual(witness.base_witness.direction, (-4, -3))
+        self.assertEqual(witness.base_witness.factor, 3)
+
+        lifted_failures: list[Point] = []
+        for g in range(1, 61):
+            for h in range(1, 61):
+                primitive = (g, h)
+                if primitive in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), primitive):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+
+                target = (19 * g, 19 * h)
+                cert = parallel_direction_primitive_ray_certificate(target, 8)
+                if cert is None or cert.target != target or not cert.valid():
+                    lifted_failures.append(target)
+        self.assertEqual(tuple(lifted_failures), ())
+
+        with self.assertRaises(ValueError):
+            parallel_direction_primitive_ray_certificate((1, 1), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_primitive_ray_witness((1, 1), 1)
+
     def test_pythagorean_triple_orthogonal_lattice_family(self):
         triples = (
             PythagoreanTriple(3, 4, 5),
@@ -1069,6 +2055,394 @@ class CertificateTests(unittest.TestCase):
                 (1, 1),
                 PythagoreanTriple(1, 1, 2),
             )
+
+    def test_pythagorean_orthogonal_lattice_cover(self):
+        examples = (
+            ((1, 38), (-15, 8), (-15, 8)),
+            ((2, 29), (-12, -5), (12, 5)),
+            ((22, 19), (-12, 5), (12, -5)),
+            ((29, 2), (-12, 5), (24, -10)),
+            ((38, 1), (-15, -8), (30, 16)),
+        )
+        for target, direction, midpoint in examples:
+            certificate = pythagorean_orthogonal_lattice_cover_certificate(target, 4)
+            self.assertIsNotNone(certificate)
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(certificate.midpoint, midpoint)
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                lattice_two_step_certificate(
+                    target,
+                    direction,
+                    (-direction[1], direction[0]),
+                ),
+                certificate,
+            )
+
+        residual_covered: list[Point] = []
+        residual_uncovered: list[Point] = []
+        for g in range(1, 51):
+            for h in range(1, 51):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+                if parallel_direction_promoted_345_factor_certificate(target) is not None:
+                    continue
+
+                certificate = pythagorean_orthogonal_lattice_cover_certificate(target, 4)
+                if certificate is None:
+                    residual_uncovered.append(target)
+                else:
+                    self.assertTrue(certificate.valid())
+                    residual_covered.append(target)
+
+        self.assertEqual(
+            tuple(residual_covered),
+            (
+                (1, 38),
+                (2, 29),
+                (19, 22),
+                (22, 19),
+                (22, 31),
+                (29, 2),
+                (31, 22),
+                (38, 1),
+            ),
+        )
+        self.assertEqual(len(residual_uncovered), 60)
+        self.assertEqual(
+            tuple(residual_uncovered[:8]),
+            (
+                (2, 49),
+                (5, 14),
+                (5, 26),
+                (5, 34),
+                (5, 46),
+                (7, 10),
+                (7, 50),
+                (8, 9),
+            ),
+        )
+
+        self.assertIsNone(pythagorean_orthogonal_lattice_cover_certificate((1, 38), 3))
+        with self.assertRaises(ValueError):
+            pythagorean_orthogonal_lattice_cover_certificate((1, 1), 1)
+
+    def test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail(self):
+        pairs = pythagorean_lattice_direction_pairs(25, 1435)
+        self.assertEqual(len(pairs), 38240)
+        self.assertIn(((-21, -20), (-40, 9)), pairs)
+        self.assertIn(((-15, 8), (-644, 333)), pairs)
+        self.assertNotIn(((-4, 3), (4, -3)), pairs)
+
+        examples = (
+            ((2, 49), (-21, -20), (-40, 9), 989, (-2, 1), (42, 40)),
+            ((10, 13), (-15, -8), (-340, -189), 115, (22, -1), (-330, -176)),
+            ((10, 47), (-15, 8), (-644, 333), 157, (214, -5), (-3210, 1712)),
+            ((14, 25), (-91, -60), (-168, -95), 1435, (-2, 1), (182, 120)),
+            ((17, 50), (-12, -5), (-391, -120), 515, (-34, 1), (408, 170)),
+            ((25, 26), (-45, -28), (-440, -279), 235, (19, -2), (-855, -532)),
+            ((50, 17), (-5, -12), (-120, -391), 515, (-34, 1), (170, 408)),
+        )
+        for (
+            target,
+            first_direction,
+            second_direction,
+            determinant_value,
+            coefficients,
+            midpoint,
+        ) in examples:
+            witness = pythagorean_lattice_pair_witness(target, 25, 1435)
+            self.assertEqual(
+                witness,
+                PythagoreanLatticePairWitness(
+                    target=target,
+                    first_direction=first_direction,
+                    second_direction=second_direction,
+                    determinant=determinant_value,
+                    first_coefficient=coefficients[0],
+                    second_coefficient=coefficients[1],
+                ),
+            )
+            self.assertEqual(witness.midpoint, midpoint)
+            self.assertTrue(witness.certificate.valid())
+            self.assertEqual(
+                pythagorean_lattice_pair_cover_certificate(target, 25, 1435),
+                witness.certificate,
+            )
+
+        residual_covered: list[Point] = []
+        residual_uncovered: list[Point] = []
+        for g in range(1, 51):
+            for h in range(1, 51):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+                if parallel_direction_promoted_345_factor_certificate(target) is not None:
+                    continue
+                if pythagorean_orthogonal_lattice_cover_certificate(target, 4) is not None:
+                    continue
+
+                certificate = pythagorean_lattice_pair_cover_certificate(target, 25, 1435)
+                if certificate is None:
+                    residual_uncovered.append(target)
+                else:
+                    self.assertTrue(certificate.valid())
+                    residual_covered.append(target)
+
+        self.assertEqual(len(residual_covered), 60)
+        self.assertEqual(tuple(residual_uncovered), ())
+
+        larger_sample_misses: list[Point] = []
+        for g in range(1, 101):
+            for h in range(1, 101):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+                if parallel_direction_promoted_345_factor_certificate(target) is not None:
+                    continue
+                if pythagorean_orthogonal_lattice_cover_certificate(target, 4) is not None:
+                    continue
+                if pythagorean_lattice_pair_cover_certificate(target, 25, 1435) is not None:
+                    continue
+                larger_sample_misses.append(target)
+
+        self.assertEqual(
+            tuple(larger_sample_misses),
+            ((29, 98), (50, 53), (53, 50), (98, 29)),
+        )
+
+        self.assertIsNone(pythagorean_lattice_pair_cover_certificate((50, 53), 25, 1435))
+        with self.assertRaises(ValueError):
+            pythagorean_lattice_direction_pairs(1, 1435)
+        with self.assertRaises(ValueError):
+            pythagorean_lattice_direction_pairs(25, 0)
+
+    def test_pythagorean_layered_structural_cover_closes_sample_to_300(self):
+        self.assertEqual(PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER, 4)
+        self.assertEqual(PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER, 25)
+        self.assertEqual(PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT, 1435)
+        self.assertEqual(PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER, 8)
+
+        standard_tail_examples = (
+            ((29, 98), (61944, -25810)),
+            ((50, 53), (4110, 2192)),
+            ((53, 50), (2192, 4110)),
+            ((98, 29), (-25810, 61944)),
+        )
+        for target, midpoint in standard_tail_examples:
+            certificate = pythagorean_layered_structural_certificate(target)
+            self.assertIsNotNone(certificate)
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(certificate.midpoint, midpoint)
+            self.assertTrue(certificate.valid())
+            self.assertIsNone(pythagorean_lattice_pair_cover_certificate(target, 25, 1435))
+
+        counts = {
+            "total": 0,
+            "promoted_345": 0,
+            "orthogonal": 0,
+            "lattice_pair": 0,
+            "standard_completion": 0,
+        }
+        for g in range(1, 301):
+            for h in range(1, 301):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+
+                counts["total"] += 1
+                certificate = pythagorean_layered_structural_certificate(target)
+                self.assertIsNotNone(certificate, target)
+                self.assertTrue(certificate.valid())
+
+                if parallel_direction_promoted_345_factor_certificate(target) is not None:
+                    counts["promoted_345"] += 1
+                elif pythagorean_orthogonal_lattice_cover_certificate(target, 4) is not None:
+                    counts["orthogonal"] += 1
+                elif pythagorean_lattice_pair_cover_certificate(target, 25, 1435) is not None:
+                    counts["lattice_pair"] += 1
+                else:
+                    self.assertIsNotNone(
+                        parallel_direction_standard_completion_cover_certificate(target, 8),
+                        target,
+                    )
+                    counts["standard_completion"] += 1
+
+        self.assertEqual(
+            counts,
+            {
+                "total": 54685,
+                "promoted_345": 52549,
+                "orthogonal": 40,
+                "lattice_pair": 2032,
+                "standard_completion": 64,
+            },
+        )
+        self.assertIsNone(pythagorean_layered_structural_certificate((2, 1)))
+
+    def test_pythagorean_layered_split_cover_closes_sample_to_1000(self):
+        self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS, 23)
+        self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR, 179)
+        self.assertEqual(PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER, 8)
+
+        structural_misses: list[Point] = []
+        split_examples = {
+            (139, 878): ((8, 15), 1, 11, 449, (3184, 5970)),
+            (151, 338): ((-9, 40), 2, 19, 239, (-369, 1640)),
+            (398, 751): ((-35, 12), 1, 89, 349, (-1330, 456)),
+            (850, 887): ((21, -20), 23, 1, 1549, (689010, -656200)),
+        }
+        counts = {"total": 0, "structural": 0, "split": 0}
+        for g in range(1, 1001):
+            for h in range(1, 1001):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+
+                counts["total"] += 1
+                structural = pythagorean_layered_structural_certificate(target)
+                certificate = pythagorean_layered_split_certificate(target)
+                conjugate_ideal = pythagorean_layered_conjugate_ideal_certificate(target)
+                self.assertIsNotNone(certificate, target)
+                self.assertTrue(certificate.valid())
+                self.assertIsNotNone(conjugate_ideal, target)
+                self.assertTrue(conjugate_ideal.valid())
+                self.assertEqual(
+                    pythagorean_layered_parallel_certificate(target),
+                    conjugate_ideal,
+                )
+
+                if structural is None:
+                    structural_misses.append(target)
+                    split_witness = parallel_direction_squareclass_split_cover_witness(
+                        target,
+                        8,
+                        23,
+                        179,
+                    )
+                    self.assertIsNotNone(split_witness, target)
+                    self.assertEqual(certificate, split_witness.certificate)
+                    exact_direction_split = parallel_direction_conjugate_ideal_cover_certificate(
+                        target,
+                        8,
+                    )
+                    self.assertIsNotNone(exact_direction_split, target)
+                    self.assertTrue(exact_direction_split.valid())
+                    counts["split"] += 1
+                    if target in split_examples:
+                        direction, squareclass, split_factor, paired_split_factor, midpoint = (
+                            split_examples[target]
+                        )
+                        self.assertEqual(split_witness.direction, direction)
+                        self.assertEqual(split_witness.squareclass, squareclass)
+                        self.assertEqual(split_witness.split_factor, split_factor)
+                        self.assertEqual(split_witness.paired_split_factor, paired_split_factor)
+                        self.assertEqual(split_witness.midpoint, midpoint)
+                else:
+                    self.assertEqual(certificate, structural)
+                    self.assertEqual(conjugate_ideal, structural)
+                    counts["structural"] += 1
+
+        self.assertEqual(
+            tuple(structural_misses),
+            (
+                (139, 878),
+                (151, 338),
+                (158, 391),
+                (169, 878),
+                (218, 611),
+                (262, 601),
+                (265, 346),
+                (325, 334),
+                (334, 325),
+                (338, 151),
+                (346, 265),
+                (370, 403),
+                (391, 158),
+                (398, 751),
+                (403, 370),
+                (482, 611),
+                (530, 713),
+                (559, 842),
+                (601, 262),
+                (611, 218),
+                (611, 482),
+                (658, 809),
+                (710, 757),
+                (713, 530),
+                (734, 845),
+                (751, 398),
+                (757, 710),
+                (809, 658),
+                (842, 559),
+                (845, 734),
+                (850, 887),
+                (878, 139),
+                (878, 169),
+                (887, 850),
+            ),
+        )
+        self.assertEqual(
+            counts,
+            {
+                "total": 608023,
+                "structural": 607989,
+                "split": 34,
+            },
+        )
+
+    def test_squareclass_split_extended_frontier_examples(self):
+        examples = {
+            (199, 1462): ((-24, -7), 115, 1, -293, (-188976, -55118)),
+            (941, 1282): ((-40, 9), 149, 401, -1, (285680, -64278)),
+            (1262, 1781): ((-24, 7), 34, 41, -37, (888, -259)),
+            (1282, 941): ((-9, 40), 149, 1, -401, (-64278, 285680)),
+            (1462, 199): ((-7, -24), 115, 1, 293, (-55118, -188976)),
+            (1781, 1262): ((-7, 24), 34, 37, -41, (-259, 888)),
+        }
+        for target, expected in examples.items():
+            self.assertIsNone(pythagorean_layered_split_certificate(target), target)
+            witness = parallel_direction_squareclass_split_cover_witness(
+                target,
+                8,
+                149,
+                401,
+            )
+            self.assertIsNotNone(witness, target)
+            direction, squareclass, split_factor, paired, midpoint = expected
+            self.assertEqual(witness.direction, direction)
+            self.assertEqual(witness.squareclass, squareclass)
+            self.assertEqual(witness.split_factor, split_factor)
+            self.assertEqual(witness.signed_paired_split_factor, paired)
+            self.assertEqual(witness.midpoint, midpoint)
+            self.assertTrue(witness.certificate.valid())
+            split_quotient = parallel_direction_squareclass_line_split_quotient(
+                direction,
+                split_factor,
+                paired,
+            )
+            self.assertIn(
+                (squareclass, split_factor, paired, split_quotient),
+                parallel_direction_conjugate_ideal_split_roots(target, direction),
+            )
+            self.assertEqual(
+                parallel_direction_conjugate_ideal_certificate(target, direction),
+                witness.certificate,
+            )
+            exact_layered = pythagorean_layered_conjugate_ideal_certificate(target)
+            self.assertIsNotNone(exact_layered, target)
+            self.assertTrue(exact_layered.valid())
 
     def test_prime_determinant_lattice_line_criterion(self):
         self.assertTrue(is_prime(17))
@@ -3675,6 +5049,50 @@ class CertificateTests(unittest.TestCase):
 
         self.assertIsNone(box_five_hundred_audit_certificate((501, 1)))
 
+    def test_box_five_hundred_ray_lift_promotes_primitive_seeds(self):
+        self.assertIsNone(box_five_hundred_ray_lift_certificate((0, 0)))
+        for target in KNOWN_DISTANCE_THREE_ORBIT:
+            self.assertIsNone(box_five_hundred_ray_lift_certificate(target))
+
+        examples = (
+            ((38, 1), 100, (3800, 100)),
+            ((79, 1), 37, (2923, 37)),
+            ((401, 237), 19, (7619, 4503)),
+            ((-233, 377), 23, (-5359, 8671)),
+        )
+        for primitive, multiplier, target in examples:
+            base = box_five_hundred_audit_certificate(primitive)
+            self.assertIsNotNone(base, primitive)
+            cert = box_five_hundred_ray_lift_certificate(target)
+            self.assertEqual(cert, scale_certificate(base, multiplier))
+            self.assertEqual(cert.target, target)
+            self.assertTrue(cert.valid())
+
+        for target in ((1000, 0), (0, -1000), (4000, 2000), (-2000, 4000)):
+            cert = box_five_hundred_ray_lift_certificate(target)
+            self.assertIsNotNone(cert, target)
+            self.assertEqual(cert.target, target)
+            self.assertTrue(cert.valid())
+
+        lifted_failures: list[Point] = []
+        for g in range(-40, 41):
+            for h in range(-40, 41):
+                primitive = (g, h)
+                if primitive == (0, 0) or gcd(abs(g), abs(h)) != 1:
+                    continue
+                if primitive in KNOWN_DISTANCE_THREE_ORBIT:
+                    continue
+                if edge((0, 0), primitive):
+                    continue
+
+                target = (17 * g, 17 * h)
+                cert = box_five_hundred_ray_lift_certificate(target)
+                if cert is None or cert.target != target or not cert.valid():
+                    lifted_failures.append(target)
+
+        self.assertEqual(tuple(lifted_failures), ())
+        self.assertIsNone(box_five_hundred_ray_lift_certificate((501, 1)))
+
     def test_unit_coordinate_finite_audit_to_500(self):
         self.assertEqual(
             set(UNIT_COORDINATE_500_RESIDUAL_CERTIFICATES),
@@ -4554,6 +5972,490 @@ class CertificateTests(unittest.TestCase):
                 two_one_ray_mod_twenty_six_divisor_orbit_certificate(target)
             )
 
+    def test_two_one_ray_mod_twenty_six_square_factor_family(self):
+        self.assertEqual(
+            two_one_ray_square_determinant_factor_period((5, -12)),
+            (26, (15,)),
+        )
+        self.assertEqual(
+            two_one_ray_square_determinant_factor_residues((5, -12)),
+            tuple(range(15, 338, 26)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_square_factor_directions(13),
+            pythagorean_directions_for_hypotenuse(13),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_square_factor_residue_classes(13),
+            (26, (6, 9, 10, 11, 15, 16, 17, 20)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_square_factor_residue_classes(17),
+            (34, (5, 13, 14, 16, 18, 20, 21, 29)),
+        )
+        self.assertEqual(
+            TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES,
+            (13, 17, 37, 41),
+        )
+        self.assertEqual(
+            two_one_ray_square_determinant_factor_certificate(41, (5, -12)),
+            Certificate(target=(82, 41), midpoint=(10, -24)),
+        )
+        self.assertEqual(
+            two_one_ray_square_determinant_divisor_certificate(45, (5, -12)),
+            Certificate(target=(90, 45), midpoint=(-30, 72)),
+        )
+        self.assertIsNone(
+            two_one_ray_square_determinant_factor_certificate(41, (8, 15))
+        )
+        self.assertIsNone(two_one_ray_mod_twenty_six_square_factor_certificate(145))
+        self.assertIsNone(two_one_ray_mod_twenty_six_square_factor_certificate(290))
+
+        example = two_one_ray_mod_twenty_six_square_factor_certificate(5449)
+        self.assertIsNotNone(example)
+        self.assertEqual(example.target, (10898, 5449))
+        self.assertEqual(example.midpoint, (438890, -1053336))
+        self.assertTrue(example.valid())
+
+        promoted_examples = (
+            (2141, (-66410, -159384)),
+            (2341, (144870, -77264)),
+            (3301, (-132370, -45384)),
+            (5101, (-68058, -302480)),
+        )
+        for multiplier, midpoint in promoted_examples:
+            cert = two_one_ray_promoted_square_factor_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+
+        for multiplier in range(1, 1000):
+            cert = two_one_ray_mod_twenty_six_square_factor_certificate(multiplier)
+            has_square_factor_divisor = any(
+                divisor % 26 == 15 and divisor != 145
+                for divisor in positive_divisors(multiplier)
+            )
+            if not has_square_factor_divisor:
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+        for hypotenuse in TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES:
+            for multiplier in range(1, 800):
+                cert = two_one_ray_hypotenuse_square_factor_certificate(
+                    multiplier,
+                    hypotenuse,
+                )
+                has_square_factor_divisor = any(
+                    any(
+                        two_one_ray_square_determinant_factor_certificate(
+                            divisor,
+                            direction,
+                        )
+                        is not None
+                        for direction in two_one_ray_hypotenuse_square_factor_directions(
+                            hypotenuse
+                        )
+                    )
+                    for divisor in positive_divisors(multiplier)
+                )
+                if not has_square_factor_divisor:
+                    self.assertIsNone(cert, (multiplier, hypotenuse))
+                    continue
+
+                self.assertIsNotNone(cert, (multiplier, hypotenuse))
+                self.assertEqual(cert.target, (2 * multiplier, multiplier))
+                self.assertTrue(cert.valid())
+
+        checked = 0
+        for u, v, c, _parameter_m, _parameter_k in primitive_pythagorean_directions(12):
+            if c > 250:
+                continue
+
+            direction = (u, v)
+            linear_factor = 2 * u + v
+            determinant_factor = u - 2 * v
+            modulus, residues = two_one_ray_square_determinant_factor_period(
+                direction
+            )
+            if determinant_factor == 0:
+                self.assertEqual((modulus, residues), (1, ()))
+                continue
+
+            root = residues[0]
+            self.assertEqual(modulus, 2 * c)
+            self.assertEqual(root % c, (-linear_factor) % c)
+            self.assertEqual(root % 2, determinant_factor % 2)
+            self.assertEqual(
+                two_one_ray_square_determinant_factor_residues(direction),
+                tuple(range(root, 2 * c * c, 2 * c)),
+            )
+
+            brute_witness_roots = tuple(
+                residue
+                for residue in range(2 * c)
+                if parallel_direction_factor_witness(
+                    (2 * (residue if residue else 2 * c), residue if residue else 2 * c),
+                    direction,
+                    determinant_factor * determinant_factor,
+                )
+                is not None
+            )
+            self.assertEqual(brute_witness_roots, residues, direction)
+            checked += 1
+
+        self.assertEqual(checked, 240)
+
+    def test_two_one_ray_promoted_scaled_factor_layers(self):
+        self.assertEqual(
+            TWO_ONE_RAY_PROMOTED_SCALED_FACTOR_LAYERS,
+            (
+                ((-12, 5), 22),
+                ((-12, -5), 2),
+                ((20, -21), 2),
+            ),
+        )
+        self.assertEqual(
+            minimal_periodic_residue_classes(
+                parallel_direction_factor_modulus((-12, 5), 22),
+                ray_parallel_factor_residues((2, 1), (-12, 5), 22),
+            ),
+            (13, (5,)),
+        )
+        self.assertEqual(
+            minimal_periodic_residue_classes(
+                parallel_direction_factor_modulus((-12, -5), 2),
+                ray_parallel_factor_residues((2, 1), (-12, -5), 2),
+            ),
+            (13, (8,)),
+        )
+        self.assertEqual(
+            minimal_periodic_residue_classes(
+                parallel_direction_factor_modulus((20, -21), 2),
+                ray_parallel_factor_residues((2, 1), (20, -21), 2),
+            ),
+            (29, (23,)),
+        )
+        self.assertIsNone(
+            two_one_ray_scaled_factor_divisor_certificate(5, (-12, 5), 22)
+        )
+
+        examples = (
+            (3229, ((-12, 5), 22), (-8139372, 3391405)),
+            (3329, ((20, -21), 2), (253272220, -265935831)),
+            (4649, ((-12, -5), 2), (-1525092, -635455)),
+        )
+        for multiplier, layer, midpoint in examples:
+            direct = two_one_ray_scaled_factor_divisor_certificate(
+                multiplier,
+                *layer,
+            )
+            promoted = two_one_ray_promoted_scaled_factor_certificate(multiplier)
+            self.assertIsNotNone(direct, multiplier)
+            self.assertEqual(direct.target, (2 * multiplier, multiplier))
+            self.assertEqual(direct.midpoint, midpoint)
+            self.assertTrue(direct.valid())
+            self.assertEqual(promoted, direct)
+
+    def test_two_one_ray_determinant_split_factor_layers(self):
+        self.assertEqual(
+            TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES,
+            (17, 29, 37, 41, 53, 61, 73, 89, 97, 197, 401),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((3, -4), 1),
+            two_one_ray_complement_divisor_period((3, -4)),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((5, -12), 841),
+            two_one_ray_square_determinant_factor_period((5, -12)),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((-12, 5), 22),
+            (13, (5,)),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((8, -15), 2),
+            (17, (2,)),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((20, 21), 2),
+            (29, (20,)),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_split_factor_period((-40, -9), 22),
+            (41, (32,)),
+        )
+        self.assertEqual(
+            two_one_ray_double_direction_certificate((3, 4)),
+            Certificate(target=(10, 5), midpoint=(6, 8)),
+        )
+        double_direction_examples = (
+            ((-4275, -25132), 110161, (-8550, -50264)),
+            ((-16965, 31948), 110501, (-33930, 63896)),
+            ((-8475, 57148), 133121, (-16950, 114296)),
+            ((188469, 43700), 159769, (376938, 87400)),
+        )
+        for direction, multiplier, midpoint in double_direction_examples:
+            cert = two_one_ray_double_direction_certificate(direction)
+            self.assertIsNotNone(cert, direction)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+            one_mod_four = (
+                two_one_ray_prime_one_mod_four_double_direction_certificate(
+                    multiplier
+                )
+            )
+            self.assertIsNotNone(one_mod_four, multiplier)
+            self.assertEqual(one_mod_four.target, cert.target)
+            self.assertTrue(one_mod_four.valid())
+            lifted = two_one_ray_lift_three_square_endpoint_certificate(multiplier)
+            self.assertEqual(lifted, cert)
+            self.assertEqual(two_one_ray_seed_certificate(multiplier), one_mod_four)
+        self.assertIsNone(
+            two_one_ray_prime_one_mod_four_double_direction_certificate(9)
+        )
+        self.assertIsNone(
+            two_one_ray_prime_one_mod_four_double_direction_certificate(19)
+        )
+        one_mod_four_examples = (
+            (5, (6, 8)),
+            (13, (30, 16)),
+            (17, (10, 24)),
+            (29, (70, 24)),
+            (37, (14, 48)),
+        )
+        for multiplier, midpoint in one_mod_four_examples:
+            cert = two_one_ray_prime_one_mod_four_double_direction_certificate(
+                multiplier
+            )
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+        for multiplier in range(2, 5000):
+            cert = two_one_ray_prime_one_mod_four_double_direction_certificate(
+                multiplier
+            )
+            if not (is_prime(multiplier) and multiplier % 4 == 1):
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+        sample_layers = (
+            ((8, -15), 2),
+            ((20, 21), 2),
+            ((-40, -9), 22),
+        )
+        for direction, base_factor in sample_layers:
+            self.assertEqual(
+                two_one_ray_determinant_split_factor_period(
+                    direction,
+                    base_factor,
+                ),
+                minimal_periodic_residue_classes(
+                    parallel_direction_factor_modulus(direction, base_factor),
+                    ray_parallel_factor_residues((2, 1), direction, base_factor),
+                ),
+            )
+
+        self.assertIn(
+            ((8, -15), 2),
+            two_one_ray_hypotenuse_determinant_split_factor_layers(17),
+        )
+        self.assertIn(
+            ((20, 21), 2),
+            two_one_ray_hypotenuse_determinant_split_factor_layers(29),
+        )
+        self.assertIn(
+            ((-40, -9), 22),
+            two_one_ray_hypotenuse_determinant_split_factor_layers(41),
+        )
+        self.assertEqual(
+            len(two_one_ray_hypotenuse_determinant_split_factor_layers(17)),
+            32,
+        )
+        self.assertEqual(
+            len(two_one_ray_hypotenuse_determinant_split_factor_layers(29)),
+            36,
+        )
+        self.assertEqual(
+            len(two_one_ray_hypotenuse_determinant_split_factor_layers(41)),
+            36,
+        )
+
+        examples = (
+            (5849, 29, (98450980, 103373529)),
+            (7669, 17, (587728808, -1101991515)),
+            (9749, 41, (-24856760, -5592771)),
+            (10061, 53, (820710, -510664)),
+            (23869, 197, (1474590, -211736)),
+            (40429, 401, (-58403063560, -582570559011)),
+        )
+        for multiplier, hypotenuse, midpoint in examples:
+            hypotenuse_cert = (
+                two_one_ray_hypotenuse_determinant_split_factor_certificate(
+                    multiplier,
+                    hypotenuse,
+                )
+            )
+            promoted = two_one_ray_promoted_determinant_split_factor_certificate(
+                multiplier
+            )
+            self.assertIsNotNone(hypotenuse_cert, multiplier)
+            self.assertEqual(hypotenuse_cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(hypotenuse_cert.midpoint, midpoint)
+            self.assertTrue(hypotenuse_cert.valid())
+            self.assertIsNotNone(promoted, multiplier)
+            self.assertEqual(promoted.target, (2 * multiplier, multiplier))
+            self.assertTrue(promoted.valid())
+
+        witness_examples = {
+            5849: (41, 5849, (20, 21), 29, 2, 242, 29, 20),
+            7669: (41, 7669, (8, -15), 17, 2, 722, 17, 2),
+            9749: (41, 9749, (8, -15), 17, 722, 2, 17, 8),
+            10061: (100, 10061, (45, -28), 53, 10201, 1, 106, 97),
+            23869: (250, 23869, (195, -28), 197, 63001, 1, 394, 229),
+            40429: (500, 40429, (-40, -399), 401, 2, 287282, 401, 329),
+            110161: (300, 110161, (-105, -208), 233, 96721, 1, 466, 185),
+            110501: (300, 110501, (-115, 252), 277, 383161, 1, 554, 255),
+            133121: (300, 133121, (-119, 120), 169, 128881, 1, 338, 287),
+        }
+        for multiplier, expected in witness_examples.items():
+            (
+                max_hypotenuse,
+                quotient,
+                direction,
+                hypotenuse,
+                base_factor,
+                paired_factor,
+                period,
+                residue,
+            ) = expected
+            witness = two_one_ray_determinant_split_factor_witness(
+                multiplier,
+                max_hypotenuse,
+            )
+            self.assertIsInstance(witness, TwoOneRayDeterminantSplitFactorWitness)
+            self.assertEqual(
+                (
+                    witness.quotient,
+                    witness.direction,
+                    witness.hypotenuse,
+                    witness.base_factor,
+                    witness.paired_factor,
+                    witness.period,
+                    witness.residue,
+                ),
+                (
+                    quotient,
+                    direction,
+                    hypotenuse,
+                    base_factor,
+                    paired_factor,
+                    period,
+                    residue,
+                ),
+            )
+            self.assertEqual(witness.target, (2 * multiplier, multiplier))
+            self.assertEqual(witness.quotient % witness.period, witness.residue)
+            self.assertEqual(
+                witness.base_factor * witness.paired_factor,
+                witness.determinant_factor * witness.determinant_factor,
+            )
+            self.assertEqual(
+                (
+                    witness.quotient * witness.paired_factor
+                    + witness.linear_factor
+                )
+                % witness.hypotenuse,
+                0,
+            )
+            self.assertEqual(
+                witness.lift_parameter,
+                (
+                    witness.quotient * witness.paired_factor
+                    + witness.linear_factor
+                )
+                // witness.hypotenuse,
+            )
+            lift_discriminant = witness.lift_parameter * witness.lift_parameter - 5
+            lift_x = (
+                lift_discriminant * witness.hypotenuse
+                - witness.lift_parameter
+                * witness.quotient
+                * witness.paired_factor
+            )
+            self.assertEqual(
+                lift_x * lift_x
+                + lift_discriminant
+                * witness.determinant_factor
+                * witness.determinant_factor,
+                5
+                * witness.quotient
+                * witness.quotient
+                * witness.paired_factor
+                * witness.paired_factor,
+            )
+            self.assertTrue(witness.valid())
+            self.assertEqual(witness.certificate.target, witness.target)
+
+            self.assertEqual(
+                two_one_ray_determinant_paired_factor_root(
+                    witness.quotient,
+                    witness.paired_factor,
+                    witness.hypotenuse,
+                ),
+                (witness.direction, witness.base_factor),
+            )
+            paired_witness = two_one_ray_paired_factor_split_factor_witness(
+                multiplier,
+                paired_factor,
+                max_hypotenuse,
+            )
+            self.assertEqual(paired_witness, witness)
+            if witness.lift_parameter <= 2000:
+                lift_witness = two_one_ray_paired_factor_lift_witness(
+                    multiplier,
+                    paired_factor,
+                    witness.lift_parameter,
+                )
+                self.assertIsNotNone(lift_witness, multiplier)
+                self.assertEqual(lift_witness.target, witness.target)
+                self.assertLessEqual(
+                    lift_witness.lift_parameter,
+                    witness.lift_parameter,
+                )
+                self.assertTrue(lift_witness.valid())
+            self.assertEqual(
+                two_one_ray_determinant_paired_factor_lift_root(
+                    witness.quotient,
+                    witness.paired_factor,
+                    witness.lift_parameter,
+                ),
+                (witness.direction, witness.base_factor, witness.hypotenuse),
+            )
+
+        self.assertEqual(
+            tuple(
+                multiplier
+                for multiplier in range(10000, 1000000)
+                if (
+                    is_prime(multiplier)
+                    and two_one_ray_seed_certificate(multiplier) is None
+                )
+            ),
+            (),
+        )
+
     def test_two_one_ray_mod_thirty_four_divisor_family(self):
         self.assertEqual(
             two_one_ray_complement_divisor_residues((15, -8)),
@@ -4706,6 +6608,684 @@ class CertificateTests(unittest.TestCase):
                 two_one_ray_mod_fifty_eight_divisor_orbit_certificate(target)
             )
 
+    def test_two_one_ray_mod_seventy_four_divisor_family(self):
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-35, 12)),
+            tuple(range(7, 2738, 74)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-35, -12)),
+            tuple(range(23, 2738, 74)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((35, 12)),
+            tuple(range(51, 2738, 74)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((35, -12)),
+            tuple(range(67, 2738, 74)),
+        )
+
+        self.assertEqual(
+            two_one_ray_complement_divisor_period((-35, 12)),
+            (74, (7,)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_sieve_residue_classes(
+                ((-35, 12), (-35, -12), (35, 12), (35, -12))
+            ),
+            (74, (7, 23, 51, 67)),
+        )
+
+        examples = (
+            (7, (-2170, 744)),
+            (23, (-770, -264)),
+            (51, (4130, 1416)),
+            (67, (199850, -68520)),
+        )
+        for multiplier, midpoint in examples:
+            cert = two_one_ray_mod_seventy_four_divisor_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+
+        for multiplier in range(1, 800):
+            has_mod_seventy_four_divisor = any(
+                divisor % 74 in (7, 23, 51, 67)
+                for divisor in positive_divisors(multiplier)
+            )
+            cert = two_one_ray_mod_seventy_four_divisor_certificate(multiplier)
+            if not has_mod_seventy_four_divisor:
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = two_one_ray_mod_seventy_four_divisor_orbit_certificate(
+                    target
+                )
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (22, 11), (158, 79), (0, 7), (14, 0)):
+            self.assertIsNone(
+                two_one_ray_mod_seventy_four_divisor_orbit_certificate(target)
+            )
+
+    def test_two_one_ray_mod_eighty_two_divisor_family(self):
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((9, -40)),
+            tuple(range(13, 3362, 82)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((9, 40)),
+            tuple(range(29, 3362, 82)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-9, -40)),
+            tuple(range(53, 3362, 82)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_residues((-9, 40)),
+            tuple(range(69, 3362, 82)),
+        )
+
+        self.assertEqual(
+            two_one_ray_complement_divisor_period((9, -40)),
+            (82, (13,)),
+        )
+        self.assertEqual(
+            two_one_ray_complement_divisor_sieve_residue_classes(
+                ((9, -40), (9, 40), (-9, -40), (-9, 40))
+            ),
+            (82, (13, 29, 53, 69)),
+        )
+
+        examples = (
+            (13, (3582, -15920)),
+            (29, (11358, 50480)),
+            (53, (-37890, -168400)),
+            (69, (-100962, 448720)),
+        )
+        for multiplier, midpoint in examples:
+            cert = two_one_ray_mod_eighty_two_divisor_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, midpoint)
+            self.assertTrue(cert.valid())
+
+        for multiplier in range(1, 800):
+            has_mod_eighty_two_divisor = any(
+                divisor % 82 in (13, 29, 53, 69)
+                for divisor in positive_divisors(multiplier)
+            )
+            cert = two_one_ray_mod_eighty_two_divisor_certificate(multiplier)
+            if not has_mod_eighty_two_divisor:
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = two_one_ray_mod_eighty_two_divisor_orbit_certificate(
+                    target
+                )
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (22, 11), (158, 79), (0, 13), (26, 0)):
+            self.assertIsNone(
+                two_one_ray_mod_eighty_two_divisor_orbit_certificate(target)
+            )
+
+    def test_two_one_ray_complement_divisor_root_formula(self):
+        self.assertEqual(two_one_ray_complement_divisor_root((3, -4)), 3)
+        self.assertEqual(two_one_ray_complement_divisor_root((-3, 4)), 7)
+        self.assertIsNone(two_one_ray_complement_divisor_root((8, 15)))
+
+        checked = 0
+        nonempty = 0
+        for u, v, c, parameter_m, parameter_k in primitive_pythagorean_directions(20):
+            if c > 300:
+                continue
+
+            linear = 2 * u + v
+            determinant_factor = u - 2 * v
+            modulus = 2 * c * c
+            brute_roots = tuple(
+                residue
+                for residue in range(2 * c)
+                if (
+                    determinant_factor
+                    * determinant_factor
+                    * residue
+                    * residue
+                    + 2 * linear * residue
+                    - 1
+                )
+                % modulus
+                == 0
+            )
+            root = two_one_ray_complement_divisor_root((u, v))
+            if root is None:
+                self.assertEqual(brute_roots, (), (u, v, c))
+                self.assertEqual(two_one_ray_complement_divisor_period((u, v)), (1, ()))
+                self.assertEqual(two_one_ray_complement_divisor_residues((u, v)), ())
+            else:
+                nonempty += 1
+                self.assertEqual(brute_roots, (root,), (u, v, c))
+                self.assertEqual(root % 2, 1)
+                self.assertEqual(
+                    root % c,
+                    (
+                        -linear
+                        * pow(
+                            (determinant_factor * determinant_factor) % c,
+                            -1,
+                            c,
+                        )
+                    )
+                    % c,
+                )
+                self.assertEqual(
+                    two_one_ray_complement_divisor_period((u, v)),
+                    (2 * c, (root,)),
+                )
+                self.assertEqual(
+                    two_one_ray_complement_divisor_residues((u, v)),
+                    tuple(range(root, 2 * c * c, 2 * c)),
+                )
+                cert = two_one_ray_complement_divisor_certificate(root, (u, v))
+                self.assertIsNotNone(cert, (u, v, c))
+                self.assertTrue(cert.valid())
+
+            checked += 1
+
+        self.assertEqual(checked, 376)
+        self.assertEqual(nonempty, 158)
+
+    def test_two_one_ray_hypotenuse_divisor_layer(self):
+        self.assertEqual(
+            pythagorean_directions_for_hypotenuse(5),
+            ((-4, -3), (-4, 3), (-3, -4), (-3, 4), (3, -4), (3, 4), (4, -3), (4, 3)),
+        )
+        self.assertEqual(two_one_ray_hypotenuse_divisor_directions(5), ((-3, 4), (3, -4)))
+        self.assertEqual(two_one_ray_hypotenuse_divisor_residue_classes(5), (10, (3, 7)))
+        self.assertEqual(
+            two_one_ray_hypotenuse_divisor_residue_classes(13),
+            (26, (3, 7, 19, 23)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_divisor_residue_classes(17),
+            (34, (7, 13, 21, 27)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_divisor_residue_classes(29),
+            (58, (7, 25, 33, 51)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_divisor_residue_classes(37),
+            (74, (7, 23, 51, 67)),
+        )
+        self.assertEqual(
+            two_one_ray_hypotenuse_divisor_residue_classes(41),
+            (82, (13, 29, 53, 69)),
+        )
+        self.assertEqual(two_one_ray_hypotenuse_divisor_residue_classes(11), (1, ()))
+
+        named_layers = (
+            (17, two_one_ray_mod_thirty_four_divisor_certificate),
+            (29, two_one_ray_mod_fifty_eight_divisor_certificate),
+            (37, two_one_ray_mod_seventy_four_divisor_certificate),
+            (41, two_one_ray_mod_eighty_two_divisor_certificate),
+        )
+        for hypotenuse, named_constructor in named_layers:
+            for multiplier in range(1, 800):
+                generic = two_one_ray_hypotenuse_divisor_certificate(
+                    multiplier,
+                    hypotenuse,
+                )
+                named = named_constructor(multiplier)
+                self.assertEqual(generic is not None, named is not None, multiplier)
+                if generic is not None:
+                    self.assertEqual(generic.target, (2 * multiplier, multiplier))
+                    self.assertTrue(generic.valid())
+
+        example = two_one_ray_hypotenuse_divisor_certificate(521, 41)
+        self.assertIsNotNone(example)
+        self.assertEqual(example.target, (1042, 521))
+        self.assertTrue(example.valid())
+
+    def test_two_one_ray_determinant_slice_root_formula(self):
+        self.assertIsNone(two_one_ray_determinant_slice_root(0, 1, 1))
+
+        root = two_one_ray_determinant_slice_root(118, -11, 53)
+        self.assertIsInstance(root, TwoOneRayDeterminantSliceRoot)
+        self.assertEqual(root.direction, (45, 28))
+        self.assertEqual(root.root, 31)
+        self.assertEqual(root.modulus, 106)
+        self.assertEqual(root.sqrt_minus_one_residue, 30)
+        self.assertEqual(euclid_sqrt_minus_one_residues(7, 2), (23, 30))
+        self.assertEqual(
+            two_one_ray_euclid_parameter_residue_classes(7, 2),
+            (106, (31, 47, 59, 75)),
+        )
+        self.assertEqual(
+            two_one_ray_euclid_parameter_residue_classes(6, 5),
+            (122, (29, 53, 69, 93)),
+        )
+        self.assertEqual(
+            tuple(
+                parameter_root.direction
+                for parameter_root in two_one_ray_euclid_parameter_roots(7, 2)
+            ),
+            ((45, 28), (-45, 28), (45, -28), (-45, -28)),
+        )
+        self.assertEqual(
+            two_one_ray_euclid_parameter_residue_classes(7, 2),
+            two_one_ray_hypotenuse_divisor_residue_classes(53),
+        )
+        self.assertEqual(
+            two_one_ray_euclid_parameter_residue_classes(6, 5),
+            two_one_ray_hypotenuse_divisor_residue_classes(61),
+        )
+        self.assertEqual(root.certificate(1409).target, (2818, 1409))
+        self.assertTrue(root.certificate(1409).valid())
+        self.assertIsNone(root.certificate(1408))
+
+        successor = two_one_ray_determinant_slice_successor(root)
+        self.assertEqual(
+            successor,
+            TwoOneRayDeterminantSliceRoot(
+                linear_factor=38078,
+                determinant_factor=-11,
+                hypotenuse=17029,
+                direction=(15229, 7620),
+                root=9959,
+            ),
+        )
+        self.assertEqual(successor.modulus, 34058)
+        self.assertEqual(successor.certificate(9959).target, (19918, 9959))
+        self.assertTrue(successor.certificate(9959).valid())
+        self.assertEqual(two_one_ray_determinant_slice_predecessor(successor), root)
+
+        degenerate_step_seed = two_one_ray_determinant_slice_root(-38, 1, 17)
+        degenerate_step_successor = two_one_ray_determinant_slice_successor(
+            degenerate_step_seed
+        )
+        self.assertEqual(
+            degenerate_step_successor,
+            TwoOneRayDeterminantSliceRoot(
+                linear_factor=682,
+                determinant_factor=1,
+                hypotenuse=305,
+                direction=(273, 136),
+                root=233,
+            ),
+        )
+        self.assertEqual(
+            two_one_ray_determinant_slice_predecessor(degenerate_step_successor),
+            degenerate_step_seed,
+        )
+        self.assertEqual(
+            two_one_ray_determinant_slice_reduced_root(degenerate_step_successor),
+            degenerate_step_seed,
+        )
+
+        mod_seventy_four_seed = two_one_ray_determinant_slice_root(-82, -11, 37)
+        self.assertEqual(
+            two_one_ray_determinant_slice_orbit(mod_seventy_four_seed, 2),
+            (
+                mod_seventy_four_seed,
+                root,
+            ),
+        )
+        orbit_certificate = two_one_ray_determinant_slice_orbit_certificate(
+            1409,
+            mod_seventy_four_seed,
+            2,
+        )
+        self.assertIsNotNone(orbit_certificate)
+        self.assertEqual(orbit_certificate.target, (2818, 1409))
+        self.assertTrue(orbit_certificate.valid())
+        self.assertIsNone(
+            two_one_ray_determinant_slice_orbit_certificate(
+                269,
+                mod_seventy_four_seed,
+                2,
+            )
+        )
+        self.assertEqual(
+            two_one_ray_determinant_slice_predecessor(root),
+            mod_seventy_four_seed,
+        )
+        self.assertEqual(
+            two_one_ray_determinant_slice_reduced_root(root),
+            mod_seventy_four_seed,
+        )
+        self.assertEqual(
+            two_one_ray_determinant_slice_reduced_root(successor),
+            mod_seventy_four_seed,
+        )
+
+        square_endpoint_seed = two_one_ray_determinant_slice_root(-118, -359, 169)
+        self.assertEqual(square_endpoint_seed.square_endpoint_base_factor, 128881)
+        self.assertEqual(square_endpoint_seed.square_endpoint_period, (338, (287,)))
+        square_endpoint_certificate = square_endpoint_seed.square_endpoint_certificate(
+            133121
+        )
+        self.assertIsNotNone(square_endpoint_certificate)
+        self.assertEqual(
+            square_endpoint_certificate.midpoint,
+            (-36852158, 37161840),
+        )
+        self.assertTrue(square_endpoint_certificate.valid())
+        self.assertIsNone(square_endpoint_seed.square_endpoint_certificate(307969))
+        self.assertEqual(
+            two_one_ray_determinant_square_endpoint_orbit_certificate(
+                133121,
+                square_endpoint_seed,
+                1,
+            ),
+            square_endpoint_certificate,
+        )
+        conjugate_square_endpoint_seed = two_one_ray_determinant_slice_root(
+            118,
+            359,
+            169,
+        )
+        self.assertEqual(
+            conjugate_square_endpoint_seed.square_endpoint_period,
+            (338, (51,)),
+        )
+        conjugate_square_endpoint_certificate = (
+            conjugate_square_endpoint_seed.square_endpoint_certificate(307969)
+        )
+        self.assertIsNotNone(conjugate_square_endpoint_certificate)
+        self.assertTrue(conjugate_square_endpoint_certificate.valid())
+
+        divisor_root = two_one_ray_determinant_divisor_root(1409, -11, 53)
+        self.assertEqual(divisor_root, root)
+        self.assertEqual((1409 * 1409 * 11 * 11 + 1) % 53, 0)
+        self.assertEqual(divisor_root.certificate(1409).target, (2818, 1409))
+        self.assertTrue(divisor_root.certificate(1409).valid())
+        self.assertIsNone(two_one_ray_determinant_divisor_root(1409, -11, 52))
+        self.assertIsNone(two_one_ray_determinant_divisor_root(1408, -11, 53))
+
+        checked = 0
+        nonempty = 0
+        for (
+            u,
+            v,
+            c,
+            parameter_m,
+            parameter_k,
+        ) in primitive_pythagorean_directions(20):
+            if c > 300:
+                continue
+
+            linear_factor, determinant_factor, coordinate_hypotenuse = (
+                two_one_ray_determinant_coordinates((u, v))
+            )
+            self.assertEqual(coordinate_hypotenuse, c)
+            self.assertEqual(
+                (linear_factor, determinant_factor),
+                gaussian_multiply((2, 1), (u, -v)),
+            )
+            self.assertEqual(
+                gaussian_quotient_if_integer(
+                    (linear_factor, determinant_factor),
+                    (2, 1),
+                ),
+                (u, -v),
+            )
+            self.assertEqual(
+                linear_factor * linear_factor
+                + determinant_factor * determinant_factor,
+                5 * c * c,
+            )
+            slice_root = two_one_ray_determinant_slice_root(
+                linear_factor,
+                determinant_factor,
+                c,
+            )
+            direction_root = two_one_ray_complement_divisor_root((u, v))
+            if direction_root is None:
+                self.assertIsNone(slice_root, (u, v, c))
+            else:
+                nonempty += 1
+                self.assertEqual(slice_root.direction, (u, v))
+                self.assertEqual(slice_root.root, direction_root)
+                odd_leg = parameter_m * parameter_m - parameter_k * parameter_k
+                even_leg = 2 * parameter_m * parameter_k
+                self.assertEqual(abs(u), odd_leg)
+                self.assertEqual(abs(v), even_leg)
+                signed_euclid_root = two_one_ray_signed_euclid_root(
+                    parameter_m,
+                    parameter_k,
+                    1 if u > 0 else -1,
+                    1 if v > 0 else -1,
+                )
+                self.assertEqual(signed_euclid_root, slice_root)
+                self.assertEqual(
+                    slice_root.certificate(direction_root).target,
+                    (2 * direction_root, direction_root),
+                )
+                self.assertTrue(slice_root.certificate(direction_root).valid())
+
+            checked += 1
+
+        self.assertEqual(checked, 376)
+        self.assertEqual(nonempty, 158)
+
+        roots = two_one_ray_determinant_factor_roots(-11, 100)
+        self.assertIn(
+            TwoOneRayDeterminantSliceRoot(
+                linear_factor=118,
+                determinant_factor=-11,
+                hypotenuse=53,
+                direction=(45, 28),
+                root=31,
+            ),
+            roots,
+        )
+        certificate = two_one_ray_determinant_factor_certificate(1409, -11, 100)
+        self.assertIsNotNone(certificate)
+        self.assertEqual(certificate.target, (2818, 1409))
+        self.assertTrue(certificate.valid())
+        self.assertIsNone(
+            two_one_ray_determinant_factor_certificate(269, -11, 100)
+        )
+
+        divisor_certificate = two_one_ray_determinant_divisor_certificate(
+            1409,
+            -11,
+            100,
+        )
+        self.assertIsNotNone(divisor_certificate)
+        self.assertEqual(divisor_certificate.target, (2818, 1409))
+        self.assertTrue(divisor_certificate.valid())
+        self.assertIsNone(
+            two_one_ray_determinant_divisor_certificate(269, -11, 100)
+        )
+
+        euclid_examples = (
+            (1409, (7, 2)),
+            (1861, (7, 2)),
+            (1249, (6, 5)),
+            (1289, (6, 5)),
+        )
+        for multiplier, parameters in euclid_examples:
+            certificate = two_one_ray_euclid_parameter_certificate(
+                multiplier,
+                *parameters,
+            )
+            self.assertIsNotNone(certificate, multiplier)
+            self.assertEqual(certificate.target, (2 * multiplier, multiplier))
+            self.assertTrue(certificate.valid())
+        self.assertIsNone(two_one_ray_euclid_parameter_certificate(269, 7, 2))
+
+    def test_two_one_ray_inverse_root_witness_probe(self):
+        self.assertIsNone(two_one_ray_inverse_root_witness(0, 20))
+        self.assertIsNone(two_one_ray_inverse_root_witness(269, 20))
+
+        residual_witnesses = {
+            269: ((116, 35), (12231, 8120), 14681, 269),
+            281: ((19, 4), (345, -152), 377, 281),
+            389: ((15, 4), (209, -120), 241, 389),
+            509: ((34, 19), (-795, -1292), 1517, 509),
+            941: ((15, 8), (-161, 240), 289, 363),
+            1009: ((73, 62), (-1485, 9052), 9173, 1009),
+            1049: ((13, 8), (105, -208), 233, 117),
+            1249: ((6, 5), (-11, -60), 61, 29),
+            1289: ((6, 5), (11, -60), 61, 69),
+            1321: ((37, 2), (1365, 148), 1373, 1321),
+            1361: ((41, 20), (-1281, 1640), 2081, 1361),
+            1409: ((7, 2), (45, 28), 53, 31),
+            1481: ((289, 266), (12765, 153748), 154277, 1481),
+            1549: ((17, 12), (145, 408), 433, 683),
+            1601: ((24, 19), (215, 912), 937, 1601),
+            1861: ((7, 2), (45, -28), 53, 59),
+            1949: ((15, 8), (161, -240), 289, 215),
+            2549: ((8, 3), (55, 48), 73, 67),
+            2621: ((8, 5), (39, 80), 89, 129),
+            2729: ((20, 1), (-399, -40), 401, 323),
+        }
+        self.assertEqual(
+            TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS,
+            (
+                (7, 2),
+                (6, 5),
+                (13, 8),
+                (15, 4),
+                (15, 8),
+                (19, 4),
+                (17, 12),
+                (24, 19),
+                (37, 2),
+                (34, 19),
+                (41, 20),
+                (73, 62),
+                (116, 35),
+                (289, 266),
+                (8, 3),
+                (8, 5),
+                (20, 1),
+            ),
+        )
+        for multiplier, expected in residual_witnesses.items():
+            witness = two_one_ray_inverse_root_witness(multiplier, 300)
+            self.assertIsInstance(witness, TwoOneRayInverseRootWitness)
+            self.assertEqual(
+                (
+                    witness.euclid_parameters,
+                    witness.direction,
+                    witness.hypotenuse,
+                    witness.root,
+                ),
+                expected,
+            )
+            self.assertEqual(multiplier % (2 * witness.hypotenuse), witness.root)
+            sqrt_residues = euclid_sqrt_minus_one_residues(
+                *witness.euclid_parameters
+            )
+            odd_leg = (
+                witness.euclid_parameters[0] * witness.euclid_parameters[0]
+                - witness.euclid_parameters[1] * witness.euclid_parameters[1]
+            )
+            even_leg = 2 * witness.euclid_parameters[0] * witness.euclid_parameters[1]
+            self.assertEqual(abs(witness.direction[0]), odd_leg)
+            self.assertEqual(abs(witness.direction[1]), even_leg)
+            self.assertEqual(
+                two_one_ray_signed_euclid_root(
+                    *witness.euclid_parameters,
+                    1 if witness.direction[0] > 0 else -1,
+                    1 if witness.direction[1] > 0 else -1,
+                ),
+                witness.determinant_slice_root,
+            )
+            self.assertIn(
+                witness.determinant_slice_root.sqrt_minus_one_residue,
+                sqrt_residues,
+            )
+            self.assertEqual(
+                (
+                    witness.determinant_slice_root.sqrt_minus_one_residue
+                    * witness.determinant_slice_root.sqrt_minus_one_residue
+                )
+                % witness.hypotenuse,
+                witness.hypotenuse - 1,
+            )
+            self.assertEqual(
+                (multiplier * witness.determinant_factor) % witness.hypotenuse,
+                witness.determinant_slice_root.sqrt_minus_one_residue,
+            )
+            self.assertEqual(witness.target, (2 * multiplier, multiplier))
+            self.assertEqual(witness.certificate.target, witness.target)
+            self.assertEqual(
+                witness.determinant_slice_root.direction,
+                witness.direction,
+            )
+            self.assertEqual(witness.determinant_slice_root.root, witness.root)
+            self.assertEqual(
+                witness.determinant_divisor_root,
+                witness.determinant_slice_root,
+            )
+            self.assertEqual(
+                (
+                    multiplier
+                    * multiplier
+                    * witness.determinant_factor
+                    * witness.determinant_factor
+                    + 1
+                )
+                % witness.hypotenuse,
+                0,
+            )
+            if multiplier == 1409:
+                self.assertEqual(
+                    witness.reduced_determinant_slice_root,
+                    TwoOneRayDeterminantSliceRoot(
+                        linear_factor=-82,
+                        determinant_factor=-11,
+                        hypotenuse=37,
+                        direction=(-35, -12),
+                        root=23,
+                    ),
+                )
+            else:
+                self.assertEqual(
+                    witness.reduced_determinant_slice_root,
+                    witness.determinant_slice_root,
+                )
+            promoted = two_one_ray_promoted_inverse_root_certificate(multiplier)
+            self.assertIsNotNone(promoted, multiplier)
+            self.assertEqual(promoted.target, witness.target)
+            self.assertTrue(promoted.valid())
+            self.assertTrue(witness.valid())
+
     def test_complement_divisor_sieve_residue_compression(self):
         self.assertEqual(
             minimal_periodic_residue_classes(12, (1, 5, 7, 11)),
@@ -4789,17 +7369,47 @@ class CertificateTests(unittest.TestCase):
                 n,
             )
 
-    def test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes(self):
-        self.assertIsNone(two_one_ray_seed_certificate(1529))
-        self.assertEqual(
-            two_one_ray_divisor_lift_certificate(1529),
-            scale_certificate(two_one_ray_divisor_lift_certificate(11), 139),
+        directions_through_seventy_four = directions + (
+            (-35, 12),
+            (-35, -12),
+            (35, 12),
+            (35, -12),
         )
+        modulus, residues = two_one_ray_complement_divisor_sieve_residue_classes(
+            directions_through_seventy_four
+        )
+        expected_residues = tuple(
+            residue
+            for residue in range(2371330)
+            if (
+                residue % 10 in (3, 7)
+                or residue % 26 in (3, 7, 19, 23)
+                or residue % 34 in (7, 13, 21, 27)
+                or residue % 58 in (7, 25, 33, 51)
+                or residue % 74 in (7, 23, 51, 67)
+            )
+        )
+        self.assertEqual(modulus, 2371330)
+        self.assertEqual(residues, expected_residues)
+        self.assertEqual(
+            two_one_ray_mod_2371330_divisor_residues(),
+            expected_residues,
+        )
+        self.assertEqual(len(two_one_ray_mod_2371330_divisor_residues()), 896090)
+
+        for multiplier in (7, 23, 51, 67, 81, 97, 133, 229, 273, 421):
+            self.assertTrue(has_two_one_ray_mod_2371330_divisor(multiplier))
+        for multiplier in (1, 5, 11, 31, 79, 121, 131, 139, 151):
+            self.assertFalse(has_two_one_ray_mod_2371330_divisor(multiplier))
+
+    def test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes(self):
+        self.assertIsNotNone(two_one_ray_seed_certificate(6241))
         examples = (
             (121, (290, 696)),
             (869, (-11210, 26904)),
-            (961, (42904722, -40861640)),
-            (1529, (1390, -3336)),
+            (961, (-21948, 9145)),
+            (6241, (-4266790, -3723744)),
+            (1669, (-2173452, 905605)),
             (1889, (54010, 129624)),
         )
         for multiplier, midpoint in examples:
@@ -4822,45 +7432,110 @@ class CertificateTests(unittest.TestCase):
                 self.assertEqual(orbit_cert.target, target)
                 self.assertTrue(orbit_cert.valid())
 
-        residual_primes = (
-            229,
+        self.assertIsNone(two_one_ray_prime_divisor_lift_certificate(1))
+        for multiplier in (2, 3, 5, 11, 17, 121, 361, 6241, 110161, 1872737):
+            prime = prime_factors(multiplier)[0]
+            base = two_one_ray_seed_certificate(prime)
+            self.assertIsNotNone(base, prime)
+            cert = two_one_ray_prime_divisor_lift_certificate(multiplier)
+            self.assertEqual(cert, scale_certificate(base, multiplier // prime))
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+        direct_failures: list[int] = []
+        for multiplier in range(2, 10000):
+            cert = two_one_ray_prime_divisor_lift_certificate(multiplier)
+            if (
+                cert is None
+                or cert.target != (2 * multiplier, multiplier)
+                or not cert.valid()
+            ):
+                direct_failures.append(multiplier)
+        self.assertEqual(tuple(direct_failures), ())
+
+        for target in (
+            (242, 121),
+            (-242, 121),
+            (242, -121),
+            (-242, -121),
+            (121, 242),
+            (-121, 242),
+            (121, -242),
+            (-121, -242),
+            (538, 269),
+        ):
+            orbit_cert = two_one_ray_prime_divisor_lift_orbit_certificate(target)
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        former_residual_primes = (
             269,
             281,
             389,
             509,
-            521,
-            541,
-            821,
             941,
             1009,
             1049,
-            1201,
             1249,
             1289,
             1321,
             1361,
             1409,
-            1429,
             1481,
             1549,
             1601,
-            1621,
-            1669,
             1861,
             1949,
         )
+        for multiplier in former_residual_primes:
+            cert = two_one_ray_promoted_inverse_root_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
         self.assertEqual(
             tuple(
                 multiplier
                 for multiplier in range(2, 2000)
                 if two_one_ray_divisor_lift_certificate(multiplier) is None
             ),
-            residual_primes,
+            (),
         )
-        self.assertTrue(all(is_prime(multiplier) for multiplier in residual_primes))
+        self.assertEqual(
+            tuple(
+                multiplier
+                for multiplier in range(2000, 3000)
+                if two_one_ray_divisor_lift_certificate(multiplier) is None
+            ),
+            (),
+        )
+        self.assertEqual(
+            tuple(
+                multiplier
+                for multiplier in range(3000, 5000)
+                if two_one_ray_divisor_lift_certificate(multiplier) is None
+            ),
+            (),
+        )
+        self.assertEqual(
+            tuple(
+                multiplier
+                for multiplier in range(5000, 10000)
+                if two_one_ray_divisor_lift_certificate(multiplier) is None
+            ),
+            (),
+        )
+        self.assertTrue(all(is_prime(multiplier) for multiplier in former_residual_primes))
 
-        for target in ((2, 1), (458, 229), (0, 121), (242, 0)):
+        former_residual_orbit = two_one_ray_divisor_lift_orbit_certificate((538, 269))
+        self.assertIsNotNone(former_residual_orbit)
+        self.assertEqual(former_residual_orbit.target, (538, 269))
+        self.assertTrue(former_residual_orbit.valid())
+
+        for target in ((2, 1), (0, 121), (242, 0)):
             self.assertIsNone(two_one_ray_divisor_lift_orbit_certificate(target))
+            self.assertIsNone(two_one_ray_prime_divisor_lift_orbit_certificate(target))
 
     def test_mod_ten_divisor_residual_prime_factor_reduction(self):
         self.assertEqual(prime_factors(1), ())
@@ -5103,6 +7778,7 @@ class CertificateTests(unittest.TestCase):
                 two_one_ray_mod_twenty_six_divisor_certificate,
                 two_one_ray_mod_thirty_four_divisor_certificate,
                 two_one_ray_mod_fifty_eight_divisor_certificate,
+                two_one_ray_mod_seventy_four_divisor_certificate,
                 two_one_ray_divisor_lift_certificate,
                 two_one_ray_explicit_base_certificate,
                 two_one_ray_finite_audit_certificate,

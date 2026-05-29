@@ -588,6 +588,415 @@ The candidate constructor `parallel_direction_cover_certificate` records this
 finite-direction strategy explicitly; it contains no residual midpoint table,
 only the exact divisor criterion above applied to a fixed signed set of
 Pythagorean directions.
+The companion witness helpers expose the exact arithmetic row behind each hit:
+`parallel_direction_witness` returns the first valid factor completion for one
+direction, `parallel_direction_cover_witness` adds the finite signed direction
+set, and `parallel_direction_primitive_ray_witness` records the primitive
+representative and scaling factor. A witness therefore records
+$$
+(U,F,D,B,H,H/c,r),
+$$
+not just the final midpoint. This makes the finite-direction cover inspectable
+as determinant-leg completions, and gives a concrete object to classify in the
+next proof step.
+The census helper `parallel_direction_cover_witness_census` turns this into a
+reproducible primitive-sample summary. For example, on primitive positive
+targets with $1\le g,h\le30$ and direction parameter bound $8$, it finds no
+uncovered target among $543$ candidates. The most common first witnesses are
+the signed $3$-$4$-$5$ directions:
+$$
+\begin{array}{c|c}
+U & \text{count}\\
+\hline
+(-4,-3) & 311\\
+(-4,3) & 167\\
+(-3,-4) & 31\\
+(-3,4) & 16.
+\end{array}
+$$
+The leading factor counts are
+$$
+1:117,\quad 2:47,\quad 3:25,\quad 4:24,\quad 9:21,
+$$
+with the top direction/factor rows
+$$
+((-4,-3),1):70,\quad ((-4,-3),2):31,\quad ((-4,3),1):30.
+$$
+This is still a finite diagnostic, but it points to a sharper proof strategy:
+classify the dominant $3$-$4$-$5$ determinant-completion rows first, then
+explain the small tail requiring higher Pythagorean directions.
+
+The first such promotion is now explicit. Let
+$$
+\mathcal U_{345}=\{(\pm4,\pm3),(\pm3,\pm4)\}
+$$
+with all independent sign choices, and let
+$$
+\mathcal F_{345}=\{1,2,3,4,5,6,8,9,25\}.
+$$
+The helper `parallel_direction_promoted_345_factor_certificate` tries exactly
+these $8\cdot9=72$ fixed direction/factor rows. Each row is a fixed quadratic
+congruence family modulo $2|U|^2F=50F$, followed by the usual nondegeneracy
+check. This layer is not allowed to search arbitrary divisors of
+$\det(U,T)^2$; it only tests the promoted rows.
+
+On primitive positive targets with $1\le g,h\le50$, this promoted $3$-$4$-$5$
+layer certifies $1461$ of the $1529$ nontrivial targets. The remaining $68$
+targets are all still certified by the full finite-direction divisor cover with
+parameter bound $8$. The first misses are
+$$
+(1,38),\ (2,29),\ (2,49),\ (5,14),\ (5,26),\ (5,34),\ (5,46),\ (7,10).
+$$
+Thus the current tail has been isolated: either add more fixed $3$-$4$-$5$
+factors, or explain the higher-triple witnesses that the full cover uses for
+these residual primitive rays.
+
+A second promoted layer now explains a clean part of that tail without
+enlarging the box. The helper `pythagorean_orthogonal_lattice_cover_certificate`
+tries only canonical orthogonal pairs
+$$
+U=(u,v),\qquad U^\perp=(-v,u)
+$$
+coming from primitive Pythagorean directions up to a fixed Euclid-parameter
+bound. These are the zero-other-leg determinant completions in lattice form.
+With parameter bound $4$, this layer covers $8$ of the $68$ residual primitive
+targets left by the promoted $3$-$4$-$5$ factor rows in the sample
+$1\le g,h\le50$:
+$$
+(1,38),\ (2,29),\ (19,22),\ (22,19),\ (22,31),\ (29,2),\ (31,22),\ (38,1).
+$$
+The first remaining uncovered residuals after this orthogonal layer are
+$$
+(2,49),\ (5,14),\ (5,26),\ (5,34),\ (5,46),\ (7,10),\ (7,50),\ (8,9),
+$$
+and the guardrail count is $60$ remaining residuals in the same sample.
+
+The next layer stops treating those residuals as parallel-factor accidents and
+recasts them as two-direction lattices. The helper
+`pythagorean_lattice_pair_cover_certificate` enumerates ordered pairs of
+primitive Pythagorean directions with bounded Euclid parameter and bounded
+lattice index $|\det(U,V)|$, then applies the exact Cramer-coefficient
+criterion for $T\in\mathbb ZU+\mathbb ZV$. With parameter bound $25$ and
+index bound $1435$, this bounded-index lattice-pair cover closes all $60$ of
+the residual primitive targets left by the promoted $3$-$4$-$5$ and orthogonal
+layers in the sample $1\le g,h\le50$. On the larger primitive sample
+$1\le g,h\le100$, the same three-layer pipeline has only four misses:
+$$
+(29,98),\ (50,53),\ (53,50),\ (98,29).
+$$
+This is not a proof of the full conjecture, but it is a principled replacement
+for box growth: each accepted row is an infinite lattice congruence family.
+
+The remaining misses in the larger sample are explained by the standard
+determinant-completion layer. The fixed helper
+`pythagorean_layered_structural_certificate` now applies this stack:
+
+1. promoted signed $3$-$4$-$5$ direction/factor rows;
+2. orthogonal Pythagorean lattice rows with parameter bound $4$;
+3. bounded-index Pythagorean lattice pairs with parameter bound $25$ and index
+   bound $1435$;
+4. standard determinant-completion rows over signed Pythagorean directions with
+   parameter bound $8$.
+
+On primitive positive targets with $1\le g,h\le300$, excluding one-step targets
+and the known distance-three orbit, this fixed structural stack covers all
+$54685$ targets. The layer counts are
+$$
+52549,\quad 40,\quad 2032,\quad 64,
+$$
+respectively. The last $64$ targets are not new residual table rows: they are
+standard determinant completions for small Pythagorean directions.
+
+The next audited frontier keeps the same structural stack and adds a bounded
+squareclass split of the determinant-completion factor. Every factor in the
+parallel divisor criterion can be written as $q a^2$, with paired factor
+$q b^2$ and determinant leg $qab$. The helper
+`pythagorean_layered_split_certificate` tests fixed rows with signed
+Pythagorean directions up to parameter $8$, squareclass $q\le23$, and
+split factor $a\le179$. This closes the primitive positive sample
+$1\le g,h\le1000$. The count is
+$$
+608023=607989+34,
+$$
+where $607989$ targets are covered by the fixed structural stack above, and
+only $34$ require the squareclass split layer. The first few split-layer
+targets are
+$$
+(139,878),\ (151,338),\ (158,391),\ (169,878),\ (218,611),\ (262,601).
+$$
+
+The squareclass layer has a more principled normal form than its bounded audit
+interface suggests. Fix a legal Pythagorean direction
+$$
+U=(u,v),\qquad |U|=c,\qquad U^\perp=(-v,u),
+$$
+a squarefree $q$, a positive split factor $a$, and a signed paired split factor
+$b\ne0$. Put
+$$
+D=qab,\qquad L=\frac{q(b^2-a^2)}2.
+$$
+If $L$ is integral,
+$$
+2c\mid q(a^2+b^2)
+$$
+and
+$$
+W=\frac{-LU+D U^\perp}{c^2}
+$$
+is integral, then $W$ is a legal Pythagorean edge vector with length
+$q(a^2+b^2)/(2c)$. Therefore every target on the line
+$$
+T_r=rU+W
+$$
+has the two-step certificate
+$$
+O\to rU\to T_r,
+$$
+except for the usual zero-coordinate degeneracies. Conversely, a target-facing
+squareclass split witness is exactly this construction with
+$$
+b=\frac{\det(U,T)}{qa},\qquad
+r=\frac{T\cdot U+L}{c^2}.
+$$
+Equivalently, writing Gaussian multiplication for lattice vectors,
+$$
+W=\frac{q\,U\,(a+ib)^2}{2c^2}.
+$$
+The helper `parallel_direction_squareclass_line_gaussian_numerator` exposes the
+numerator $qU(a+ib)^2$ directly. Thus the coordinate part of the problem is a
+single Gaussian divisibility condition by the integer $2c^2$, while the length
+condition is $2c\mid q(a^2+b^2)$.
+
+For primitive Pythagorean directions this factors one step further. There is a
+Gaussian integer $\alpha$ of norm $c$ and a unit $\varepsilon\in\{\pm1,\pm i\}$
+such that
+$$
+U=\varepsilon\alpha^2.
+$$
+The helper `primitive_pythagorean_direction_gaussian_root` recovers
+$(\alpha,\varepsilon)$ from a signed/swapped primitive direction. Then
+$$
+W=\varepsilon\,
+\frac{q(a+ib)^2}{2\overline{\alpha}^{\,2}}.
+$$
+The helper `parallel_direction_squareclass_line_root_quotient` computes this
+quotient directly when it is integral. This is the main structural reduction:
+for fixed $U$, the split-line classification asks when
+$2\overline{\alpha}^{\,2}$ divides $q(a+ib)^2$ in $\mathbb Z[i]$, followed by
+the scalar length condition and finite nondegeneracy exclusions.
+
+Since $\alpha$ and $\overline{\alpha}$ are coprime for primitive Pythagorean
+directions, this quotient test separates further. Write
+$$
+a+ib=\overline{\alpha}\,\beta
+$$
+when the quotient exists. Then the coordinate and length conditions reduce to
+the parity condition
+$$
+q\beta^2\equiv0\pmod2
+$$
+in $\mathbb Z[i]$, and
+$$
+W=\varepsilon\,\frac{q\beta^2}{2}.
+$$
+The helper `parallel_direction_squareclass_line_split_quotient` computes
+$\beta=(a+ib)/\overline\alpha$. Thus the split-line rows are no longer opaque
+factor searches: for each primitive direction, admissible split roots
+$a+ib$ lie on the Gaussian ideal generated by $\overline\alpha$, with only a
+parity condition depending on $q$ and a finite nondegeneracy check left over.
+
+The same reduction can now be run forward. Given $U=\varepsilon\alpha^2$,
+a squarefree $q$, and a nonzero Gaussian integer $\beta$, set
+$$
+a+ib=\overline{\alpha}\beta.
+$$
+If the real part $a$ is positive and the imaginary part $b$ is nonzero, this
+recovers a squareclass split row. The second edge is simply
+$$
+W=\varepsilon\frac{q\beta^2}{2},
+$$
+whenever $q\beta^2$ has even Gaussian coordinates; otherwise that beta row is
+not integral. The helper `parallel_direction_squareclass_beta_split_root`
+recovers $(a,b)$ from $\beta$, `parallel_direction_squareclass_beta_quotient`
+computes the unfiltered $W$, and
+`parallel_direction_squareclass_beta_second_step` applies the graph-edge
+nondegeneracy check. Thus fixed-direction split rows are parameterized by
+Gaussian $\beta$ rather than by target-box searches.
+
+The beta filters are elementary. The helper `squareclass_beta_integral` records
+the exact integrality condition: if $q$ is even then every nonzero $\beta$ is
+allowed, while if $q$ is odd then the real and imaginary parts of $\beta$ must
+have the same parity. The helper `beta_square_is_axis_degenerate` records the
+only beta shapes whose square has a zero coordinate:
+$$
+\Re\beta=0,\qquad \Im\beta=0,\qquad\text{or}\qquad |\Re\beta|=|\Im\beta|.
+$$
+All other integral beta rows give a legal second edge after multiplication by
+the unit $\varepsilon$.
+
+The beta form also has a target-facing inverse. For a target $T$, fixed
+$(U,q,\beta)$ first computes $W=\varepsilon q\beta^2/2$; then $T$ is certified
+by this beta row exactly when
+$$
+T-W=rU
+$$
+for some integer $r$. Equivalently, in the rotated Gaussian coordinates,
+$$
+2\varepsilon^{-1}T-q\beta^2=2r\alpha^2.
+$$
+The helpers `parallel_direction_squareclass_beta_target_coefficient` and
+`parallel_direction_squareclass_beta_target_certificate` implement this inverse
+line-membership test. This is now a genuinely target-facing criterion over
+$(U,q,\beta)$, with no determinant-factor scan.
+
+There is an even simpler invariant form of the same target-facing test. Since
+$U$ is primitive, $T-W$ is an integer multiple of $U$ exactly when
+$$
+\det(U,T)=\det(U,W).
+$$
+Thus each admissible beta row is a determinant level set, not a target box. The
+helper `parallel_direction_squareclass_beta_determinant_residue` returns this
+level $\det(U,W)$, and
+`parallel_direction_squareclass_beta_determinant_target_certificate` certifies
+a target by matching the determinant level and then recovering the scalar $r$
+along $U$. In the older split variables this level is exactly
+$$
+\det(U,W)=qab,
+$$
+so the previous target-facing formula
+$b=\det(U,T)/(qa)$ is just the same invariant solved for the signed paired
+factor.
+
+The ideal-membership part can also be inverted without scanning split boxes.
+Write $\alpha=m+in$ and $c=N(\alpha)$. The condition
+$a+ib\in(\overline\alpha)$ is equivalent to the single congruence
+$$
+b\equiv\rho a\pmod c,\qquad
+\rho\equiv -n\,m^{-1}\pmod c,\qquad \rho^2\equiv-1\pmod c.
+$$
+Combining this with the determinant level $D=\det(U,T)=qab$ gives, for fixed
+squarefree $q\mid D$,
+$$
+\frac Dq\equiv \rho a^2\pmod c
+$$
+or equivalently $a^2\equiv-\rho D/q\pmod c$, with the extra exact-divisor
+condition $a\mid D/q$ and $b=D/(qa)$. The helper
+`primitive_pythagorean_direction_conjugate_root_residue` returns $(c,\rho)$,
+and `parallel_direction_squareclass_conjugate_ideal_split_roots` turns this
+into the finite inverse list of legal $(a,b,\beta)$ rows for one determinant
+level. The target-facing wrapper
+`parallel_direction_squareclass_conjugate_ideal_certificate` then certifies
+targets from these divisor roots. This reframes the split layer as modular
+square roots inside the determinant leg, rather than as growing boxes in
+$(q,a,b)$.
+
+Finally, the squareclass parameter itself is finite and target-facing: any row
+with $D=qab$ has squarefree $q\mid D$. The helper `squarefree_divisors`
+enumerates those possibilities, and
+`parallel_direction_conjugate_ideal_split_roots` combines them with the
+conjugate-root congruence to list all legal split rows for one fixed
+$(T,U)$. The wrapper `parallel_direction_conjugate_ideal_certificate` is
+therefore an exact fixed-direction split recognizer with no external bounds on
+$q$, $a$, or $b$.
+
+Applying this exact recognizer across the same finite direction set gives a
+strictly cleaner fallback than the earlier bounded split box. The helper
+`parallel_direction_conjugate_ideal_cover_certificate` scans only primitive
+Pythagorean directions up to a Euclid-parameter bound; inside each direction,
+the squareclass and split factors are determined from the target determinant.
+The layered helper `pythagorean_layered_conjugate_ideal_certificate` now uses
+that exact finite-direction split recognition after the fixed structural stack.
+The previous six extended frontier rows with $q$ as large as $149$ and
+$a$ as large as $401$ are covered by this route with the same direction bound
+$8$, without increasing any squareclass or split-factor box.
+
+After clearing the single factor of $2$, this Gaussian divisibility condition
+and the length condition become the congruence system
+$$
+q(b^2-a^2)\equiv0\pmod2,
+$$
+$$
+q(a^2+b^2)\equiv0\pmod {2c},
+$$
+$$
+q((b^2-a^2)u+2abv)\equiv0\pmod {2c^2},
+$$
+and
+$$
+q((b^2-a^2)v-2abu)\equiv0\pmod {2c^2}.
+$$
+The helper `parallel_direction_squareclass_line_congruence_holds` is the direct
+predicate for this system. The helper
+`parallel_direction_squareclass_line_second_step` then returns $W$ exactly when
+these congruences produce an integral legal Pythagorean edge. This distinction
+separates true residue failures from finite degeneracies: for example
+$(U,q,a)=((-9,40),2,19)$ accepts the congruence class $b\equiv7\pmod {41}$,
+but the lift $b=171$ gives the vertical vector $W=(0,-722)$ and is excluded
+only by the graph-edge nondegeneracy rule.
+The helper `parallel_direction_squareclass_line_certificate` builds this
+line-family certificate directly, and
+`ParallelDirectionSquareclassSplitWitness.signed_paired_split_factor` exposes
+the signed value of $b$ recovered from a target-facing witness.
+
+For fixed $U,q,a$, the conditions above are periodic in the signed paired
+factor $b$ modulo
+$$
+2|U|^2=2c^2.
+$$
+Indeed, replacing $b$ by $b+2c^2$ preserves the parity of $L$, the condition
+$2c\mid q(a^2+b^2)$, and the two $c^2$-divisibility conditions defining $W$.
+The helper `parallel_direction_squareclass_line_residue_classes` computes the
+resulting minimal residue period, and
+`parallel_direction_squareclass_line_residue_certificate` turns it back into a
+target-facing certificate by testing
+$$
+\frac{\det(U,T)}{qa}\pmod m.
+$$
+For example, two of the first frontier rows compress to a single residue class:
+$$
+(U,q,a)=((-40,9),149,401):\quad b\equiv81\pmod {82},
+$$
+and
+$$
+(U,q,a)=((-24,7),34,41):\quad b\equiv13\pmod {25}.
+$$
+Thus the split layer can be studied as determinant-residue strips for fixed
+$(U,q,a)$, with $q$ and $a$ later promoted by structural rules.
+
+This is the stronger route to test next: classify these determinant-squareclass
+line families, or their residue classes in the free parameter $b$, instead of
+only enlarging $(q,a)$ boxes. A scratch primitive-positive census through
+$1\le g,h\le2000$ found $150$ misses after the fixed structural stack. The
+current bounded split rows with $q\le23$ and $a\le179$ miss only six of those,
+and all six are already explained by the same line-family normal form with
+slightly larger parameters:
+$$
+\begin{array}{c|c|c|c|c|c}
+T & U & q & a & b & r\\
+\hline
+(199,1462) & (-24,-7) & 115 & 1 & -293 & 7874\\
+(941,1282) & (-40,9) & 149 & 401 & -1 & -7142\\
+(1262,1781) & (-24,7) & 34 & 41 & -37 & -37
+\end{array}
+$$
+and their coordinate-swap/sign-symmetric partners. This is evidence against
+making the proof target "larger and larger boxes": the parameters $q$ and $b$
+should be variables in a line-family or congruence classification, while the
+box counts remain guardrails.
+
+The full `pythagorean_layered_parallel_certificate` still keeps the exact
+finite-direction divisor cover as a theorem-candidate fallback beyond the
+audited frontier, but no target in this sample needs that last fallback.
+
+The scaling closure can now be applied before this finite-direction test. The
+helper `parallel_direction_primitive_ray_certificate` reduces a nonzero target
+$T$ to its primitive representative $T_0$, applies
+`parallel_direction_cover_certificate(T_0, 8)`, and scales the resulting
+certificate back to $T$. Axis targets and solved non-primitive exceptional-ray
+targets are handled first by the theorem-level helpers. Thus the remaining
+finite-direction problem is genuinely a primitive-ray problem: once a primitive
+representative is accepted by the divisor-completion cover, every nonzero
+multiple of that representative follows automatically.
 
 Executable guardrail:
 
@@ -605,6 +1014,9 @@ Executable guardrail:
 - `ray_parallel_factor_residues`
 - `ray_parallel_factor_certificate`
 - `four_three_factor_five_parallel_certificate`
+- `PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS`
+- `parallel_direction_promoted_345_factor_witness`
+- `parallel_direction_promoted_345_factor_certificate`
 - `parallel_direction_bounded_factor_cover_certificate`
 - `parallel_direction_factor_modulus`
 - `parallel_direction_factor_coefficient`
@@ -614,6 +1026,63 @@ Executable guardrail:
 - `parallel_direction_factor_certificate`
 - `parallel_direction_certificate`
 - `parallel_direction_cover_certificate`
+- `parallel_direction_witness`
+- `parallel_direction_cover_witness`
+- `ParallelDirectionCoverWitnessCensus`
+- `parallel_direction_cover_witness_census`
+- `PrimitiveRayParallelDirectionWitness`
+- `parallel_direction_primitive_ray_witness`
+- `parallel_direction_primitive_ray_certificate`
+- `PythagoreanLatticePairWitness`
+- `ParallelDirectionSquareclassSplitWitness`
+- `PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER`
+- `PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER`
+- `PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT`
+- `PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER`
+- `PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS`
+- `PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR`
+- `PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER`
+- `squareclass_decomposition`
+- `squarefree_numbers`
+- `squarefree_divisors`
+- `pythagorean_orthogonal_lattice_cover_certificate`
+- `pythagorean_lattice_direction_pairs`
+- `pythagorean_lattice_pair_witness`
+- `pythagorean_lattice_pair_cover_certificate`
+- `parallel_direction_squareclass_split_witness`
+- `parallel_direction_squareclass_split_certificate`
+- `primitive_pythagorean_direction_gaussian_root`
+- `parallel_direction_squareclass_line_gaussian_numerator`
+- `parallel_direction_squareclass_line_split_quotient`
+- `parallel_direction_squareclass_line_root_quotient`
+- `primitive_pythagorean_direction_conjugate_root_residue`
+- `squareclass_beta_integral`
+- `beta_square_is_axis_degenerate`
+- `parallel_direction_squareclass_beta_split_root`
+- `parallel_direction_squareclass_beta_quotient`
+- `parallel_direction_squareclass_beta_second_step`
+- `parallel_direction_squareclass_beta_line_certificate`
+- `parallel_direction_squareclass_beta_target_coefficient`
+- `parallel_direction_squareclass_beta_target_certificate`
+- `parallel_direction_squareclass_beta_determinant_residue`
+- `parallel_direction_squareclass_beta_determinant_target_coefficient`
+- `parallel_direction_squareclass_beta_determinant_target_certificate`
+- `parallel_direction_squareclass_conjugate_ideal_split_roots`
+- `parallel_direction_squareclass_conjugate_ideal_certificate`
+- `parallel_direction_conjugate_ideal_split_roots`
+- `parallel_direction_conjugate_ideal_certificate`
+- `parallel_direction_conjugate_ideal_cover_certificate`
+- `parallel_direction_squareclass_line_congruence_holds`
+- `parallel_direction_squareclass_line_second_step`
+- `parallel_direction_squareclass_line_certificate`
+- `parallel_direction_squareclass_line_residue_classes`
+- `parallel_direction_squareclass_line_residue_certificate`
+- `parallel_direction_squareclass_split_cover_witness`
+- `parallel_direction_squareclass_split_cover_certificate`
+- `pythagorean_layered_structural_certificate`
+- `pythagorean_layered_split_certificate`
+- `pythagorean_layered_conjugate_ideal_certificate`
+- `pythagorean_layered_parallel_certificate`
 - `test_parallel_direction_divisor_reduction`
 - `test_parallel_direction_standard_completion_family`
 - `test_parallel_direction_standard_completion_cover_probe`
@@ -621,9 +1090,16 @@ Executable guardrail:
 - `test_unit_coordinate_parallel_factor_residue_family`
 - `test_ray_parallel_factor_residue_family`
 - `test_four_three_factor_five_parallel_congruence_family`
+- `test_parallel_direction_promoted_345_factor_cover`
 - `test_parallel_direction_bounded_factor_cover_probe`
 - `test_parallel_direction_factor_residue_classes`
 - `test_parallel_direction_candidate_cover_probe`
+- `test_parallel_direction_primitive_ray_lift`
+- `test_pythagorean_orthogonal_lattice_cover`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_pythagorean_layered_structural_cover_closes_sample_to_300`
+- `test_pythagorean_layered_split_cover_closes_sample_to_1000`
+- `test_squareclass_split_extended_frontier_examples`
 
 ## Orthogonal Triple Lattices
 
@@ -659,11 +1135,46 @@ target.
 
 This is an infinite exact family indexed by all Pythagorean triples. It is a
 composite-determinant counterpart to the prime-residue lines below.
+The target-facing cover helper now enumerates these canonical orthogonal pairs
+up to a chosen Euclid-parameter bound and returns the first valid lattice
+certificate.
 
 Executable guardrail:
 
 - `pythagorean_triple_orthogonal_lattice_certificate`
+- `pythagorean_orthogonal_lattice_cover_certificate`
 - `test_pythagorean_triple_orthogonal_lattice_family`
+- `test_pythagorean_orthogonal_lattice_cover`
+
+## Bounded-Index Pythagorean Lattice Pairs
+
+The orthogonal lattice family is only one special case of the lattice method.
+For any two legal Pythagorean directions $U=(u_1,u_2)$ and $V=(v_1,v_2)$ with
+nonzero determinant $\Delta=\det(U,V)$, Cramer's rule gives
+$$
+r=\frac{\det(T,V)}{\Delta},\qquad s=\frac{\det(U,T)}{\Delta}.
+$$
+Whenever $r,s\in\mathbb Z\setminus\{0\}$, the path
+$$
+O\to rU\to rU+sV=T
+$$
+is a valid two-step certificate. Thus one pair $(U,V)$ proves an infinite
+congruence lattice, whether $\Delta$ is prime or composite.
+
+The helper `pythagorean_lattice_direction_pairs` enumerates these pairs by
+Euclid-parameter bound and optional determinant-index bound, while
+`pythagorean_lattice_pair_witness` records the exact pair, determinant, and
+Cramer coefficients used for a target. The current guardrail uses parameter
+bound $25$ and determinant bound $1435$ as a structural residual layer after
+the promoted $3$-$4$-$5$ rows and the orthogonal rows.
+
+Executable guardrail:
+
+- `PythagoreanLatticePairWitness`
+- `pythagorean_lattice_direction_pairs`
+- `pythagorean_lattice_pair_witness`
+- `pythagorean_lattice_pair_cover_certificate`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
 
 ## Prime-Determinant Lattice Lines
 
@@ -2952,6 +3463,40 @@ Executable guardrail:
 - `box_five_hundred_audit_certificate`
 - `test_box_five_hundred_finite_audit`
 
+## Primitive-Ray Lift Of The Box-500 Audit
+
+The box-500 audit is finite, but each primitive certificate in it has an
+unbounded consequence. If a nonzero target $T=(g,h)$ has
+$$
+d=\gcd(|g|,|h|),\qquad T=dT_0,
+$$
+and the primitive representative $T_0$ has a two-step certificate with midpoint
+$P_0$, then
+$$
+P=dP_0
+$$
+is a two-step midpoint for $T$. Both edge lengths are scaled by $d$.
+
+The helper `box_five_hundred_ray_lift_certificate` makes this explicit. It first
+uses the theorem-level axis and exceptional-ray helpers, then reduces a target
+to its primitive representative. If that representative lies in the audited
+signed box $|g|,|h|\le500$ and has a box-audit certificate, the helper scales
+that certificate back to the original target. Thus the finite box is no longer
+only a bounded target statement: it is also a seed list for infinitely many
+whole rays. Targets whose primitive representative is already a one-step
+Pythagorean edge need no two-step certificate from this helper, and the known
+distance-three representatives are still deliberately rejected.
+
+This does not close the full conjecture, because primitive representatives
+outside the audited box still need structural coverage. It does sharpen the next
+target: prove that every remaining primitive non-exception ray is either in an
+existing theorem-level family or can be generated by a new exact ray mechanism.
+
+Executable guardrail:
+
+- `box_five_hundred_ray_lift_certificate`
+- `test_box_five_hundred_ray_lift_promotes_primitive_seeds`
+
 ## General Euclid Strip Template
 
 The affine consecutive-hypotenuse family below is a specialization of a more
@@ -3587,6 +4132,396 @@ Executable guardrail:
 - `two_one_ray_mod_twenty_six_divisor_orbit_certificate`
 - `test_two_one_ray_mod_twenty_six_divisor_family`
 
+## Square-Determinant Factor On The Exceptional Ray
+
+The complement-divisor sieve fixes the small factor $F=1$ for a prime
+multiplier. The same parallel-direction identity has another natural factor
+choice. For $T=n(2,1)$ and a direction $U=(u,v)$, put
+$$
+A=2u+v,\qquad B=u-2v,\qquad c^2=u^2+v^2.
+$$
+Since $\det(U,T)=nB$, choosing the divisor factor
+$$
+F=B^2
+$$
+leaves paired factor $n^2$ and forces the first-step coefficient
+$$
+r=\frac{n^2-B^2+2nA}{2c^2}.
+$$
+Whenever this is integral and nondegenerate, $P=rU$ is an exact two-step
+certificate.
+The integrality condition has a simple root form because
+$A^2+B^2=5c^2$:
+$$
+n^2+2An-B^2=(n+A)^2-5c^2.
+$$
+Thus the arithmetic period for a direction is the parity-compatible lift of
+$$
+n\equiv -A\pmod c
+$$
+modulo $2c$. This mirrors the complement-divisor root formula but uses the
+large determinant-square factor $B^2$ instead of factor $1$. The executable
+guardrail checks this period formula against direct factor-witness enumeration
+for all primitive signed directions with Euclid parameter at most $12$ and
+hypotenuse at most $250$.
+
+The same scaling idea turns this into a divisor sieve. If $n=dq$ and $q$ is in
+the square-factor class for $U$, choose factor
+$$
+F=dB^2.
+$$
+Then the paired factor is $dq^2$, and the first-step coefficient is $d$ times
+the base coefficient for $q$. Therefore any multiplier with a divisor in one of
+these square-factor classes is certified, apart from the same pointwise
+degeneracies that the certificate checker rejects.
+
+As with the complement-divisor layers, one can collect all signed directions
+with a fixed hypotenuse. The first promoted square-factor hypotenuse layers are:
+$$
+\begin{array}{c|c}
+c & q\text{-classes}\\
+\hline
+13 & 6,9,10,11,15,16,17,20\pmod {26}\\
+17 & 5,13,14,16,18,20,21,29\pmod {34}\\
+37 & 21,22,26,29,45,48,52,53\pmod {74}\\
+41 & 17,19,30,34,48,52,63,65\pmod {82}.
+\end{array}
+$$
+
+The first useful exceptional-ray instance is the $5$-$12$-$13$ direction
+$$
+U=(5,-12),\qquad A=-2,\qquad B=29,\qquad c=13.
+$$
+Here $F=29^2=841$ and
+$$
+r=\frac{n^2-4n-841}{338}.
+$$
+For
+$$
+n=26t+15
+$$
+this becomes
+$$
+r=2(t^2+t-1),
+$$
+so every positive multiplier $n\equiv15\pmod {26}$ is certified except the
+single degenerate case $n=145$, where the second step becomes vertical. For
+example, $5449=26\cdot209+15$ gives
+$$
+r=87778,\qquad P=(438890,-1053336).
+$$
+This is a different exact route from the quotient-divisor classes
+$3,7,19,23\pmod {26}$: it uses a non-complement factor of the determinant
+square and therefore catches a residue class that the complement-divisor layer
+does not.
+With the promoted square-factor hypotenuse layers and the next inverse-root
+seed extension below, the divisor-lift audit now has no unresolved multiplier in
+the interval $2\le n<3000$.
+
+Executable guardrail:
+
+- `two_one_ray_square_determinant_factor_certificate`
+- `two_one_ray_square_determinant_divisor_certificate`
+- `two_one_ray_square_determinant_factor_sieve_certificate`
+- `two_one_ray_square_determinant_factor_period`
+- `two_one_ray_square_determinant_factor_residues`
+- `two_one_ray_hypotenuse_square_factor_directions`
+- `two_one_ray_hypotenuse_square_factor_residue_classes`
+- `two_one_ray_hypotenuse_square_factor_certificate`
+- `TWO_ONE_RAY_PROMOTED_SQUARE_FACTOR_HYPOTENUSES`
+- `two_one_ray_promoted_square_factor_certificate`
+- `two_one_ray_mod_twenty_six_square_factor_certificate`
+- `test_two_one_ray_mod_twenty_six_square_factor_family`
+
+## Scaled Fixed-Factor Residues On The Exceptional Ray
+
+The complement-divisor and square-determinant constructions are both instances
+of a more general scaling principle. Fix a direction $U$ and a positive factor
+$F_0$. Suppose the multiplier $q$ on the exceptional ray has a valid
+parallel-direction certificate using this fixed factor $F_0$. If $n=dq$, then
+the multiplier $n$ has a certificate using factor
+$$
+F=dF_0,
+$$
+and the midpoint coefficient is $d$ times the base coefficient. Thus every
+fixed direction/factor residue class can be promoted into a divisor sieve:
+$$
+\exists q\mid n,\qquad q\in R(U,F_0).
+$$
+The helper `ray_parallel_factor_residues` already computes the exact arithmetic
+classes modulo $2|U|^2F_0$, and the scaled certificate helper then checks the
+actual target to discard pointwise degeneracies.
+
+The first promoted scaled-factor layers are small:
+$$
+\begin{array}{c|c|c}
+U & F_0 & q\text{-class}\\
+\hline
+(-12,5) & 22 & q\equiv5\pmod {13}\\
+(-12,-5) & 2 & q\equiv8\pmod {13}\\
+(20,-21) & 2 & q\equiv23\pmod {29}.
+\end{array}
+$$
+These catch the previous next-frontier primes $3229$, $4649$, and $3329$,
+respectively. With these layers, the promoted square-factor layers, and the
+inverse-root seed layers, the divisor-lift audit has no unresolved multiplier
+for $2\le n<5000$. A diagnostic scan then showed the next remaining prime
+multipliers below $10000$ were $5849,7669,9749$.
+
+Executable guardrail:
+
+- `two_one_ray_scaled_factor_divisor_certificate`
+- `TWO_ONE_RAY_PROMOTED_SCALED_FACTOR_LAYERS`
+- `two_one_ray_promoted_scaled_factor_certificate`
+- `test_two_one_ray_promoted_scaled_factor_layers`
+
+## Determinant Split-Factor Layers On The Exceptional Ray
+
+The fixed-factor layers above still left the impression of isolated interior
+factor choices. The determinant coordinates show that these are not isolated.
+Fix a Pythagorean direction $U=(u,v)$ with hypotenuse $c$, and write
+$$
+A=2u+v,\qquad B=u-2v.
+$$
+For a quotient multiplier $q$, choose a base factor $F_0$ which divides
+$B^2$, and put
+$$
+F_0H=B^2.
+$$
+The parallel-direction factor equations for $q(2,1)$ become
+$$
+Hq^2+F_0\equiv0\pmod {2c}
+$$
+for the completed hypotenuse, and
+$$
+Hq^2+2Aq-F_0\equiv0\pmod {2c^2}
+$$
+for the first-step coefficient. The discriminant of the second congruence is
+$$
+(2A)^2+4HF_0=4(A^2+B^2)=20c^2.
+$$
+Thus, when $\gcd(H,c)=1$, the quadratic has a double root modulo $c$:
+$$
+qH+A\equiv0\pmod c.
+$$
+Only the two parity lifts modulo $2c$ remain to be checked against the exact
+factor and coefficient congruences. This recovers the earlier endpoints:
+
+- $F_0=1$ is the complement-divisor construction;
+- $F_0=B^2$ is the square-determinant factor construction;
+- intermediate divisors $1<F_0<B^2$ are the scaled fixed-factor layers.
+
+Once a quotient $q$ is certified by this split factor, every multiplier
+$n=dq$ is certified by using the scaled factor $dF_0$. This is the principled
+replacement for extending midpoint boxes: small promoted hypotenuses now
+generate all their determinant-square factor splits.
+
+The promoted split-factor hypotenuses are now
+$$
+c=17,29,37,41,53,61,73,89,97,197,401.
+$$
+The first diagnostic frontier below $10000$ was covered without adding a
+larger box:
+$$
+\begin{array}{c|c|c|c}
+q & U & F_0 & q\text{-class}\\
+\hline
+7669 & (8,-15) & 2 & q\equiv2\pmod {17}\\
+5849 & (20,21) & 2 & q\equiv20\pmod {29}\\
+9749 & (-40,-9) & 22 & q\equiv32\pmod {41}.
+\end{array}
+$$
+Closing the next determinant split hypotenuses removes the later prime-seed
+frontier in the same way:
+$$
+\begin{array}{c|c|c|c}
+q & U & F_0 & q\text{-class}\\
+\hline
+10061 & (45,-28) & 10201 & q\equiv97\pmod {106}\\
+23869 & (195,-28) & 63001 & q\equiv229\pmod {394}\\
+40429 & (-40,-399) & 2 & q\equiv329\pmod {401}.
+\end{array}
+$$
+With these determinant split-factor layers included, the direct divisor-lift
+audit has no unresolved multiplier for $2\le n<10000$ on the exceptional ray,
+and the prime-seed audit has no unresolved prime for $10000\le p<1000000$
+after adding the lift-three family below.
+By divisor-lift closure, that proves the same range of multipliers once prime
+seeds are considered.
+The next diagnostic prime frontier starts at $110161$; its first hits again
+come from determinant split hypotenuses, for example $c=233,277,169$ for
+$110161,110501,133121$ respectively.
+The helper `two_one_ray_determinant_split_factor_witness` makes this
+target-facing: given a multiplier and a hypotenuse bound, it scans quotient
+divisors and determinant split layers, then returns the first exact
+certificate row. This is still not a proof of global coverage, but it replaces
+manual frontier inspection by a reproducible algebraic inverse problem.
+For the next frontier it returns, for example,
+$$
+\begin{array}{c|c|c|c|c}
+q & c & U & F_0 & q\text{-class}\\
+\hline
+110161 & 233 & (-105,-208) & 96721 & q\equiv185\pmod {466}\\
+110501 & 277 & (-115,252) & 383161 & q\equiv255\pmod {554}\\
+133121 & 169 & (-119,120) & 128881 & q\equiv287\pmod {338}.
+\end{array}
+$$
+There is an even sharper inverse form if the paired factor $H$ is fixed. Since
+the split root is
+$$
+A\equiv -qH\pmod c,
+$$
+the finitely many lifts $A=-qH+\ell c$ with $|A|<\sqrt5c$ determine
+$$
+B^2=5c^2-A^2.
+$$
+Thus a candidate row is recovered exactly by requiring $B^2$ to be a square,
+$H\mid B^2$, and the usual modulo-$5$ reconstruction of
+$$
+u=\frac{2A+B}{5},\qquad v=\frac{A-2B}{5}.
+$$
+The helper `two_one_ray_determinant_paired_factor_root` implements this
+calculation, and `two_one_ray_paired_factor_split_factor_witness` wraps it into
+a certificate search over quotient divisors and hypotenuses. This is a smaller
+inverse problem than enumerating all directions and all split factors in a
+hypotenuse layer. It explains the common square-factor endpoint $H=1$ for
+diagnostic primes such as $10061,23869,110161,110501,133121$.
+Fixing the lift
+$$
+k=\frac{A+qH}{c}
+$$
+shrinks the inverse problem again. With $D=k^2-5$ and
+$$
+X=Dc-kqH,
+$$
+the determinant norm is exactly
+$$
+X^2+D B^2=5q^2H^2.
+$$
+For $D>0$ this gives a finite conic search in $B$ with no hypotenuse scan.
+The helper `two_one_ray_determinant_paired_factor_lift_root` implements this
+lift-facing inverse and reconstructs $(U,F_0,c)$ from $(q,H,k)$. The
+determinant-split test verifies this identity for all recorded frontier rows,
+including even-first-coordinate split directions that are not complement-root
+directions.
+The first lift is especially simple. If $H=1$ and $k=3$, then
+$$
+A=3c-q.
+$$
+For any Pythagorean direction $U=(u,v)$ with hypotenuse $c$ and
+$A=2u+v$, the multiplier
+$$
+q=3c-A=3c-(2u+v)
+$$
+has the two-step certificate
+$$
+P=2U.
+$$
+Indeed,
+$$
+|2U|=2c,\qquad |q(2,1)-2U|=|3q-2c|.
+$$
+This is the lift-three square-endpoint family. The helper
+`two_one_ray_double_direction_certificate` builds the row from $U$, and
+`two_one_ray_lift_three_square_endpoint_certificate` uses the lift-conic
+inverse as a prime-seed recognizer. It catches the next prime frontier with
+small midpoints, for example
+$$
+\begin{array}{c|c|c}
+q & U & P=2U\\
+\hline
+110161 & (-4275,-25132) & (-8550,-50264)\\
+110501 & (-16965,31948) & (-33930,63896)\\
+133121 & (-8475,57148) & (-16950,114296)\\
+159769 & (188469,43700) & (376938,87400).
+\end{array}
+$$
+With this family in the seed constructor, the executable prime-seed audit has
+no unresolved prime for $10000\le p<1000000$.
+
+More importantly, this is not just another large audit. For every odd prime
+$p\equiv1\pmod4$, Fermat's two-square theorem gives
+$$
+p=x^2+z^2.
+$$
+Exactly one of $x,z$ is even, so write the even one as $2y$:
+$$
+p=x^2+4y^2.
+$$
+Set $m=x+y$ and $n=y$. Then
+$$
+c=m^2+n^2=x^2+2xy+2y^2,
+$$
+and for the Euclid direction
+$$
+U=(m^2-n^2,2mn)=(x^2+2xy,2xy+2y^2)
+$$
+one has
+$$
+3c-(2u+v)=x^2+4y^2=p.
+$$
+Thus every prime $p\equiv1\pmod4$ is a double-direction seed. The other prime
+classes on the exceptional ray were already seed classes: $p=2$ is even, and
+$p\equiv3\pmod4$ is covered by the three-mod-four formula. Therefore every
+prime multiplier $p>1$ on the $(2,1)$ ray now has an exact two-step seed
+certificate, and divisor-lift closure gives every composite multiplier
+$n>1$ on the ray. The primitive multiplier $n=1$ remains the known
+distance-three obstruction.
+
+The executable form is now direct rather than another larger search. The helper
+`two_one_ray_prime_divisor_lift_certificate` factors $n>1$, takes a prime
+divisor $p$, invokes the seed certificate for $p$, and scales that certificate
+by $n/p$. The companion orbit helper transports this certificate across signs
+and coordinate swaps. The remaining finite ranges are guardrails for the
+implementation, not the mechanism of the proof.
+
+The $H=1$ endpoint has a useful Pell interpretation. A determinant-slice root
+$(A,B,c)$ already lies on
+$$
+A^2-5c^2=-B^2.
+$$
+The complement-divisor certificate uses factor $1$ and the root
+$qB^2+A\equiv0\pmod c$. The square endpoint instead uses factor $B^2$ and the
+linear class
+$$
+q+A\equiv0\pmod c,
+$$
+with the parity lift modulo $2c$. Thus the same fixed-$B$ Pell orbit that
+advances complement roots also advances square-endpoint split layers. For
+example, the reduced slice
+$$
+(A,B,c)=(-118,-359,169)
+$$
+has square-endpoint class $q\equiv287\pmod {338}$ and certifies $q=133121$ by
+the midpoint $(-36852158,37161840)$. The conjugate slice
+$(118,359,169)$ has class $q\equiv51\pmod {338}$ and catches the later
+diagnostic prime $307969$. The helpers now expose this directly through
+`TwoOneRayDeterminantSliceRoot.square_endpoint_certificate` and
+`two_one_ray_determinant_square_endpoint_orbit_certificate`.
+
+Executable guardrail:
+
+- `TwoOneRayDeterminantSplitFactorWitness`
+- `TwoOneRayDeterminantSliceRoot.square_endpoint_certificate`
+- `two_one_ray_determinant_square_endpoint_orbit_certificate`
+- `two_one_ray_double_direction_certificate`
+- `two_one_ray_lift_three_square_endpoint_certificate`
+- `two_one_ray_prime_one_mod_four_double_direction_certificate`
+- `two_one_ray_prime_divisor_lift_certificate`
+- `two_one_ray_prime_divisor_lift_orbit_certificate`
+- `two_one_ray_paired_factor_lift_witness`
+- `two_one_ray_determinant_paired_factor_lift_root`
+- `two_one_ray_determinant_paired_factor_root`
+- `two_one_ray_determinant_split_factor_period`
+- `two_one_ray_determinant_split_factor_certificate`
+- `two_one_ray_hypotenuse_determinant_split_factor_layers`
+- `two_one_ray_hypotenuse_determinant_split_factor_certificate`
+- `two_one_ray_determinant_split_factor_witness`
+- `two_one_ray_paired_factor_split_factor_witness`
+- `TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES`
+- `two_one_ray_promoted_determinant_split_factor_certificate`
+- `test_two_one_ray_determinant_split_factor_layers`
+
 ## Combined Mod-130 Divisor Sieve On The Exceptional Ray
 
 Combining the mod-$10$ and mod-$26$ divisor sieves is equivalent to checking
@@ -3640,7 +4575,45 @@ $$
 $$
 for one of the direction periods $(m_U,R_U)$.
 
-The first four small direction layers are:
+The quotient class is now computed directly. For $U=(u,v)$, put
+$$
+c^2=u^2+v^2,\qquad a=2u+v,\qquad b=u-2v.
+$$
+The factor-one integrality condition for $q(2,1)$ is
+$$
+b^2q^2+2aq-1\equiv0\pmod {2c^2}.
+$$
+If $u$ is odd and $\gcd(b,c)=1$, this has one odd quotient class modulo $2c$:
+$$
+q\equiv -a(b^2)^{-1}\pmod c,\qquad q\equiv1\pmod2.
+$$
+If $u$ is even or $\gcd(b,c)>1$, the current complement-divisor root formula
+returns no class. The test suite checks this formula against direct quadratic
+congruence enumeration for all primitive signed directions with Euclid
+parameter at most $20$ and hypotenuse at most $300$.
+
+This also gives a hypotenuse-layer formulation. For a fixed hypotenuse $c$,
+collect every primitive signed Pythagorean direction $U$ with $|U|=c$, keep the
+directions whose root formula returns a class, and take their union modulo
+$2c$. For example:
+$$
+\begin{array}{c|c}
+c & q\text{-classes}\\
+\hline
+5 & 3,7\pmod {10}\\
+13 & 3,7,19,23\pmod {26}\\
+17 & 7,13,21,27\pmod {34}\\
+29 & 7,25,33,51\pmod {58}\\
+37 & 7,23,51,67\pmod {74}\\
+41 & 13,29,53,69\pmod {82}.
+\end{array}
+$$
+The helper `two_one_ray_hypotenuse_divisor_certificate` certifies any
+multiplier having a divisor in one of the classes for that hypotenuse. This is
+the reusable layer behind the named mod-$34$, mod-$58$, mod-$74$, and mod-$82$
+families.
+
+The first five small direction layers are:
 $$
 \begin{array}{c|c|c}
 \text{triple} & U & q\text{-classes}\\
@@ -3651,7 +4624,11 @@ $$
 8\text{-}15\text{-}17 & (15,-8),(15,8),(-15,-8),(-15,8)
   & 7,13,21,27\pmod {34}\\
 20\text{-}21\text{-}29 & (-21,-20),(-21,20),(21,-20),(21,20)
-  & 7,25,33,51\pmod {58}.
+  & 7,25,33,51\pmod {58}\\
+12\text{-}35\text{-}37 & (-35,12),(-35,-12),(35,12),(35,-12)
+  & 7,23,51,67\pmod {74}\\
+9\text{-}40\text{-}41 & (9,-40),(9,40),(-9,-40),(-9,40)
+  & 13,29,53,69\pmod {82}.
 \end{array}
 $$
 For example, with $U=(15,-8)$ one has
@@ -3671,20 +4648,40 @@ $$
 which is integral for every $q\equiv7\pmod {58}$. The other three signed
 directions give quotient classes $25,33,51\pmod {58}$.
 
+The $12$-$35$-$37$ layer is similar. With $U=(-35,12)$,
+$$
+D=-59dq,\qquad A=-58dq,\qquad
+r=\frac{d(3481q^2-116q-1)}{2738},
+$$
+which is integral for every $q\equiv7\pmod {74}$. The other signed directions
+give quotient classes $23,51,67\pmod {74}$.
+
+The $9$-$40$-$41$ layer gives another exact quotient sieve without being folded
+into the large combined-period tuple. With $U=(9,-40)$,
+$$
+D=-98dq,\qquad A=-22dq,\qquad
+r=\frac{d(9604q^2-44q-1)}{3362},
+$$
+which is integral for every $q\equiv13\pmod {82}$. The other signed directions
+give quotient classes $29,53,69\pmod {82}$. This catches the former residual
+prime multipliers $521$, $1201$, and $1669$.
+
 The combined small-direction sieve has quotient period
 $$
-\operatorname{lcm}(10,26,34,58)=64090.
+\operatorname{lcm}(10,26,34,58,74)=2371330.
 $$
 The covered quotient-divisor residues are exactly the classes that are
 $3$ or $7$ modulo $10$, or $3,7,19,23$ modulo $26$, or $7,13,21,27$ modulo
-$34$, or $7,25,33,51$ modulo $58$; this is a set of $23270$ residue classes
-modulo $64090$.
+$34$, or $7,25,33,51$ modulo $58$, or $7,23,51,67$ modulo $74$; this is a set
+of $896090$ residue classes modulo $2371330$.
 This number is not a search box and not a periodic claim about $n$ itself. It
-is only a compact representation of the divisor classes already certified by
-the finite direction set. It immediately promotes former finite-audit
-residuals such as $41$, $61$, $89$, $109$, $181$, $199$, and $239$ to
-infinite divisor families, because those multipliers themselves are divisors in
-one of the certified quotient classes.
+is only a compact representation of the divisor classes certified by the
+directions through the $12$-$35$-$37$ layer. The mod-$82$ layer is kept as a
+separate exact family because adding it to the combined tuple would multiply
+the period by $41$. These families immediately promote former finite-audit
+residuals such as $41$, $61$, $89$, $109$, $181$, $199$, $229$, and $239$ to
+infinite divisor families, because those multipliers themselves are divisors
+in one of the certified quotient classes.
 
 This gives a more principled route than enlarging boxes: classify the quotient
 classes $(m_U,R_U)$ produced by signed Pythagorean directions, then prove that
@@ -3697,19 +4694,34 @@ Executable guardrail:
 
 - `minimal_periodic_residue_classes`
 - `periodic_residue_union`
+- `pythagorean_directions_for_hypotenuse`
+- `two_one_ray_complement_divisor_root`
 - `two_one_ray_complement_divisor_period`
 - `two_one_ray_complement_divisor_sieve_residue_classes`
 - `two_one_ray_complement_divisor_sieve_certificate`
+- `two_one_ray_hypotenuse_divisor_directions`
+- `two_one_ray_hypotenuse_divisor_residue_classes`
+- `two_one_ray_hypotenuse_divisor_certificate`
 - `two_one_ray_mod_2210_divisor_residues`
 - `has_two_one_ray_mod_2210_divisor`
 - `two_one_ray_mod_64090_divisor_residues`
 - `has_two_one_ray_mod_64090_divisor`
+- `two_one_ray_mod_2371330_divisor_residues`
+- `has_two_one_ray_mod_2371330_divisor`
 - `two_one_ray_mod_thirty_four_divisor_certificate`
 - `two_one_ray_mod_thirty_four_divisor_orbit_certificate`
 - `two_one_ray_mod_fifty_eight_divisor_certificate`
 - `two_one_ray_mod_fifty_eight_divisor_orbit_certificate`
+- `two_one_ray_mod_seventy_four_divisor_certificate`
+- `two_one_ray_mod_seventy_four_divisor_orbit_certificate`
+- `two_one_ray_mod_eighty_two_divisor_certificate`
+- `two_one_ray_mod_eighty_two_divisor_orbit_certificate`
 - `test_two_one_ray_mod_thirty_four_divisor_family`
 - `test_two_one_ray_mod_fifty_eight_divisor_family`
+- `test_two_one_ray_mod_seventy_four_divisor_family`
+- `test_two_one_ray_mod_eighty_two_divisor_family`
+- `test_two_one_ray_complement_divisor_root_formula`
+- `test_two_one_ray_hypotenuse_divisor_layer`
 - `test_complement_divisor_sieve_residue_compression`
 
 ## Divisor-Lift Reduction To Prime Multipliers
@@ -3730,34 +4742,274 @@ The helper `two_one_ray_divisor_lift_certificate` makes this closure
 executable. It first tries the current exact seed families:
 
 - the mod-$260$ skeleton;
-- the mod-$10$, mod-$26$, mod-$34$, and mod-$58$ complement-divisor sieves;
+- the mod-$10$, mod-$26$, mod-$34$, mod-$58$, mod-$74$, and mod-$82$
+  complement-divisor sieves;
+- the promoted square-determinant factor divisor layers;
+- the promoted scaled fixed-factor divisor layers;
+- the promoted determinant split-factor layers;
+- the Fermat double-direction family for primes $p\equiv1\pmod4$;
 - the promoted exact base rows.
 
 If none applies directly, it recursively checks proper divisors and scales the
-first certified divisor certificate it finds. For instance, $1529=11\cdot139$
-is not a current seed multiplier, but $11$ is certified by the mod-$260$
-skeleton, so scaling the certificate for $(22,11)$ by $139$ certifies
-$(3058,1529)$.
+first certified divisor certificate it finds. For instance, $6241=79^2$ is not
+a current seed multiplier, but $79$ is certified by an exact ray family, so
+scaling the certificate for $(158,79)$ by $79$ certifies $(12482,6241)$.
+The newer helper `two_one_ray_prime_divisor_lift_certificate` expresses the
+final theorem more directly: for $n>1$ it chooses a prime divisor $p$ of $n$,
+uses the structural prime-seed classification for $p$, and scales by $n/p$.
+It does not need to search the lattice, enlarge a midpoint box, or walk through
+proper divisors recursively.
 
-This is a principled narrowing of the remaining target. With the current seed
-families, the multipliers below $2000$ that still fail the divisor-lift
-constructor are exactly
+This is a principled narrowing of the remaining target. Before promoting the
+inverse-root layers described next, the multipliers below $2000$ that still
+failed the divisor-lift constructor were exactly
 $$
 \begin{gathered}
-229,269,281,389,509,521,541,821,941,1009,1049,1201,1249,1289,\\
-1321,1361,1409,1429,1481,1549,1601,1621,1669,1861,1949,
+269,281,389,509,941,1009,1049,1249,1289,1321,\\
+1361,1409,1481,1549,1601,1861,1949,
 \end{gathered}
 $$
-and every one of these is prime. The next proof-search target is therefore not
-larger multiplier boxes, but residue/divisor mechanisms that catch the
-remaining prime classes.
+and every one of these is prime. The inverse-root construction below promotes
+these diagnostic primes into exact Euclid-parameter seed layers; with those
+layers included, the current divisor-lift constructor leaves no unresolved
+multiplier $2\le n<2000$ on the exceptional ray. The later square-factor,
+scaled-factor, and determinant split-factor promotions extend the executable
+empty divisor-lift audit to $2\le n<10000$, and the lift-three square-endpoint
+family leaves no unresolved prime seed for $10000\le p<1000000$. The Fermat
+double-direction formula closes the remaining prime class, so the final
+exceptional-ray mechanism is no longer a larger-box search: prime multipliers
+are classified, and composite multipliers are scaled from any certified prime
+divisor.
 
 Executable guardrail:
 
 - `two_one_ray_seed_certificate`
 - `two_one_ray_divisor_lift_certificate`
 - `two_one_ray_divisor_lift_orbit_certificate`
+- `two_one_ray_prime_divisor_lift_certificate`
+- `two_one_ray_prime_divisor_lift_orbit_certificate`
 - `test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes`
+
+## Inverse-Root Reduction For Exceptional-Ray Primes
+
+The complement-divisor formula can be used in the opposite direction. Instead
+of adding more finite boxes, fix a multiplier $p$ and search for Euclid
+parameters that make $p$ itself one of the root classes.
+
+Let $m>k>0$ be coprime and of opposite parity. Put
+$$
+o=m^2-k^2,\qquad e=2mk,\qquad c=m^2+k^2,
+$$
+and take an odd-first-coordinate signed direction
+$$
+U=(u,v)=(\sigma o,\tau e),\qquad \sigma,\tau\in\{\pm1\}.
+$$
+As before, set
+$$
+A=2u+v,\qquad B=u-2v.
+$$
+These are the coordinates naturally attached to the ray $(2,1)$: $A$ is the
+dot product against the ray and $B$ is the determinant factor. Equivalently,
+in Gaussian-integer notation,
+$$
+A+iB=(2+i)(u-iv).
+$$
+Therefore
+$$
+A^2+B^2=5c^2,
+$$
+and conversely a triple $(A,B,c)$ with this identity reconstructs
+$$
+u=\frac{2A+B}{5},\qquad v=\frac{A-2B}{5}
+$$
+when the two displayed numerators are divisible by $5$. Thus a fixed
+determinant factor $B$ is a one-dimensional negative-Pell slice
+$$
+A^2-5c^2=-B^2.
+$$
+
+When $\gcd(B,c)=1$, this direction has root
+$$
+R_{\sigma,\tau}(m,k)\equiv -A(B^2)^{-1}\pmod c,
+\qquad R_{\sigma,\tau}(m,k)\equiv1\pmod2.
+$$
+Therefore every multiplier satisfying
+$$
+p\equiv R_{\sigma,\tau}(m,k)\pmod {2c}
+$$
+has the explicit factor-one midpoint
+$$
+P=
+\frac{p^2B^2+2pA-1}{2c^2}\,U.
+$$
+The divisibility by $c^2$ follows directly from the determinant-slice
+identity: if $pB^2+A=ct$, then
+$$
+B^2(p^2B^2+2pA-1)=(pB^2+A)^2-(A^2+B^2)=c^2(t^2-5),
+$$
+and $\gcd(B,c)=1$. The parity condition supplies the remaining factor $2$ for
+primitive odd-first-coordinate directions.
+
+There is also a useful $p$-facing form. Reducing $A^2+B^2=5c^2$ modulo $c$
+and using $A\equiv -pB^2\pmod c$ gives
+$$
+c\mid p^2B^2+1.
+$$
+In Euclid parameters this says that $pB$ is one of the canonical square roots
+of $-1$ modulo $c$:
+$$
+pB\equiv \pm m k^{-1}\pmod c.
+$$
+More explicitly, for
+$$
+u=s_o(m^2-k^2),\qquad v=s_e(2mk),\qquad s_o,s_e\in\{\pm1\},
+$$
+one has
+$$
+B=s_o(m^2-k^2)-2s_e(2mk),
+$$
+and the quotient root is the odd lift of
+$$
+p\equiv s_os_e\,m\,k^{-1}B^{-1}\pmod c.
+$$
+This is the cleanest modular form of the inverse-root condition so far: the
+sign is simply whether the two Euclid-leg signs agree.
+Equivalently, every primitive Euclid parameter pair $(m,k)$ now gives an exact
+four-class quotient divisor family modulo $2c$. For example,
+$$
+(m,k)=(7,2)\quad\Rightarrow\quad q\equiv31,47,59,75\pmod {106},
+$$
+which is the $c=53$ layer; and
+$$
+(m,k)=(6,5)\quad\Rightarrow\quad q\equiv29,53,69,93\pmod {122},
+$$
+which is the $c=61$ layer. These classes certify, for instance, the former
+residual primes $1409,1861$ and $1249,1289$ respectively.
+Conversely, if a proposed hypotenuse $c$ divides $p^2B^2+1$, one only has to
+check the finitely many lifts of
+$$
+A\equiv -pB^2\pmod c,\qquad |A|<\sqrt5\,c,
+$$
+against $A^2+B^2=5c^2$ and the modulo-$5$ direction reconstruction conditions.
+So the inverse-root problem for a residual prime can be attacked as a divisor
+problem for $p^2B^2+1$, with the Pell slice supplying the compatibility test.
+
+Each fixed-$B$ slice is not merely a bounded search list. Multiplication by the
+Pell unit $161+72\sqrt5$ advances the slice:
+$$
+A' = 161A+360c,\qquad c'=72A+161c,\qquad B'=B.
+$$
+The choice of this square unit preserves both
+$A^2-5c^2=-B^2$ and the modulo-$5$ conditions needed to recover integral
+$(u,v)$. Some intermediate Pell rows can be degenerate or fail
+$\gcd(B,c)=1$, so the executable successor skips to the next valid root. Thus
+a determinant-slice seed yields a Pell orbit of exact quotient classes.
+
+This already connects some formerly separate layers. In the $B=-11$ slice,
+the mod-$74$ row
+$$
+(A,B,c)=(-82,-11,37)
+$$
+has successor
+$$
+(A',B',c')=(118,-11,53),
+$$
+which is the direction $(45,28)$ with root $31\pmod {106}$ and certifies the
+former residual prime $1409$ because $1409\equiv31\pmod {106}$. Thus the new
+$c=53$ witness is not an isolated larger search hit; it is the next Pell-orbit
+root after an already promoted small divisor layer.
+
+The backward square-unit reduction gives a useful diagnostic. Among the
+pre-promotion divisor-lift residual primes below $2000$, only $1409$ reduces to an already
+promoted small-layer seed in this way. The other inverse-root witnesses in the
+table below are reduced roots for their square-unit determinant-slice orbits.
+Thus the remaining task has split again: either produce new exact mechanisms
+for these reduced determinant-slice seeds, or prove that another independent
+family catches the same prime classes.
+
+This is a sharper target than a bounded midpoint search: after the divisor-lift
+reduction, it is enough to prove that every remaining prime lies in one of the
+negative-Pell determinant slices with the displayed root congruence, or in some
+other exact prime family.
+
+The current inverse-root probe catches every pre-promotion divisor-lift residual
+prime below $2000$ with Euclid parameter at most $300$:
+$$
+\begin{array}{c|c|c|c|c}
+p & (m,k) & U & c & R\\
+\hline
+269 & (116,35) & (12231,8120) & 14681 & 269\\
+281 & (19,4) & (345,-152) & 377 & 281\\
+389 & (15,4) & (209,-120) & 241 & 389\\
+509 & (34,19) & (-795,-1292) & 1517 & 509\\
+941 & (15,8) & (-161,240) & 289 & 363\\
+1009 & (73,62) & (-1485,9052) & 9173 & 1009\\
+1049 & (13,8) & (105,-208) & 233 & 117\\
+1249 & (6,5) & (-11,-60) & 61 & 29\\
+1289 & (6,5) & (11,-60) & 61 & 69\\
+1321 & (37,2) & (1365,148) & 1373 & 1321\\
+1361 & (41,20) & (-1281,1640) & 2081 & 1361\\
+1409 & (7,2) & (45,28) & 53 & 31\\
+1481 & (289,266) & (12765,153748) & 154277 & 1481\\
+1549 & (17,12) & (145,408) & 433 & 683\\
+1601 & (24,19) & (215,912) & 937 & 1601\\
+1861 & (7,2) & (45,-28) & 53 & 59\\
+1949 & (15,8) & (161,-240) & 289 & 215.
+\end{array}
+$$
+Rows with $R\ne p$ are still exact hits because the criterion is
+$p\equiv R\pmod {2c}$. For example, $941\equiv363\pmod {578}$.
+The same inverse-root mechanism also catches the three primes left in
+$2000\le n<3000$ after the square-factor promotion:
+$$
+\begin{array}{c|c|c|c|c}
+p & (m,k) & U & c & R\\
+\hline
+2549 & (8,3) & (55,48) & 73 & 67\\
+2621 & (8,5) & (39,80) & 89 & 129\\
+2729 & (20,1) & (-399,-40) & 401 & 323.
+\end{array}
+$$
+The distinct parameter pairs in these tables are now promoted into exact seed
+layers:
+$$
+\begin{gathered}
+(7,2),(6,5),(13,8),(15,4),(15,8),(19,4),(17,12),\\
+(24,19),(37,2),(34,19),(41,20),(73,62),(116,35),(289,266),\\
+(8,3),(8,5),(20,1).
+\end{gathered}
+$$
+This is an infinite-family promotion, not a finite audit: each pair contributes
+its four quotient classes modulo $2(m^2+k^2)$, and divisor-lift scaling then
+covers any multiplier with a certified divisor in one of those classes. The
+executable audit now verifies that the exceptional-ray divisor-lift constructor
+has no remaining failures for $2\le n<3000$.
+
+Executable guardrail:
+
+- `TwoOneRayDeterminantSliceRoot`
+- `two_one_ray_determinant_coordinates`
+- `euclid_sqrt_minus_one_residues`
+- `two_one_ray_signed_euclid_root`
+- `two_one_ray_euclid_parameter_roots`
+- `two_one_ray_euclid_parameter_residue_classes`
+- `two_one_ray_euclid_parameter_certificate`
+- `TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS`
+- `two_one_ray_promoted_inverse_root_certificate`
+- `two_one_ray_determinant_slice_root`
+- `two_one_ray_determinant_factor_roots`
+- `two_one_ray_determinant_slice_successor`
+- `two_one_ray_determinant_slice_predecessor`
+- `two_one_ray_determinant_slice_reduced_root`
+- `two_one_ray_determinant_slice_orbit`
+- `two_one_ray_determinant_slice_orbit_certificate`
+- `two_one_ray_determinant_divisor_root`
+- `two_one_ray_determinant_divisor_certificate`
+- `two_one_ray_determinant_factor_certificate`
+- `TwoOneRayInverseRootWitness`
+- `two_one_ray_inverse_root_witness`
+- `test_two_one_ray_determinant_slice_root_formula`
+- `test_two_one_ray_inverse_root_witness_probe`
 
 ## Explicit Base Multipliers On The Exceptional Ray
 
