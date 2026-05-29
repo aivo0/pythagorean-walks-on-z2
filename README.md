@@ -13,6 +13,15 @@ and `(2,1)` are distance-`3` representatives, gives one infinite family of
 two-step certificates, and conjectures that these representatives and their
 sign/swap images are the only distance-`3` vertices.
 
+## Proof Report
+
+Start with [papers/pythagorean-walks-progress-report.md](papers/pythagorean-walks-progress-report.md)
+for a paper-style account of the current proved results and how to check them.
+It consolidates the definitions, symmetry reductions, axis theorem,
+non-primitive exceptional-ray theorem, and executable guardrails. The longer
+full-conjecture note remains the research notebook for proof-search machinery
+and open directions.
+
 ## ELI5 Visualization
 
 ![ELI5 animation of Pythagorean walks](assets/pythagorean-walks-eli5.gif)
@@ -104,6 +113,24 @@ and then as Gaussian/beta congruence data. That makes the next proof target more
 specific: classify the fixed-direction congruence families, rather than grow
 larger midpoint or target boxes.
 
+The newest reduction removes the squareclass/split-factor bounds for a fixed
+first-step direction. If `U = unit*alpha^2`, then `a+i*b` lies in
+`(conj(alpha))` exactly when `b == rho*a mod |U|`; for target determinant
+`D = det(U,T)` and squarefree `q | D`, this becomes the divisor-root condition
+`a^2 == -rho*D/q mod |U|` with `a | D/q`. The exact finite-direction fallback
+now scans bounded Gaussian roots `alpha` rather than split boxes, and derives
+`q,a,b` from determinant divisors. For a fixed root direction, those rows
+depend only on the one-dimensional value `det(U,T)`. Its witness object also verifies
+`2*unit^-1*T = 2*r*alpha^2 + q*beta^2`, making the remaining direction choice
+an explicit Gaussian square-decomposition problem. A scratch census through
+`1 <= g,h <= 2000` found 150 structural misses and all 150 are covered by this
+exact root-bound-8 layer. The root-cover census now records which `alpha`
+families appear; through `1 <= g,h <= 500`, the 10 structural misses are all
+covered by five canonical root shapes. A shape-family cover is now executable:
+through `1 <= g,h <= 1000`, the 34 structural misses are covered by seven
+explicit root shapes, with `q,a,b` still derived from determinant divisors. The
+shape-cover census records the exact per-shape counts for that audited range.
+
 ## Finite Audits
 
 The finite audits are exact statements: every returned row is an explicit
@@ -122,6 +149,9 @@ Except where a theorem is stated explicitly above, finite audits are not
 extrapolated outside their stated ranges.
 
 ## Layout
+
+- `papers/pythagorean-walks-progress-report.md`: paper-style proof report for
+  the current theorem-level progress and checker workflow.
 
 - `papers/pythagorean-walks-on-z2.md`: Markdown notes/transcription from Jan
   Willemson's paper.

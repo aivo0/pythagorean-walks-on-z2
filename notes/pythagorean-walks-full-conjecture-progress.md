@@ -893,11 +893,15 @@ $(q,a,b)$.
 Finally, the squareclass parameter itself is finite and target-facing: any row
 with $D=qab$ has squarefree $q\mid D$. The helper `squarefree_divisors`
 enumerates those possibilities, and
-`parallel_direction_conjugate_ideal_split_roots` combines them with the
+`parallel_direction_conjugate_ideal_determinant_roots` combines them with the
 conjugate-root congruence to list all legal split rows for one fixed
-$(T,U)$. The wrapper `parallel_direction_conjugate_ideal_certificate` is
-therefore an exact fixed-direction split recognizer with no external bounds on
-$q$, $a$, or $b$.
+determinant level $(U,D)$. The target wrapper
+`parallel_direction_conjugate_ideal_split_roots` just supplies
+$D=\det(U,T)$. Thus, for fixed $U$, the split rows depend only on the
+one-dimensional determinant coordinate; the remaining target data only decides
+the line scalar $r$. The wrapper `parallel_direction_conjugate_ideal_certificate`
+is therefore an exact fixed-direction split recognizer with no external bounds
+on $q$, $a$, or $b$.
 
 Applying this exact recognizer across the same finite direction set gives a
 strictly cleaner fallback than the earlier bounded split box. The helper
@@ -909,6 +913,86 @@ that exact finite-direction split recognition after the fixed structural stack.
 The previous six extended frontier rows with $q$ as large as $149$ and
 $a$ as large as $401$ are covered by this route with the same direction bound
 $8$, without increasing any squareclass or split-factor box.
+
+The direction bound has now been rewritten in the native Gaussian-root
+language. The helper `primitive_pythagorean_root_directions` enumerates rows
+$(U,\alpha,\varepsilon)$ with $U=\varepsilon\alpha^2$ and bounded coordinates
+of $\alpha$. For the tested bounds this gives exactly the same signed direction
+set as `primitive_pythagorean_directions`, but it matches the quadratic
+identity directly. The root-bounded helpers
+`parallel_direction_conjugate_ideal_root_cover_witness` and
+`parallel_direction_conjugate_ideal_root_cover_certificate` are now the exact
+split-layer interface used by `pythagorean_layered_conjugate_ideal_certificate`.
+
+The exact recognizer now keeps a first-class algebraic witness. A
+`ParallelDirectionConjugateIdealWitness` records
+$$
+(T,U,q,a,b,\beta,r)
+$$
+and verifies all three equivalent faces of the construction:
+$$
+D=\det(U,T)=qab,\qquad a+ib=\overline{\alpha}\beta,
+$$
+and the rotated quadratic decomposition
+$$
+2\varepsilon^{-1}T=2r\alpha^2+q\beta^2.
+$$
+The helpers `parallel_direction_squareclass_conjugate_ideal_witness`,
+`parallel_direction_conjugate_ideal_witness`, and
+`parallel_direction_conjugate_ideal_cover_witness` return this witness data
+instead of only the endpoint certificate. This is the useful proof interface
+for the next step: choosing directions becomes choosing a Gaussian square
+$\alpha^2$ in this binary quadratic decomposition.
+
+The same quadratic identity is executable as a target-facing certificate test.
+The helper `parallel_direction_squareclass_beta_quadratic_coefficient` computes
+$r$ by dividing
+$$
+2\varepsilon^{-1}T-q\beta^2
+$$
+by $\alpha^2$ and checking that the quotient is the even real integer $2r$.
+`parallel_direction_squareclass_beta_quadratic_certificate` then builds the
+same midpoint certificate. The conjugate-ideal witness path now uses this
+quadratic coefficient directly, so the exact split layer is verified through
+the Gaussian square decomposition rather than only through determinant-level
+line membership.
+
+A scratch primitive-positive census through $1\le g,h\le2000$ found $150$
+misses after the fixed structural stack, and all $150$ are covered by
+`parallel_direction_conjugate_ideal_cover_witness` with the same root/direction
+bound $8$. The dominant Gaussian roots in that diagnostic were
+$(-2,\pm3)$, $(-1,\pm4)$, and $(-2,\pm5)$, suggesting that the next proof step
+should study root-shape families for $\alpha$ rather than enlarge split boxes.
+The helper `parallel_direction_conjugate_ideal_root_cover_census` now records
+this kind of diagnostic data reproducibly. In the smaller guardrail through
+$1\le g,h\le500$, there are $10$ structural misses, no root-bound-8 misses, and
+the root-shape counts split evenly across
+$$
+(1,4),\quad (2,3),\quad (2,5),\quad (3,8),\quad (4,5).
+$$
+This makes the next proof question more concrete: replace the finite root list
+by families in the root coordinates of $\alpha$.
+
+That replacement has started in executable form. The helper
+`primitive_pythagorean_root_shape_directions` generates all signed
+$(U,\alpha,\varepsilon)$ rows from an explicit finite set of canonical root
+shapes, and
+`parallel_direction_conjugate_ideal_root_shape_cover_witness`/
+`parallel_direction_conjugate_ideal_root_shape_cover_certificate` run the exact
+split recognizer over those shape families. In the $1\le g,h\le1000$
+guardrail, the $34$ structural misses are covered by the seven-shape family
+$$
+(1,4),\ (1,6),\ (2,3),\ (2,5),\ (2,7),\ (3,8),\ (4,5).
+$$
+This turns the residual fallback into an explicit root-shape-family cover for
+the audited range. The helper
+`parallel_direction_conjugate_ideal_root_shape_cover_census` records this
+statement directly: for that seven-shape family it has no uncovered targets,
+and the root-shape counts are
+$$
+(2,3):8,\quad (1,4):6,\quad (1,6):6,\quad
+(2,5):4,\quad (2,7):4,\quad (3,8):4,\quad (4,5):2.
+$$
 
 After clearing the single factor of $2$, this Gaussian divisibility condition
 and the length condition become the congruence system
@@ -1035,6 +1119,9 @@ Executable guardrail:
 - `parallel_direction_primitive_ray_certificate`
 - `PythagoreanLatticePairWitness`
 - `ParallelDirectionSquareclassSplitWitness`
+- `ParallelDirectionConjugateIdealWitness`
+- `ParallelDirectionConjugateIdealRootCoverCensus`
+- `ParallelDirectionConjugateIdealRootShapeCoverCensus`
 - `PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER`
 - `PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER`
 - `PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT`
@@ -1042,6 +1129,7 @@ Executable guardrail:
 - `PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS`
 - `PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR`
 - `PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER`
+- `PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE`
 - `squareclass_decomposition`
 - `squarefree_numbers`
 - `squarefree_divisors`
@@ -1052,6 +1140,9 @@ Executable guardrail:
 - `parallel_direction_squareclass_split_witness`
 - `parallel_direction_squareclass_split_certificate`
 - `primitive_pythagorean_direction_gaussian_root`
+- `gaussian_root_shape`
+- `primitive_pythagorean_root_directions`
+- `primitive_pythagorean_root_shape_directions`
 - `parallel_direction_squareclass_line_gaussian_numerator`
 - `parallel_direction_squareclass_line_split_quotient`
 - `parallel_direction_squareclass_line_root_quotient`
@@ -1067,11 +1158,23 @@ Executable guardrail:
 - `parallel_direction_squareclass_beta_determinant_residue`
 - `parallel_direction_squareclass_beta_determinant_target_coefficient`
 - `parallel_direction_squareclass_beta_determinant_target_certificate`
+- `parallel_direction_squareclass_beta_quadratic_coefficient`
+- `parallel_direction_squareclass_beta_quadratic_certificate`
 - `parallel_direction_squareclass_conjugate_ideal_split_roots`
 - `parallel_direction_squareclass_conjugate_ideal_certificate`
+- `parallel_direction_squareclass_conjugate_ideal_witness`
+- `parallel_direction_conjugate_ideal_determinant_roots`
 - `parallel_direction_conjugate_ideal_split_roots`
 - `parallel_direction_conjugate_ideal_certificate`
+- `parallel_direction_conjugate_ideal_witness`
 - `parallel_direction_conjugate_ideal_cover_certificate`
+- `parallel_direction_conjugate_ideal_cover_witness`
+- `parallel_direction_conjugate_ideal_root_cover_certificate`
+- `parallel_direction_conjugate_ideal_root_cover_witness`
+- `parallel_direction_conjugate_ideal_root_shape_cover_certificate`
+- `parallel_direction_conjugate_ideal_root_shape_cover_witness`
+- `parallel_direction_conjugate_ideal_root_shape_cover_census`
+- `parallel_direction_conjugate_ideal_root_cover_census`
 - `parallel_direction_squareclass_line_congruence_holds`
 - `parallel_direction_squareclass_line_second_step`
 - `parallel_direction_squareclass_line_certificate`

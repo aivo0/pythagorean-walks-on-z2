@@ -48,6 +48,9 @@ from experiments.pythagorean_walks import (
     PythagoreanTriple,
     PythagoreanLatticePairWitness,
     ParallelDirectionFactorWitness,
+    ParallelDirectionConjugateIdealWitness,
+    ParallelDirectionConjugateIdealRootCoverCensus,
+    ParallelDirectionConjugateIdealRootShapeCoverCensus,
     ParallelDirectionSquareclassSplitWitness,
     ParallelDirectionCoverWitnessCensus,
     PrimitiveRayParallelDirectionWitness,
@@ -56,6 +59,7 @@ from experiments.pythagorean_walks import (
     PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS,
     PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
     PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+    PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
     PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
     PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER,
     PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR,
@@ -166,6 +170,7 @@ from experiments.pythagorean_walks import (
     gaussian_divisor_certificate,
     gaussian_multiply,
     gaussian_quotient_if_integer,
+    gaussian_root_shape,
     gaussian_transform_certificate,
     half_leg_strip_orbit_certificate,
     half_leg_strip_certificate,
@@ -199,7 +204,16 @@ from experiments.pythagorean_walks import (
     parallel_direction_bounded_factor_cover_certificate,
     parallel_direction_conjugate_ideal_certificate,
     parallel_direction_conjugate_ideal_cover_certificate,
+    parallel_direction_conjugate_ideal_cover_witness,
+    parallel_direction_conjugate_ideal_determinant_roots,
+    parallel_direction_conjugate_ideal_root_cover_certificate,
+    parallel_direction_conjugate_ideal_root_cover_census,
+    parallel_direction_conjugate_ideal_root_shape_cover_certificate,
+    parallel_direction_conjugate_ideal_root_shape_cover_census,
+    parallel_direction_conjugate_ideal_root_shape_cover_witness,
+    parallel_direction_conjugate_ideal_root_cover_witness,
     parallel_direction_conjugate_ideal_split_roots,
+    parallel_direction_conjugate_ideal_witness,
     parallel_direction_cover_certificate,
     parallel_direction_factor_coefficient,
     parallel_direction_factor_certificate,
@@ -213,11 +227,14 @@ from experiments.pythagorean_walks import (
     parallel_direction_squareclass_split_cover_witness,
     parallel_direction_squareclass_conjugate_ideal_certificate,
     parallel_direction_squareclass_conjugate_ideal_split_roots,
+    parallel_direction_squareclass_conjugate_ideal_witness,
     parallel_direction_squareclass_beta_determinant_residue,
     parallel_direction_squareclass_beta_determinant_target_certificate,
     parallel_direction_squareclass_beta_determinant_target_coefficient,
     parallel_direction_squareclass_beta_line_certificate,
     parallel_direction_squareclass_beta_quotient,
+    parallel_direction_squareclass_beta_quadratic_certificate,
+    parallel_direction_squareclass_beta_quadratic_coefficient,
     parallel_direction_squareclass_beta_second_step,
     parallel_direction_squareclass_beta_split_root,
     parallel_direction_squareclass_beta_target_certificate,
@@ -247,6 +264,8 @@ from experiments.pythagorean_walks import (
     prime_factors,
     primitive_pythagorean_direction_gaussian_root,
     primitive_pythagorean_directions,
+    primitive_pythagorean_root_directions,
+    primitive_pythagorean_root_shape_directions,
     pythagorean_leg_completion,
     pythagorean_directions_for_hypotenuse,
     pythagorean_layered_parallel_certificate,
@@ -534,9 +553,41 @@ class CertificateTests(unittest.TestCase):
 
     def test_delta_slice_direction_generator_and_delta_order(self):
         directions = primitive_pythagorean_directions(5)
+        root_directions = primitive_pythagorean_root_directions(5)
         self.assertIn((3, 4, 5, 2, 1), directions)
         self.assertIn((-4, 3, 5, 2, 1), directions)
         self.assertIn((5, 12, 13, 3, 2), directions)
+        self.assertIn((3, 4, 5, (-1, 2), (-1, 0)), root_directions)
+        self.assertIn((5, 12, 13, (-2, 3), (-1, 0)), root_directions)
+
+        self.assertEqual(
+            {(u, v, hypotenuse) for u, v, hypotenuse, _a, _b in directions},
+            {
+                (u, v, hypotenuse)
+                for u, v, hypotenuse, _root, _unit in root_directions
+            },
+        )
+        shape_directions = primitive_pythagorean_root_shape_directions(
+            ((1, 4), (2, 3))
+        )
+        self.assertEqual(len(shape_directions), 16)
+        self.assertEqual(
+            {
+                gaussian_root_shape(root)
+                for _u, _v, _hypotenuse, root, _unit in shape_directions
+            },
+            {(1, 4), (2, 3)},
+        )
+        self.assertLessEqual(
+            {
+                (u, v, hypotenuse)
+                for u, v, hypotenuse, _root, _unit in shape_directions
+            },
+            {
+                (u, v, hypotenuse)
+                for u, v, hypotenuse, _root, _unit in root_directions
+            },
+        )
 
         for u, v, hypotenuse, parameter_a, parameter_b in directions:
             self.assertGreater(parameter_a, parameter_b)
@@ -544,9 +595,20 @@ class CertificateTests(unittest.TestCase):
             self.assertNotEqual(u, 0)
             self.assertNotEqual(v, 0)
 
+        for u, v, hypotenuse, root, unit in root_directions:
+            self.assertEqual(gaussian_multiply(unit, gaussian_multiply(root, root)), (u, v))
+            self.assertEqual(root[0] * root[0] + root[1] * root[1], hypotenuse)
+            self.assertIn(unit, ((1, 0), (-1, 0), (0, 1), (0, -1)))
+
         self.assertEqual(signed_delta_values(3), (0, 1, -1, 2, -2, 3, -3))
         with self.assertRaises(ValueError):
             primitive_pythagorean_directions(1)
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_directions(1)
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_shape_directions(((2, 4),))
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_shape_directions(((1, 3),))
         with self.assertRaises(ValueError):
             signed_delta_values(-1)
 
@@ -744,6 +806,10 @@ class CertificateTests(unittest.TestCase):
             primitive_pythagorean_direction_conjugate_root_residue((-24, 7)),
             (25, 18),
         )
+        self.assertEqual(gaussian_root_shape((-2, 3)), (2, 3))
+        self.assertEqual(gaussian_root_shape((-3, -2)), (2, 3))
+        with self.assertRaises(ValueError):
+            gaussian_root_shape((0, 3))
         for direction, split_root in (
             ((-9, 40), (19, -239)),
             ((-24, 7), (41, -37)),
@@ -948,6 +1014,43 @@ class CertificateTests(unittest.TestCase):
             parallel_direction_conjugate_ideal_split_roots((151, 338), (-9, 40)),
         )
         self.assertEqual(
+            parallel_direction_conjugate_ideal_split_roots((151, 338), (-9, 40)),
+            parallel_direction_conjugate_ideal_determinant_roots((-9, 40), -9082),
+        )
+        ideal_witness = ParallelDirectionConjugateIdealWitness(
+            target=(151, 338),
+            direction=(-9, 40),
+            squareclass=2,
+            split_factor=19,
+            signed_paired_split_factor=-239,
+            beta=(-31, 21),
+            first_coefficient=41,
+        )
+        self.assertTrue(ideal_witness.valid())
+        self.assertEqual(ideal_witness.root, (-4, -5))
+        self.assertEqual(ideal_witness.unit, (1, 0))
+        self.assertEqual(ideal_witness.gaussian_quadratic_left, (302, 676))
+        self.assertEqual(
+            ideal_witness.gaussian_quadratic_left,
+            ideal_witness.gaussian_quadratic_right,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_conjugate_ideal_witness(
+                (151, 338),
+                (-9, 40),
+                2,
+            ),
+            ideal_witness,
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_witness((151, 338), (-9, 40)),
+            ideal_witness,
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_cover_witness((151, 338), 8),
+            ideal_witness,
+        )
+        self.assertEqual(
             parallel_direction_squareclass_beta_line_certificate(
                 (-9, 40),
                 2,
@@ -987,7 +1090,25 @@ class CertificateTests(unittest.TestCase):
             41,
         )
         self.assertEqual(
+            parallel_direction_squareclass_beta_quadratic_coefficient(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            41,
+        )
+        self.assertEqual(
             parallel_direction_squareclass_beta_target_certificate(
+                (151, 338),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_quadratic_certificate(
                 (151, 338),
                 (-9, 40),
                 2,
@@ -1038,7 +1159,25 @@ class CertificateTests(unittest.TestCase):
             42,
         )
         self.assertEqual(
+            parallel_direction_squareclass_beta_quadratic_coefficient(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            42,
+        )
+        self.assertEqual(
             parallel_direction_squareclass_beta_target_certificate(
+                (142, 378),
+                (-9, 40),
+                2,
+                (-31, 21),
+            ),
+            shifted_line_certificate,
+        )
+        self.assertEqual(
+            parallel_direction_squareclass_beta_quadratic_certificate(
                 (142, 378),
                 (-9, 40),
                 2,
@@ -1065,6 +1204,14 @@ class CertificateTests(unittest.TestCase):
         )
         self.assertIsNone(
             parallel_direction_squareclass_beta_determinant_target_certificate(
+                (151, 339),
+                (-9, 40),
+                2,
+                (-31, 21),
+            )
+        )
+        self.assertIsNone(
+            parallel_direction_squareclass_beta_quadratic_certificate(
                 (151, 339),
                 (-9, 40),
                 2,
@@ -1243,6 +1390,39 @@ class CertificateTests(unittest.TestCase):
                 parallel_direction_conjugate_ideal_split_roots(target, direction),
             )
             self.assertEqual(
+                parallel_direction_conjugate_ideal_split_roots(target, direction),
+                parallel_direction_conjugate_ideal_determinant_roots(
+                    direction,
+                    determinant(direction, target),
+                ),
+            )
+            squareclass_ideal_witness = (
+                parallel_direction_squareclass_conjugate_ideal_witness(
+                    target,
+                    direction,
+                    squareclass,
+                )
+            )
+            self.assertIsNotNone(squareclass_ideal_witness, target)
+            self.assertEqual(squareclass_ideal_witness.direction, direction)
+            self.assertEqual(squareclass_ideal_witness.squareclass, squareclass)
+            self.assertEqual(squareclass_ideal_witness.split_factor, split_factor)
+            self.assertEqual(
+                squareclass_ideal_witness.signed_paired_split_factor,
+                paired,
+            )
+            self.assertEqual(squareclass_ideal_witness.beta, split_quotient)
+            self.assertEqual(squareclass_ideal_witness.first_coefficient, coefficient)
+            self.assertEqual(
+                squareclass_ideal_witness.gaussian_quadratic_left,
+                squareclass_ideal_witness.gaussian_quadratic_right,
+            )
+            self.assertTrue(squareclass_ideal_witness.valid())
+            self.assertEqual(
+                parallel_direction_conjugate_ideal_witness(target, direction),
+                squareclass_ideal_witness,
+            )
+            self.assertEqual(
                 parallel_direction_squareclass_beta_line_certificate(
                     direction,
                     squareclass,
@@ -1282,7 +1462,25 @@ class CertificateTests(unittest.TestCase):
                 coefficient,
             )
             self.assertEqual(
+                parallel_direction_squareclass_beta_quadratic_coefficient(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                coefficient,
+            )
+            self.assertEqual(
                 parallel_direction_squareclass_beta_target_certificate(
+                    target,
+                    direction,
+                    squareclass,
+                    split_quotient,
+                ),
+                certificate,
+            )
+            self.assertEqual(
+                parallel_direction_squareclass_beta_quadratic_certificate(
                     target,
                     direction,
                     squareclass,
@@ -1418,6 +1616,13 @@ class CertificateTests(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             parallel_direction_squareclass_beta_determinant_target_certificate(
+                (151, 338),
+                (-9, 40),
+                4,
+                (1, 1),
+            )
+        with self.assertRaises(ValueError):
+            parallel_direction_squareclass_beta_quadratic_certificate(
                 (151, 338),
                 (-9, 40),
                 4,
@@ -2293,6 +2498,7 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS, 23)
         self.assertEqual(PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR, 179)
         self.assertEqual(PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER, 8)
+        self.assertEqual(PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE, 8)
 
         structural_misses: list[Point] = []
         split_examples = {
@@ -2301,6 +2507,7 @@ class CertificateTests(unittest.TestCase):
             (398, 751): ((-35, 12), 1, 89, 349, (-1330, 456)),
             (850, 887): ((21, -20), 23, 1, 1549, (689010, -656200)),
         }
+        sample_root_shapes = ((1, 4), (1, 6), (2, 3), (2, 5), (2, 7), (3, 8), (4, 5))
         counts = {"total": 0, "structural": 0, "split": 0}
         for g in range(1, 1001):
             for h in range(1, 1001):
@@ -2339,6 +2546,19 @@ class CertificateTests(unittest.TestCase):
                     )
                     self.assertIsNotNone(exact_direction_split, target)
                     self.assertTrue(exact_direction_split.valid())
+                    exact_root_split = parallel_direction_conjugate_ideal_root_cover_certificate(
+                        target,
+                        8,
+                    )
+                    self.assertEqual(exact_root_split, exact_direction_split)
+                    exact_shape_split = (
+                        parallel_direction_conjugate_ideal_root_shape_cover_certificate(
+                            target,
+                            sample_root_shapes,
+                        )
+                    )
+                    self.assertIsNotNone(exact_shape_split, target)
+                    self.assertTrue(exact_shape_split.valid())
                     counts["split"] += 1
                     if target in split_examples:
                         direction, squareclass, split_factor, paired_split_factor, midpoint = (
@@ -2401,6 +2621,93 @@ class CertificateTests(unittest.TestCase):
                 "split": 34,
             },
         )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_root_cover_census(500, 8),
+            ParallelDirectionConjugateIdealRootCoverCensus(
+                max_coordinate=500,
+                max_root_coordinate=8,
+                target_count=152049,
+                structural_miss_count=10,
+                uncovered_targets=(),
+                root_counts=(
+                    ((-4, -5), 1),
+                    ((-4, 5), 1),
+                    ((-3, -8), 1),
+                    ((-3, 8), 1),
+                    ((-2, -5), 1),
+                    ((-2, -3), 1),
+                    ((-2, 3), 1),
+                    ((-2, 5), 1),
+                    ((-1, -4), 1),
+                    ((-1, 4), 1),
+                ),
+                root_shape_counts=(
+                    ((1, 4), 2),
+                    ((2, 3), 2),
+                    ((2, 5), 2),
+                    ((3, 8), 2),
+                    ((4, 5), 2),
+                ),
+                squareclass_counts=((1, 4), (2, 4), (10, 2)),
+                direction_counts=(
+                    ((-55, 48), 1),
+                    ((-48, 55), 1),
+                    ((-40, 9), 1),
+                    ((-21, 20), 1),
+                    ((-20, 21), 1),
+                    ((-15, -8), 1),
+                    ((-12, -5), 1),
+                    ((-9, 40), 1),
+                    ((-8, -15), 1),
+                    ((-5, -12), 1),
+                ),
+            ),
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_root_shape_cover_census(
+                1000,
+                sample_root_shapes,
+            ),
+            ParallelDirectionConjugateIdealRootShapeCoverCensus(
+                max_coordinate=1000,
+                root_shapes=((2, 3), (1, 4), (2, 5), (1, 6), (4, 5), (2, 7), (3, 8)),
+                target_count=608023,
+                structural_miss_count=34,
+                uncovered_targets=(),
+                root_shape_counts=(
+                    ((2, 3), 8),
+                    ((1, 4), 6),
+                    ((1, 6), 6),
+                    ((2, 5), 4),
+                    ((2, 7), 4),
+                    ((3, 8), 4),
+                    ((4, 5), 2),
+                ),
+                squareclass_counts=((1, 18), (2, 6), (10, 4), (7, 2), (13, 2), (23, 2)),
+                direction_counts=(
+                    ((-15, -8), 3),
+                    ((-8, -15), 3),
+                    ((-45, 28), 2),
+                    ((-35, 12), 2),
+                    ((-28, 45), 2),
+                    ((-21, 20), 2),
+                    ((-20, 21), 2),
+                    ((-12, -5), 2),
+                    ((-12, 5), 2),
+                    ((-12, 35), 2),
+                    ((-5, -12), 2),
+                    ((-5, 12), 2),
+                    ((-55, -48), 1),
+                    ((-55, 48), 1),
+                    ((-48, -55), 1),
+                    ((-48, 55), 1),
+                    ((-40, 9), 1),
+                    ((-35, -12), 1),
+                    ((-12, -35), 1),
+                    ((-9, 40), 1),
+                ),
+            ),
+        )
 
     def test_squareclass_split_extended_frontier_examples(self):
         examples = {
@@ -2443,6 +2750,37 @@ class CertificateTests(unittest.TestCase):
             exact_layered = pythagorean_layered_conjugate_ideal_certificate(target)
             self.assertIsNotNone(exact_layered, target)
             self.assertTrue(exact_layered.valid())
+
+        exact_direction_examples = {
+            (1, 1298): ((-40, -9), 1, 2257, -23, (-223, -273), -1522),
+            (55, 1906): ((-5, 12), 10, 1019, -1, (-157, -235), -30587),
+            (182, 1489): ((-12, 5), 82, 229, -1, (-35, 53), -12691),
+            (230, 1367): ((-5, 12), 5, 1, -1919, (-443, 295), 54566),
+        }
+        for target, expected in exact_direction_examples.items():
+            witness = parallel_direction_conjugate_ideal_cover_witness(target, 8)
+            root_witness = parallel_direction_conjugate_ideal_root_cover_witness(target, 8)
+            shape_witness = parallel_direction_conjugate_ideal_root_shape_cover_witness(
+                target,
+                ((2, 3), (4, 5)),
+            )
+            self.assertIsNotNone(witness, target)
+            self.assertEqual(root_witness, witness)
+            self.assertIsNotNone(shape_witness, target)
+            self.assertTrue(shape_witness.valid())
+            direction, squareclass, split_factor, paired, beta, coefficient = expected
+            self.assertEqual(witness.direction, direction)
+            self.assertEqual(witness.squareclass, squareclass)
+            self.assertEqual(witness.split_factor, split_factor)
+            self.assertEqual(witness.signed_paired_split_factor, paired)
+            self.assertEqual(witness.beta, beta)
+            self.assertEqual(witness.first_coefficient, coefficient)
+            self.assertEqual(
+                witness.gaussian_quadratic_left,
+                witness.gaussian_quadratic_right,
+            )
+            self.assertTrue(witness.valid())
+            self.assertTrue(witness.certificate.valid())
 
     def test_prime_determinant_lattice_line_criterion(self):
         self.assertTrue(is_prime(17))

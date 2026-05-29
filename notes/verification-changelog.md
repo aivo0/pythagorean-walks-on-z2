@@ -2518,8 +2518,10 @@ target-facing certificate.
 The fixed-squareclass inverse has been wrapped over the only possible
 squareclasses for a target: squarefree divisors of the determinant leg. The
 helper `squarefree_divisors` supplies those values, and
-`parallel_direction_conjugate_ideal_split_roots` lists all legal
-`(q,a,b,beta)` rows for one fixed target and direction. The certificate wrapper
+`parallel_direction_conjugate_ideal_determinant_roots` lists all legal
+`(q,a,b,beta)` rows for one fixed direction and determinant level. The target
+wrapper `parallel_direction_conjugate_ideal_split_roots` depends on a target
+only through `det(U,T)`. The certificate wrapper
 `parallel_direction_conjugate_ideal_certificate` is consequently an exact
 fixed-direction split recognizer, not a bounded `q,a` search.
 
@@ -2531,6 +2533,58 @@ structural stack, and `pythagorean_layered_parallel_certificate` now tries it
 before the older all-factor fixed-direction fallback. The sample-to-1000
 guardrail still passes, and the six extended split frontier examples are
 covered without enlarging any `q,a` box.
+
+The finite-direction layer now has a Gaussian-root interface. The helper
+`primitive_pythagorean_root_directions` enumerates `(U,alpha,unit)` rows with
+`U = unit*alpha^2`; tested bounds match the previous Euclid-parameter direction
+sets. `parallel_direction_conjugate_ideal_root_cover_witness` and
+`parallel_direction_conjugate_ideal_root_cover_certificate` use this root table,
+and `pythagorean_layered_conjugate_ideal_certificate` now calls the root-bounded
+cover with root-coordinate bound 8.
+
+The same layer now returns explicit algebraic witnesses. A
+`ParallelDirectionConjugateIdealWitness` stores `T,U,q,a,b,beta,r` and validates
+the determinant identity `det(U,T)=q*a*b`, the ideal identity
+`a+i*b=conj(alpha)*beta`, the endpoint certificate, and the Gaussian quadratic
+identity `2*unit^-1*T = 2*r*alpha^2 + q*beta^2`. The new witness helpers are
+`parallel_direction_squareclass_conjugate_ideal_witness`,
+`parallel_direction_conjugate_ideal_witness`, and
+`parallel_direction_conjugate_ideal_cover_witness`.
+
+The Gaussian quadratic identity is now executable independently. The helper
+`parallel_direction_squareclass_beta_quadratic_coefficient` recovers `r` from
+`2*unit^-1*T - q*beta^2 = 2*r*alpha^2`, and
+`parallel_direction_squareclass_beta_quadratic_certificate` builds the
+corresponding target-facing certificate. The conjugate-ideal witness path now
+uses this coefficient. A scratch census through `1 <= g,h <= 2000` found 150
+structural misses, all covered by the exact root-bound-8 conjugate-ideal
+layer; static examples from that diagnostic are now in
+`test_squareclass_split_extended_frontier_examples`.
+
+The root-bound layer now has a reusable census helper.
+`ParallelDirectionConjugateIdealRootCoverCensus` and
+`parallel_direction_conjugate_ideal_root_cover_census` summarize structural
+misses, uncovered targets, root counts, canonical root-shape counts,
+squareclass counts, and direction counts for primitive-positive samples. The
+sample through `1 <= g,h <= 500` has 10 structural misses, all covered by
+root-bound 8; the pinned test records five two-hit root shapes and squareclass
+counts `(1:4, 2:4, 10:2)`.
+
+The canonical shape view is now executable as a cover. The helper
+`primitive_pythagorean_root_shape_directions` expands a finite set of root
+shapes into signed `(U,alpha,unit)` rows, and
+`parallel_direction_conjugate_ideal_root_shape_cover_witness`/
+`parallel_direction_conjugate_ideal_root_shape_cover_certificate` run the exact
+conjugate-ideal recognizer over those rows. The sample-to-1000 guardrail now
+checks that the 34 structural misses are covered by the seven explicit shapes
+`(1,4), (1,6), (2,3), (2,5), (2,7), (3,8), (4,5)`.
+
+The shape-family cover also has a census helper.
+`ParallelDirectionConjugateIdealRootShapeCoverCensus` and
+`parallel_direction_conjugate_ideal_root_shape_cover_census` summarize the
+same primitive-positive sample using only the supplied shapes. The pinned
+sample-to-1000 row records no uncovered structural misses and root-shape counts
+`(2,3):8`, `(1,4):6`, `(1,6):6`, `(2,5):4`, `(2,7):4`, `(3,8):4`, `(4,5):2`.
 
 The beta integrality and nondegeneracy filters are now standalone helpers.
 `squareclass_beta_integral` records that even `q` accepts every nonzero beta,
