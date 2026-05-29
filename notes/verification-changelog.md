@@ -3,6 +3,256 @@
 This file records proof-search claims that affected the executable workspace.
 The goal is to keep false starts cheap to detect and hard to reintroduce.
 
+## 2026-05-29
+
+### Promoted: Sign/Swap Certificate Transport To Lean And Rust
+
+The sign-change and coordinate-swap symmetry is now represented in the Lean
+proof kernel by `signedSwapPoint`. Lean proves that these maps preserve squared
+norm, non-axis legal steps, and whole two-step certificates via
+`certificateValid_signedSwapPoint`.
+
+The same transport now has a PyO3 guardrail:
+`sign_swap_certificate_midpoint` mirrors the Python fallback and is checked
+against representative valid, missing, and invalid-base cases. This moves the
+symmetry reduction from an executable Python helper toward a theorem-level
+certificate transport rule while keeping Rust/Python parity explicit.
+
+Executable guardrail:
+
+- `signedSwapPoint`
+- `certificateValid_signedSwapPoint`
+- `signed_swap_point`
+- `sign_swap_certificate_midpoint`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Certificate Scaling Transport To Lean And Rust
+
+Whole-certificate integer scaling is now represented in the Lean proof kernel.
+`sub_smul` proves that scaling commutes with the second-step displacement, and
+`certificateValid_smul` proves that any valid two-step certificate remains
+valid after multiplication by a nonzero integer factor.
+
+The Python `scale_certificate` helper now has a PyO3 fast path,
+`scale_certificate_data`, for signed `i64` input data while preserving the
+arbitrary-precision fallback outside that range. Fast parity covers negative
+and positive factors, the zero-factor validation edge case, and a
+representative large case whose scaled coordinates exceed signed `i64`.
+
+Executable guardrail:
+
+- `sub_smul`
+- `certificateValid_smul`
+- `scale_certificate_data`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Cramer Lattice Criterion
+
+The two-edge lattice criterion now has a Lean Cramer bridge. The theorem
+`cramerTarget_eq_add_smul` proves that the determinant numerator equations
+recover the decomposition `target = rU + sV` whenever `det(U,V) != 0`.
+`latticeCertificateValid_of_cramer` then turns nonzero Cramer coefficients and
+legal directions into a theorem-level two-step certificate.
+
+The Rust extension now exposes `lattice_coefficients` as the accelerated
+determinant-coefficient kernel used by lattice-pair probes, and the fast test
+suite compares it with the Python reference on zero-determinant,
+non-divisible, ordinary, and representative large exact-decomposition cases.
+
+Executable guardrail:
+
+- `cramerTarget_eq_add_smul`
+- `latticeCertificateValid_of_cramer`
+- `lattice_coefficients`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Fixed-Direction Factor Square-Length Algebra
+
+The fixed parallel-direction factor row now has a theorem-level algebra core.
+Lean proves the determinant/dot identity
+`normSq_mul_normSq_sub_smul`, then `normSq_sub_smul_of_parallelFactor`
+formalizes the exact step used by the factor witness: once a factor completion
+forces
+$$
+B^2+\det(U,T)^2=c^2s^2,\qquad B=rc^2-T\cdot U,\qquad |U|^2=c^2,
+$$
+the second displacement `T - rU` has square norm `s^2`.
+`parallelFactorCertificateValid_of_nondegenerate` deliberately keeps the
+pointwise non-axis condition as a separate hypothesis, matching the executable
+distinction between integrality residue rows and actual graph certificates.
+The factor-pair completion step is now named too:
+`sq_add_sq_of_factorPair` proves
+$$
+\left({q-p\over2}\right)^2+pq=\left({p+q\over2}\right)^2
+$$
+in the integer form used by the witness, and
+`parallelFactorCertificateValid_of_factorPair` combines that identity with the
+dot/coefficient relation to produce a valid nondegenerate certificate.
+
+The Rust extension now exposes the fixed-factor congruence predicate directly
+as `parallel_direction_factor_congruence_holds` and the witness row data as
+`parallel_direction_factor_witness_data`; Python dispatches
+`parallel_direction_factor_witness` to the fast path for signed `i64` inputs.
+The fast test suite checks these against the Python fallback on valid, invalid,
+determinant-zero, and large shifted target cases.
+
+Executable guardrail:
+
+- `normSq_sub_smul_of_parallelFactor`
+- `sq_add_sq_of_factorPair`
+- `parallelFactorCertificateValid_of_factorPair`
+- `parallelFactorCertificateValid_of_nondegenerate`
+- `parallel_direction_factor_congruence_holds`
+- `parallel_direction_factor_witness_data`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Generic CRT Compatibility
+
+The determinant-strip intersection layer now has a generic Lean CRT lemma.
+`crtModEq_compat` proves the necessary condition: any common solution to
+congruences modulo `m` and `n` forces the two target residues to agree modulo
+`gcd(m,n)`. `exists_int_crt_of_gcd_modEq` proves the converse by an explicit
+Bezout construction using `Int.gcdA` and `Int.gcdB`.
+
+This is the theorem-level version of the compatibility check used by
+`parallel_direction_factor_integrality_strip_intersection_residue_count`, where
+factor-integrality residue classes modulo `M` are intersected with determinant
+strips modulo `S` by checking agreement modulo `gcd(M,S)`.
+
+The fast test suite now compares the Rust strip-intersection count with the
+Python fallback on representative compatible and incompatible row data, plus
+the relevant validation edge cases.
+
+Executable guardrail:
+
+- `crtModEq_compat`
+- `exists_int_crt_of_gcd_modEq`
+- `parallel_direction_factor_integrality_strip_intersection_residue_count`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Gaussian Root Residue Square-Root Claim
+
+The conjugate-root residue used by the Gaussian-root spine layer now has a
+Lean theorem. `gaussianRootResidue_sq_neg_one` proves that if `a` has inverse
+`inv` modulo `c = a^2+b^2` and the residue `rho` satisfies
+`a*rho + b == 0 mod c`, then `rho^2 + 1 == 0 mod c`. This is the generic
+claim behind `gaussian_root_conjugate_divisibility_residue`.
+
+The Rust extension now accelerates `gaussian_root_conjugate_divisibility_residue`
+for roots fitting in `i64`, with Python preserving its arbitrary-precision
+fallback outside that range. The fast parity test covers signed roots, primary
+spine roots, representative large roots whose norms exceed `i64`, and the
+validation edge cases.
+
+Executable guardrail:
+
+- `gaussianRootResidue_sq_neg_one`
+- `gaussian_root_conjugate_divisibility_residue`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Square-Norm Gaussian Certificate Transport
+
+The square-norm Gaussian transform now has a Lean algebra core. `gaussianMul`
+models Gaussian multiplication on lattice points, `normSq_gaussianMul` proves
+that squared norm is multiplicative, and `certificateValid_gaussianMul` proves
+that a valid two-step certificate transports through Gaussian multiplication
+whenever the multiplier has square norm and the two transformed edge vectors
+remain non-axis. This matches the executable `gaussian_transform_certificate`
+split between algebraic square-length preservation and pointwise degeneracy.
+`certificateValid_gaussianTransformData` now packages the same theorem around
+the exact transformed target/midpoint pair returned by the fast constructor.
+
+The Rust extension now exposes `gaussian_multiply` and
+`gaussian_transform_certificate_data` for roots and transform families, with
+Python preserving arbitrary-precision fallback outside `i64` inputs. The fast
+parity test includes representative products and transformed certificates
+whose output exceeds the signed 64-bit range, plus degenerate-transform and
+validation edge cases.
+
+Executable guardrail:
+
+- `normSq_gaussianMul`
+- `certificateValid_gaussianMul`
+- `certificateValid_gaussianTransformData`
+- `gaussian_multiply`
+- `gaussian_transform_certificate_data`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Gaussian Quotient Reconstruction
+
+The target-facing Gaussian divisor criterion now has a Lean reconstruction
+lemma. `gaussianMul_eq_of_quotient_components` proves that the executable
+quotient numerators are sufficient: if
+`T dot B = q_x |B|^2` and `det(B,T) = q_y |B|^2`, with `|B|^2 != 0`, then
+`B * q = T` in Gaussian multiplication form. The converse is now also in Lean:
+`quotient_components_of_gaussianMul_eq` derives those dot/determinant
+components from an actual Gaussian product, and
+`gaussianMul_eq_iff_quotient_components` packages the nonzero-divisor case as
+an iff.
+
+The Rust extension now exposes both `gaussian_quotient_components` and
+`gaussian_quotient_if_integer` for `i64` inputs, with Python retaining
+arbitrary-precision fallback outside that range. Fast parity covers component
+numerators, exact quotients, non-divisible input, zero-divisor validation, and a
+representative large unit-divisor target near the signed 64-bit boundary.
+
+Executable guardrail:
+
+- `gaussianMul_eq_of_quotient_components`
+- `quotient_components_of_gaussianMul_eq`
+- `gaussianMul_eq_iff_quotient_components`
+- `gaussian_quotient_components`
+- `gaussian_quotient_if_integer`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Target-Facing Gaussian Divisor Certificate
+
+The quotient reconstruction and square-norm transport lemmas are now combined
+in Lean as `certificateValid_gaussianDivisor_of_quotient_components`: if a
+target has the Gaussian quotient components of a certified base target, the
+quotient has square norm, and the transformed edge vectors are non-axis, then
+the transformed midpoint is a valid two-step certificate for the requested
+target.
+
+The Rust extension now exposes `gaussian_divisor_certificate_midpoint`, a
+target-facing fast constructor matching `gaussian_divisor_certificate`. Python
+dispatches to it for `i64` input data while retaining the existing exact
+fallback. Fast parity covers successful, degenerate, non-square quotient,
+non-divisible, and invalid-base cases.
+
+Executable guardrail:
+
+- `certificateValid_gaussianDivisor_of_quotient_components`
+- `gaussian_divisor_certificate_midpoint`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Diagonal Gaussian Multiplier Row
+
+The diagonal base certificate for `(1,1)` is now explicit in Lean as
+`diagonalBaseCertificateValid`. The theorem
+`certificateValid_diagonalGaussianRow` specializes square-norm Gaussian
+transport to the row
+$$
+T=(a-b,a+b),\qquad M=(4a+3b,4b-3a),
+$$
+with the four transformed edge-axis exclusions kept as named hypotheses.
+This converts the executable `diagonal_pythagorean_multiplier_certificate`
+family from an opaque transform call into a reusable theorem-level row.
+
+The Rust extension now exposes
+`diagonal_pythagorean_multiplier_midpoint`, and Python dispatches to it for
+targets in the signed `i64` range while retaining the exact fallback outside
+that range. Fast parity covers ordinary square-norm multipliers, a large
+representative target, parity misses, non-square multiplier norm, and the
+axis-degenerate `(3,4)` multiplier case.
+
+Executable guardrail:
+
+- `diagonalBaseCertificateValid`
+- `certificateValid_diagonalGaussianRow`
+- `diagonal_pythagorean_multiplier_midpoint`
+- `test_fast_arithmetic_matches_python_reference`
+
 ## 2026-05-28
 
 ### Added: Full-Conjecture Symmetry Orbit

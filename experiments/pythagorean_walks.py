@@ -45,6 +45,8 @@ def signed_swap_point(point: Point, x_sign: int, y_sign: int, swap: bool = False
 
     if x_sign not in (-1, 1) or y_sign not in (-1, 1):
         raise ValueError("x_sign and y_sign must be -1 or 1")
+    if _fast is not None:
+        return tuple(_fast.signed_swap_point(point, x_sign, y_sign, swap))
 
     x, y = point
     if swap:
@@ -893,6 +895,17 @@ def linear_delta_direction_certificate(
 def scale_certificate(certificate: Certificate, factor: int) -> Certificate:
     """Scale a two-step certificate by a nonzero integer factor."""
 
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*certificate.target, *certificate.midpoint, factor)
+    ):
+        target, midpoint = _fast.scale_certificate_data(
+            certificate.target,
+            certificate.midpoint,
+            factor,
+        )
+        return Certificate(target=tuple(target), midpoint=tuple(midpoint))
+
     if factor == 0:
         raise ValueError("certificate scaling factor must be nonzero")
 
@@ -906,6 +919,16 @@ def scale_certificate(certificate: Certificate, factor: int) -> Certificate:
 
 def sign_swap_certificate(certificate: Certificate, target: Point) -> Certificate | None:
     """Transport a certificate to a requested sign/swap image of its target."""
+
+    if _fast is not None:
+        midpoint = _fast.sign_swap_certificate_midpoint(
+            certificate.target,
+            certificate.midpoint,
+            target,
+        )
+        if midpoint is None:
+            return None
+        return Certificate(target=target, midpoint=tuple(midpoint))
 
     for swap in (False, True):
         for x_sign in (-1, 1):
@@ -954,6 +977,12 @@ def _residual_certificate_lookup(records: dict[Point, Point]) -> dict[Point, Cer
 def gaussian_multiply(point: Point, multiplier: Point) -> Point:
     """Multiply lattice points as Gaussian integers."""
 
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*point, *multiplier)
+    ):
+        return tuple(_fast.gaussian_multiply(point, multiplier))
+
     x, y = point
     a, b = multiplier
     return (a * x - b * y, a * y + b * x)
@@ -976,6 +1005,9 @@ def gaussian_root_conjugate_divisibility_residue(root: Point) -> tuple[int, int]
     For ``c = N(alpha)``, ``a+i*b`` is divisible by ``conj(alpha)`` exactly
     when ``b == rho*a mod c``.
     """
+
+    if _fast is not None and all(-(1 << 63) <= coordinate < (1 << 63) for coordinate in root):
+        return tuple(_fast.gaussian_root_conjugate_divisibility_residue(root))
 
     root_real, root_imaginary = root
     if root_real == 0 or root_imaginary == 0:
@@ -1192,6 +1224,20 @@ def gaussian_transform_certificate(
     constructor returns None.
     """
 
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*certificate.target, *certificate.midpoint, *multiplier)
+    ):
+        transformed = _fast.gaussian_transform_certificate_data(
+            certificate.target,
+            certificate.midpoint,
+            multiplier,
+        )
+        if transformed is None:
+            return None
+        target, midpoint = transformed
+        return Certificate(target=tuple(target), midpoint=tuple(midpoint))
+
     if not certificate.valid():
         raise ValueError("certificate must be valid before transformation")
 
@@ -1212,14 +1258,10 @@ def gaussian_transform_certificate(
 def gaussian_quotient_if_integer(target: Point, divisor: Point) -> Point | None:
     """Return target / divisor in Gaussian integers, if the quotient is integral."""
 
-    divisor_norm = divisor[0] * divisor[0] + divisor[1] * divisor[1]
-    if divisor_norm == 0:
-        raise ValueError("Gaussian divisor must be nonzero")
-
-    target_x, target_y = target
-    divisor_x, divisor_y = divisor
-    real_numerator = target_x * divisor_x + target_y * divisor_y
-    imaginary_numerator = target_y * divisor_x - target_x * divisor_y
+    real_numerator, imaginary_numerator, divisor_norm = gaussian_quotient_components(
+        target,
+        divisor,
+    )
     if real_numerator % divisor_norm != 0 or imaginary_numerator % divisor_norm != 0:
         return None
 
@@ -1229,11 +1271,44 @@ def gaussian_quotient_if_integer(target: Point, divisor: Point) -> Point | None:
     )
 
 
+def gaussian_quotient_components(target: Point, divisor: Point) -> tuple[int, int, int]:
+    """Return the real/imaginary quotient numerators and divisor norm."""
+
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*target, *divisor)
+    ):
+        return tuple(_fast.gaussian_quotient_components(target, divisor))
+
+    divisor_norm = divisor[0] * divisor[0] + divisor[1] * divisor[1]
+    if divisor_norm == 0:
+        raise ValueError("Gaussian divisor must be nonzero")
+
+    target_x, target_y = target
+    divisor_x, divisor_y = divisor
+    real_numerator = target_x * divisor_x + target_y * divisor_y
+    imaginary_numerator = target_y * divisor_x - target_x * divisor_y
+    return (real_numerator, imaginary_numerator, divisor_norm)
+
+
 def gaussian_divisor_certificate(
     target: Point,
     base_certificate: Certificate,
 ) -> Certificate | None:
     """Use a certified base target when target is a square-norm Gaussian multiple."""
+
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*target, *base_certificate.target, *base_certificate.midpoint)
+    ):
+        midpoint = _fast.gaussian_divisor_certificate_midpoint(
+            target,
+            base_certificate.target,
+            base_certificate.midpoint,
+        )
+        if midpoint is None:
+            return None
+        return Certificate(target=target, midpoint=tuple(midpoint))
 
     if not base_certificate.valid():
         raise ValueError("base certificate must be valid")
@@ -1264,6 +1339,15 @@ def first_gaussian_divisor_certificate(
 
 def diagonal_pythagorean_multiplier_certificate(target: Point) -> Certificate | None:
     """Certificate for targets obtained from (1, 1) by square-norm multiplication."""
+
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in target
+    ):
+        midpoint = _fast.diagonal_pythagorean_multiplier_midpoint(target)
+        if midpoint is None:
+            return None
+        return Certificate(target=target, midpoint=tuple(midpoint))
 
     g, h = target
     if (g + h) % 2 != 0 or (h - g) % 2 != 0:
@@ -1865,6 +1949,35 @@ def parallel_direction_factor_witness(
     factor: int,
 ) -> ParallelDirectionFactorWitness | None:
     """Return the Pythagorean-completion witness for one direction/factor."""
+
+    if _fast is not None and all(
+        -(1 << 63) <= coordinate < (1 << 63)
+        for coordinate in (*target, *direction, factor)
+    ):
+        data = _fast.parallel_direction_factor_witness_data(
+            target,
+            direction,
+            factor,
+        )
+        if data is None:
+            return None
+        (
+            determinant_leg,
+            other_leg,
+            scaled_hypotenuse,
+            second_length,
+            first_coefficient,
+        ) = data
+        return ParallelDirectionFactorWitness(
+            target=target,
+            direction=direction,
+            factor=factor,
+            determinant_leg=determinant_leg,
+            other_leg=other_leg,
+            scaled_hypotenuse=scaled_hypotenuse,
+            second_length=second_length,
+            first_coefficient=first_coefficient,
+        )
 
     if not edge_delta(*direction):
         raise ValueError("direction must be a legal Pythagorean edge vector")
@@ -3250,6 +3363,12 @@ def parallel_direction_factor_congruence_holds(
 ) -> bool:
     """Return the closed determinant/dot congruence for one factor row."""
 
+    if _fast is not None:
+        return _fast.parallel_direction_factor_congruence_holds(
+            target,
+            direction,
+            factor,
+        )
     if not edge_delta(*direction):
         raise ValueError("direction must be a legal Pythagorean edge vector")
     if factor <= 0:

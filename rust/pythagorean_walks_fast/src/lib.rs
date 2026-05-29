@@ -1,4 +1,4 @@
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyAssertionError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::{Mutex, OnceLock};
@@ -35,6 +35,18 @@ fn is_square_i128(n: i128) -> bool {
         }
     }
     false
+}
+
+fn edge_delta_i128(dx: i128, dy: i128) -> bool {
+    if dx == 0 || dy == 0 {
+        return false;
+    }
+    is_square_i128(dx * dx + dy * dy)
+}
+
+fn certificate_valid_i128(target: (i128, i128), midpoint: (i128, i128)) -> bool {
+    edge_delta_i128(midpoint.0, midpoint.1)
+        && edge_delta_i128(target.0 - midpoint.0, target.1 - midpoint.1)
 }
 
 fn factorize(n: u64) -> Vec<(u64, u32)> {
@@ -145,6 +157,68 @@ fn gcd_i64(a: i64, b: i64) -> i64 {
     gcd_i128(a as i128, b as i128) as i64
 }
 
+fn extended_gcd_i128(first: i128, second: i128) -> (i128, i128, i128) {
+    let mut old_r = first;
+    let mut r = second;
+    let mut old_s = 1_i128;
+    let mut s = 0_i128;
+    let mut old_t = 0_i128;
+    let mut t = 1_i128;
+    while r != 0 {
+        let quotient = old_r.div_euclid(r);
+        let next_r = old_r - quotient * r;
+        old_r = r;
+        r = next_r;
+
+        let next_s = old_s - quotient * s;
+        old_s = s;
+        s = next_s;
+
+        let next_t = old_t - quotient * t;
+        old_t = t;
+        t = next_t;
+    }
+    if old_r < 0 {
+        (-old_r, -old_s, -old_t)
+    } else {
+        (old_r, old_s, old_t)
+    }
+}
+
+fn modular_inverse_i128(value: i128, modulus: i128) -> Option<i128> {
+    let (gcd, coefficient, _other) = extended_gcd_i128(value.rem_euclid(modulus), modulus);
+    if gcd == 1 {
+        Some(coefficient.rem_euclid(modulus))
+    } else {
+        None
+    }
+}
+
+fn add_mod_u128(first: u128, second: u128, modulus: u128) -> u128 {
+    if first >= modulus - second {
+        first - (modulus - second)
+    } else {
+        first + second
+    }
+}
+
+fn mul_mod_i128(first: i128, second: i128, modulus: i128) -> i128 {
+    let modulus_u = modulus as u128;
+    let mut result = 0_u128;
+    let mut base = first.rem_euclid(modulus) as u128;
+    let mut multiplier = second.rem_euclid(modulus) as u128;
+    while multiplier > 0 {
+        if multiplier & 1 == 1 {
+            result = add_mod_u128(result, base, modulus_u);
+        }
+        multiplier >>= 1;
+        if multiplier > 0 {
+            base = add_mod_u128(base, base, modulus_u);
+        }
+    }
+    result as i128
+}
+
 fn factor_congruence_holds(target: (i64, i64), direction: (i64, i64), factor: i64) -> bool {
     let u = direction.0 as i128;
     let v = direction.1 as i128;
@@ -213,11 +287,11 @@ fn generate_lattice_pairs(max_parameter: i64, max_determinant: Option<i64>) -> V
     pairs
 }
 
-fn lattice_coefficients(
+fn lattice_coefficients_i128(
     target: (i64, i64),
     first_direction: (i64, i64),
     second_direction: (i64, i64),
-) -> Option<(i64, i64)> {
+) -> Option<(i128, i128)> {
     let determinant_value = determinant(first_direction, second_direction);
     if determinant_value == 0 {
         return None;
@@ -230,8 +304,29 @@ fn lattice_coefficients(
         return None;
     }
     Some((
-        (first_numerator / determinant_value) as i64,
-        (second_numerator / determinant_value) as i64,
+        first_numerator / determinant_value,
+        second_numerator / determinant_value,
+    ))
+}
+
+fn i128_to_i64(value: i128) -> Option<i64> {
+    if value < i64::MIN as i128 || value > i64::MAX as i128 {
+        None
+    } else {
+        Some(value as i64)
+    }
+}
+
+fn lattice_coefficients_inner(
+    target: (i64, i64),
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> Option<(i64, i64)> {
+    let (first_coefficient, second_coefficient) =
+        lattice_coefficients_i128(target, first_direction, second_direction)?;
+    Some((
+        i128_to_i64(first_coefficient)?,
+        i128_to_i64(second_coefficient)?,
     ))
 }
 
@@ -241,7 +336,7 @@ fn lattice_pair_witness_from_pairs(
 ) -> Option<((i64, i64), (i64, i64), i64, i64, i64)> {
     for pair in pairs {
         let Some((first_coefficient, second_coefficient)) =
-            lattice_coefficients(target, pair.first, pair.second)
+            lattice_coefficients_inner(target, pair.first, pair.second)
         else {
             continue;
         };
@@ -268,6 +363,29 @@ fn parallel_direction_factor_midpoint(
     direction: (i64, i64),
     factor: i64,
 ) -> Option<(i64, i64)> {
+    let (_det_value, _other_leg, _scaled_hypotenuse, _second_length, first_coefficient) =
+        parallel_direction_factor_witness_data_i128(target, direction, factor)?;
+    if first_coefficient == 0 {
+        return None;
+    }
+    let u = direction.0 as i128;
+    let v = direction.1 as i128;
+    let midpoint = (
+        i128_to_i64(first_coefficient * u)?,
+        i128_to_i64(first_coefficient * v)?,
+    );
+    if certificate_valid(target, midpoint) {
+        Some(midpoint)
+    } else {
+        None
+    }
+}
+
+fn parallel_direction_factor_witness_data_i128(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> Option<(i128, i128, i128, i128, i128)> {
     let u = direction.0 as i128;
     let v = direction.1 as i128;
     let c = isqrt_i128(u * u + v * v);
@@ -294,18 +412,32 @@ fn parallel_direction_factor_midpoint(
         return None;
     }
     let first_coefficient = first_coefficient_numerator / direction_norm;
-    if first_coefficient == 0 {
-        return None;
+    Some((
+        det_value,
+        other_leg,
+        factor_sum / 2,
+        (factor_sum / 2) / c,
+        first_coefficient,
+    ))
+}
+
+#[pyfunction]
+fn parallel_direction_factor_witness_data(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Option<(i128, i128, i128, i128, i128)>> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
     }
-    let midpoint = (
-        (first_coefficient * u) as i64,
-        (first_coefficient * v) as i64,
-    );
-    if certificate_valid(target, midpoint) {
-        Some(midpoint)
-    } else {
-        None
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
     }
+    Ok(parallel_direction_factor_witness_data_i128(
+        target, direction, factor,
+    ))
 }
 
 fn parallel_direction_certificate_midpoint_inner(
@@ -326,21 +458,273 @@ fn parallel_direction_certificate_midpoint_inner(
     None
 }
 
+fn signed_swap_point_inner(point: (i64, i64), x_sign: i64, y_sign: i64, swap: bool) -> (i64, i64) {
+    let (x, y) = if swap { (point.1, point.0) } else { point };
+    (x_sign * x, y_sign * y)
+}
+
 #[pyfunction]
 fn edge_delta(dx: i64, dy: i64) -> bool {
-    if dx == 0 || dy == 0 {
-        return false;
-    }
-    let dx = dx as i128;
-    let dy = dy as i128;
-    is_square_i128(dx * dx + dy * dy)
+    edge_delta_i128(dx as i128, dy as i128)
 }
 
 #[pyfunction]
 fn certificate_valid(target: (i64, i64), midpoint: (i64, i64)) -> bool {
-    let (gx, gy) = target;
-    let (x, y) = midpoint;
-    edge_delta(x, y) && edge_delta(gx - x, gy - y)
+    certificate_valid_i128(
+        (target.0 as i128, target.1 as i128),
+        (midpoint.0 as i128, midpoint.1 as i128),
+    )
+}
+
+#[pyfunction]
+fn scale_certificate_data(
+    certificate_target: (i64, i64),
+    certificate_midpoint: (i64, i64),
+    factor: i64,
+) -> PyResult<((i128, i128), (i128, i128))> {
+    if factor == 0 {
+        return Err(PyValueError::new_err(
+            "certificate scaling factor must be nonzero",
+        ));
+    }
+
+    let factor = factor as i128;
+    Ok((
+        (
+            factor * certificate_target.0 as i128,
+            factor * certificate_target.1 as i128,
+        ),
+        (
+            factor * certificate_midpoint.0 as i128,
+            factor * certificate_midpoint.1 as i128,
+        ),
+    ))
+}
+
+fn gaussian_multiply_i128(point: (i128, i128), multiplier: (i128, i128)) -> (i128, i128) {
+    let (x, y) = point;
+    let (a, b) = multiplier;
+    (x * a - y * b, x * b + y * a)
+}
+
+#[pyfunction]
+fn gaussian_multiply(point: (i64, i64), multiplier: (i64, i64)) -> (i128, i128) {
+    gaussian_multiply_i128(
+        (point.0 as i128, point.1 as i128),
+        (multiplier.0 as i128, multiplier.1 as i128),
+    )
+}
+
+#[pyfunction]
+fn gaussian_transform_certificate_data(
+    certificate_target: (i64, i64),
+    certificate_midpoint: (i64, i64),
+    multiplier: (i64, i64),
+) -> PyResult<Option<((i128, i128), (i128, i128))>> {
+    if !certificate_valid(certificate_target, certificate_midpoint) {
+        return Err(PyValueError::new_err(
+            "certificate must be valid before transformation",
+        ));
+    }
+
+    let multiplier_i128 = (multiplier.0 as i128, multiplier.1 as i128);
+    let multiplier_norm =
+        multiplier_i128.0 * multiplier_i128.0 + multiplier_i128.1 * multiplier_i128.1;
+    if multiplier_norm == 0 || !is_square_i128(multiplier_norm) {
+        return Err(PyValueError::new_err(
+            "Gaussian multiplier must have nonzero square norm",
+        ));
+    }
+
+    let target = gaussian_multiply_i128(
+        (certificate_target.0 as i128, certificate_target.1 as i128),
+        multiplier_i128,
+    );
+    let midpoint = gaussian_multiply_i128(
+        (
+            certificate_midpoint.0 as i128,
+            certificate_midpoint.1 as i128,
+        ),
+        multiplier_i128,
+    );
+    if certificate_valid_i128(target, midpoint) {
+        Ok(Some((target, midpoint)))
+    } else {
+        Ok(None)
+    }
+}
+
+fn gaussian_quotient_components_i128(
+    target: (i128, i128),
+    divisor: (i128, i128),
+) -> PyResult<(i128, i128, i128)> {
+    let divisor_norm = divisor.0 * divisor.0 + divisor.1 * divisor.1;
+    if divisor_norm == 0 {
+        return Err(PyValueError::new_err("Gaussian divisor must be nonzero"));
+    }
+
+    Ok((
+        target.0 * divisor.0 + target.1 * divisor.1,
+        target.1 * divisor.0 - target.0 * divisor.1,
+        divisor_norm,
+    ))
+}
+
+#[pyfunction]
+fn gaussian_quotient_components(
+    target: (i64, i64),
+    divisor: (i64, i64),
+) -> PyResult<(i128, i128, i128)> {
+    gaussian_quotient_components_i128(
+        (target.0 as i128, target.1 as i128),
+        (divisor.0 as i128, divisor.1 as i128),
+    )
+}
+
+#[pyfunction]
+fn gaussian_quotient_if_integer(
+    target: (i64, i64),
+    divisor: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    let (real_numerator, imaginary_numerator, divisor_norm) = gaussian_quotient_components_i128(
+        (target.0 as i128, target.1 as i128),
+        (divisor.0 as i128, divisor.1 as i128),
+    )?;
+    if real_numerator % divisor_norm != 0 || imaginary_numerator % divisor_norm != 0 {
+        return Ok(None);
+    }
+    Ok(Some((
+        real_numerator / divisor_norm,
+        imaginary_numerator / divisor_norm,
+    )))
+}
+
+#[pyfunction]
+fn gaussian_divisor_certificate_midpoint(
+    target: (i64, i64),
+    base_target: (i64, i64),
+    base_midpoint: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    if !certificate_valid(base_target, base_midpoint) {
+        return Err(PyValueError::new_err("base certificate must be valid"));
+    }
+
+    let Some(multiplier) = gaussian_quotient_if_integer(target, base_target)? else {
+        return Ok(None);
+    };
+    let multiplier_norm = multiplier.0 * multiplier.0 + multiplier.1 * multiplier.1;
+    if multiplier_norm == 0 || !is_square_i128(multiplier_norm) {
+        return Ok(None);
+    }
+
+    let target_i128 = (target.0 as i128, target.1 as i128);
+    let midpoint = gaussian_multiply_i128(
+        (base_midpoint.0 as i128, base_midpoint.1 as i128),
+        multiplier,
+    );
+    if certificate_valid_i128(target_i128, midpoint) {
+        Ok(Some(midpoint))
+    } else {
+        Ok(None)
+    }
+}
+
+#[pyfunction]
+fn diagonal_pythagorean_multiplier_midpoint(target: (i64, i64)) -> Option<(i128, i128)> {
+    let target_i128 = (target.0 as i128, target.1 as i128);
+    let sum = target_i128.0 + target_i128.1;
+    let difference = target_i128.1 - target_i128.0;
+    if sum % 2 != 0 || difference % 2 != 0 {
+        return None;
+    }
+
+    let multiplier = (sum / 2, difference / 2);
+    let multiplier_norm = multiplier.0 * multiplier.0 + multiplier.1 * multiplier.1;
+    if multiplier_norm == 0 || !is_square_i128(multiplier_norm) {
+        return None;
+    }
+
+    let midpoint = gaussian_multiply_i128((4, -3), multiplier);
+    if certificate_valid_i128(target_i128, midpoint) {
+        Some(midpoint)
+    } else {
+        None
+    }
+}
+
+#[pyfunction(signature = (point, x_sign, y_sign, swap=false))]
+fn signed_swap_point(
+    point: (i64, i64),
+    x_sign: i64,
+    y_sign: i64,
+    swap: bool,
+) -> PyResult<(i64, i64)> {
+    if ![-1, 1].contains(&x_sign) || ![-1, 1].contains(&y_sign) {
+        return Err(PyValueError::new_err("x_sign and y_sign must be -1 or 1"));
+    }
+    Ok(signed_swap_point_inner(point, x_sign, y_sign, swap))
+}
+
+#[pyfunction]
+fn sign_swap_certificate_midpoint(
+    certificate_target: (i64, i64),
+    certificate_midpoint: (i64, i64),
+    target: (i64, i64),
+) -> PyResult<Option<(i64, i64)>> {
+    for swap in [false, true] {
+        for x_sign in [-1, 1] {
+            for y_sign in [-1, 1] {
+                let transformed_target =
+                    signed_swap_point_inner(certificate_target, x_sign, y_sign, swap);
+                if transformed_target != target {
+                    continue;
+                }
+
+                let transformed_midpoint =
+                    signed_swap_point_inner(certificate_midpoint, x_sign, y_sign, swap);
+                if !certificate_valid(target, transformed_midpoint) {
+                    return Err(PyAssertionError::new_err(
+                        "sign/swap transform produced an invalid certificate",
+                    ));
+                }
+                return Ok(Some(transformed_midpoint));
+            }
+        }
+    }
+    Ok(None)
+}
+
+#[pyfunction]
+fn lattice_coefficients(
+    target: (i64, i64),
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> Option<(i128, i128)> {
+    lattice_coefficients_i128(target, first_direction, second_direction)
+}
+
+#[pyfunction]
+fn gaussian_root_conjugate_divisibility_residue(root: (i64, i64)) -> PyResult<(i128, i128)> {
+    if root.0 == 0 || root.1 == 0 {
+        return Err(PyValueError::new_err("root coordinates must be nonzero"));
+    }
+    if gcd_i128(root.0 as i128, root.1 as i128) != 1 {
+        return Err(PyValueError::new_err("root must be primitive"));
+    }
+
+    let root_real = root.0 as i128;
+    let root_imaginary = root.1 as i128;
+    let hypotenuse = root_real * root_real + root_imaginary * root_imaginary;
+    let Some(inverse) = modular_inverse_i128(root_real, hypotenuse) else {
+        return Err(PyValueError::new_err("root must be primitive"));
+    };
+    let residue = mul_mod_i128(-root_imaginary, inverse, hypotenuse);
+    if (mul_mod_i128(residue, residue, hypotenuse) + 1) % hypotenuse != 0 {
+        return Err(PyAssertionError::new_err(
+            "conjugate-root residue is not a square root of -1",
+        ));
+    }
+    Ok((hypotenuse, residue))
 }
 
 #[pyfunction]
@@ -406,6 +790,23 @@ fn parallel_direction_factor_modulus(direction: (i64, i64), factor: i64) -> PyRe
         return Err(PyValueError::new_err("factor must be positive"));
     }
     Ok(2 * (direction.0 * direction.0 + direction.1 * direction.1) * factor)
+}
+
+#[pyfunction]
+fn parallel_direction_factor_congruence_holds(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<bool> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
+    }
+    Ok(factor_congruence_holds(target, direction, factor))
 }
 
 #[pyfunction]
@@ -608,12 +1009,34 @@ fn first_registered_lattice_midpoint(
 fn pythagorean_walks_fast(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(edge_delta, m)?)?;
     m.add_function(wrap_pyfunction!(certificate_valid, m)?)?;
+    m.add_function(wrap_pyfunction!(scale_certificate_data, m)?)?;
+    m.add_function(wrap_pyfunction!(gaussian_multiply, m)?)?;
+    m.add_function(wrap_pyfunction!(gaussian_transform_certificate_data, m)?)?;
+    m.add_function(wrap_pyfunction!(gaussian_quotient_components, m)?)?;
+    m.add_function(wrap_pyfunction!(gaussian_quotient_if_integer, m)?)?;
+    m.add_function(wrap_pyfunction!(gaussian_divisor_certificate_midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        diagonal_pythagorean_multiplier_midpoint,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(signed_swap_point, m)?)?;
+    m.add_function(wrap_pyfunction!(sign_swap_certificate_midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(lattice_coefficients, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        gaussian_root_conjugate_divisibility_residue,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(prime_power_factorization, m)?)?;
     m.add_function(wrap_pyfunction!(prime_factors, m)?)?;
     m.add_function(wrap_pyfunction!(positive_divisors, m)?)?;
     m.add_function(wrap_pyfunction!(divisor_residue_classes, m)?)?;
     m.add_function(wrap_pyfunction!(has_divisor_in_residue_classes, m)?)?;
     m.add_function(wrap_pyfunction!(parallel_direction_factor_modulus, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        parallel_direction_factor_congruence_holds,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(parallel_direction_factor_witness_data, m)?)?;
     m.add_function(wrap_pyfunction!(ray_parallel_factor_residues, m)?)?;
     m.add_function(wrap_pyfunction!(
         parallel_direction_factor_residue_classes,
