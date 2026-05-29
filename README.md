@@ -114,22 +114,46 @@ specific: classify the fixed-direction congruence families, rather than grow
 larger midpoint or target boxes.
 
 The newest reduction removes the squareclass/split-factor bounds for a fixed
-first-step direction. If `U = unit*alpha^2`, then `a+i*b` lies in
-`(conj(alpha))` exactly when `b == rho*a mod |U|`; for target determinant
-`D = det(U,T)` and squarefree `q | D`, this becomes the divisor-root condition
-`a^2 == -rho*D/q mod |U|` with `a | D/q`. The exact finite-direction fallback
-now scans bounded Gaussian roots `alpha` rather than split boxes, and derives
-`q,a,b` from determinant divisors. For a fixed root direction, those rows
-depend only on the one-dimensional value `det(U,T)`. Its witness object also verifies
-`2*unit^-1*T = 2*r*alpha^2 + q*beta^2`, making the remaining direction choice
-an explicit Gaussian square-decomposition problem. A scratch census through
-`1 <= g,h <= 2000` found 150 structural misses and all 150 are covered by this
-exact root-bound-8 layer. The root-cover census now records which `alpha`
-families appear; through `1 <= g,h <= 500`, the 10 structural misses are all
-covered by five canonical root shapes. A shape-family cover is now executable:
-through `1 <= g,h <= 1000`, the 34 structural misses are covered by seven
-explicit root shapes, with `q,a,b` still derived from determinant divisors. The
-shape-cover census records the exact per-shape counts for that audited range.
+first-step direction. Writing a primitive Pythagorean direction as
+`U = unit*alpha^2`, the split condition becomes a conjugate-root divisor problem
+in the one-dimensional determinant `D = det(U,T)`. The witness now records the
+exact divisor-root congruence, including the identity
+`2*unit^-1*T = 2*r*alpha^2 + q*beta^2`.
+
+That turns the current frontier into a root-shape problem instead of a larger
+box search. The audited residuals are covered by primary Gaussian-root spines
+`(1,2k)` and `(2,2k+1)`, plus the observed secondary shapes `(3,4)`, `(3,8)`,
+and `(4,5)`. A scratch census through `1 <= g,h <= 2000` found `150`
+post-structural misses: the primary spines cover `132`, and the generated spine
+family covers all `150`. In the pinned `1 <= g,h <= 1000` guardrail, seven root
+shapes cover all `34` structural misses.
+
+The remaining proof target is now a finite discharging problem on congruence
+rows. Divisor-obligation helpers split each residual row into a linear
+determinant strip and a divisor-class condition. Strip failures in the pinned
+guardrail fall into named structural families: promoted `3-4-5` integrality
+rows, lattice-pair rows, orthogonal rows, or standard-completion rows. The
+promoted-row counts are modular integrality counts; certificate use still goes
+through the pointwise nondegeneracy check. Each fallback now has its own
+determinant or coefficient-row form. The standard-completion rows are filtered
+to target-compatible determinant residues and then intersected with strips as
+one-parameter linear rows, so the next proof step can work with explicit
+congruences rather than target-box scans.
+The divisor-class side is also multiplicative now:
+`divisor_residue_classes(n,c)` computes the closure of prime-power residues
+represented by divisors of `n` modulo `c`. In the pinned strip guardrail, all
+divisor-class failures are classified by the missing closure of the required
+root-divisor class, with `215` distinct closure sets. Since the pinned moduli
+are prime, the same failures are also recorded as missing exponent classes in
+the cyclic groups `(Z/cZ)^*`, with primitive roots fixed for each modulus. The
+new cyclic-sumset guardrail records stabilizers and Kneser defects, showing that
+the main divisor side is a critical or near-critical sumset problem rather than
+a larger-box search. It also records Kneser saturation gaps: once the lower
+bound fills `(Z/(c-1)Z)`, divisor success is forced, so remaining failures are
+short bounded sequences of prime-factor discrete logs. The strip census now
+tracks this before fallback: in the pinned guardrail, `192` strip rows are
+Kneser-forced divisor successes, `1228` are short-log divisor successes, and
+all `4398` divisor failures are short-log rows discharged structurally.
 
 ## Finite Audits
 
@@ -185,6 +209,27 @@ extrapolated outside their stated ranges.
 - `data/shared_leg_residue_coverage.md`: bounded residue witness table for the
   quadratic family and shared-leg generator.
 
+- `PythagoreanWalks/Certificate.lean`: Lean/mathlib formalization seed for
+  certificate validity and the two-edge lattice constructor.
+
+- `lakefile.toml` and `lean-toolchain`: Lake project configuration for the Lean
+  formalization.
+
+## Lean Formalization
+
+This repository includes a Lean 4/mathlib project for theorem-kernel checks of
+the algebraic reductions. The current starting point formalizes certificate
+validity and the two-edge lattice certificate constructor in
+`PythagoreanWalks/Certificate.lean`.
+
+Lean setup follows the mathlib downstream-project pattern:
+
+```bash
+lake update
+lake exe cache get
+lake build
+```
+
 ## Verification
 
 Run:
@@ -196,7 +241,7 @@ python3 -m unittest discover -s tests -v
 Current expected result:
 
 ```text
-Ran 144 tests
+Ran 146 tests
 OK
 ```
 

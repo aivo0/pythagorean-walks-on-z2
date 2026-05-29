@@ -444,6 +444,99 @@ all tested primitive positive-quadrant samples through `1 <= g,h <= 1000`, and
 newer Gaussian-root reductions explain the next frontier more algebraically.
 These are proof leads, not yet a global theorem.
 
+The latest proof-search step makes this frontier much more concrete.  For a
+primitive Pythagorean direction written in Gaussian form as
+
+```text
+U = epsilon * alpha^2,
+```
+
+with `c = N(alpha)` and `D = det(U,T)`, the conjugate-ideal recognizer reduces
+the split condition to divisor data in the single integer `D`.  A certificate is
+obtained once one finds a squarefree `q | D` and a divisor `a | D/q` satisfying
+
+```text
+a^2 == -rho*(D/q) mod c,
+```
+
+where `b == rho*a mod c` is the divisibility condition for `a+i*b` by
+`conj(alpha)`.  The resulting witness also verifies the Gaussian quadratic
+identity
+
+```text
+2*epsilon^-1*T = 2*r*alpha^2 + q*beta^2.
+```
+
+Thus, for a fixed root shape, the problem is no longer a bounded split-factor
+search.  It is a determinant-divisor theorem for `D`.
+
+The current residual audits suggest two primary root-shape spines:
+
+```text
+(1,2k),        (2,2k+1),
+```
+
+with the first secondary shapes `(3,4)`, `(3,8)`, and `(4,5)`.  In the scratch
+primitive-positive diagnostic through `1 <= g,h <= 2000`, there are `150`
+targets left after the structural stack; the two primary spines cover `132`,
+and the generated spine family including the three secondary shapes covers all
+`150`.  In the pinned `1 <= g,h <= 1000` guardrail, the `34` structural misses
+are covered by seven explicit root shapes:
+
+```text
+(1,4), (1,6), (2,3), (2,5), (2,7), (3,8), (4,5).
+```
+
+The next proof obligation is therefore not to increase the target box.  It is
+to prove the divisor-root congruence on the root-shape spines and then discharge
+the complementary cases.  The new obligation helpers split each row into:
+
+1. a linear determinant strip `det(U,T) == R mod S`;
+2. a divisor-class condition saying that `|D/q|` has a divisor in the recorded
+   `a mod c` class.
+
+The pinned strip census shows that failures of the divisor-class condition are
+not currently opaque: they fall into named structural families.  The largest
+fallback is the promoted signed `3-4-5` direction/factor table.  Its
+intersections with determinant strips are now computed by CRT and compressed to
+linear rows `(D0,k0,modulus,count)`, with observed parameter moduli only
+`1`, `2`, `5`, and `10` in the pinned scan.  The smaller lattice-pair fallback
+is also row-level: the `203` pinned lattice-pair failures compress to `63`
+ordered direction-pair rows over `26` determinant values, and each strip
+intersection is one coefficient congruence in `T=mA+nB`.  Orthogonal fallbacks
+are the quarter-turn special case of the same row mechanism, while
+standard-completion fallbacks are now quadratic rows in `det(U,T)` and
+`U dot T` modulo `4|U|^2`.
+
+This reframes the remaining conjecture as a finite discharging problem on
+determinant strips and structural row families.  The box audits remain useful
+as regression tests, but the proposed proof objects are now congruence rows and
+root-shape divisor lemmas.
+
+The divisor-class side has also been separated into a theorem-level saturation
+branch and a bounded short-log branch.  For prime moduli, divisor residues are
+represented as exponent sumsets in the cyclic group `(Z/(c-1)Z)`.  Kneser's
+theorem supplies a lower bound for these sumsets.  When that bound saturates
+the whole group, the required divisor class must occur, so the strip target is
+a direct divisor success before any structural fallback is needed.
+
+The target-facing strip census now applies this Kneser test before the
+divisor/fallback split.  In the pinned prime-modulus strip guardrail, the
+classification is:
+
+```text
+192  Kneser-saturated divisor successes,
+1228 short-log divisor successes,
+4398 short-log divisor failures, all structurally discharged.
+```
+
+The implementation asserts that a saturated exponent sumset cannot enter the
+divisor-failure branch.  Thus the remaining divisor proof route is cleaner:
+prove direct success from saturation, and handle the unsaturated cases as short
+bounded sequences of prime-factor discrete logs.  The current data says those
+short-log failures are exactly the cases discharged by the existing structural
+row families.
+
 The discipline used in this workspace is:
 
 ```text
@@ -476,3 +569,10 @@ The most important source files are:
   the remaining conjecture and exceptional-ray development;
 - `notes/verification-changelog.md`: audit trail for promoted lemmas,
   corrections, and guardrails.
+
+The repository also has an initial Lean 4/mathlib formalization seed:
+
+- `PythagoreanWalks/Certificate.lean`: certificate validity, scaling of legal
+  steps, and the two-edge lattice certificate constructor;
+- `lakefile.toml`, `lean-toolchain`, and `lake-manifest.json`: Lake/mathlib
+  project metadata.

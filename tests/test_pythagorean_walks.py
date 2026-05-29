@@ -48,6 +48,8 @@ from experiments.pythagorean_walks import (
     PythagoreanTriple,
     PythagoreanLatticePairWitness,
     ParallelDirectionFactorWitness,
+    ParallelDirectionConjugateIdealDivisorObligationCensus,
+    ParallelDirectionConjugateIdealDivisorObligationStripCensus,
     ParallelDirectionConjugateIdealWitness,
     ParallelDirectionConjugateIdealRootCoverCensus,
     ParallelDirectionConjugateIdealRootShapeCoverCensus,
@@ -155,6 +157,8 @@ from experiments.pythagorean_walks import (
     consecutive_hypotenuse_unit_coordinate_certificate,
     diagonal_pythagorean_multiplier_certificate,
     determinant,
+    divisor_residue_classes,
+    discrete_log_table_mod_prime,
     determinant_seven_lattice_certificate,
     determinant_seventeen_lattice_certificate,
     determinant_thirteen_lattice_certificate,
@@ -167,6 +171,7 @@ from experiments.pythagorean_walks import (
     first_gaussian_divisor_certificate,
     find_two_step_certificate,
     four_three_factor_five_parallel_certificate,
+    gaussian_root_conjugate_divisibility_residue,
     gaussian_divisor_certificate,
     gaussian_multiply,
     gaussian_quotient_if_integer,
@@ -179,6 +184,11 @@ from experiments.pythagorean_walks import (
     half_leg_unit_coordinate_orbit_certificate,
     half_leg_unit_coordinate_target_certificate,
     all_prime_factors_one_or_nine_mod_ten,
+    cyclic_subset_stabilizer_step,
+    cyclic_sumset,
+    cyclic_sumset_effective_length,
+    cyclic_sumset_kneser_data,
+    cyclic_sumset_saturation_gap,
     has_divisor_in_residue_classes,
     has_divisor_three_or_seven_mod_ten,
     has_two_one_ray_mod_130_divisor,
@@ -196,6 +206,9 @@ from experiments.pythagorean_walks import (
     linear_delta_direction_certificate,
     missing_residues,
     minimal_periodic_residue_classes,
+    prime_modulus_divisor_exponent_classes,
+    prime_modulus_divisor_exponent_summands,
+    primitive_root_mod_prime,
     midpoint_axis_certificate,
     odd_residues,
     path_is_valid,
@@ -203,24 +216,46 @@ from experiments.pythagorean_walks import (
     beta_square_is_axis_degenerate,
     parallel_direction_bounded_factor_cover_certificate,
     parallel_direction_conjugate_ideal_certificate,
+    parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds,
+    parallel_direction_conjugate_ideal_divisor_obligation_directions,
+    parallel_direction_conjugate_ideal_divisor_obligation_key,
+    parallel_direction_conjugate_ideal_divisor_obligation_strip_census,
+    parallel_direction_conjugate_ideal_divisor_obligation_strip_holds,
+    parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus,
+    parallel_direction_conjugate_ideal_divisor_obligation_strip_residue,
     parallel_direction_conjugate_ideal_cover_certificate,
     parallel_direction_conjugate_ideal_cover_witness,
     parallel_direction_conjugate_ideal_determinant_roots,
     parallel_direction_conjugate_ideal_root_cover_certificate,
     parallel_direction_conjugate_ideal_root_cover_census,
-    parallel_direction_conjugate_ideal_root_shape_cover_certificate,
-    parallel_direction_conjugate_ideal_root_shape_cover_census,
     parallel_direction_conjugate_ideal_root_shape_cover_witness,
     parallel_direction_conjugate_ideal_root_cover_witness,
+    parallel_direction_conjugate_ideal_root_primary_spine_cover_certificate,
+    parallel_direction_conjugate_ideal_root_primary_spine_cover_witness,
+    parallel_direction_conjugate_ideal_root_secondary_spine_cover_certificate,
+    parallel_direction_conjugate_ideal_root_secondary_spine_cover_witness,
+    parallel_direction_conjugate_ideal_root_shape_divisor_obligation_census,
+    parallel_direction_conjugate_ideal_root_spine_cover_certificate,
+    parallel_direction_conjugate_ideal_root_spine_cover_census,
+    parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census,
+    parallel_direction_conjugate_ideal_root_spine_cover_witness,
+    parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts,
     parallel_direction_conjugate_ideal_split_roots,
     parallel_direction_conjugate_ideal_witness,
     parallel_direction_cover_certificate,
     parallel_direction_factor_coefficient,
     parallel_direction_factor_certificate,
     parallel_direction_factor_certificate_residue_classes,
+    parallel_direction_factor_congruence_holds,
     parallel_direction_factor_modulus,
+    parallel_direction_primitive_factor_determinant_residue_holds,
+    parallel_direction_primitive_factor_determinant_residue_rows,
     parallel_direction_factor_residue_certificate,
     parallel_direction_factor_residue_classes,
+    parallel_direction_factor_integrality_strip_intersection_residue_count,
+    parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows,
+    parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness,
+    parallel_direction_primitive_factor_integrality_strip_intersection_residue_count,
     parallel_direction_factor_witness,
     parallel_direction_squareclass_split_certificate,
     parallel_direction_squareclass_split_cover_certificate,
@@ -255,7 +290,15 @@ from experiments.pythagorean_walks import (
     parallel_direction_primitive_ray_certificate,
     parallel_direction_primitive_ray_witness,
     parallel_direction_standard_completion_cover_certificate,
+    parallel_direction_standard_completion_cover_witness,
+    parallel_direction_standard_completion_branch,
+    parallel_direction_standard_completion_determinant_rows,
     parallel_direction_standard_completion_certificate,
+    parallel_direction_standard_completion_quadratic_row_witness,
+    parallel_direction_standard_completion_quadratic_rows,
+    parallel_direction_standard_completion_strip_intersection_linear_rows,
+    parallel_direction_standard_completion_strip_intersection_linear_row_witness,
+    parallel_direction_standard_completion_witness,
     parallel_direction_witness,
     parallel_direction_cover_witness,
     periodic_residue_union,
@@ -265,6 +308,9 @@ from experiments.pythagorean_walks import (
     primitive_pythagorean_direction_gaussian_root,
     primitive_pythagorean_directions,
     primitive_pythagorean_root_directions,
+    primitive_pythagorean_root_primary_spine_shapes,
+    primitive_pythagorean_root_secondary_spine_shapes,
+    primitive_pythagorean_root_spine_shapes,
     primitive_pythagorean_root_shape_directions,
     pythagorean_leg_completion,
     pythagorean_directions_for_hypotenuse,
@@ -272,10 +318,15 @@ from experiments.pythagorean_walks import (
     pythagorean_layered_conjugate_ideal_certificate,
     pythagorean_layered_split_certificate,
     pythagorean_layered_structural_certificate,
+    pythagorean_layered_structural_label,
     pythagorean_triple_orthogonal_lattice_certificate,
     pythagorean_orthogonal_lattice_cover_certificate,
+    pythagorean_orthogonal_lattice_witness,
     pythagorean_lattice_direction_pairs,
     pythagorean_lattice_pair_cover_certificate,
+    pythagorean_lattice_pair_strip_intersection_holds,
+    pythagorean_lattice_pair_strip_intersection_residue_count,
+    pythagorean_lattice_pair_strip_linear_congruence,
     pythagorean_lattice_pair_witness,
     prime_determinant_lattice_certificate,
     rational_slope_consecutive_ray_certificate,
@@ -588,6 +639,29 @@ class CertificateTests(unittest.TestCase):
                 for u, v, hypotenuse, _root, _unit in root_directions
             },
         )
+        self.assertEqual(
+            primitive_pythagorean_root_spine_shapes(8),
+            (
+                (1, 2),
+                (2, 3),
+                (1, 4),
+                (3, 4),
+                (2, 5),
+                (1, 6),
+                (4, 5),
+                (2, 7),
+                (1, 8),
+                (3, 8),
+            ),
+        )
+        self.assertEqual(
+            primitive_pythagorean_root_primary_spine_shapes(8),
+            ((1, 2), (2, 3), (1, 4), (2, 5), (1, 6), (2, 7), (1, 8)),
+        )
+        self.assertEqual(
+            primitive_pythagorean_root_secondary_spine_shapes(8),
+            ((3, 4), (4, 5), (3, 8)),
+        )
 
         for u, v, hypotenuse, parameter_a, parameter_b in directions:
             self.assertGreater(parameter_a, parameter_b)
@@ -605,6 +679,12 @@ class CertificateTests(unittest.TestCase):
             primitive_pythagorean_directions(1)
         with self.assertRaises(ValueError):
             primitive_pythagorean_root_directions(1)
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_spine_shapes(1)
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_primary_spine_shapes(1)
+        with self.assertRaises(ValueError):
+            primitive_pythagorean_root_secondary_spine_shapes(1)
         with self.assertRaises(ValueError):
             primitive_pythagorean_root_shape_directions(((2, 4),))
         with self.assertRaises(ValueError):
@@ -806,10 +886,27 @@ class CertificateTests(unittest.TestCase):
             primitive_pythagorean_direction_conjugate_root_residue((-24, 7)),
             (25, 18),
         )
+        self.assertEqual(
+            gaussian_root_conjugate_divisibility_residue((1, 4)),
+            (17, 13),
+        )
+        for k in range(1, 5):
+            modulus, residue = gaussian_root_conjugate_divisibility_residue((1, 2 * k))
+            self.assertEqual(modulus, 4 * k * k + 1)
+            self.assertEqual(residue, (modulus - 2 * k) % modulus)
+        for k in range(1, 4):
+            root_imaginary = 2 * k + 1
+            modulus, residue = gaussian_root_conjugate_divisibility_residue(
+                (2, root_imaginary)
+            )
+            self.assertEqual(modulus, root_imaginary * root_imaginary + 4)
+            self.assertEqual(residue, (-root_imaginary * pow(2, -1, modulus)) % modulus)
         self.assertEqual(gaussian_root_shape((-2, 3)), (2, 3))
         self.assertEqual(gaussian_root_shape((-3, -2)), (2, 3))
         with self.assertRaises(ValueError):
             gaussian_root_shape((0, 3))
+        with self.assertRaises(ValueError):
+            gaussian_root_conjugate_divisibility_residue((2, 4))
         for direction, split_root in (
             ((-9, 40), (19, -239)),
             ((-24, 7), (41, -37)),
@@ -829,6 +926,15 @@ class CertificateTests(unittest.TestCase):
                     *split_root,
                 )
             )
+
+        witness = parallel_direction_conjugate_ideal_witness((151, 338), (-9, 40))
+        self.assertIsNotNone(witness)
+        self.assertEqual(witness.root_shape, (4, 5))
+        self.assertEqual(witness.conjugate_root_residue, (41, 9))
+        self.assertEqual(witness.determinant_squareclass_quotient, -4541)
+        self.assertEqual(witness.divisor_root_residue, 33)
+        self.assertTrue(witness.split_root_congruence_holds)
+        self.assertTrue(witness.divisor_root_congruence_holds)
 
         with self.assertRaises(ValueError):
             primitive_pythagorean_direction_gaussian_root((6, 8))
@@ -871,12 +977,82 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(squareclass_decomposition(722), (2, 19))
         self.assertEqual(squarefree_numbers(10), (1, 2, 3, 5, 6, 7, 10))
         self.assertEqual(squarefree_divisors(72), (1, 2, 3, 6))
+        self.assertEqual(divisor_residue_classes(36, 13), (1, 2, 3, 4, 5, 6, 9, 10, 12))
+        self.assertEqual(divisor_residue_classes(175, 13), (1, 5, 6, 7, 9, 12))
+        self.assertEqual(primitive_root_mod_prime(13), 2)
+        self.assertEqual(primitive_root_mod_prime(17), 3)
+        log_table = discrete_log_table_mod_prime(13)
+        self.assertEqual(log_table[1], 0)
+        self.assertEqual(log_table[2], 1)
+        self.assertEqual(log_table[11], 7)
+        self.assertEqual(
+            prime_modulus_divisor_exponent_summands(175, 13),
+            (
+                False,
+                (
+                    (5, 9, 2, (0, 6, 9)),
+                    (7, 11, 1, (0, 11)),
+                ),
+            ),
+        )
+        self.assertEqual(
+            prime_modulus_divisor_exponent_classes(175, 13),
+            (False, (0, 5, 6, 8, 9, 11)),
+        )
+        self.assertEqual(
+            cyclic_sumset(12, ((0, 6, 9), (0, 11))),
+            (0, 5, 6, 8, 9, 11),
+        )
+        self.assertEqual(
+            cyclic_subset_stabilizer_step(12, (0, 5, 6, 8, 9, 11)),
+            12,
+        )
+        self.assertEqual(
+            cyclic_sumset_kneser_data(12, ((0, 6, 9), (0, 11))),
+            (12, 4, 2),
+        )
+        self.assertEqual(
+            cyclic_sumset_effective_length(((0, 6, 9), (0, 11))),
+            3,
+        )
+        self.assertEqual(
+            cyclic_sumset_saturation_gap(12, ((0, 6, 9), (0, 11))),
+            (3, 4, 8),
+        )
+        self.assertEqual(
+            cyclic_sumset_kneser_data(12, ((0, 4, 8), (0, 9))),
+            (4, 6, 0),
+        )
+        self.assertEqual(
+            prime_modulus_divisor_exponent_classes(13 * 25, 13),
+            (True, (0, 6, 9)),
+        )
+        self.assertTrue(has_divisor_in_residue_classes(175, 13, (7,)))
+        self.assertFalse(has_divisor_in_residue_classes(175, 13, (11,)))
         with self.assertRaises(ValueError):
             squareclass_decomposition(0)
         with self.assertRaises(ValueError):
             squarefree_numbers(0)
         with self.assertRaises(ValueError):
             squarefree_divisors(0)
+        with self.assertRaises(ValueError):
+            divisor_residue_classes(0, 13)
+        with self.assertRaises(ValueError):
+            divisor_residue_classes(36, 0)
+        with self.assertRaises(ValueError):
+            primitive_root_mod_prime(15)
+        with self.assertRaises(ValueError):
+            prime_modulus_divisor_exponent_classes(36, 15)
+        with self.assertRaises(ValueError):
+            cyclic_sumset(0, ((0,),))
+        with self.assertRaises(ValueError):
+            cyclic_subset_stabilizer_step(12, ())
+        with self.assertRaises(ValueError):
+            cyclic_sumset_kneser_data(12, ((0,), ()))
+        with self.assertRaises(ValueError):
+            cyclic_sumset_effective_length(((0,), ()))
+        with self.assertRaises(ValueError):
+            cyclic_sumset_saturation_gap(12, ((0,), ()))
 
         self.assertEqual(parallel_direction_factor_modulus((3, 4), 648), 32400)
         self.assertEqual(parallel_direction_factor_coefficient((39, 64), (3, 4), 648), 2)
@@ -1680,6 +1856,23 @@ class CertificateTests(unittest.TestCase):
             ((4, 13), (-4, 3), (160, -120)),
         )
         for target, direction, midpoint in examples:
+            witness = parallel_direction_standard_completion_witness(
+                target,
+                direction,
+            )
+            self.assertIsNotNone(witness, (target, direction))
+            branch = parallel_direction_standard_completion_branch(
+                witness.determinant_leg,
+                witness.factor,
+            )
+            self.assertIn(branch, (0, 1))
+            self.assertIsNotNone(
+                parallel_direction_standard_completion_quadratic_row_witness(
+                    target,
+                    direction,
+                    branch,
+                )
+            )
             certificate = parallel_direction_standard_completion_certificate(
                 target,
                 direction,
@@ -1688,6 +1881,70 @@ class CertificateTests(unittest.TestCase):
             self.assertEqual(certificate.midpoint, midpoint)
             self.assertTrue(certificate.valid())
 
+        self.assertIn(
+            (31, 142, 676),
+            parallel_direction_standard_completion_determinant_rows((-12, 5), 1)[1],
+        )
+        self.assertGreater(
+            len(parallel_direction_standard_completion_quadratic_rows((-12, 5), 1)[1]),
+            len(parallel_direction_standard_completion_determinant_rows((-12, 5), 1)[1]),
+        )
+        self.assertEqual(
+            parallel_direction_standard_completion_quadratic_row_witness(
+                (29, 98),
+                (-12, 5),
+                1,
+            ),
+            (31, 142, 676),
+        )
+        self.assertEqual(
+            parallel_direction_standard_completion_quadratic_row_witness(
+                (98, 29),
+                (-5, 12),
+                0,
+            ),
+            (31, 27, 676),
+        )
+        self.assertEqual(
+            parallel_direction_standard_completion_strip_intersection_linear_row_witness(
+                (29, 98),
+                (-5, 12),
+                13,
+                7,
+                (-12, 5),
+                1,
+            ),
+            (31, 2, 13, 52),
+        )
+        self.assertEqual(
+            parallel_direction_standard_completion_strip_intersection_linear_rows(
+                (-5, 12),
+                13,
+                7,
+                (-12, 5),
+                1,
+            )[0],
+            676,
+        )
+        self.assertEqual(
+            len(
+                parallel_direction_standard_completion_strip_intersection_linear_rows(
+                    (-5, 12),
+                    13,
+                    7,
+                    (-12, 5),
+                    1,
+                )[1]
+            ),
+            52,
+        )
+        self.assertIsNone(
+            parallel_direction_standard_completion_quadratic_row_witness(
+                (1, 8),
+                (-4, -3),
+                0,
+            )
+        )
         self.assertIsNone(
             parallel_direction_standard_completion_certificate((1, 8), (-4, -3))
         )
@@ -1703,6 +1960,10 @@ class CertificateTests(unittest.TestCase):
             self.assertIsNotNone(certificate, target)
             self.assertEqual(certificate.target, target)
             self.assertTrue(certificate.valid())
+            self.assertIsNotNone(
+                parallel_direction_standard_completion_cover_witness(target, 8),
+                target,
+            )
 
         nonstandard_target = (1, 92)
         self.assertIsNone(
@@ -1935,6 +2196,13 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(modulus, 50)
         self.assertGreater(len(residues), 0)
         self.assertLess(len(residues), modulus * modulus)
+        self.assertEqual(
+            parallel_direction_primitive_factor_determinant_residue_rows(
+                direction,
+                factor,
+            ),
+            ((7, 1), (17, 6), (27, 11), (37, 16), (47, 21)),
+        )
 
         for g in range(-75, 76):
             for h in range(-75, 76):
@@ -1944,9 +2212,65 @@ class CertificateTests(unittest.TestCase):
                     is not None
                 )
                 self.assertEqual(
+                    parallel_direction_factor_congruence_holds(
+                        target,
+                        direction,
+                        factor,
+                    ),
+                    expected,
+                )
+                self.assertEqual(
+                    parallel_direction_primitive_factor_determinant_residue_holds(
+                        target,
+                        direction,
+                        factor,
+                    ),
+                    expected,
+                )
+                self.assertEqual(
                     (target[0] % modulus, target[1] % modulus) in residues,
                     expected,
                 )
+
+        for direction, factor in PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS:
+            determinant_rows = (
+                parallel_direction_primitive_factor_determinant_residue_rows(
+                    direction,
+                    factor,
+                )
+            )
+            self.assertEqual(
+                len(determinant_rows)
+                * parallel_direction_factor_modulus(direction, factor),
+                len(parallel_direction_factor_residue_classes(direction, factor)),
+            )
+            for g in range(-25, 26):
+                for h in range(-25, 26):
+                    target = (g, h)
+                    expected = (
+                        parallel_direction_factor_coefficient(
+                            target,
+                            direction,
+                            factor,
+                        )
+                        is not None
+                    )
+                    self.assertEqual(
+                        parallel_direction_factor_congruence_holds(
+                            target,
+                            direction,
+                            factor,
+                        ),
+                        expected,
+                    )
+                    self.assertEqual(
+                        parallel_direction_primitive_factor_determinant_residue_holds(
+                            target,
+                            direction,
+                            factor,
+                        ),
+                        expected,
+                    )
 
         base = parallel_direction_factor_residue_certificate((1, 5), (-4, -3), 1)
         self.assertIsNotNone(base)
@@ -1960,6 +2284,237 @@ class CertificateTests(unittest.TestCase):
         )
         self.assertIsNotNone(shifted)
         self.assertTrue(shifted.valid())
+
+    def test_parallel_direction_factor_integrality_strip_intersection_residue_count(self):
+        self.assertEqual(
+            parallel_direction_factor_integrality_strip_intersection_residue_count(
+                (3, 4),
+                2,
+                1,
+                (-4, -3),
+                1,
+            ),
+            (50, 125),
+        )
+
+        strip_direction = (-12, -5)
+        strip_modulus = 13
+        strip_residue = 7
+        factor_direction = (-4, -3)
+        factor = 1
+        lcm_modulus, residue_count = (
+            parallel_direction_factor_integrality_strip_intersection_residue_count(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                factor_direction,
+                factor,
+            )
+        )
+        self.assertEqual((lcm_modulus, residue_count), (650, 3250))
+        self.assertEqual(
+            parallel_direction_primitive_factor_integrality_strip_intersection_residue_count(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                factor_direction,
+                factor,
+            ),
+            (lcm_modulus, residue_count),
+        )
+        linear_modulus, linear_rows = (
+            parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                factor_direction,
+                factor,
+            )
+        )
+        self.assertEqual(linear_modulus, lcm_modulus)
+        self.assertEqual(
+            linear_rows,
+            (
+                (3, 0, 1, 650),
+                (13, 0, 1, 650),
+                (23, 0, 1, 650),
+                (33, 0, 1, 650),
+                (43, 0, 1, 650),
+            ),
+        )
+        self.assertEqual(sum(row[-1] for row in linear_rows), residue_count)
+
+        factor_modulus = parallel_direction_factor_modulus(factor_direction, factor)
+        factor_residues = parallel_direction_factor_residue_classes(
+            factor_direction,
+            factor,
+        )
+        brute_count = 0
+        for g in range(lcm_modulus):
+            for h in range(lcm_modulus):
+                target = (g, h)
+                expected = (
+                    (g % factor_modulus, h % factor_modulus) in factor_residues
+                    and determinant(strip_direction, target) % strip_modulus
+                    == strip_residue
+                )
+                row_witness = (
+                    parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness(
+                        target,
+                        strip_direction,
+                        strip_modulus,
+                        strip_residue,
+                        factor_direction,
+                        factor,
+                    )
+                )
+                self.assertEqual(row_witness is not None, expected)
+                if (g % factor_modulus, h % factor_modulus) not in factor_residues:
+                    continue
+                if determinant(strip_direction, target) % strip_modulus != strip_residue:
+                    continue
+                brute_count += 1
+        self.assertEqual(brute_count, residue_count)
+        self.assertEqual(
+            parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness(
+                (1, 15),
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                factor_direction,
+                factor,
+            ),
+            (43, 0, 1, 650),
+        )
+
+        for obligation in (
+            ((2, 3), 1, 13, 5, 7, 4, 11),
+            ((4, 5), 2, 41, 9, 10, 33, 19),
+        ):
+            strip_modulus = (
+                parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                    obligation
+                )
+            )
+            strip_residue = (
+                parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                    obligation
+                )
+            )
+            for strip_direction in (
+                parallel_direction_conjugate_ideal_divisor_obligation_directions(
+                    obligation
+                )
+            ):
+                for factor_direction, factor in PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS:
+                    self.assertEqual(
+                        parallel_direction_primitive_factor_integrality_strip_intersection_residue_count(
+                            strip_direction,
+                            strip_modulus,
+                            strip_residue,
+                            factor_direction,
+                            factor,
+                        ),
+                        parallel_direction_factor_integrality_strip_intersection_residue_count(
+                            strip_direction,
+                            strip_modulus,
+                            strip_residue,
+                            factor_direction,
+                            factor,
+                        ),
+                    )
+                    linear_modulus, linear_rows = (
+                        parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+                            strip_direction,
+                            strip_modulus,
+                            strip_residue,
+                            factor_direction,
+                            factor,
+                        )
+                    )
+                    self.assertEqual(
+                        (
+                            linear_modulus,
+                            sum(row[-1] for row in linear_rows),
+                        ),
+                        parallel_direction_factor_integrality_strip_intersection_residue_count(
+                            strip_direction,
+                            strip_modulus,
+                            strip_residue,
+                            factor_direction,
+                            factor,
+                        ),
+                    )
+
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_integrality_strip_intersection_residue_count(
+                (1, 1),
+                13,
+                7,
+                factor_direction,
+                factor,
+            )
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_congruence_holds((1, 1), (1, 1), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_congruence_holds((1, 1), (3, 4), 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_primitive_factor_determinant_residue_rows((6, 8), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_primitive_factor_integrality_strip_intersection_residue_count(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                (6, 8),
+                factor,
+            )
+        with self.assertRaises(ValueError):
+            parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                (6, 8),
+                factor,
+            )
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_integrality_strip_intersection_residue_count(
+                strip_direction,
+                1,
+                0,
+                factor_direction,
+                factor,
+            )
+
+        obligation_rows = (
+            parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts(
+                ((4, 5), 2, 41, 9, 10, 33, 19)
+            )
+        )
+        self.assertEqual(len(obligation_rows), 288)
+        self.assertEqual(
+            obligation_rows[:3],
+            (
+                ((-40, -9), (-4, -3), 1, 2050, 0),
+                ((-40, -9), (-4, -3), 2, 4100, 41000),
+                ((-40, -9), (-4, -3), 3, 6150, 0),
+            ),
+        )
+        self.assertEqual(
+            obligation_rows[72:75],
+            (
+                ((-9, 40), (-4, -3), 1, 2050, 5125),
+                ((-9, 40), (-4, -3), 2, 4100, 20500),
+                ((-9, 40), (-4, -3), 3, 6150, 15375),
+            ),
+        )
+        self.assertEqual(
+            sum(1 for row in obligation_rows if row[-1] != 0),
+            208,
+        )
+        self.assertEqual(
+            sum(1 for row in obligation_rows if row[-1] == 0),
+            80,
+        )
 
     def test_parallel_direction_candidate_cover_probe(self):
         for target in KNOWN_DISTANCE_THREE_ORBIT:
@@ -2270,11 +2825,18 @@ class CertificateTests(unittest.TestCase):
             ((38, 1), (-15, -8), (30, 16)),
         )
         for target, direction, midpoint in examples:
+            witness = pythagorean_orthogonal_lattice_witness(target, 4)
+            self.assertIsNotNone(witness)
+            self.assertEqual(witness.first_direction, direction)
+            self.assertEqual(witness.second_direction, (-direction[1], direction[0]))
+            self.assertEqual(witness.midpoint, midpoint)
+            self.assertTrue(witness.certificate.valid())
             certificate = pythagorean_orthogonal_lattice_cover_certificate(target, 4)
             self.assertIsNotNone(certificate)
             self.assertEqual(certificate.target, target)
             self.assertEqual(certificate.midpoint, midpoint)
             self.assertTrue(certificate.valid())
+            self.assertEqual(certificate, witness.certificate)
             self.assertEqual(
                 lattice_two_step_certificate(
                     target,
@@ -2377,6 +2939,96 @@ class CertificateTests(unittest.TestCase):
                 pythagorean_lattice_pair_cover_certificate(target, 25, 1435),
                 witness.certificate,
             )
+
+        strip_direction = (-12, -5)
+        strip_modulus = 13
+        strip_residue = 7
+        first_direction = (-4, -3)
+        second_direction = (-3, -4)
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_linear_congruence(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                first_direction,
+                second_direction,
+            ),
+            (3, 7, 7, 13, 1),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_intersection_residue_count(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                first_direction,
+                second_direction,
+            ),
+            (91, 91),
+        )
+        self.assertTrue(
+            pythagorean_lattice_pair_strip_intersection_holds(
+                (5, 86),
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                first_direction,
+                second_direction,
+            )
+        )
+        self.assertFalse(
+            pythagorean_lattice_pair_strip_intersection_holds(
+                (-7, -7),
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                first_direction,
+                second_direction,
+            )
+        )
+        brute_force_count = 0
+        for g in range(91):
+            for h in range(91):
+                if pythagorean_lattice_pair_strip_intersection_holds(
+                    (g, h),
+                    strip_direction,
+                    strip_modulus,
+                    strip_residue,
+                    first_direction,
+                    second_direction,
+                ):
+                    brute_force_count += 1
+        self.assertEqual(brute_force_count, 91)
+
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_linear_congruence(
+                (-8, -15),
+                34,
+                30,
+                (-4, 3),
+                (-12, 5),
+            ),
+            (18, 18, 30, 34, 2),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_intersection_residue_count(
+                (-8, -15),
+                34,
+                30,
+                (-4, 3),
+                (-12, 5),
+            ),
+            (272, 272),
+        )
+        self.assertTrue(
+            pythagorean_lattice_pair_strip_intersection_holds(
+                (28, 19),
+                (-8, -15),
+                34,
+                30,
+                (-4, 3),
+                (-12, 5),
+            )
+        )
 
         residual_covered: list[Point] = []
         residual_uncovered: list[Point] = []
@@ -2507,7 +3159,6 @@ class CertificateTests(unittest.TestCase):
             (398, 751): ((-35, 12), 1, 89, 349, (-1330, 456)),
             (850, 887): ((21, -20), 23, 1, 1549, (689010, -656200)),
         }
-        sample_root_shapes = ((1, 4), (1, 6), (2, 3), (2, 5), (2, 7), (3, 8), (4, 5))
         counts = {"total": 0, "structural": 0, "split": 0}
         for g in range(1, 1001):
             for h in range(1, 1001):
@@ -2552,9 +3203,9 @@ class CertificateTests(unittest.TestCase):
                     )
                     self.assertEqual(exact_root_split, exact_direction_split)
                     exact_shape_split = (
-                        parallel_direction_conjugate_ideal_root_shape_cover_certificate(
+                        parallel_direction_conjugate_ideal_root_spine_cover_certificate(
                             target,
-                            sample_root_shapes,
+                            8,
                         )
                     )
                     self.assertIsNotNone(exact_shape_split, target)
@@ -2664,13 +3315,24 @@ class CertificateTests(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            parallel_direction_conjugate_ideal_root_shape_cover_census(
+            parallel_direction_conjugate_ideal_root_spine_cover_census(
                 1000,
-                sample_root_shapes,
+                8,
             ),
             ParallelDirectionConjugateIdealRootShapeCoverCensus(
                 max_coordinate=1000,
-                root_shapes=((2, 3), (1, 4), (2, 5), (1, 6), (4, 5), (2, 7), (3, 8)),
+                root_shapes=(
+                    (1, 2),
+                    (2, 3),
+                    (1, 4),
+                    (3, 4),
+                    (2, 5),
+                    (1, 6),
+                    (4, 5),
+                    (2, 7),
+                    (1, 8),
+                    (3, 8),
+                ),
                 target_count=608023,
                 structural_miss_count=34,
                 uncovered_targets=(),
@@ -2706,6 +3368,597 @@ class CertificateTests(unittest.TestCase):
                     ((-12, -35), 1),
                     ((-9, 40), 1),
                 ),
+            ),
+        )
+
+    def test_conjugate_ideal_divisor_obligation_census(self):
+        witness = parallel_direction_conjugate_ideal_witness((151, 338), (-9, 40))
+        self.assertIsNotNone(witness)
+        obligation = parallel_direction_conjugate_ideal_divisor_obligation_key(witness)
+        self.assertEqual(obligation, ((4, 5), 2, 41, 9, 10, 33, 19))
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                obligation
+            ),
+            82,
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                obligation
+            ),
+            20,
+        )
+        self.assertTrue(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                (151, 338),
+                (-9, 40),
+                obligation,
+            )
+        )
+        self.assertTrue(
+            parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                (151, 338),
+                (-9, 40),
+                obligation,
+            )
+        )
+        self.assertTrue(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                (1, 48),
+                (-9, 40),
+                obligation,
+            )
+        )
+        self.assertFalse(
+            parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                (1, 48),
+                (-9, 40),
+                obligation,
+            )
+        )
+        self.assertEqual(pythagorean_layered_structural_label((1, 48)), "promoted_345")
+        self.assertIsNone(pythagorean_layered_structural_label((151, 338)))
+        self.assertFalse(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                (151, 339),
+                (-9, 40),
+                obligation,
+            )
+        )
+
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census(
+                500,
+                8,
+            ),
+            ParallelDirectionConjugateIdealDivisorObligationCensus(
+                max_coordinate=500,
+                root_shapes=(
+                    (1, 2),
+                    (2, 3),
+                    (1, 4),
+                    (3, 4),
+                    (2, 5),
+                    (1, 6),
+                    (4, 5),
+                    (2, 7),
+                    (1, 8),
+                    (3, 8),
+                ),
+                target_count=152049,
+                structural_miss_count=10,
+                uncovered_targets=(),
+                shape_squareclass_counts=(
+                    ((2, 3), 1, 2),
+                    ((1, 4), 2, 2),
+                    ((2, 5), 10, 2),
+                    ((4, 5), 2, 2),
+                    ((3, 8), 1, 2),
+                ),
+                obligation_counts=(
+                    ((2, 3), 1, 13, 5, 7, 4, 11, 1),
+                    ((2, 3), 1, 13, 8, 6, 4, 11, 1),
+                    ((1, 4), 2, 17, 4, 2, 9, 3, 1),
+                    ((1, 4), 2, 17, 13, 15, 9, 3, 1),
+                    ((2, 5), 10, 29, 12, 12, 1, 1, 1),
+                    ((2, 5), 10, 29, 17, 12, 28, 17, 1),
+                    ((4, 5), 2, 41, 9, 10, 33, 19, 1),
+                    ((4, 5), 2, 41, 32, 10, 8, 34, 1),
+                    ((3, 8), 1, 73, 27, 38, 69, 19, 1),
+                    ((3, 8), 1, 73, 46, 38, 4, 71, 1),
+                ),
+            ),
+        )
+
+        primary_census = (
+            parallel_direction_conjugate_ideal_root_shape_divisor_obligation_census(
+                500,
+                primitive_pythagorean_root_primary_spine_shapes(8),
+            )
+        )
+        self.assertEqual(
+            primary_census.uncovered_targets,
+            ((151, 338), (158, 391), (338, 151), (391, 158)),
+        )
+        self.assertEqual(
+            primary_census.shape_squareclass_counts,
+            (((2, 3), 1, 2), ((1, 4), 2, 2), ((2, 5), 10, 2)),
+        )
+        obligations = tuple(
+            row[:-1]
+            for row in parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census(
+                500,
+                8,
+            ).obligation_counts
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_divisor_obligation_directions(
+                obligations[0]
+            ),
+            ((-12, -5), (-5, 12), (5, -12), (12, 5)),
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_census(
+                100,
+                obligations,
+            ),
+            ParallelDirectionConjugateIdealDivisorObligationStripCensus(
+                max_coordinate=100,
+                obligation_rows=(
+                    ((2, 3), 1, 13, 5, 7, 4, 11, 1870, 467, 1403, 1403, 0),
+                    ((2, 3), 1, 13, 8, 6, 4, 11, 1870, 467, 1403, 1403, 0),
+                    ((1, 4), 2, 17, 4, 2, 9, 3, 472, 159, 313, 313, 0),
+                    ((1, 4), 2, 17, 13, 15, 9, 3, 472, 159, 313, 313, 0),
+                    ((2, 5), 10, 29, 12, 12, 1, 1, 44, 44, 0, 0, 0),
+                    ((2, 5), 10, 29, 17, 12, 28, 17, 44, 20, 24, 24, 0),
+                    ((4, 5), 2, 41, 9, 10, 33, 19, 196, 17, 179, 179, 0),
+                    ((4, 5), 2, 41, 32, 10, 8, 34, 196, 8, 188, 188, 0),
+                    ((3, 8), 1, 73, 27, 38, 69, 19, 327, 68, 259, 259, 0),
+                    ((3, 8), 1, 73, 46, 38, 4, 71, 327, 11, 316, 316, 0),
+                ),
+                obligation_structural_failure_family_counts=(
+                    (((2, 3), 1, 13, 5, 7, 4, 11), "lattice_pair", 53),
+                    (((2, 3), 1, 13, 5, 7, 4, 11), "orthogonal", 3),
+                    (((2, 3), 1, 13, 5, 7, 4, 11), "promoted_345", 1345),
+                    (((2, 3), 1, 13, 5, 7, 4, 11), "standard_completion", 2),
+                    (((2, 3), 1, 13, 8, 6, 4, 11), "lattice_pair", 53),
+                    (((2, 3), 1, 13, 8, 6, 4, 11), "orthogonal", 3),
+                    (((2, 3), 1, 13, 8, 6, 4, 11), "promoted_345", 1345),
+                    (((2, 3), 1, 13, 8, 6, 4, 11), "standard_completion", 2),
+                    (((1, 4), 2, 17, 4, 2, 9, 3), "lattice_pair", 23),
+                    (((1, 4), 2, 17, 4, 2, 9, 3), "promoted_345", 290),
+                    (((1, 4), 2, 17, 13, 15, 9, 3), "lattice_pair", 23),
+                    (((1, 4), 2, 17, 13, 15, 9, 3), "promoted_345", 290),
+                    (((2, 5), 10, 29, 17, 12, 28, 17), "lattice_pair", 3),
+                    (((2, 5), 10, 29, 17, 12, 28, 17), "promoted_345", 21),
+                    (((4, 5), 2, 41, 9, 10, 33, 19), "lattice_pair", 13),
+                    (((4, 5), 2, 41, 9, 10, 33, 19), "promoted_345", 166),
+                    (((4, 5), 2, 41, 32, 10, 8, 34), "lattice_pair", 14),
+                    (((4, 5), 2, 41, 32, 10, 8, 34), "promoted_345", 174),
+                    (((3, 8), 1, 73, 27, 38, 69, 19), "lattice_pair", 9),
+                    (((3, 8), 1, 73, 27, 38, 69, 19), "promoted_345", 250),
+                    (((3, 8), 1, 73, 46, 38, 4, 71), "lattice_pair", 12),
+                    (((3, 8), 1, 73, 46, 38, 4, 71), "promoted_345", 303),
+                    (((3, 8), 1, 73, 46, 38, 4, 71), "standard_completion", 1),
+                ),
+                structural_failure_family_counts=(
+                    ("promoted_345", 4184),
+                    ("lattice_pair", 203),
+                    ("orthogonal", 6),
+                    ("standard_completion", 5),
+                ),
+                divisor_failure_residue_closure_size_counts=(
+                    (2, 1683),
+                    (4, 1322),
+                    (6, 817),
+                    (8, 305),
+                    (3, 68),
+                    (12, 58),
+                    (9, 22),
+                    (16, 20),
+                    (11, 16),
+                    (10, 14),
+                    (15, 13),
+                    (5, 12),
+                    (7, 12),
+                    (13, 8),
+                    (18, 5),
+                    (20, 5),
+                    (14, 2),
+                    (22, 2),
+                    (23, 2),
+                    (24, 2),
+                    (26, 2),
+                    (29, 2),
+                    (32, 2),
+                    (19, 1),
+                    (28, 1),
+                    (33, 1),
+                    (48, 1),
+                ),
+                divisor_failure_distinct_residue_closure_count=215,
+                divisor_failure_distinct_residue_closure_size_counts=(
+                    (4, 51),
+                    (8, 49),
+                    (6, 29),
+                    (12, 21),
+                    (16, 10),
+                    (2, 9),
+                    (15, 6),
+                    (3, 5),
+                    (10, 4),
+                    (11, 4),
+                    (7, 3),
+                    (9, 3),
+                    (13, 3),
+                    (20, 3),
+                    (5, 2),
+                    (18, 2),
+                    (14, 1),
+                    (19, 1),
+                    (22, 1),
+                    (23, 1),
+                    (24, 1),
+                    (26, 1),
+                    (28, 1),
+                    (29, 1),
+                    (32, 1),
+                    (33, 1),
+                    (48, 1),
+                ),
+                divisor_failure_prime_modulus_generators=(
+                    (13, 2),
+                    (17, 3),
+                    (29, 2),
+                    (41, 6),
+                    (73, 5),
+                ),
+                divisor_failure_required_exponent_counts=(
+                    (13, 7, 2806),
+                    (17, 1, 626),
+                    (73, 44, 316),
+                    (73, 62, 259),
+                    (41, 19, 188),
+                    (41, 9, 179),
+                    (29, 21, 24),
+                ),
+                divisor_failure_exponent_closure_size_counts=(
+                    (2, 1683),
+                    (4, 1322),
+                    (6, 817),
+                    (8, 305),
+                    (3, 68),
+                    (12, 58),
+                    (9, 22),
+                    (16, 20),
+                    (11, 16),
+                    (10, 14),
+                    (15, 13),
+                    (5, 12),
+                    (7, 12),
+                    (13, 8),
+                    (18, 5),
+                    (20, 5),
+                    (14, 2),
+                    (22, 2),
+                    (23, 2),
+                    (24, 2),
+                    (26, 2),
+                    (29, 2),
+                    (32, 2),
+                    (19, 1),
+                    (28, 1),
+                    (33, 1),
+                    (48, 1),
+                ),
+                divisor_failure_distinct_exponent_closure_count=215,
+                divisor_failure_distinct_exponent_closure_size_counts=(
+                    (4, 51),
+                    (8, 49),
+                    (6, 29),
+                    (12, 21),
+                    (16, 10),
+                    (2, 9),
+                    (15, 6),
+                    (3, 5),
+                    (10, 4),
+                    (11, 4),
+                    (7, 3),
+                    (9, 3),
+                    (13, 3),
+                    (20, 3),
+                    (5, 2),
+                    (18, 2),
+                    (14, 1),
+                    (19, 1),
+                    (22, 1),
+                    (23, 1),
+                    (24, 1),
+                    (26, 1),
+                    (28, 1),
+                    (29, 1),
+                    (32, 1),
+                    (33, 1),
+                    (48, 1),
+                ),
+                divisor_failure_exponent_stabilizer_counts=(
+                    (13, 12, 1, 2630),
+                    (73, 72, 1, 574),
+                    (17, 16, 1, 570),
+                    (41, 40, 1, 363),
+                    (13, 4, 3, 138),
+                    (17, 8, 2, 46),
+                    (13, 6, 2, 38),
+                    (29, 28, 1, 24),
+                    (17, 2, 8, 10),
+                    (41, 20, 2, 4),
+                    (73, 8, 9, 1),
+                ),
+                divisor_failure_exponent_kneser_defect_counts=(
+                    (13, 12, 1, 0, 1284),
+                    (13, 12, 1, 1, 872),
+                    (17, 16, 1, 0, 370),
+                    (13, 12, 1, 2, 354),
+                    (73, 72, 1, 1, 193),
+                    (73, 72, 1, 0, 160),
+                    (13, 4, 3, 0, 138),
+                    (41, 40, 1, 1, 126),
+                    (17, 16, 1, 1, 96),
+                    (73, 72, 1, 4, 87),
+                    (13, 12, 1, 3, 84),
+                    (41, 40, 1, 0, 82),
+                    (17, 16, 1, 2, 72),
+                    (17, 8, 2, 0, 46),
+                    (41, 40, 1, 2, 46),
+                    (73, 72, 1, 2, 41),
+                    (41, 40, 1, 4, 39),
+                    (13, 6, 2, 0, 38),
+                    (13, 12, 1, 4, 36),
+                    (73, 72, 1, 7, 32),
+                    (41, 40, 1, 3, 20),
+                    (41, 40, 1, 6, 14),
+                    (41, 40, 1, 7, 14),
+                    (17, 16, 1, 6, 12),
+                    (73, 72, 1, 3, 11),
+                    (73, 72, 1, 10, 11),
+                    (17, 2, 8, 0, 10),
+                    (17, 16, 1, 3, 10),
+                    (17, 16, 1, 4, 10),
+                    (29, 28, 1, 0, 10),
+                    (73, 72, 1, 6, 9),
+                    (29, 28, 1, 2, 8),
+                    (73, 72, 1, 8, 8),
+                    (41, 40, 1, 8, 6),
+                    (41, 40, 1, 10, 6),
+                    (73, 72, 1, 11, 6),
+                    (41, 20, 2, 2, 4),
+                    (73, 72, 1, 18, 4),
+                    (29, 28, 1, 1, 3),
+                    (29, 28, 1, 4, 3),
+                    (41, 40, 1, 13, 3),
+                    (41, 40, 1, 5, 2),
+                    (41, 40, 1, 12, 2),
+                    (41, 40, 1, 15, 2),
+                    (73, 72, 1, 5, 2),
+                    (73, 72, 1, 17, 2),
+                    (73, 72, 1, 22, 2),
+                    (73, 72, 1, 25, 2),
+                    (41, 40, 1, 14, 1),
+                    (73, 8, 9, 0, 1),
+                    (73, 72, 1, 9, 1),
+                    (73, 72, 1, 19, 1),
+                    (73, 72, 1, 26, 1),
+                    (73, 72, 1, 40, 1),
+                ),
+                divisor_failure_exponent_effective_length_counts=(
+                    (13, 1, 1194),
+                    (13, 2, 854),
+                    (13, 3, 536),
+                    (13, 4, 146),
+                    (13, 5, 60),
+                    (13, 7, 16),
+                    (17, 1, 266),
+                    (17, 2, 156),
+                    (17, 3, 106),
+                    (17, 4, 52),
+                    (17, 5, 32),
+                    (17, 6, 4),
+                    (17, 7, 10),
+                    (29, 1, 7),
+                    (29, 2, 3),
+                    (29, 3, 11),
+                    (29, 7, 3),
+                    (41, 1, 70),
+                    (41, 2, 126),
+                    (41, 3, 83),
+                    (41, 4, 47),
+                    (41, 5, 24),
+                    (41, 6, 8),
+                    (41, 7, 3),
+                    (41, 8, 6),
+                    (73, 1, 146),
+                    (73, 2, 207),
+                    (73, 3, 120),
+                    (73, 4, 50),
+                    (73, 5, 28),
+                    (73, 6, 13),
+                    (73, 7, 7),
+                    (73, 8, 3),
+                    (73, 9, 1),
+                ),
+                divisor_failure_exponent_saturation_gap_counts=(
+                    (13, 4, 3, 6, 138),
+                    (13, 6, 2, 8, 38),
+                    (13, 12, 1, 4, 16),
+                    (13, 12, 1, 6, 60),
+                    (13, 12, 1, 7, 140),
+                    (13, 12, 1, 8, 404),
+                    (13, 12, 1, 9, 816),
+                    (13, 12, 1, 10, 1194),
+                    (17, 2, 8, 8, 10),
+                    (17, 8, 2, 12, 46),
+                    (17, 16, 1, 9, 4),
+                    (17, 16, 1, 10, 32),
+                    (17, 16, 1, 11, 52),
+                    (17, 16, 1, 12, 106),
+                    (17, 16, 1, 13, 110),
+                    (17, 16, 1, 14, 266),
+                    (29, 28, 1, 20, 3),
+                    (29, 28, 1, 24, 11),
+                    (29, 28, 1, 25, 3),
+                    (29, 28, 1, 26, 7),
+                    (41, 20, 2, 34, 4),
+                    (41, 40, 1, 31, 6),
+                    (41, 40, 1, 32, 3),
+                    (41, 40, 1, 33, 8),
+                    (41, 40, 1, 34, 24),
+                    (41, 40, 1, 35, 47),
+                    (41, 40, 1, 36, 79),
+                    (41, 40, 1, 37, 126),
+                    (41, 40, 1, 38, 70),
+                    (73, 8, 9, 54, 1),
+                    (73, 72, 1, 63, 3),
+                    (73, 72, 1, 64, 7),
+                    (73, 72, 1, 65, 13),
+                    (73, 72, 1, 66, 28),
+                    (73, 72, 1, 67, 50),
+                    (73, 72, 1, 68, 120),
+                    (73, 72, 1, 69, 207),
+                    (73, 72, 1, 70, 146),
+                ),
+                divisor_exponent_saturation_branch_counts=(
+                    ("short_failure", 4398),
+                    ("short_success", 1228),
+                    ("saturation_success", 192),
+                ),
+                divisor_exponent_saturation_branch_modulus_counts=(
+                    (13, "saturation_success", 192),
+                    (13, "short_failure", 2806),
+                    (13, "short_success", 742),
+                    (17, "short_failure", 626),
+                    (17, "short_success", 318),
+                    (29, "short_failure", 24),
+                    (29, "short_success", 64),
+                    (41, "short_failure", 367),
+                    (41, "short_success", 25),
+                    (73, "short_failure", 575),
+                    (73, "short_success", 79),
+                ),
+                promoted_345_failure_direction_counts=(
+                    ((-4, -3), 1617),
+                    ((-4, 3), 993),
+                    ((-3, -4), 630),
+                    ((-3, 4), 354),
+                    ((3, -4), 310),
+                    ((3, 4), 145),
+                    ((4, -3), 104),
+                    ((4, 3), 31),
+                ),
+                promoted_345_failure_factor_counts=(
+                    (1, 1517),
+                    (2, 714),
+                    (4, 424),
+                    (3, 343),
+                    (5, 318),
+                    (8, 307),
+                    (9, 204),
+                    (25, 181),
+                    (6, 176),
+                ),
+                promoted_345_failure_integrality_linear_row_modulus_counts=(
+                    (1, 3714),
+                    (2, 449),
+                    (5, 16),
+                    (10, 5),
+                ),
+                promoted_345_failure_distinct_integrality_linear_row_count=2668,
+                promoted_345_failure_distinct_integrality_linear_row_modulus_counts=(
+                    (1, 2305),
+                    (2, 342),
+                    (5, 16),
+                    (10, 5),
+                ),
+                lattice_pair_failure_determinant_counts=(
+                    (7, 51),
+                    (13, 36),
+                    (55, 18),
+                    (47, 16),
+                    (31, 12),
+                    (17, 9),
+                    (73, 7),
+                    (23, 6),
+                    (155, 6),
+                    (185, 6),
+                    (475, 4),
+                    (817, 4),
+                    (841, 4),
+                    (16, 2),
+                    (107, 2),
+                    (109, 2),
+                    (115, 2),
+                    (157, 2),
+                    (311, 2),
+                    (443, 2),
+                    (515, 2),
+                    (989, 2),
+                    (1369, 2),
+                    (1435, 2),
+                    (36, 1),
+                    (68, 1),
+                ),
+                lattice_pair_failure_distinct_pair_count=63,
+                lattice_pair_failure_distinct_pair_determinant_counts=(
+                    (47, 6),
+                    (13, 4),
+                    (31, 4),
+                    (55, 4),
+                    (73, 4),
+                    (155, 4),
+                    (7, 2),
+                    (17, 2),
+                    (23, 2),
+                    (107, 2),
+                    (109, 2),
+                    (115, 2),
+                    (157, 2),
+                    (185, 2),
+                    (311, 2),
+                    (443, 2),
+                    (475, 2),
+                    (515, 2),
+                    (817, 2),
+                    (841, 2),
+                    (989, 2),
+                    (1369, 2),
+                    (1435, 2),
+                    (16, 1),
+                    (36, 1),
+                    (68, 1),
+                ),
+                lattice_pair_failure_linear_gcd_counts=((1, 202), (2, 1)),
+                lattice_pair_failure_distinct_linear_congruence_count=178,
+                lattice_pair_failure_distinct_linear_gcd_counts=((1, 177), (2, 1)),
+                orthogonal_failure_linear_gcd_counts=((1, 6),),
+                orthogonal_failure_distinct_linear_congruence_count=6,
+                orthogonal_failure_distinct_linear_gcd_counts=((1, 6),),
+                standard_completion_failure_direction_branch_counts=(
+                    ((-8, -15), 1, 2),
+                    ((-15, -8), 1, 1),
+                    ((-12, 5), 1, 1),
+                    ((-5, 12), 0, 1),
+                ),
+                standard_completion_failure_distinct_quadratic_row_count=5,
+                standard_completion_failure_distinct_quadratic_row_modulus_counts=(
+                    (1156, 3),
+                    (676, 2),
+                ),
+                standard_completion_failure_linear_row_modulus_counts=((1, 3), (13, 2)),
+                standard_completion_failure_distinct_linear_row_count=5,
+                standard_completion_failure_distinct_linear_row_modulus_counts=(
+                    (1, 3),
+                    (13, 2),
+                ),
+                nonstructural_failure_examples=(),
             ),
         )
 
@@ -2764,10 +4017,16 @@ class CertificateTests(unittest.TestCase):
                 target,
                 ((2, 3), (4, 5)),
             )
+            spine_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                target,
+                8,
+            )
             self.assertIsNotNone(witness, target)
             self.assertEqual(root_witness, witness)
             self.assertIsNotNone(shape_witness, target)
             self.assertTrue(shape_witness.valid())
+            self.assertIsNotNone(spine_witness, target)
+            self.assertTrue(spine_witness.valid())
             direction, squareclass, split_factor, paired, beta, coefficient = expected
             self.assertEqual(witness.direction, direction)
             self.assertEqual(witness.squareclass, squareclass)
@@ -2781,6 +4040,36 @@ class CertificateTests(unittest.TestCase):
             )
             self.assertTrue(witness.valid())
             self.assertTrue(witness.certificate.valid())
+
+        primary_target = (139, 878)
+        primary_witness = parallel_direction_conjugate_ideal_root_primary_spine_cover_witness(
+            primary_target,
+            8,
+        )
+        self.assertIsNotNone(primary_witness)
+        self.assertEqual(primary_witness.root_shape, (1, 4))
+        self.assertIsNone(
+            parallel_direction_conjugate_ideal_root_secondary_spine_cover_certificate(
+                primary_target,
+                8,
+            )
+        )
+
+        secondary_target = (151, 338)
+        secondary_witness = (
+            parallel_direction_conjugate_ideal_root_secondary_spine_cover_witness(
+                secondary_target,
+                8,
+            )
+        )
+        self.assertIsNotNone(secondary_witness)
+        self.assertEqual(secondary_witness.root_shape, (4, 5))
+        self.assertIsNone(
+            parallel_direction_conjugate_ideal_root_primary_spine_cover_certificate(
+                secondary_target,
+                8,
+            )
+        )
 
     def test_prime_determinant_lattice_line_criterion(self):
         self.assertTrue(is_prime(17))

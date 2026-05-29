@@ -2585,9 +2585,216 @@ The shape-family cover also has a census helper.
 same primitive-positive sample using only the supplied shapes. The pinned
 sample-to-1000 row records no uncovered structural misses and root-shape counts
 `(2,3):8`, `(1,4):6`, `(1,6):6`, `(2,5):4`, `(2,7):4`, `(3,8):4`, `(4,5):2`.
+The progress notes now spell out the intended generalization: fixed root shapes
+should be promoted to determinant divisor/residue lemmas for root-shape spines
+such as `(1,2k)` and `(2,2k+1)`, with finite checks reserved for axis or sign
+degeneracies.
+
+The spine route is now executable.
+`primitive_pythagorean_root_primary_spine_shapes` generates the primary shapes
+`(1,2k)` and `(2,2k+1)`, `primitive_pythagorean_root_secondary_spine_shapes`
+records the observed secondary shapes `(3,4)`, `(3,8)`, and `(4,5)`, and the
+combined `primitive_pythagorean_root_spine_shapes` plus the
+`parallel_direction_conjugate_ideal_root_spine_cover_*` wrappers run the exact
+conjugate-ideal recognizer over that generated family. A scratch
+sample-to-2000 diagnostic found that the two primary spines cover 132 of 150
+structural misses, while the three secondary shapes cover the remaining 18.
+`gaussian_root_conjugate_divisibility_residue` now exposes the congruence
+residue directly from `alpha`, with pinned formulas for the primary spines.
+`ParallelDirectionConjugateIdealWitness` now exposes the associated
+divisor-root obligation fields and validates both the split-root congruence and
+the derived divisor-root congruence.
+`ParallelDirectionConjugateIdealDivisorObligationCensus` and the
+`parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census`
+helper now summarize those obligations over a residual sample. The pinned
+sample-to-500 census has 10 structural misses, no generated-spine uncovered
+targets, and exactly four primary-spine uncovered targets, all on the first
+secondary shapes.
+The obligation helpers also separate the proof into a linear determinant strip
+predicate and a divisor-class predicate for the recorded `a mod c` class.
+`ParallelDirectionConjugateIdealDivisorObligationStripCensus` now checks the
+complementary branch: for a fixed obligation list it counts strip targets,
+divisor-class hits, divisor-class failures, and whether those failures are
+already structural. The pinned sample-to-100 strip census for the ten
+sample-to-500 obligations has no non-structural divisor-class failures.
+`pythagorean_layered_structural_label` names the first structural layer for
+those failures; the pinned strip census records both aggregate and per-obligation
+family counts.
 
 The beta integrality and nondegeneracy filters are now standalone helpers.
 `squareclass_beta_integral` records that even `q` accepts every nonzero beta,
 while odd `q` requires same-parity beta coordinates. `beta_square_is_axis_degenerate`
 records the only beta shapes whose square has a zero coordinate: horizontal,
 vertical, or diagonal beta.
+
+The divisor-obligation strip census now decomposes the largest structural
+fallback bucket. `ParallelDirectionConjugateIdealDivisorObligationStripCensus`
+records promoted `3-4-5` failures by the signed direction and factor returned by
+`parallel_direction_promoted_345_factor_witness`. In the pinned sample-to-100
+strip scan, the `4184` promoted failures split over the eight signed `3-4-5`
+directions and the nine fixed factors, with no promoted failure lacking a
+witness. This makes the next proof obligation finite and structural: discharge
+each determinant strip either by its divisor class or by intersection with one
+of the promoted congruence rows, leaving the smaller lattice-pair, orthogonal,
+and standard-completion fallbacks as separate rows.
+
+The promoted-row integrality intersection has also been made target-box-free.
+`parallel_direction_factor_integrality_strip_intersection_residue_count` applies the CRT:
+if a fixed direction/factor integrality row is periodic modulo `M` and a
+determinant strip has modulus `S`, a row residue lifts to the strip exactly when
+its determinant matches the strip residue modulo `gcd(M, S)`, and then
+contributes `S / gcd(M, S)` classes modulo `lcm(M, S)`.
+`parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts`
+applies this to all signed promoted `3-4-5` rows for one divisor obligation.
+The guardrail checks the formula against brute force for a sample strip and
+pins that the `((4, 5), 2, 41, 9, 10, 33, 19)` obligation has `208` nonzero
+promoted integrality intersections and `80` CRT-incompatible rows. These counts
+are deliberately separate from the pointwise nondegeneracy check used to produce
+certificates.
+
+The fixed direction/factor rows no longer need to be described by the witness
+construction alone. `parallel_direction_factor_congruence_holds` records the
+equivalent determinant/dot congruences: for direction length `c`, factor `F`,
+`D = det(U, T)`, and `A = U dot T`, the row condition is `D != 0`,
+`D^2 + F^2 == 0 mod 2cF`, and
+`D^2 - F^2 + 2FA == 0 mod 2Fc^2`. The residue-class helper now uses this
+predicate directly, and the guardrail compares it with the old coefficient
+criterion across the base `(3, 4), F=1` row and all promoted `3-4-5`
+direction/factor rows in a signed sample.
+
+Primitive factor rows now have a determinant-residue parametrization.
+`parallel_direction_primitive_factor_determinant_residue_rows` lists
+`(D mod M, A mod c^2)` rows, using the target-lattice identity that
+`A == v*u^-1*D mod c^2`; `M = 2c^2F`.
+`parallel_direction_primitive_factor_determinant_residue_holds` checks targets
+against that compressed representation. The pinned `(3, 4), F=1` row has five
+determinant rows modulo `50`, and the guardrail verifies for every promoted
+`3-4-5` direction/factor row that the target-residue count is exactly `M` times
+the determinant-row count.
+
+Strip intersections can now be counted from determinant rows rather than from
+target residues. `parallel_direction_primitive_factor_integrality_strip_intersection_residue_count`
+uses a Bezout vector `E` with `det(V,E)=1`; for each determinant row `D0`, the
+strip condition becomes the single linear congruence
+`det(U,V) k == R - D0*det(U,E) mod gcd(M,S)`. The focused guardrail checks this
+determinant-row counter against the previous target-residue CRT counter for a
+sample row and for all promoted `3-4-5` rows on the `(2,3)` and `(4,5)` divisor
+obligations.
+
+The same intersection is now exposed as rows rather than only a count.
+`parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows` returns
+`(D0, k0, modulus, count)` rows. The pinned sample
+`U=(-12,-5), S=13, R=7` against `V=(-4,-3), F=1` has five rows
+`(3,0,1,650)`, `(13,0,1,650)`, `(23,0,1,650)`, `(33,0,1,650)`, and
+`(43,0,1,650)`, summing to the existing `3250` CRT classes.
+`parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness`
+now maps individual targets to these rows exactly when they satisfy both the
+factor integrality row and the strip; the sample target `(1,15)` maps to
+`(43,0,1,650)`.
+
+The divisor-obligation strip census records the promoted fallback integrality row
+shape.
+All `4184` promoted `3-4-5` failures in the pinned sample-to-100 strip scan now
+have a linear-row witness after the promoted certificate witness has already
+passed nondegeneracy. The complete row list is intentionally not pinned because
+it has `2668` distinct obligation/strip/promoted/linear rows; instead the census
+records the compact modulus distribution. By failure mass it is
+`m=1:3714`, `m=2:449`, `m=5:16`, `m=10:5`; by distinct rows it is
+`m=1:2305`, `m=2:342`, `m=5:16`, `m=10:5`.
+
+The same strip census now records the smaller lattice-pair fallback as
+determinant data. All `203` lattice-pair strip failures in the pinned
+sample-to-100 scan have exact `pythagorean_lattice_pair_witness` objects. Their
+failure-mass determinant distribution is `(7,51)`, `(13,36)`, `(55,18)`,
+`(47,16)`, `(31,12)`, `(17,9)`, `(73,7)`, `(23,6)`, `(155,6)`, `(185,6)`,
+`(475,4)`, `(817,4)`, `(841,4)`, then thirteen determinant values with mass
+`1` or `2`. Collapsing repeated ordered direction pairs gives `63` distinct
+pair rows over `26` determinant values. The progress notes now frame the
+remaining route as a determinant-strip discharge theorem: divisor-class success,
+promoted `3-4-5` rows, lattice-pair determinant rows, and the final orthogonal
+or standard-completion rows, instead of another larger-box scan.
+
+The lattice-pair fallback has also been converted from pair search to a
+coefficient congruence. `pythagorean_lattice_pair_strip_linear_congruence`
+records that if `T = mA + nB`, then a strip `det(U,T) == R mod S` becomes
+`det(U,A)m + det(U,B)n == R mod S`.
+`pythagorean_lattice_pair_strip_intersection_residue_count` counts the target
+residue classes modulo `lcm(abs(det(A,B)), S)`, and
+`pythagorean_lattice_pair_strip_intersection_holds` is the target-facing row
+predicate. The pinned lattice-pair strip failures are now classified by the gcd
+of this coefficient congruence: by failure mass, `202` have gcd `1` and one has
+gcd `2`; by distinct strip/pair congruence rows, `177` have gcd `1` and one has
+gcd `2`.
+
+The remaining named strip fallbacks are now row-level too. Orthogonal fallback
+targets use `pythagorean_orthogonal_lattice_witness`, then the same lattice-pair
+strip coefficient congruence with the second direction equal to a quarter-turn
+of the first; the pinned six orthogonal failures all have primitive gcd `1`
+rows. Standard-completion fallback targets now use
+`parallel_direction_standard_completion_witness`,
+`parallel_direction_standard_completion_cover_witness`, and
+`parallel_direction_standard_completion_branch`. The branch is checked by
+`parallel_direction_standard_completion_quadratic_rows` and
+`parallel_direction_standard_completion_quadratic_row_witness`, which represent
+the two standard determinant-leg completions as quadratic rows in
+`det(U,T)` and `U dot T` modulo `4|U|^2`. The pinned five
+standard-completion failures use four direction/branch pairs and five distinct
+quadratic rows, with row-modulus counts `(1156,3)` and `(676,2)`.
+`parallel_direction_standard_completion_determinant_rows` filters those
+quadratic rows to target-compatible determinant residues, and
+`parallel_direction_standard_completion_strip_intersection_linear_rows` plus
+`parallel_direction_standard_completion_strip_intersection_linear_row_witness`
+intersect them with divisor-obligation strips as one-parameter linear rows. The
+pinned five standard-completion failures all have such a row; by failure mass
+and by distinct rows the `k`-modulus counts are `(1,3)` and `(13,2)`.
+
+The divisor-class predicate now has a multiplicative closure helper.
+`divisor_residue_classes(n, c)` computes the residue classes modulo `c`
+represented by positive divisors of `n` from the prime-power factorization,
+and `has_divisor_in_residue_classes` now uses that closure instead of
+enumerating divisors directly. The divisor-obligation strip census records the
+closure profile for divisor-class failures: the pinned sample-to-100 strip scan
+has `4398` failures, `215` distinct `(modulus, closure)` sets, failure-mass
+closure-size counts led by `(2,1683)`, `(4,1322)`, `(6,817)`, `(8,305)`, and
+distinct-closure size counts led by `(4,51)`, `(8,49)`, `(6,29)`, `(12,21)`.
+
+The prime-modulus divisor closures now have a cyclic-group profile too.
+`primitive_root_mod_prime`, `discrete_log_table_mod_prime`, and
+`prime_modulus_divisor_exponent_classes` convert nonzero divisor residues into
+exponent subsets of `(Z/cZ)^*`. In the pinned strip scan the prime moduli use
+generators `(13,2)`, `(17,3)`, `(29,2)`, `(41,6)`, and `(73,5)`. The required
+missing exponent counts are `(13,7,2806)`, `(17,1,626)`, `(73,44,316)`,
+`(73,62,259)`, `(41,19,188)`, `(41,9,179)`, and `(29,21,24)`. The exponent
+closure-size distributions match the residue-closure distributions, which makes
+the divisor side a finite cyclic sumset problem rather than a pointwise divisor
+enumeration problem.
+
+That sumset view is now sharpened by Kneser data.
+`prime_modulus_divisor_exponent_summands` exposes each prime-power factor as a
+short arithmetic-progression summand in `Z/(c-1)Z`; `cyclic_sumset`,
+`cyclic_subset_stabilizer_step`, and `cyclic_sumset_kneser_data` verify the
+resulting sumset and its Kneser lower-bound defect. In the pinned strip scan,
+`4161` of `4398` divisor failures have trivial stabilizer, while the nontrivial
+stabilizer tail is `(13,4,3,138)`, `(17,8,2,46)`, `(13,6,2,38)`,
+`(17,2,8,10)`, `(41,20,2,4)`, and `(73,8,9,1)`. Kneser-critical rows with
+defect `0` account for `2139` failures. This rules out a proof based only on
+quotienting by stabilizers and points instead to critical-pair analysis of
+short cyclic arithmetic-progression sumsets.
+
+The same Kneser layer now records the saturation obstruction. The helper
+`cyclic_sumset_effective_length` computes `sum(|A_i|-1)`, and
+`cyclic_sumset_saturation_gap` records how far the Kneser lower bound is from
+filling `Z/(c-1)Z`. Any row with nonpositive saturation gap is automatically a
+divisor-class success row, so divisor failures must be short bounded sequences
+of prime-factor logs. In the pinned failures the largest effective lengths are
+`7` for moduli `13`, `17`, and `29`, `8` for modulus `41`, and `9` for modulus
+`73`; the largest mass buckets are `(13,1,1194)`, `(13,2,854)`,
+`(13,3,536)`, `(73,2,207)`, and `(73,3,120)`.
+
+The strip census now applies the saturation test to every prime-modulus strip
+target, not just failures. It records `192` Kneser-forced divisor successes,
+`1228` short-log divisor successes, and `4398` short-log divisor failures. The
+implementation asserts that no saturated exponent sumset can fall through to
+the divisor-failure branch. In the pinned sample, saturation appears only for
+modulus `13`; the other prime moduli remain entirely in the short-log
+success/fallback dichotomy.

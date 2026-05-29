@@ -994,6 +994,505 @@ $$
 (2,5):4,\quad (2,7):4,\quad (3,8):4,\quad (4,5):2.
 $$
 
+This is the point where the search should stop being "make the box bigger".
+The shape-cover data gives a finite list of proof obligations for a
+one-dimensional divisor problem. For a fixed root shape
+$\alpha=(x,y)$, a unit $\varepsilon$, and $U=\varepsilon\alpha^2$, put
+$c=N(\alpha)=x^2+y^2$ and $D=\det(U,T)$. The conjugate-ideal recognizer says
+that a two-step certificate exists as soon as one can choose a squarefree
+$q\mid D$ and a divisor $a\mid D/q$ such that
+$$
+a^2\equiv-\rho D/q\pmod c,\qquad b=D/(qa),
+$$
+and $a+ib$ is divisible by $\overline{\alpha}$, with the quadratic coefficient
+$r$ integral in
+$$
+2\varepsilon^{-1}T=2r\alpha^2+q\beta^2.
+$$
+Thus a fixed root shape is not a finite certificate table; it is a residue and
+divisor theorem for the determinant coordinate $D$. The audited shapes suggest
+the first root-shape spines to prove are
+$$
+(1,2k),\qquad (2,2k+1),
+$$
+with the observed adjacent or secondary small shapes such as $(3,4)$, $(3,8)$,
+and $(4,5)$ handled either as separate lemmas or as the beginning of another
+spine. The box audits should now be used only to test which residue classes and
+divisor choices each spine must cover.
+
+This candidate is now executable. The helper
+`primitive_pythagorean_root_primary_spine_shapes` generates the primary spines
+$(1,2k)$ and $(2,2k+1)$ up to a root-coordinate bound, while
+`primitive_pythagorean_root_secondary_spine_shapes` records the observed
+secondary shapes $(3,4)$, $(3,8)$, and $(4,5)$ when they fit inside that bound.
+Their union is `primitive_pythagorean_root_spine_shapes`. The wrappers
+`parallel_direction_conjugate_ideal_root_primary_spine_cover_witness` and
+`parallel_direction_conjugate_ideal_root_secondary_spine_cover_witness`
+separate the primary and secondary cases, while
+`parallel_direction_conjugate_ideal_root_spine_cover_witness`,
+`parallel_direction_conjugate_ideal_root_spine_cover_certificate`, and
+`parallel_direction_conjugate_ideal_root_spine_cover_census` apply the exact
+conjugate-ideal recognizer to this generated family. In the scratch
+$1\le g,h\le2000$ primitive-positive diagnostic, the two primary spines alone
+cover $132$ of the $150$ structural misses; the remaining $18$ are exactly on
+the three secondary shapes above, and the generated spine family covers all
+$150$ root-bound-8 residuals.
+
+The residue side of the spine problem is also explicit. The helper
+`gaussian_root_conjugate_divisibility_residue` computes the congruence
+$b\equiv\rho a\pmod c$ directly from $\alpha$. On the two primary spines this
+gives
+$$
+\alpha=(1,2k):\quad c=4k^2+1,\qquad \rho\equiv-2k\pmod c,
+$$
+and
+$$
+\alpha=(2,2k+1):\quad c=(2k+1)^2+4,\qquad
+\rho\equiv-(2k+1)/2\pmod c.
+$$
+The sign and unit variants only replace $\rho$ by the corresponding signed
+square root of $-1$ modulo $c$.
+
+The witness now exposes this as checkable proof-obligation data:
+`root_shape`, `conjugate_root_residue`, `determinant_squareclass_quotient`,
+`divisor_root_residue`, `split_root_congruence_holds`, and
+`divisor_root_congruence_holds`. For example, the primary residual
+$(139,878)$ is carried by shape $(1,4)$ with
+$(q,a,b)=(1,449,-11)$, while the secondary residual $(151,338)$ is carried by
+shape $(4,5)$ with $(q,a,b)=(2,19,-239)$. These are no longer opaque search
+hits: they are named divisor-root congruence obligations.
+
+The helper
+`parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census`
+compresses a residual sample to those obligations. In the $1\le g,h\le500$
+guardrail, the generated spine family has $10$ structural misses, no uncovered
+targets, and only five shape-squareclass buckets:
+$$
+((2,3),1),\quad ((1,4),2),\quad ((2,5),10),\quad
+((4,5),2),\quad ((3,8),1).
+$$
+Using only the primary spines leaves exactly
+$$
+(151,338),\ (158,391),\ (338,151),\ (391,158)
+$$
+uncovered in that range, isolating the first secondary obligations.
+
+Each obligation now has an executable two-stage predicate. The helpers
+`parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus` and
+`parallel_direction_conjugate_ideal_divisor_obligation_strip_residue` convert
+$(q,c,D/q\bmod c)$ into the determinant congruence
+$$
+\det(U,T)\equiv q(D/q\bmod c)\pmod {qc}.
+$$
+`parallel_direction_conjugate_ideal_divisor_obligation_strip_holds` checks this
+linear strip, and
+`parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds` checks
+the remaining requirement that $|D/q|$ have a divisor in the recorded
+$a\bmod c$ class. This is the precise proof split: determinant strips are
+linear congruences in $(g,h)$; the hard part is proving the needed divisor
+class occurs on each strip.
+
+The divisor-class test itself is now expressed multiplicatively. The helper
+`divisor_residue_classes(n,c)` computes the closure of the prime-power residue
+choices of $n$ modulo $c$:
+$$
+\{\prod p_i^{e_i}\bmod c:0\le e_i\le v_{p_i}(n)\}.
+$$
+Thus a divisor-obligation failure is exactly the assertion that the recorded
+class $a\bmod c$ is missing from this closure. In the pinned strip census,
+the $4398$ divisor-class failures have $215$ distinct closures. By failure
+mass, the dominant closure sizes are
+$$
+2:1683,\quad 4:1322,\quad 6:817,\quad 8:305,
+$$
+followed by smaller tails beginning
+$$
+3:68,\quad 12:58,\quad 9:22,\quad 16:20.
+$$
+By distinct closure sets, the largest size buckets are
+$$
+4:51,\quad 8:49,\quad 6:29,\quad 12:21,\quad 16:10.
+$$
+For the pinned rows the moduli are prime, so this same closure can be pushed
+into the cyclic group $(\mathbb Z/c\mathbb Z)^*$. The helpers
+`primitive_root_mod_prime`, `discrete_log_table_mod_prime`, and
+`prime_modulus_divisor_exponent_classes` choose generators
+$$
+(13,2),\quad (17,3),\quad (29,2),\quad (41,6),\quad (73,5)
+$$
+and rewrite every nonzero divisor residue as an exponent set. The required
+missing exponents in the pinned failures are
+$$
+(13,7):2806,\quad (17,1):626,\quad (73,44):316,\quad
+(73,62):259,\quad (41,19):188,\quad (41,9):179,\quad (29,21):24.
+$$
+Thus the remaining divisor side is no longer an unstructured divisor search:
+it is a question about finite sumsets of prime-factor valuation intervals in
+cyclic groups.
+The first additive-combinatorics guardrail is now executable as well. The
+helpers `cyclic_sumset`, `cyclic_subset_stabilizer_step`, and
+`cyclic_sumset_kneser_data` compute the exponent sumset, its translation
+stabilizer, and its Kneser lower-bound defect. In the pinned failures,
+$$
+4161\text{ of }4398
+$$
+have trivial stabilizer, so a proof that only quotients by a nontrivial
+subgroup cannot explain the main mass. The nontrivial stabilizer tail is small:
+$$
+(13,4,3):138,\quad (17,8,2):46,\quad (13,6,2):38,\quad
+(17,2,8):10,\quad (41,20,2):4,\quad (73,8,9):1,
+$$
+where each triple is $(c,\text{stabilizer step},\text{stabilizer size})$.
+Kneser-critical failures, with defect $0$, account for $2139$ rows; the largest
+defect buckets are
+$$
+(13,12,1,0):1284,\quad (13,12,1,1):872,\quad
+(17,16,1,0):370,\quad (13,12,1,2):354.
+$$
+This suggests the next theorem should be a critical-pair/near-critical-pair
+analysis of short arithmetic-progression sumsets in $\mathbb Z/(c-1)\mathbb Z$,
+with only the small periodic tail passing to quotient groups.
+The same data now records the saturation obstruction directly. For exponent
+summands $A_i$, let
+$$
+\ell=\sum_i(|A_i|-1).
+$$
+If the Kneser lower bound reaches $c-1$, the exponent closure is the whole
+group and the divisor class cannot be missing. In the pinned failures the
+effective lengths are tiny:
+$$
+c=13:\ell\le7,\quad c=17:\ell\le7,\quad c=29:\ell\le7,\quad
+c=41:\ell\le8,\quad c=73:\ell\le9.
+$$
+The largest failure masses are at $\ell=1,2,3$, for example
+$$
+(13,1):1194,\quad (13,2):854,\quad (13,3):536,\quad
+(73,2):207,\quad (73,3):120.
+$$
+This turns the divisor side into a bounded-sequence obstruction: for each
+prime modulus, failures can only come from short sequences of prime-factor
+discrete logs. Long enough determinant factorizations force divisor success by
+Kneser saturation before any fallback row is needed.
+The strip census now applies this dichotomy before the divisor/fallback split.
+Across the $5818$ pinned strip targets, Kneser saturation gives $192$ direct
+divisor successes; another $1228$ strip targets are short-log divisor
+successes; and all $4398$ divisor failures are short-log rows that are then
+handled by the structural fallback stack. By modulus, the saturated branch only
+appears for $c=13$ in this pinned sample:
+$$
+c=13:\quad 192\text{ saturated successes},\quad 742\text{ short successes},
+\quad 2806\text{ short failures}.
+$$
+For $c=17,29,41,73$ every pinned strip target remains below saturation, so the
+proof task there is entirely the short-log success/fallback dichotomy.
+This gives a sharper arithmetic target for the strip-discharge proof: prove
+that missing divisor-root closures on each determinant strip force one of the
+explicit structural congruence rows below.
+
+There is now an executable guardrail for the complementary branch as well.
+`parallel_direction_conjugate_ideal_divisor_obligation_strip_census` scans the
+determinant strips and counts which strip targets pass the divisor-class test,
+which fail it, and whether those failures are already handled by the structural
+stack. For the ten obligation rows from the $1\le g,h\le500$ residual census,
+the strip scan through $1\le g,h\le100$ found no non-structural divisor-class
+failures. The structural half is now labeled by
+`pythagorean_layered_structural_label`: in that scan the failure counts are
+$$
+\text{promoted }3\text{-}4\text{-}5:4184,\quad
+\text{lattice-pair}:203,\quad
+\text{orthogonal}:6,\quad
+\text{standard-completion}:5.
+$$
+The census also records this split per obligation. The two $(2,3)$ strips have
+identical fallback structure, each with $1345$ promoted $3$-$4$-$5$ failures,
+$53$ lattice-pair failures, $3$ orthogonal failures, and $2$
+standard-completion failures. The $(1,4)$, $(2,5)$, $(4,5)$, and $(3,8)$
+strips have only promoted $3$-$4$-$5$ and lattice-pair fallback in the pinned
+range, except one $(3,8)$ strip with a single standard-completion fallback.
+Thus the current proof target has become a named dichotomy: on each obligation
+strip, either prove the recorded divisor class occurs, or prove the target
+falls into one of these structural families.
+
+The largest fallback bucket is no longer opaque. Since the promoted
+$3$-$4$-$5$ layer is itself a finite table of signed directions and determinant
+factors, the strip census also records its aggregate decomposition. In the same
+guardrail, the $4184$ promoted failures split by signed direction as
+$$
+(-4,-3):1617,\ (-4,3):993,\ (-3,-4):630,\ (-3,4):354,
+$$
+$$
+(3,-4):310,\ (3,4):145,\ (4,-3):104,\ (4,3):31,
+$$
+and by factor as
+$$
+1:1517,\ 2:714,\ 4:424,\ 3:343,\ 5:318,\ 8:307,\ 9:204,\ 25:181,\ 6:176.
+$$
+This points to a finite discharging proof rather than a larger box: each
+determinant strip should be partitioned into a divisor-class-success part and
+intersections with these promoted $3$-$4$-$5$ congruence rows, plus the much
+smaller lattice-pair, orthogonal, and standard-completion fallback rows.
+
+The fixed direction/factor rows now have a closed congruence form. For a legal
+direction $V=(u,v)$ of length $c$, a factor $F>0$, and a target $T=(g,h)$, put
+$$
+D=\det(V,T),\qquad A=V\cdot T.
+$$
+The factor-row integrality condition is equivalent to $D\ne0$ and the two
+congruences
+$$
+D^2+F^2\equiv0\pmod {2cF},
+$$
+$$
+D^2-F^2+2FA\equiv0\pmod {2Fc^2}.
+$$
+The helper `parallel_direction_factor_congruence_holds` implements this
+predicate, and `parallel_direction_factor_residue_classes` now uses it directly.
+This removes another layer of opaque factor-search logic: promoted rows are
+explicit quadratic congruence rows in $(g,h)$.
+
+For primitive $V$, the row has an even smaller determinant parametrization.
+Modulo $c^2$, the target lattice itself forces
+$$
+A\equiv vu^{-1}D\pmod {c^2},
+$$
+because
+$$
+c^2 g=uA-vD,\qquad c^2h=vA+uD.
+$$
+Thus a fixed factor row can be listed by determinant residues
+$D_0\bmod M$, where $M=2c^2F$, for which the factor-forced dot class
+$$
+A\equiv (F^2-D_0^2)/(2F)\pmod {c^2}
+$$
+agrees with $vu^{-1}D_0$. The helper
+`parallel_direction_primitive_factor_determinant_residue_rows` returns these
+$(D_0,A_0)$ rows, and
+`parallel_direction_primitive_factor_determinant_residue_holds` checks a target
+against them. For example, the $(3,4),F=1$ row has only five determinant rows
+modulo $50$:
+$$
+(7,1),(17,6),(27,11),(37,16),(47,21),
+$$
+each representing $50$ target residue classes. The promoted $3$-$4$-$5$
+integrality rows in the executable guardrail all satisfy this same compression:
+the number of modular target residues is exactly $M$ times the number of
+determinant rows, before the pointwise certificate nondegeneracy check.
+
+The strip intersection count can also use this determinant parametrization.
+For a fixed determinant row $D_0$, choose $E$ with $\det(V,E)=1$. Targets in
+that row are represented modulo $M$ by
+$$
+T\equiv D_0E+kV\pmod M.
+$$
+Intersecting with a divisor-obligation strip
+$\det(U,T)\equiv R\pmod S$ leaves the single linear congruence
+$$
+\det(U,V)k\equiv R-D_0\det(U,E)\pmod {\gcd(M,S)}.
+$$
+Each compatible $k$ lifts to $S/\gcd(M,S)$ residue classes modulo
+${\rm lcm}(M,S)$. The helper
+`parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows` returns
+the explicit rows
+$$
+(D_0,\ k_0,\ m,\ \#),
+$$
+where $k\equiv k_0\pmod m$ is the surviving linear congruence and $\#$ is the
+number of target residue classes it represents modulo ${\rm lcm}(M,S)$. The
+wrapper `parallel_direction_primitive_factor_integrality_strip_intersection_residue_count`
+sums these integrality row counts and is checked against the older target-residue
+CRT counter on promoted-row intersections for representative divisor
+obligations.
+For the sample strip $U=(-12,-5)$, $S=13$, $R=7$ intersected with
+$V=(-4,-3),F=1$, the five determinant rows are
+$$
+(3,0,1,650),(13,0,1,650),(23,0,1,650),(33,0,1,650),(43,0,1,650),
+$$
+which sum to $3250$ residue classes modulo $650$.
+The companion helper
+`parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness`
+classifies an individual target by this same row format. In the sample above,
+$(1,15)$ lies in the row $(43,0,1,650)$, while targets that satisfy only the
+factor row or only the strip return no row. Thus the linear-row format is both
+an integrality counting object and a target-facing integrality predicate.
+
+The strip-failure census now records how the actual promoted fallbacks land in
+these integrality linear rows after they have already been certified by the
+promoted witness constructor. In the pinned $1\le g,h\le100$ guardrail for the
+ten divisor-obligation rows, all $4184$ promoted $3$-$4$-$5$ strip failures have
+an integrality linear-row witness. The full row list is too large to be a good
+proof artifact:
+it uses $2668$ distinct
+$(\text{obligation},U,V,F,D_0,k_0,m)$ rows. The useful compression is the
+modulus distribution. By failure mass, the row moduli are
+$$
+m=1:3714,\quad m=2:449,\quad m=5:16,\quad m=10:5,
+$$
+and by distinct rows they are
+$$
+m=1:2305,\quad m=2:342,\quad m=5:16,\quad m=10:5.
+$$
+So this fallback branch is not a small finite table, but it has a simple
+one-dimensional shape: almost all promoted fallback points satisfy the strip
+automatically once the determinant row is chosen, and the remaining cases only
+impose moduli $2$, $5$, or $10$ on the parameter $k$.
+
+The next fallback bucket, lattice-pair, is much smaller and now has its own
+compact census. All $203$ lattice-pair strip failures in the same guardrail
+have an exact `pythagorean_lattice_pair_witness`. By failure mass, their
+determinants are
+$$
+7:51,\ 13:36,\ 55:18,\ 47:16,\ 31:12,\ 17:9,\ 73:7,
+$$
+$$
+23:6,\ 155:6,\ 185:6,\ 475:4,\ 817:4,\ 841:4,
+$$
+$$
+16:2,\ 107:2,\ 109:2,\ 115:2,\ 157:2,\ 311:2,\ 443:2,
+$$
+$$
+515:2,\ 989:2,\ 1369:2,\ 1435:2,\ 36:1,\ 68:1.
+$$
+After identifying repeated ordered direction pairs, these failures use only
+$63$ distinct lattice-pair rows over $26$ determinant values, with determinant
+distribution
+$$
+47:6,\ 13:4,\ 31:4,\ 55:4,\ 73:4,\ 155:4,
+$$
+$$
+7:2,\ 17:2,\ 23:2,\ 107:2,\ 109:2,\ 115:2,\ 157:2,\ 185:2,
+$$
+$$
+311:2,\ 443:2,\ 475:2,\ 515:2,\ 817:2,\ 841:2,\ 989:2,
+$$
+$$
+1369:2,\ 1435:2,\ 16:1,\ 36:1,\ 68:1.
+$$
+The lattice-pair/strip intersection is now explicit too. If a lattice-pair row
+uses legal directions $A,B$ with determinant $\Delta$ and a target is written
+as
+$$
+T=mA+nB,
+$$
+then an obligation strip
+$$
+\det(U,T)\equiv R\pmod S
+$$
+is just the coefficient congruence
+$$
+\det(U,A)m+\det(U,B)n\equiv R\pmod S.
+$$
+The helper `pythagorean_lattice_pair_strip_linear_congruence` returns this
+row, and `pythagorean_lattice_pair_strip_intersection_residue_count` counts the
+combined target residues modulo $L=\operatorname{lcm}(\Delta,S)$. Writing
+$$
+G=\gcd(\det(U,A),\det(U,B),S),
+$$
+the intersection is empty unless $G\mid R$, and otherwise has
+$$
+\frac{L^2G}{S\Delta}
+$$
+target residue classes modulo $L$. In the pinned strip census, this congruence
+is primitive for $202$ of the $203$ lattice-pair failures; the remaining one
+has $G=2$. By distinct strip/pair congruence rows, the distribution is
+$177$ primitive rows and one $G=2$ row. This makes the lattice-pair fallback
+another one-dimensional congruence branch rather than a bounded pair search.
+
+So the residual proof should not be "search a larger box". It should be a
+finite discharging theorem for each divisor-obligation strip:
+
+1. prove the recorded divisor class occurs; or
+2. prove the target lies in one of the promoted $3$-$4$-$5$ determinant rows;
+   or
+3. prove it lies in one of the finitely many lattice-pair determinant rows,
+   with the orthogonal and standard-completion rows handled as the final small
+   exceptional families.
+
+The guardrail has already checked this discharge pattern on the pinned strips:
+there are no non-structural strip failures in the scan, every promoted failure
+has a linear-row witness, and every lattice-pair failure has both a lattice-pair
+witness and the coefficient-congruence row above.
+
+The two final small buckets now have row forms as well. Orthogonal fallbacks are
+just the special lattice-pair case $B=iA$, so the same coefficient congruence
+applies. The six pinned orthogonal strip failures are all primitive
+coefficient rows: by failure mass and by distinct rows, $G=1$ in every case.
+
+For standard-completion fallbacks, fix a legal direction $V$ of length $c$ and
+write
+$$
+D=\det(V,T),\qquad A=V\cdot T.
+$$
+The two standard completions of the determinant leg are encoded by a branch
+$\sigma\in\{+1,-1\}$. If $D$ is odd, the row conditions are
+$$
+D^2+1\equiv0\pmod {2c},\qquad
+A+\sigma\frac{D^2-1}{2}\equiv0\pmod {c^2}.
+$$
+If $D$ is even, they are
+$$
+D^2+4\equiv0\pmod {4c},\qquad
+A+\sigma\frac{D^2-4}{4}\equiv0\pmod {c^2}.
+$$
+The helper `parallel_direction_standard_completion_quadratic_rows` enumerates
+these branch rows modulo $4c^2$, and
+`parallel_direction_standard_completion_quadratic_row_witness` classifies a
+target by its $(D\bmod 4c^2,A\bmod c^2)$ row. In the pinned strip census, the
+five standard-completion failures use four direction/branch pairs and five
+distinct quadratic rows, with row moduli $676=4\cdot13^2$ twice and
+$1156=4\cdot17^2$ three times.
+The helper `parallel_direction_standard_completion_determinant_rows` then
+filters those rows to the determinant residues compatible with the target
+lattice, and
+`parallel_direction_standard_completion_strip_intersection_linear_rows`
+intersects them with a divisor-obligation strip by the same one-parameter
+$k$ congruence used for the promoted rows. The five pinned
+standard-completion failures all have such a linear-row witness; by failure
+mass and by distinct rows the surviving $k$-moduli are
+$$
+m=1:3,\qquad m=13:2.
+$$
+
+At this point the pinned strip census has no residual opaque fallback:
+promoted $3$-$4$-$5$, lattice-pair, orthogonal, and standard-completion
+failures all have explicit congruence-row witnesses.
+
+The promoted-row integrality intersections can also be computed exactly,
+without scanning targets. Suppose a promoted direction/factor integrality row is
+periodic modulo $M$ and an
+obligation strip is
+$$
+\det(U,T)\equiv R\pmod S.
+$$
+Writing $G=\gcd(M,S)$, a promoted row residue $T_0\bmod M$ has lifts to the
+strip modulo $\operatorname{lcm}(M,S)$ exactly when
+$$
+\det(U,T_0)\equiv R\pmod G.
+$$
+When this compatibility holds, it contributes $S/G$ lifted residue classes.
+The helper `parallel_direction_factor_integrality_strip_intersection_residue_count`
+implements this CRT count for any determinant strip and factor integrality row, and
+`parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts`
+applies it to all signed promoted $3$-$4$-$5$ rows for one divisor obligation.
+For example, the obligation
+$$
+((4,5),2,41,9,10,33,19)
+$$
+has $288$ possible signed-strip/promoted integrality-row intersections; the CRT
+compatibility test eliminates $80$ of them before any target box is used,
+leaving $208$ nonzero congruence-row intersections to discharge.
+
+In this formulation, a principled route to the conjecture is:
+
+1. keep the existing structural stack for the large solved region;
+2. for each remaining primitive ray, choose a root-shape spine for $\alpha$;
+3. prove that the associated determinant $D$ has the required squarefree
+   divisor $q$ and divisor root $a$ in the congruence above;
+4. verify the finitely many degeneracies where $q\beta^2$ makes an axis edge
+   or where the sign of $r$ fails.
+
+This would replace larger-box searches by a finite set of root-shape family
+lemmas plus finite degeneration checks.
+
 After clearing the single factor of $2$, this Gaussian divisibility condition
 and the length condition become the congruence system
 $$
@@ -1090,6 +1589,14 @@ Executable guardrail:
 - `parallel_direction_factor_witness`
 - `parallel_direction_standard_completion_certificate`
 - `parallel_direction_standard_completion_cover_certificate`
+- `parallel_direction_standard_completion_witness`
+- `parallel_direction_standard_completion_cover_witness`
+- `parallel_direction_standard_completion_branch`
+- `parallel_direction_standard_completion_quadratic_rows`
+- `parallel_direction_standard_completion_determinant_rows`
+- `parallel_direction_standard_completion_quadratic_row_witness`
+- `parallel_direction_standard_completion_strip_intersection_linear_rows`
+- `parallel_direction_standard_completion_strip_intersection_linear_row_witness`
 - `unit_coordinate_factor_five_parallel_certificate`
 - `unit_coordinate_factor_five_parallel_orbit_certificate`
 - `unit_coordinate_parallel_factor_residues`
@@ -1103,10 +1610,18 @@ Executable guardrail:
 - `parallel_direction_promoted_345_factor_certificate`
 - `parallel_direction_bounded_factor_cover_certificate`
 - `parallel_direction_factor_modulus`
+- `parallel_direction_factor_congruence_holds`
+- `parallel_direction_primitive_factor_determinant_residue_rows`
+- `parallel_direction_primitive_factor_determinant_residue_holds`
+- `parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows`
+- `parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness`
+- `parallel_direction_primitive_factor_integrality_strip_intersection_residue_count`
 - `parallel_direction_factor_coefficient`
 - `parallel_direction_factor_residue_classes`
 - `parallel_direction_factor_certificate_residue_classes`
 - `parallel_direction_factor_residue_certificate`
+- `parallel_direction_factor_integrality_strip_intersection_residue_count`
+- `parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts`
 - `parallel_direction_factor_certificate`
 - `parallel_direction_certificate`
 - `parallel_direction_cover_certificate`
@@ -1118,6 +1633,10 @@ Executable guardrail:
 - `parallel_direction_primitive_ray_witness`
 - `parallel_direction_primitive_ray_certificate`
 - `PythagoreanLatticePairWitness`
+- `pythagorean_lattice_pair_strip_linear_congruence`
+- `pythagorean_lattice_pair_strip_intersection_holds`
+- `pythagorean_lattice_pair_strip_intersection_residue_count`
+- `pythagorean_orthogonal_lattice_witness`
 - `ParallelDirectionSquareclassSplitWitness`
 - `ParallelDirectionConjugateIdealWitness`
 - `ParallelDirectionConjugateIdealRootCoverCensus`

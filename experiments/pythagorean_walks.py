@@ -14,6 +14,7 @@ from typing import Iterable
 
 
 Point = tuple[int, int]
+DivisorExponentSummand = tuple[int, int, int, tuple[int, ...]]
 
 KNOWN_DISTANCE_THREE_REPRESENTATIVES: frozenset[Point] = frozenset({
     (1, 0),
@@ -138,6 +139,24 @@ def positive_divisors(n: int) -> tuple[int, ...]:
     if n <= 0:
         raise ValueError("n must be positive")
 
+    divisors = [1]
+    for prime, exponent in prime_power_factorization(n):
+        expanded: list[int] = []
+        power = 1
+        for _ in range(exponent + 1):
+            expanded.extend(divisor * power for divisor in divisors)
+            power *= prime
+        divisors = expanded
+
+    return tuple(sorted(divisors))
+
+
+def prime_power_factorization(n: int) -> tuple[tuple[int, int], ...]:
+    """Return ``(prime, exponent)`` rows for a positive integer."""
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+
     remaining = n
     prime_powers: list[tuple[int, int]] = []
     exponent = 0
@@ -159,16 +178,7 @@ def positive_divisors(n: int) -> tuple[int, ...]:
     if remaining > 1:
         prime_powers.append((remaining, 1))
 
-    divisors = [1]
-    for prime, exponent in prime_powers:
-        expanded: list[int] = []
-        power = 1
-        for _ in range(exponent + 1):
-            expanded.extend(divisor * power for divisor in divisors)
-            power *= prime
-        divisors = expanded
-
-    return tuple(sorted(divisors))
+    return tuple(prime_powers)
 
 
 def prime_factors(n: int) -> tuple[int, ...]:
@@ -261,7 +271,248 @@ def has_divisor_in_residue_classes(
         raise ValueError("modulus must be positive")
 
     residue_set = {residue % modulus for residue in residues}
-    return any(divisor % modulus in residue_set for divisor in positive_divisors(n))
+    return any(
+        residue in residue_set for residue in divisor_residue_classes(n, modulus)
+    )
+
+
+def divisor_residue_classes(n: int, modulus: int) -> tuple[int, ...]:
+    """Residues modulo ``modulus`` represented by positive divisors of ``n``."""
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+    if modulus <= 0:
+        raise ValueError("modulus must be positive")
+
+    residues = {1 % modulus}
+    for prime, exponent in prime_power_factorization(n):
+        prime_powers = tuple(pow(prime, power, modulus) for power in range(exponent + 1))
+        residues = {
+            (residue * prime_power) % modulus
+            for residue in residues
+            for prime_power in prime_powers
+        }
+    return tuple(sorted(residues))
+
+
+@cache
+def primitive_root_mod_prime(prime_modulus: int) -> int:
+    """Smallest primitive root modulo an odd prime."""
+
+    if prime_modulus <= 2 or not is_prime(prime_modulus):
+        raise ValueError("modulus must be an odd prime")
+
+    group_order = prime_modulus - 1
+    for candidate in range(2, prime_modulus):
+        if all(
+            pow(candidate, group_order // prime_factor, prime_modulus) != 1
+            for prime_factor in prime_factors(group_order)
+        ):
+            return candidate
+    raise AssertionError("odd prime had no primitive root")
+
+
+@cache
+def discrete_log_table_mod_prime(prime_modulus: int) -> tuple[int, ...]:
+    """Discrete log table for the chosen primitive root modulo an odd prime.
+
+    The zero residue is stored as ``-1``.
+    """
+
+    generator = primitive_root_mod_prime(prime_modulus)
+    log_table = [-1] * prime_modulus
+    residue = 1
+    for exponent in range(prime_modulus - 1):
+        log_table[residue] = exponent
+        residue = (residue * generator) % prime_modulus
+    if residue != 1:
+        raise AssertionError("primitive-root table failed to close")
+    return tuple(log_table)
+
+
+def cyclic_sumset(
+    order: int,
+    summands: Iterable[Iterable[int]],
+) -> tuple[int, ...]:
+    """Return the additive sumset of residue subsets in ``Z/order Z``."""
+
+    if order <= 0:
+        raise ValueError("order must be positive")
+
+    sums = {0}
+    for summand in summands:
+        choices = {choice % order for choice in summand}
+        if not choices:
+            raise ValueError("summands must be nonempty")
+        sums = {
+            (base + choice) % order
+            for base in sums
+            for choice in choices
+        }
+    return tuple(sorted(sums))
+
+
+def cyclic_subset_stabilizer_step(order: int, subset: Iterable[int]) -> int:
+    """Smallest positive translation stabilizing a nonempty cyclic subset."""
+
+    if order <= 0:
+        raise ValueError("order must be positive")
+
+    residues = {residue % order for residue in subset}
+    if not residues:
+        raise ValueError("subset must be nonempty")
+
+    for step in range(1, order + 1):
+        if all((residue + step) % order in residues for residue in residues):
+            return gcd(order, step)
+    raise AssertionError("full-period translation should stabilize every subset")
+
+
+def cyclic_subset_subgroup_closure_size(
+    order: int,
+    subset: Iterable[int],
+    subgroup_step: int,
+) -> int:
+    """Size of the closure of ``subset`` under the subgroup generated by ``step``."""
+
+    if order <= 0:
+        raise ValueError("order must be positive")
+    if subgroup_step <= 0:
+        raise ValueError("subgroup step must be positive")
+
+    subgroup_step = gcd(order, subgroup_step)
+    residues = {residue % order for residue in subset}
+    if not residues:
+        raise ValueError("subset must be nonempty")
+    subgroup_size = order // subgroup_step
+    return len({residue % subgroup_step for residue in residues}) * subgroup_size
+
+
+def cyclic_sumset_effective_length(summands: Iterable[Iterable[int]]) -> int:
+    """Return ``sum(|A_i|-1)`` for nonempty cyclic-sumset summands."""
+
+    effective_length = 0
+    for summand in summands:
+        choices = set(summand)
+        if not choices:
+            raise ValueError("summands must be nonempty")
+        effective_length += len(choices) - 1
+    return effective_length
+
+
+def cyclic_sumset_kneser_data(
+    order: int,
+    summands: Iterable[Iterable[int]],
+) -> tuple[int, int, int]:
+    """Return ``(stabilizer_step, Kneser lower bound, defect)`` for a sumset."""
+
+    summand_sets = tuple(
+        tuple({choice % order for choice in summand})
+        for summand in summands
+    )
+    if any(not summand for summand in summand_sets):
+        raise ValueError("summands must be nonempty")
+
+    sumset = cyclic_sumset(order, summand_sets)
+    stabilizer_step = cyclic_subset_stabilizer_step(order, sumset)
+    stabilizer_size = order // stabilizer_step
+    lower_bound = (
+        sum(
+            cyclic_subset_subgroup_closure_size(order, summand, stabilizer_step)
+            for summand in summand_sets
+        )
+        - (len(summand_sets) - 1) * stabilizer_size
+        if summand_sets
+        else stabilizer_size
+    )
+    defect = len(sumset) - lower_bound
+    if defect < 0:
+        raise AssertionError("cyclic sumset violated Kneser's lower bound")
+    return (stabilizer_step, lower_bound, defect)
+
+
+def cyclic_sumset_saturation_gap(
+    order: int,
+    summands: Iterable[Iterable[int]],
+) -> tuple[int, int, int]:
+    """Return ``(effective length, Kneser lower bound, saturation gap)``."""
+
+    summand_sets = tuple(
+        tuple({choice % order for choice in summand})
+        for summand in summands
+    )
+    if any(not summand for summand in summand_sets):
+        raise ValueError("summands must be nonempty")
+
+    effective_length = cyclic_sumset_effective_length(summand_sets)
+    _stabilizer_step, lower_bound, _defect = cyclic_sumset_kneser_data(
+        order,
+        summand_sets,
+    )
+    return (effective_length, lower_bound, order - lower_bound)
+
+
+def prime_modulus_divisor_exponent_summands(
+    n: int,
+    prime_modulus: int,
+) -> tuple[bool, tuple[DivisorExponentSummand, ...]]:
+    """Prime-power exponent summands for divisor residues modulo an odd prime."""
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+    if prime_modulus <= 2 or not is_prime(prime_modulus):
+        raise ValueError("modulus must be an odd prime")
+
+    log_table = discrete_log_table_mod_prime(prime_modulus)
+    group_order = prime_modulus - 1
+    zero_residue_possible = False
+    summands: list[DivisorExponentSummand] = []
+    for prime, exponent in prime_power_factorization(n):
+        residue = prime % prime_modulus
+        if residue == 0:
+            zero_residue_possible = True
+            continue
+
+        exponent_step = log_table[residue]
+        if exponent_step < 0:
+            raise AssertionError("nonzero residue missing from log table")
+        choices = tuple(
+            sorted(
+                {
+                    (exponent_step * power) % group_order
+                    for power in range(exponent + 1)
+                }
+            )
+        )
+        summands.append((residue, exponent_step, exponent, choices))
+
+    return (zero_residue_possible, tuple(summands))
+
+
+def prime_modulus_divisor_exponent_classes(
+    n: int,
+    prime_modulus: int,
+) -> tuple[bool, tuple[int, ...]]:
+    """Divisor residue closure as exponents in ``(Z/pZ)^*``.
+
+    The boolean records whether a divisor can be ``0 mod p``.  The exponent
+    tuple records all nonzero divisor residues using
+    ``primitive_root_mod_prime(p)``.
+    """
+
+    if n <= 0:
+        raise ValueError("n must be positive")
+    if prime_modulus <= 2 or not is_prime(prime_modulus):
+        raise ValueError("modulus must be an odd prime")
+
+    zero_residue_possible, summands = prime_modulus_divisor_exponent_summands(
+        n,
+        prime_modulus,
+    )
+    return (
+        zero_residue_possible,
+        cyclic_sumset(prime_modulus - 1, (summand[3] for summand in summands)),
+    )
 
 
 def minimal_periodic_residue_classes(
@@ -453,6 +704,12 @@ class Certificate:
 
 DeltaSliceDirection = tuple[int, int, int, int, int]
 RootDirection = tuple[int, int, int, Point, Point]
+DivisorObligationKey = tuple[Point, int, int, int, int, int, int]
+FactorDeterminantResidueRow = tuple[int, int]
+FactorIntegralityStripIntersectionLinearRow = tuple[int, int, int, int]
+LatticePairStripLinearCongruence = tuple[int, int, int, int, int]
+StandardCompletionQuadraticRow = tuple[int, int, int]
+Promoted345IntegralityStripIntersectionRow = tuple[Point, Point, int, int, int]
 
 
 @cache
@@ -692,6 +949,28 @@ def gaussian_root_shape(root: Point) -> Point:
     return (min(first, second), max(first, second))
 
 
+def gaussian_root_conjugate_divisibility_residue(root: Point) -> tuple[int, int]:
+    """Return ``(c, rho)`` for divisibility by ``conj(root)``.
+
+    For ``c = N(alpha)``, ``a+i*b`` is divisible by ``conj(alpha)`` exactly
+    when ``b == rho*a mod c``.
+    """
+
+    root_real, root_imaginary = root
+    if root_real == 0 or root_imaginary == 0:
+        raise ValueError("root coordinates must be nonzero")
+    if gcd(abs(root_real), abs(root_imaginary)) != 1:
+        raise ValueError("root must be primitive")
+
+    hypotenuse = root_real * root_real + root_imaginary * root_imaginary
+    residue = (-root_imaginary * pow(root_real % hypotenuse, -1, hypotenuse)) % (
+        hypotenuse
+    )
+    if (residue * residue + 1) % hypotenuse != 0:
+        raise AssertionError("conjugate-root residue is not a square root of -1")
+    return (hypotenuse, residue)
+
+
 def primitive_pythagorean_direction_gaussian_root(direction: Point) -> tuple[Point, Point]:
     """Return ``(root, unit)`` with ``direction = unit * root^2``.
 
@@ -773,6 +1052,68 @@ def primitive_pythagorean_root_directions(
         rows.append((u, v, hypotenuse, root, unit))
 
     return tuple(rows)
+
+
+@cache
+def primitive_pythagorean_root_primary_spine_shapes(
+    max_root_coordinate: int,
+) -> tuple[Point, ...]:
+    """Primary root-shape spines for the conjugate-ideal residual layer."""
+
+    if max_root_coordinate < 2:
+        raise ValueError("max_root_coordinate must be at least 2")
+
+    shapes: set[Point] = set()
+    for even_coordinate in range(2, max_root_coordinate + 1, 2):
+        shapes.add((1, even_coordinate))
+    for odd_coordinate in range(3, max_root_coordinate + 1, 2):
+        shapes.add((2, odd_coordinate))
+
+    return tuple(
+        sorted(
+            shapes,
+            key=lambda shape: (shape[0] * shape[0] + shape[1] * shape[1], shape),
+        )
+    )
+
+
+@cache
+def primitive_pythagorean_root_secondary_spine_shapes(
+    max_root_coordinate: int,
+) -> tuple[Point, ...]:
+    """Secondary root shapes observed at the current residual frontier."""
+
+    if max_root_coordinate < 2:
+        raise ValueError("max_root_coordinate must be at least 2")
+
+    shapes: set[Point] = set()
+    for secondary_shape in ((3, 4), (3, 8), (4, 5)):
+        if max(secondary_shape) <= max_root_coordinate:
+            shapes.add(secondary_shape)
+
+    return tuple(
+        sorted(
+            shapes,
+            key=lambda shape: (shape[0] * shape[0] + shape[1] * shape[1], shape),
+        )
+    )
+
+
+@cache
+def primitive_pythagorean_root_spine_shapes(max_root_coordinate: int) -> tuple[Point, ...]:
+    """Candidate root-shape spines for the conjugate-ideal residual layer."""
+
+    if max_root_coordinate < 2:
+        raise ValueError("max_root_coordinate must be at least 2")
+
+    shapes = set(primitive_pythagorean_root_primary_spine_shapes(max_root_coordinate))
+    shapes.update(primitive_pythagorean_root_secondary_spine_shapes(max_root_coordinate))
+    return tuple(
+        sorted(
+            shapes,
+            key=lambda shape: (shape[0] * shape[0] + shape[1] * shape[1], shape),
+        )
+    )
 
 
 @cache
@@ -943,6 +1284,26 @@ def determinant(first_direction: Point, second_direction: Point) -> int:
     return ux * vy - uy * vx
 
 
+def _bezout_coefficients(first: int, second: int) -> tuple[int, int, int]:
+    """Return ``(x, y, g)`` with ``first*x + second*y == g``."""
+
+    if first == 0 and second == 0:
+        raise ValueError("at least one argument must be nonzero")
+
+    first_sign = -1 if first < 0 else 1
+    second_sign = -1 if second < 0 else 1
+    old_r, r = abs(first), abs(second)
+    old_s, s = 1, 0
+    old_t, t = 0, 1
+    while r != 0:
+        quotient = old_r // r
+        old_r, r = r, old_r - quotient * r
+        old_s, s = s, old_s - quotient * s
+        old_t, t = t, old_t - quotient * t
+
+    return (first_sign * old_s, second_sign * old_t, old_r)
+
+
 def ray_multiplier(target: Point, ray: Point) -> int | None:
     """Return the integer multiplier expressing ``target`` on ``ray``."""
 
@@ -1097,8 +1458,41 @@ class ParallelDirectionConjugateIdealWitness:
         return primitive_pythagorean_direction_gaussian_root(self.direction)[0]
 
     @property
+    def root_shape(self) -> Point:
+        return gaussian_root_shape(self.root)
+
+    @property
     def unit(self) -> Point:
         return primitive_pythagorean_direction_gaussian_root(self.direction)[1]
+
+    @property
+    def conjugate_root_residue(self) -> tuple[int, int]:
+        return gaussian_root_conjugate_divisibility_residue(self.root)
+
+    @property
+    def determinant_squareclass_quotient(self) -> int:
+        if self.determinant_leg % self.squareclass != 0:
+            raise AssertionError("determinant leg lost the witness squareclass")
+        return self.determinant_leg // self.squareclass
+
+    @property
+    def divisor_root_residue(self) -> int:
+        hypotenuse, residue = self.conjugate_root_residue
+        return (-residue * self.determinant_squareclass_quotient) % hypotenuse
+
+    @property
+    def split_root_congruence_holds(self) -> bool:
+        hypotenuse, residue = self.conjugate_root_residue
+        return (
+            self.signed_paired_split_factor - residue * self.split_factor
+        ) % hypotenuse == 0
+
+    @property
+    def divisor_root_congruence_holds(self) -> bool:
+        hypotenuse, _residue = self.conjugate_root_residue
+        return (
+            self.split_factor * self.split_factor - self.divisor_root_residue
+        ) % hypotenuse == 0
 
     @property
     def second_step(self) -> Point:
@@ -1136,6 +1530,10 @@ class ParallelDirectionConjugateIdealWitness:
             * self.signed_paired_split_factor
         ):
             return False
+        if not self.split_root_congruence_holds:
+            return False
+        if not self.divisor_root_congruence_holds:
+            return False
         if parallel_direction_squareclass_beta_split_root(
             self.direction,
             self.beta,
@@ -1149,6 +1547,134 @@ class ParallelDirectionConjugateIdealWitness:
         if self.gaussian_quadratic_left != self.gaussian_quadratic_right:
             return False
         return self.certificate.valid()
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_key(
+    witness: ParallelDirectionConjugateIdealWitness,
+) -> DivisorObligationKey:
+    """Return the divisor-root congruence obligation encoded by a witness."""
+
+    modulus, residue = witness.conjugate_root_residue
+    return (
+        witness.root_shape,
+        witness.squareclass,
+        modulus,
+        residue,
+        witness.determinant_squareclass_quotient % modulus,
+        witness.divisor_root_residue,
+        witness.split_factor % modulus,
+    )
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+    obligation: DivisorObligationKey,
+) -> int:
+    """Determinant modulus for a divisor-root obligation strip."""
+
+    _shape, squareclass, modulus, _residue, _quotient_residue, _square, _split = (
+        obligation
+    )
+    if squareclass <= 0:
+        raise ValueError("squareclass must be positive")
+    if modulus <= 1:
+        raise ValueError("root modulus must be greater than 1")
+    return squareclass * modulus
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+    obligation: DivisorObligationKey,
+) -> int:
+    """Determinant residue for a divisor-root obligation strip."""
+
+    _shape, squareclass, modulus, _residue, quotient_residue, _square, _split = (
+        obligation
+    )
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        obligation
+    )
+    return (squareclass * quotient_residue) % strip_modulus
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+) -> bool:
+    """Return whether ``target`` lies on the determinant strip of an obligation."""
+
+    shape, _squareclass, modulus, residue, quotient_residue, square_residue, split = (
+        obligation
+    )
+    direction_root = primitive_pythagorean_direction_gaussian_root(direction)[0]
+    if gaussian_root_shape(direction_root) != shape:
+        return False
+    if primitive_pythagorean_direction_conjugate_root_residue(direction) != (
+        modulus,
+        residue,
+    ):
+        return False
+    if (split * split - square_residue) % modulus != 0:
+        return False
+    if (square_residue + residue * quotient_residue) % modulus != 0:
+        return False
+
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        obligation
+    )
+    strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+        obligation
+    )
+    return determinant(direction, target) % strip_modulus == strip_residue
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_directions(
+    obligation: DivisorObligationKey,
+) -> tuple[Point, ...]:
+    """Signed directions whose root and residue data match an obligation."""
+
+    shape, _squareclass, modulus, residue, _quotient, square_residue, split = (
+        obligation
+    )
+    if (split * split - square_residue) % modulus != 0:
+        return ()
+
+    directions: list[Point] = []
+    for u, v, _hypotenuse, _root, _unit in primitive_pythagorean_root_shape_directions(
+        (shape,)
+    ):
+        if primitive_pythagorean_direction_conjugate_root_residue((u, v)) == (
+            modulus,
+            residue,
+        ):
+            directions.append((u, v))
+    return tuple(directions)
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+) -> bool:
+    """Return whether the determinant strip also has the requested divisor class."""
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return False
+
+    _shape, squareclass, modulus, _residue, _quotient_residue, _square, split = (
+        obligation
+    )
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        return False
+    return has_divisor_in_residue_classes(
+        abs(determinant_leg // squareclass),
+        modulus,
+        (split,),
+    )
 
 
 @dataclass(frozen=True)
@@ -1202,6 +1728,81 @@ class ParallelDirectionConjugateIdealRootShapeCoverCensus:
     root_shape_counts: tuple[tuple[Point, int], ...]
     squareclass_counts: tuple[tuple[int, int], ...]
     direction_counts: tuple[tuple[Point, int], ...]
+
+
+@dataclass(frozen=True)
+class ParallelDirectionConjugateIdealDivisorObligationCensus:
+    max_coordinate: int
+    root_shapes: tuple[Point, ...]
+    target_count: int
+    structural_miss_count: int
+    uncovered_targets: tuple[Point, ...]
+    shape_squareclass_counts: tuple[tuple[Point, int, int], ...]
+    obligation_counts: tuple[tuple[Point, int, int, int, int, int, int, int], ...]
+
+
+@dataclass(frozen=True)
+class ParallelDirectionConjugateIdealDivisorObligationStripCensus:
+    max_coordinate: int
+    obligation_rows: tuple[
+        tuple[Point, int, int, int, int, int, int, int, int, int, int, int],
+        ...
+    ]
+    obligation_structural_failure_family_counts: tuple[
+        tuple[DivisorObligationKey, str, int],
+        ...
+    ]
+    structural_failure_family_counts: tuple[tuple[str, int], ...]
+    divisor_failure_residue_closure_size_counts: tuple[tuple[int, int], ...]
+    divisor_failure_distinct_residue_closure_count: int
+    divisor_failure_distinct_residue_closure_size_counts: tuple[tuple[int, int], ...]
+    divisor_failure_prime_modulus_generators: tuple[tuple[int, int], ...]
+    divisor_failure_required_exponent_counts: tuple[tuple[int, int, int], ...]
+    divisor_failure_exponent_closure_size_counts: tuple[tuple[int, int], ...]
+    divisor_failure_distinct_exponent_closure_count: int
+    divisor_failure_distinct_exponent_closure_size_counts: tuple[tuple[int, int], ...]
+    divisor_failure_exponent_stabilizer_counts: tuple[tuple[int, int, int, int], ...]
+    divisor_failure_exponent_kneser_defect_counts: tuple[
+        tuple[int, int, int, int, int],
+        ...
+    ]
+    divisor_failure_exponent_effective_length_counts: tuple[tuple[int, int, int], ...]
+    divisor_failure_exponent_saturation_gap_counts: tuple[
+        tuple[int, int, int, int, int],
+        ...
+    ]
+    divisor_exponent_saturation_branch_counts: tuple[tuple[str, int], ...]
+    divisor_exponent_saturation_branch_modulus_counts: tuple[
+        tuple[int, str, int],
+        ...
+    ]
+    promoted_345_failure_direction_counts: tuple[tuple[Point, int], ...]
+    promoted_345_failure_factor_counts: tuple[tuple[int, int], ...]
+    promoted_345_failure_integrality_linear_row_modulus_counts: tuple[tuple[int, int], ...]
+    promoted_345_failure_distinct_integrality_linear_row_count: int
+    promoted_345_failure_distinct_integrality_linear_row_modulus_counts: tuple[tuple[int, int], ...]
+    lattice_pair_failure_determinant_counts: tuple[tuple[int, int], ...]
+    lattice_pair_failure_distinct_pair_count: int
+    lattice_pair_failure_distinct_pair_determinant_counts: tuple[tuple[int, int], ...]
+    lattice_pair_failure_linear_gcd_counts: tuple[tuple[int, int], ...]
+    lattice_pair_failure_distinct_linear_congruence_count: int
+    lattice_pair_failure_distinct_linear_gcd_counts: tuple[tuple[int, int], ...]
+    orthogonal_failure_linear_gcd_counts: tuple[tuple[int, int], ...]
+    orthogonal_failure_distinct_linear_congruence_count: int
+    orthogonal_failure_distinct_linear_gcd_counts: tuple[tuple[int, int], ...]
+    standard_completion_failure_direction_branch_counts: tuple[tuple[Point, int, int], ...]
+    standard_completion_failure_distinct_quadratic_row_count: int
+    standard_completion_failure_distinct_quadratic_row_modulus_counts: tuple[
+        tuple[int, int],
+        ...,
+    ]
+    standard_completion_failure_linear_row_modulus_counts: tuple[tuple[int, int], ...]
+    standard_completion_failure_distinct_linear_row_count: int
+    standard_completion_failure_distinct_linear_row_modulus_counts: tuple[
+        tuple[int, int],
+        ...,
+    ]
+    nonstructural_failure_examples: tuple[tuple[Point, Point, DivisorObligationKey], ...]
 
 
 @dataclass(frozen=True)
@@ -1443,14 +2044,7 @@ def primitive_pythagorean_direction_conjugate_root_residue(
     """
 
     root, _unit = primitive_pythagorean_direction_gaussian_root(direction)
-    root_real, root_imaginary = root
-    hypotenuse = root_real * root_real + root_imaginary * root_imaginary
-    residue = (-root_imaginary * pow(root_real % hypotenuse, -1, hypotenuse)) % (
-        hypotenuse
-    )
-    if (residue * residue + 1) % hypotenuse != 0:
-        raise AssertionError("conjugate-root residue is not a square root of -1")
-    return (hypotenuse, residue)
+    return gaussian_root_conjugate_divisibility_residue(root)
 
 
 def parallel_direction_squareclass_beta_split_root(
@@ -1934,6 +2528,45 @@ def parallel_direction_conjugate_ideal_root_shape_cover_certificate(
 
 
 @cache
+def parallel_direction_conjugate_ideal_root_spine_cover_certificate(
+    target: Point,
+    max_root_coordinate: int,
+) -> Certificate | None:
+    """Exact split cover using the generated root-shape spine family."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_certificate(
+        target,
+        primitive_pythagorean_root_spine_shapes(max_root_coordinate),
+    )
+
+
+@cache
+def parallel_direction_conjugate_ideal_root_primary_spine_cover_certificate(
+    target: Point,
+    max_root_coordinate: int,
+) -> Certificate | None:
+    """Exact split cover using only the primary root-shape spines."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_certificate(
+        target,
+        primitive_pythagorean_root_primary_spine_shapes(max_root_coordinate),
+    )
+
+
+@cache
+def parallel_direction_conjugate_ideal_root_secondary_spine_cover_certificate(
+    target: Point,
+    max_root_coordinate: int,
+) -> Certificate | None:
+    """Exact split cover using only the secondary frontier root shapes."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_certificate(
+        target,
+        primitive_pythagorean_root_secondary_spine_shapes(max_root_coordinate),
+    )
+
+
+@cache
 def parallel_direction_conjugate_ideal_cover_witness(
     target: Point,
     max_parameter: int,
@@ -1985,6 +2618,45 @@ def parallel_direction_conjugate_ideal_root_shape_cover_witness(
         if witness is not None:
             return witness
     return None
+
+
+@cache
+def parallel_direction_conjugate_ideal_root_spine_cover_witness(
+    target: Point,
+    max_root_coordinate: int,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Exact split witness using the generated root-shape spine family."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_witness(
+        target,
+        primitive_pythagorean_root_spine_shapes(max_root_coordinate),
+    )
+
+
+@cache
+def parallel_direction_conjugate_ideal_root_primary_spine_cover_witness(
+    target: Point,
+    max_root_coordinate: int,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Exact split witness using only the primary root-shape spines."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_witness(
+        target,
+        primitive_pythagorean_root_primary_spine_shapes(max_root_coordinate),
+    )
+
+
+@cache
+def parallel_direction_conjugate_ideal_root_secondary_spine_cover_witness(
+    target: Point,
+    max_root_coordinate: int,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Exact split witness using only the secondary frontier root shapes."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_witness(
+        target,
+        primitive_pythagorean_root_secondary_spine_shapes(max_root_coordinate),
+    )
 
 
 def parallel_direction_squareclass_beta_target_certificate(
@@ -2298,6 +2970,245 @@ def parallel_direction_standard_completion_certificate(
     return None
 
 
+def parallel_direction_standard_completion_witness(
+    target: Point,
+    direction: Point,
+) -> ParallelDirectionFactorWitness | None:
+    """First witness from a signed standard completion of ``det(direction,target)``."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+
+    determinant_leg = determinant(direction, target)
+    for factor in standard_pythagorean_completion_factors(determinant_leg):
+        witness = parallel_direction_factor_witness(target, direction, factor)
+        if witness is None or witness.first_coefficient == 0:
+            continue
+        if witness.certificate.valid():
+            return witness
+    return None
+
+
+def parallel_direction_standard_completion_branch(
+    determinant_leg: int,
+    factor: int,
+) -> int | None:
+    """Return ``0`` or ``1`` for the two standard completion factors of a leg."""
+
+    factors = standard_pythagorean_completion_factors(determinant_leg)
+    for index, standard_factor in enumerate(factors):
+        if factor == standard_factor:
+            return index
+    return None
+
+
+@cache
+def parallel_direction_standard_completion_quadratic_rows(
+    direction: Point,
+    branch: int,
+) -> tuple[int, tuple[StandardCompletionQuadraticRow, ...]]:
+    """Quadratic ``(det,dot)`` residue rows for a standard-completion branch."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if branch not in (0, 1):
+        raise ValueError("branch must be 0 or 1")
+
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    direction_norm = c * c
+    row_modulus = 4 * direction_norm
+    sign = 1 if branch == 0 else -1
+    rows: list[StandardCompletionQuadraticRow] = []
+    for determinant_residue in range(row_modulus):
+        if determinant_residue % 2 == 1:
+            if (determinant_residue * determinant_residue + 1) % (2 * c) != 0:
+                continue
+            other_leg_residue = (
+                sign * ((determinant_residue * determinant_residue - 1) // 2)
+            ) % direction_norm
+        else:
+            if (determinant_residue * determinant_residue + 4) % (4 * c) != 0:
+                continue
+            other_leg_residue = (
+                sign * ((determinant_residue * determinant_residue - 4) // 4)
+            ) % direction_norm
+
+        dot_residue = (-other_leg_residue) % direction_norm
+        rows.append((determinant_residue, dot_residue, row_modulus))
+
+    return (row_modulus, tuple(rows))
+
+
+@cache
+def parallel_direction_standard_completion_determinant_rows(
+    direction: Point,
+    branch: int,
+) -> tuple[int, tuple[StandardCompletionQuadraticRow, ...]]:
+    """Target-compatible determinant/dot rows for a standard-completion branch."""
+
+    row_modulus, rows = parallel_direction_standard_completion_quadratic_rows(
+        direction,
+        branch,
+    )
+    u, v = direction
+    bezout_x, bezout_y, bezout_gcd = _bezout_coefficients(u, v)
+    if bezout_gcd != 1:
+        raise ValueError("direction must be primitive")
+
+    determinant_one_vector = (-bezout_y, bezout_x)
+    direction_norm = u * u + v * v
+    compatible_rows = tuple(
+        row
+        for row in rows
+        if (
+            u * (row[0] * determinant_one_vector[0])
+            + v * (row[0] * determinant_one_vector[1])
+        )
+        % direction_norm
+        == row[1]
+    )
+    return (row_modulus, compatible_rows)
+
+
+def parallel_direction_standard_completion_quadratic_row_witness(
+    target: Point,
+    direction: Point,
+    branch: int,
+) -> StandardCompletionQuadraticRow | None:
+    """Return the standard-completion quadratic row containing ``target``."""
+
+    determinant_leg = determinant(direction, target)
+    if determinant_leg == 0:
+        return None
+
+    row_modulus, rows = parallel_direction_standard_completion_determinant_rows(
+        direction,
+        branch,
+    )
+    u, v = direction
+    direction_norm = u * u + v * v
+    row_key = (
+        determinant_leg % row_modulus,
+        (target[0] * u + target[1] * v) % direction_norm,
+        row_modulus,
+    )
+    for row in rows:
+        if row == row_key:
+            return row
+    return None
+
+
+@cache
+def parallel_direction_standard_completion_strip_intersection_linear_rows(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    direction: Point,
+    branch: int,
+) -> tuple[int, tuple[FactorIntegralityStripIntersectionLinearRow, ...]]:
+    """Linear ``k`` rows for standard-completion/strip intersections."""
+
+    if not edge_delta(*strip_direction):
+        raise ValueError("strip direction must be a legal Pythagorean edge vector")
+    if strip_modulus <= 1:
+        raise ValueError("strip modulus must be greater than 1")
+
+    row_modulus, determinant_rows = (
+        parallel_direction_standard_completion_determinant_rows(direction, branch)
+    )
+    shared_modulus = gcd(row_modulus, strip_modulus)
+    lift_count = strip_modulus // shared_modulus
+    lcm_modulus = row_modulus * lift_count
+
+    u, v = direction
+    bezout_x, bezout_y, bezout_gcd = _bezout_coefficients(u, v)
+    if bezout_gcd != 1:
+        raise ValueError("direction must be primitive")
+
+    determinant_one_vector = (-bezout_y, bezout_x)
+    strip_base_step = determinant(strip_direction, determinant_one_vector)
+    strip_direction_step = determinant(strip_direction, direction)
+
+    rows: list[FactorIntegralityStripIntersectionLinearRow] = []
+    for determinant_residue, _dot_residue, _row_modulus in determinant_rows:
+        base_strip_residue = determinant_residue * strip_base_step
+        target_residue = (strip_residue - base_strip_residue) % shared_modulus
+        step_gcd = gcd(strip_direction_step, shared_modulus)
+        if target_residue % step_gcd != 0:
+            continue
+
+        reduced_modulus = shared_modulus // step_gcd
+        if reduced_modulus == 1:
+            k_residue = 0
+        else:
+            k_residue = (
+                (target_residue // step_gcd)
+                * pow(
+                    (strip_direction_step // step_gcd) % reduced_modulus,
+                    -1,
+                    reduced_modulus,
+                )
+            ) % reduced_modulus
+        residue_count = lift_count * (row_modulus // reduced_modulus)
+        rows.append(
+            (
+                determinant_residue,
+                k_residue,
+                reduced_modulus,
+                residue_count,
+            )
+        )
+
+    return (lcm_modulus, tuple(rows))
+
+
+def parallel_direction_standard_completion_strip_intersection_linear_row_witness(
+    target: Point,
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    direction: Point,
+    branch: int,
+) -> FactorIntegralityStripIntersectionLinearRow | None:
+    """Return the standard-completion/strip linear row containing ``target``."""
+
+    if determinant(strip_direction, target) % strip_modulus != strip_residue:
+        return None
+    if parallel_direction_standard_completion_quadratic_row_witness(
+        target,
+        direction,
+        branch,
+    ) is None:
+        return None
+
+    row_modulus, _determinant_rows = (
+        parallel_direction_standard_completion_determinant_rows(direction, branch)
+    )
+    determinant_residue = determinant(direction, target) % row_modulus
+    u, v = direction
+    bezout_x, bezout_y, _bezout_gcd = _bezout_coefficients(u, v)
+    determinant_one_vector = (-bezout_y, bezout_x)
+    k_residue = (-determinant(determinant_one_vector, target)) % row_modulus
+
+    _lcm_modulus, linear_rows = (
+        parallel_direction_standard_completion_strip_intersection_linear_rows(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            direction,
+            branch,
+        )
+    )
+    for row in linear_rows:
+        row_determinant, row_k_residue, row_modulus, _row_count = row
+        if row_determinant != determinant_residue:
+            continue
+        if k_residue % row_modulus == row_k_residue:
+            return row
+    return None
+
+
 def parallel_direction_factor_modulus(direction: Point, factor: int) -> int:
     """Return the natural modulus for a fixed direction/factor criterion."""
 
@@ -2307,6 +3218,106 @@ def parallel_direction_factor_modulus(direction: Point, factor: int) -> int:
         raise ValueError("factor must be positive")
 
     return 2 * (direction[0] * direction[0] + direction[1] * direction[1]) * factor
+
+
+def parallel_direction_factor_congruence_holds(
+    target: Point,
+    direction: Point,
+    factor: int,
+) -> bool:
+    """Return the closed determinant/dot congruence for one factor row."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if factor <= 0:
+        raise ValueError("factor must be positive")
+
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    determinant_leg = determinant(direction, target)
+    if determinant_leg == 0:
+        return False
+
+    target_x, target_y = target
+    dot_product = target_x * u + target_y * v
+    determinant_square = determinant_leg * determinant_leg
+    factor_square = factor * factor
+    return (
+        (determinant_square + factor_square) % (2 * c * factor) == 0
+        and (
+            determinant_square
+            - factor_square
+            + 2 * factor * dot_product
+        )
+        % (2 * factor * c * c)
+        == 0
+    )
+
+
+@cache
+def parallel_direction_primitive_factor_determinant_residue_rows(
+    direction: Point,
+    factor: int,
+) -> tuple[FactorDeterminantResidueRow, ...]:
+    """Determinant residues and forced dot classes for one primitive factor row."""
+
+    if not edge_delta(*direction):
+        raise ValueError("direction must be a legal Pythagorean edge vector")
+    if gcd(abs(direction[0]), abs(direction[1])) != 1:
+        raise ValueError("direction must be primitive")
+    if factor <= 0:
+        raise ValueError("factor must be positive")
+
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    direction_norm = c * c
+    factor_modulus = parallel_direction_factor_modulus(direction, factor)
+    inverse_u = pow(u % direction_norm, -1, direction_norm)
+
+    rows: list[FactorDeterminantResidueRow] = []
+    for determinant_residue in range(factor_modulus):
+        determinant_square = determinant_residue * determinant_residue
+        factor_square = factor * factor
+        if (determinant_square + factor_square) % (2 * c * factor) != 0:
+            continue
+
+        dot_numerator = factor_square - determinant_square
+        if dot_numerator % (2 * factor) != 0:
+            continue
+        factor_dot_residue = (dot_numerator // (2 * factor)) % direction_norm
+        target_dot_residue = (
+            v * inverse_u * determinant_residue
+        ) % direction_norm
+        if factor_dot_residue != target_dot_residue:
+            continue
+
+        rows.append((determinant_residue, factor_dot_residue))
+    return tuple(rows)
+
+
+def parallel_direction_primitive_factor_determinant_residue_holds(
+    target: Point,
+    direction: Point,
+    factor: int,
+) -> bool:
+    """Return whether ``target`` satisfies the determinant parametrized row."""
+
+    rows = dict(
+        parallel_direction_primitive_factor_determinant_residue_rows(
+            direction,
+            factor,
+        )
+    )
+    u, v = direction
+    c = isqrt(u * u + v * v)
+    direction_norm = c * c
+    determinant_leg = determinant(direction, target)
+    if determinant_leg == 0:
+        return False
+
+    factor_modulus = parallel_direction_factor_modulus(direction, factor)
+    dot_residue = (target[0] * u + target[1] * v) % direction_norm
+    return rows.get(determinant_leg % factor_modulus) == dot_residue
 
 
 def parallel_direction_factor_coefficient(
@@ -2343,7 +3354,11 @@ def parallel_direction_factor_residue_classes(
     residues: set[Point] = set()
     for g in range(modulus):
         for h in range(modulus):
-            if parallel_direction_factor_coefficient((g, h), direction, factor) is not None:
+            if parallel_direction_factor_congruence_holds(
+                (g, h),
+                direction,
+                factor,
+            ):
                 residues.add((g, h))
     return frozenset(residues)
 
@@ -2385,6 +3400,181 @@ def parallel_direction_factor_residue_certificate(
     return parallel_direction_factor_certificate(target, direction, factor)
 
 
+def parallel_direction_factor_integrality_strip_intersection_residue_count(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    factor_direction: Point,
+    factor: int,
+) -> tuple[int, int]:
+    """Count CRT classes where a determinant strip meets one integrality row.
+
+    The fixed direction/factor integrality row is periodic modulo
+    ``parallel_direction_factor_modulus(factor_direction, factor)``.  The strip
+    is the linear congruence
+    ``det(strip_direction, target) == strip_residue mod strip_modulus``.  The
+    return value is ``(lcm_modulus, residue_count)`` for their intersection in
+    the square residue box modulo ``lcm_modulus``.
+
+    This intentionally counts the modular coefficient-integrality condition,
+    before the pointwise certificate nondegeneracy check.
+    """
+
+    if not edge_delta(*strip_direction):
+        raise ValueError("strip direction must be a legal Pythagorean edge vector")
+    if strip_modulus <= 1:
+        raise ValueError("strip modulus must be greater than 1")
+
+    factor_modulus = parallel_direction_factor_modulus(factor_direction, factor)
+    shared_modulus = gcd(factor_modulus, strip_modulus)
+    lift_count = strip_modulus // shared_modulus
+    lcm_modulus = factor_modulus * lift_count
+
+    compatible_factor_residues = 0
+    for residue in parallel_direction_factor_residue_classes(
+        factor_direction,
+        factor,
+    ):
+        if (
+            determinant(strip_direction, residue) - strip_residue
+        ) % shared_modulus == 0:
+            compatible_factor_residues += 1
+
+    return (lcm_modulus, compatible_factor_residues * lift_count)
+
+
+def parallel_direction_primitive_factor_integrality_strip_intersection_residue_count(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    factor_direction: Point,
+    factor: int,
+) -> tuple[int, int]:
+    """Count strip/factor integrality intersections via determinant rows."""
+
+    lcm_modulus, linear_rows = (
+        parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            factor_direction,
+            factor,
+        )
+    )
+    return (lcm_modulus, sum(row[-1] for row in linear_rows))
+
+
+@cache
+def parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    factor_direction: Point,
+    factor: int,
+) -> tuple[int, tuple[FactorIntegralityStripIntersectionLinearRow, ...]]:
+    """Linear ``k`` rows for primitive factor-integrality/strip intersections."""
+
+    if not edge_delta(*strip_direction):
+        raise ValueError("strip direction must be a legal Pythagorean edge vector")
+    if strip_modulus <= 1:
+        raise ValueError("strip modulus must be greater than 1")
+
+    factor_modulus = parallel_direction_factor_modulus(factor_direction, factor)
+    shared_modulus = gcd(factor_modulus, strip_modulus)
+    lift_count = strip_modulus // shared_modulus
+    lcm_modulus = factor_modulus * lift_count
+
+    u, v = factor_direction
+    bezout_x, bezout_y, bezout_gcd = _bezout_coefficients(u, v)
+    if bezout_gcd != 1:
+        raise ValueError("factor direction must be primitive")
+
+    determinant_one_vector = (-bezout_y, bezout_x)
+    strip_base_step = determinant(strip_direction, determinant_one_vector)
+    strip_factor_step = determinant(strip_direction, factor_direction)
+
+    rows: list[FactorIntegralityStripIntersectionLinearRow] = []
+    for determinant_residue, _dot_residue in (
+        parallel_direction_primitive_factor_determinant_residue_rows(
+            factor_direction,
+            factor,
+        )
+    ):
+        base_strip_residue = determinant_residue * strip_base_step
+        target_residue = (strip_residue - base_strip_residue) % shared_modulus
+        step_gcd = gcd(strip_factor_step, shared_modulus)
+        if target_residue % step_gcd != 0:
+            continue
+
+        reduced_modulus = shared_modulus // step_gcd
+        if reduced_modulus == 1:
+            k_residue = 0
+        else:
+            k_residue = (
+                (target_residue // step_gcd)
+                * pow(
+                    (strip_factor_step // step_gcd) % reduced_modulus,
+                    -1,
+                    reduced_modulus,
+                )
+            ) % reduced_modulus
+        residue_count = lift_count * (factor_modulus // reduced_modulus)
+        rows.append(
+            (
+                determinant_residue,
+                k_residue,
+                reduced_modulus,
+                residue_count,
+            )
+        )
+
+    return (lcm_modulus, tuple(rows))
+
+
+def parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness(
+    target: Point,
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    factor_direction: Point,
+    factor: int,
+) -> FactorIntegralityStripIntersectionLinearRow | None:
+    """Return the explicit strip/factor integrality row containing ``target``."""
+
+    if determinant(strip_direction, target) % strip_modulus != strip_residue:
+        return None
+    if not parallel_direction_primitive_factor_determinant_residue_holds(
+        target,
+        factor_direction,
+        factor,
+    ):
+        return None
+
+    factor_modulus = parallel_direction_factor_modulus(factor_direction, factor)
+    determinant_residue = determinant(factor_direction, target) % factor_modulus
+    u, v = factor_direction
+    bezout_x, bezout_y, _bezout_gcd = _bezout_coefficients(u, v)
+    determinant_one_vector = (-bezout_y, bezout_x)
+    k_residue = (-determinant(determinant_one_vector, target)) % factor_modulus
+
+    _lcm_modulus, linear_rows = (
+        parallel_direction_primitive_factor_integrality_strip_intersection_linear_rows(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            factor_direction,
+            factor,
+        )
+    )
+    for row in linear_rows:
+        row_determinant, row_k_residue, row_modulus, _row_count = row
+        if row_determinant != determinant_residue:
+            continue
+        if k_residue % row_modulus == row_k_residue:
+            return row
+    return None
+
+
 def parallel_direction_certificate(
     target: Point,
     direction: Point,
@@ -2413,6 +3603,26 @@ def parallel_direction_standard_completion_cover_certificate(
         certificate = parallel_direction_standard_completion_certificate(target, (u, v))
         if certificate is not None:
             return certificate
+
+    return None
+
+
+@cache
+def parallel_direction_standard_completion_cover_witness(
+    target: Point,
+    max_parameter: int,
+) -> ParallelDirectionFactorWitness | None:
+    """First signed standard-completion witness over finite directions."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        witness = parallel_direction_standard_completion_witness(target, (u, v))
+        if witness is not None:
+            return witness
 
     return None
 
@@ -2654,6 +3864,50 @@ def parallel_direction_promoted_345_factor_certificate(target: Point) -> Certifi
     return witness.certificate
 
 
+def parallel_direction_conjugate_ideal_promoted_345_integrality_strip_intersection_counts(
+    obligation: DivisorObligationKey,
+) -> tuple[Promoted345IntegralityStripIntersectionRow, ...]:
+    """Exact CRT intersections of an obligation strip with promoted integrality rows.
+
+    Each returned row is
+    ``(strip_direction, promoted_direction, factor, lcm_modulus, residue_count)``.
+    This is independent of any target box. These are modular integrality counts;
+    promoted certificate use still goes through the usual nondegeneracy check.
+    """
+
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        obligation
+    )
+    strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+        obligation
+    )
+
+    rows: list[Promoted345IntegralityStripIntersectionRow] = []
+    for strip_direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+        obligation
+    ):
+        for promoted_direction, factor in PARALLEL_DIRECTION_PROMOTED_345_FACTOR_ROWS:
+            lcm_modulus, residue_count = (
+                parallel_direction_factor_integrality_strip_intersection_residue_count(
+                    strip_direction,
+                    strip_modulus,
+                    strip_residue,
+                    promoted_direction,
+                    factor,
+                )
+            )
+            rows.append(
+                (
+                    strip_direction,
+                    promoted_direction,
+                    factor,
+                    lcm_modulus,
+                    residue_count,
+                )
+            )
+    return tuple(rows)
+
+
 @cache
 def parallel_direction_cover_certificate(
     target: Point,
@@ -2704,6 +3958,37 @@ def _sorted_count_items(counts):
         sorted(
             counts.items(),
             key=lambda item: (-item[1], item[0]),
+        )
+    )
+
+
+def _sorted_shape_squareclass_count_items(
+    counts: dict[tuple[Point, int], int],
+) -> tuple[tuple[Point, int, int], ...]:
+    return tuple(
+        (shape, squareclass, count)
+        for (shape, squareclass), count in sorted(
+            counts.items(),
+            key=lambda item: (
+                item[0][0][0] * item[0][0][0] + item[0][0][1] * item[0][0][1],
+                item[0][0],
+                item[0][1],
+            ),
+        )
+    )
+
+
+def _sorted_divisor_obligation_count_items(
+    counts: dict[DivisorObligationKey, int],
+) -> tuple[tuple[Point, int, int, int, int, int, int, int], ...]:
+    return tuple(
+        (*key, count)
+        for key, count in sorted(
+            counts.items(),
+            key=lambda item: (
+                item[0][0][0] * item[0][0][0] + item[0][0][1] * item[0][0][1],
+                item[0],
+            ),
         )
     )
 
@@ -2779,6 +4064,43 @@ def pythagorean_orthogonal_lattice_cover_certificate(
         certificate = lattice_two_step_certificate(target, (u, v), (-v, u))
         if certificate is not None:
             return certificate
+    return None
+
+
+@cache
+def pythagorean_orthogonal_lattice_witness(
+    target: Point,
+    max_parameter: int,
+) -> PythagoreanLatticePairWitness | None:
+    """First witness from a Pythagorean direction and its quarter-turn rotation."""
+
+    if max_parameter < 2:
+        raise ValueError("max_parameter must be at least 2")
+
+    for u, v, _hypotenuse, _parameter_a, _parameter_b in primitive_pythagorean_directions(
+        max_parameter
+    ):
+        first_direction = (u, v)
+        second_direction = (-v, u)
+        coefficients = lattice_coefficients(target, first_direction, second_direction)
+        if coefficients is None:
+            continue
+
+        first_coefficient, second_coefficient = coefficients
+        if first_coefficient == 0 or second_coefficient == 0:
+            continue
+
+        witness = PythagoreanLatticePairWitness(
+            target=target,
+            first_direction=first_direction,
+            second_direction=second_direction,
+            determinant=abs(determinant(first_direction, second_direction)),
+            first_coefficient=first_coefficient,
+            second_coefficient=second_coefficient,
+        )
+        if witness.certificate.valid():
+            return witness
+
     return None
 
 
@@ -2864,6 +4186,105 @@ def pythagorean_lattice_pair_cover_certificate(
     return witness.certificate
 
 
+def pythagorean_lattice_pair_strip_linear_congruence(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    first_direction: Point,
+    second_direction: Point,
+) -> LatticePairStripLinearCongruence:
+    """Coefficient congruence for a lattice-pair row on a determinant strip.
+
+    If ``T = a*first_direction + b*second_direction``, then the strip
+    ``det(strip_direction, T) == strip_residue mod strip_modulus`` becomes
+    ``first_step*a + second_step*b == residue mod modulus``.  The returned row
+    is ``(first_step, second_step, residue, modulus, linear_gcd)``.
+    """
+
+    if not edge_delta(*strip_direction):
+        raise ValueError("strip direction must be a legal Pythagorean edge vector")
+    if strip_modulus <= 1:
+        raise ValueError("strip modulus must be greater than 1")
+    if not edge_delta(*first_direction) or not edge_delta(*second_direction):
+        raise ValueError("lattice directions must be legal Pythagorean edge vectors")
+    if determinant(first_direction, second_direction) == 0:
+        raise ValueError("lattice directions must be independent")
+
+    first_step = determinant(strip_direction, first_direction) % strip_modulus
+    second_step = determinant(strip_direction, second_direction) % strip_modulus
+    residue = strip_residue % strip_modulus
+    linear_gcd = gcd(gcd(first_step, second_step), strip_modulus)
+    return (first_step, second_step, residue, strip_modulus, linear_gcd)
+
+
+def pythagorean_lattice_pair_strip_intersection_holds(
+    target: Point,
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    first_direction: Point,
+    second_direction: Point,
+) -> bool:
+    """Check the lattice-pair/strip row predicate for ``target``."""
+
+    coefficients = lattice_coefficients(target, first_direction, second_direction)
+    if coefficients is None:
+        return False
+
+    first_coefficient, second_coefficient = coefficients
+    first_step, second_step, residue, modulus, _linear_gcd = (
+        pythagorean_lattice_pair_strip_linear_congruence(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            first_direction,
+            second_direction,
+        )
+    )
+    return (
+        first_step * first_coefficient + second_step * second_coefficient - residue
+    ) % modulus == 0
+
+
+def pythagorean_lattice_pair_strip_intersection_residue_count(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    first_direction: Point,
+    second_direction: Point,
+) -> tuple[int, int]:
+    """Count residue classes where a lattice-pair row meets one strip.
+
+    The lattice generated by the two directions has index
+    ``abs(det(first_direction, second_direction))``. Modulo
+    ``lcm(index, strip_modulus)``, intersecting with the strip is equivalent to
+    one linear congruence in the two lattice coefficients. The return value is
+    ``(lcm_modulus, residue_count)`` for target residue classes.
+    """
+
+    first_step, second_step, residue, modulus, linear_gcd = (
+        pythagorean_lattice_pair_strip_linear_congruence(
+            strip_direction,
+            strip_modulus,
+            strip_residue,
+            first_direction,
+            second_direction,
+        )
+    )
+    pair_determinant = abs(determinant(first_direction, second_direction))
+    lcm_modulus = lcm(pair_determinant, modulus)
+    if residue % linear_gcd != 0:
+        return (lcm_modulus, 0)
+
+    residue_count = (
+        lcm_modulus
+        * lcm_modulus
+        * gcd(gcd(first_step, second_step), modulus)
+        // (modulus * pair_determinant)
+    )
+    return (lcm_modulus, residue_count)
+
+
 @cache
 def parallel_direction_squareclass_split_cover_witness(
     target: Point,
@@ -2920,6 +4341,49 @@ def parallel_direction_squareclass_split_cover_certificate(
     if witness is None:
         return None
     return witness.certificate
+
+
+@cache
+def pythagorean_layered_structural_label(target: Point) -> str | None:
+    """Name the first structural layer that certifies ``target``."""
+
+    if target == (0, 0) or target in KNOWN_DISTANCE_THREE_ORBIT:
+        return None
+
+    constructors = (
+        ("promoted_345", parallel_direction_promoted_345_factor_certificate),
+        (
+            "orthogonal",
+            lambda point: pythagorean_orthogonal_lattice_cover_certificate(
+                point,
+                PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
+            ),
+        ),
+        (
+            "lattice_pair",
+            lambda point: pythagorean_lattice_pair_cover_certificate(
+                point,
+                PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+                PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
+            ),
+        ),
+        (
+            "standard_completion",
+            lambda point: parallel_direction_standard_completion_cover_certificate(
+                point,
+                PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER,
+            ),
+        ),
+    )
+    for name, constructor in constructors:
+        certificate = constructor(target)
+        if certificate is None:
+            continue
+        if not certificate.valid():
+            raise AssertionError("layered structural cover produced an invalid certificate")
+        return name
+
+    return None
 
 
 @cache
@@ -3143,6 +4607,973 @@ def parallel_direction_conjugate_ideal_root_shape_cover_census(
         root_shape_counts=_sorted_count_items(root_shape_counts),
         squareclass_counts=_sorted_count_items(squareclass_counts),
         direction_counts=_sorted_count_items(direction_counts),
+    )
+
+
+def parallel_direction_conjugate_ideal_root_shape_divisor_obligation_census(
+    max_coordinate: int,
+    root_shapes: tuple[Point, ...],
+) -> ParallelDirectionConjugateIdealDivisorObligationCensus:
+    """Census of divisor-root obligations from an explicit root-shape family.
+
+    Each obligation row is
+    ``(shape, q, c, rho, D_over_q_mod_c, a_square_residue, a_mod_c, count)``.
+    """
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+
+    canonical_shapes = tuple(
+        sorted(
+            {gaussian_root_shape(root_shape) for root_shape in root_shapes},
+            key=lambda shape: (shape[0] * shape[0] + shape[1] * shape[1], shape),
+        )
+    )
+    primitive_pythagorean_root_shape_directions(canonical_shapes)
+
+    target_count = 0
+    structural_miss_count = 0
+    uncovered: list[Point] = []
+    shape_squareclass_counts: dict[tuple[Point, int], int] = {}
+    obligation_counts: dict[DivisorObligationKey, int] = {}
+
+    for g in range(1, max_coordinate + 1):
+        for h in range(1, max_coordinate + 1):
+            target = (g, h)
+            if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                continue
+            if gcd(g, h) != 1:
+                continue
+
+            target_count += 1
+            if pythagorean_layered_structural_certificate(target) is not None:
+                continue
+
+            structural_miss_count += 1
+            witness = parallel_direction_conjugate_ideal_root_shape_cover_witness(
+                target,
+                canonical_shapes,
+            )
+            if witness is None:
+                uncovered.append(target)
+                continue
+            if not witness.split_root_congruence_holds:
+                raise AssertionError("witness failed split-root congruence")
+            if not witness.divisor_root_congruence_holds:
+                raise AssertionError("witness failed divisor-root congruence")
+
+            shape_squareclass = (witness.root_shape, witness.squareclass)
+            shape_squareclass_counts[shape_squareclass] = (
+                shape_squareclass_counts.get(shape_squareclass, 0) + 1
+            )
+            obligation = parallel_direction_conjugate_ideal_divisor_obligation_key(
+                witness
+            )
+            obligation_counts[obligation] = obligation_counts.get(obligation, 0) + 1
+
+    return ParallelDirectionConjugateIdealDivisorObligationCensus(
+        max_coordinate=max_coordinate,
+        root_shapes=canonical_shapes,
+        target_count=target_count,
+        structural_miss_count=structural_miss_count,
+        uncovered_targets=tuple(uncovered),
+        shape_squareclass_counts=_sorted_shape_squareclass_count_items(
+            shape_squareclass_counts
+        ),
+        obligation_counts=_sorted_divisor_obligation_count_items(obligation_counts),
+    )
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_strip_census(
+    max_coordinate: int,
+    obligations: tuple[DivisorObligationKey, ...],
+) -> ParallelDirectionConjugateIdealDivisorObligationStripCensus:
+    """Census of determinant-strip failures for divisor-root obligations.
+
+    Each row is
+    ``(shape, q, c, rho, D_over_q_mod_c, a_square_residue, a_mod_c,
+    strip_count, divisor_count, failure_count, structural_failure_count,
+    nonstructural_failure_count)``.
+    """
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+
+    rows: list[tuple[Point, int, int, int, int, int, int, int, int, int, int, int]] = []
+    obligation_structural_failure_family_counts: dict[
+        tuple[DivisorObligationKey, str],
+        int,
+    ] = {}
+    structural_failure_family_counts: dict[str, int] = {}
+    divisor_failure_residue_closure_size_counts: dict[int, int] = {}
+    divisor_failure_residue_closure_keys: set[tuple[int, tuple[int, ...]]] = set()
+    divisor_failure_prime_modulus_generators: dict[int, int] = {}
+    divisor_failure_required_exponent_counts: dict[tuple[int, int], int] = {}
+    divisor_failure_exponent_closure_size_counts: dict[int, int] = {}
+    divisor_failure_exponent_closure_keys: set[
+        tuple[int, bool, tuple[int, ...]]
+    ] = set()
+    divisor_failure_exponent_stabilizer_counts: dict[tuple[int, int, int], int] = {}
+    divisor_failure_exponent_kneser_defect_counts: dict[
+        tuple[int, int, int, int],
+        int,
+    ] = {}
+    divisor_failure_exponent_effective_length_counts: dict[tuple[int, int], int] = {}
+    divisor_failure_exponent_saturation_gap_counts: dict[
+        tuple[int, int, int, int],
+        int,
+    ] = {}
+    divisor_exponent_saturation_branch_counts: dict[str, int] = {}
+    divisor_exponent_saturation_branch_modulus_counts: dict[tuple[int, str], int] = {}
+    promoted_345_failure_direction_counts: dict[Point, int] = {}
+    promoted_345_failure_factor_counts: dict[int, int] = {}
+    promoted_345_failure_integrality_linear_row_modulus_counts: dict[int, int] = {}
+    promoted_345_failure_integrality_linear_row_keys: set[
+        tuple[DivisorObligationKey, Point, Point, int, int, int, int]
+    ] = set()
+    lattice_pair_failure_determinant_counts: dict[int, int] = {}
+    lattice_pair_failure_pair_keys: set[tuple[Point, Point, int]] = set()
+    lattice_pair_failure_linear_gcd_counts: dict[int, int] = {}
+    lattice_pair_failure_linear_keys: set[
+        tuple[DivisorObligationKey, Point, Point, Point, int, int, int, int, int, int]
+    ] = set()
+    orthogonal_failure_linear_gcd_counts: dict[int, int] = {}
+    orthogonal_failure_linear_keys: set[
+        tuple[DivisorObligationKey, Point, Point, Point, int, int, int, int, int, int]
+    ] = set()
+    standard_completion_failure_direction_branch_counts: dict[tuple[Point, int], int] = {}
+    standard_completion_failure_quadratic_row_keys: set[
+        tuple[DivisorObligationKey, Point, Point, int, int, int, int]
+    ] = set()
+    standard_completion_failure_linear_row_modulus_counts: dict[int, int] = {}
+    standard_completion_failure_linear_row_keys: set[
+        tuple[DivisorObligationKey, Point, Point, int, int, int, int]
+    ] = set()
+    nonstructural_failure_examples: list[tuple[Point, Point, DivisorObligationKey]] = []
+
+    for obligation in obligations:
+        strip_count = 0
+        divisor_count = 0
+        failure_count = 0
+        structural_failure_count = 0
+        nonstructural_failure_count = 0
+        directions = parallel_direction_conjugate_ideal_divisor_obligation_directions(
+            obligation
+        )
+
+        for g in range(1, max_coordinate + 1):
+            for h in range(1, max_coordinate + 1):
+                target = (g, h)
+                if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                    continue
+                if gcd(g, h) != 1:
+                    continue
+
+                for direction in directions:
+                    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                        target,
+                        direction,
+                        obligation,
+                    ):
+                        continue
+
+                    strip_count += 1
+                    _shape, squareclass, modulus, _residue, _quotient, _square, split = (
+                        obligation
+                    )
+                    determinant_leg = determinant(direction, target)
+                    if determinant_leg % squareclass != 0:
+                        raise AssertionError("strip target lost its squareclass")
+
+                    exponent_summands: tuple[DivisorExponentSummand, ...] | None = None
+                    divisor_exponents: tuple[int, ...] | None = None
+                    zero_possible = False
+                    if is_prime(modulus):
+                        zero_possible, exponent_summands = (
+                            prime_modulus_divisor_exponent_summands(
+                                abs(determinant_leg // squareclass),
+                                modulus,
+                            )
+                        )
+                        effective_length, _lower_bound, saturation_gap = (
+                            cyclic_sumset_saturation_gap(
+                                modulus - 1,
+                                (summand[3] for summand in exponent_summands),
+                            )
+                        )
+
+                    divisor_holds = (
+                        parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                    )
+                    if exponent_summands is not None:
+                        if saturation_gap <= 0:
+                            if not divisor_holds:
+                                raise AssertionError(
+                                    "Kneser-saturated exponent sumset missed the divisor class"
+                                )
+                            saturation_branch = "saturation_success"
+                        elif divisor_holds:
+                            saturation_branch = "short_success"
+                        else:
+                            saturation_branch = "short_failure"
+                        divisor_exponent_saturation_branch_counts[
+                            saturation_branch
+                        ] = (
+                            divisor_exponent_saturation_branch_counts.get(
+                                saturation_branch,
+                                0,
+                            )
+                            + 1
+                        )
+                        saturation_branch_key = (modulus, saturation_branch)
+                        divisor_exponent_saturation_branch_modulus_counts[
+                            saturation_branch_key
+                        ] = (
+                            divisor_exponent_saturation_branch_modulus_counts.get(
+                                saturation_branch_key,
+                                0,
+                            )
+                            + 1
+                        )
+
+                    if divisor_holds:
+                        divisor_count += 1
+                        continue
+
+                    failure_count += 1
+                    divisor_residues = divisor_residue_classes(
+                        abs(determinant_leg // squareclass),
+                        modulus,
+                    )
+                    if split % modulus in divisor_residues:
+                        raise AssertionError(
+                            "divisor residue closure contradicts divisor failure"
+                        )
+                    divisor_residue_size = len(divisor_residues)
+                    divisor_failure_residue_closure_size_counts[divisor_residue_size] = (
+                        divisor_failure_residue_closure_size_counts.get(
+                            divisor_residue_size,
+                            0,
+                        )
+                        + 1
+                    )
+                    divisor_failure_residue_closure_keys.add(
+                        (modulus, divisor_residues)
+                    )
+                    if is_prime(modulus):
+                        generator = primitive_root_mod_prime(modulus)
+                        divisor_failure_prime_modulus_generators[modulus] = generator
+                        if exponent_summands is None:
+                            zero_possible, exponent_summands = (
+                                prime_modulus_divisor_exponent_summands(
+                                    abs(determinant_leg // squareclass),
+                                    modulus,
+                                )
+                            )
+                        divisor_exponents = cyclic_sumset(
+                            modulus - 1,
+                            (summand[3] for summand in exponent_summands),
+                        )
+                        required_exponent = discrete_log_table_mod_prime(modulus)[
+                            split % modulus
+                        ]
+                        if required_exponent < 0:
+                            raise AssertionError(
+                                "required divisor class was zero modulo a prime"
+                            )
+                        if required_exponent in divisor_exponents:
+                            raise AssertionError(
+                                "divisor exponent closure contradicts divisor failure"
+                            )
+                        exponent_size = len(divisor_exponents)
+                        divisor_failure_exponent_closure_size_counts[exponent_size] = (
+                            divisor_failure_exponent_closure_size_counts.get(
+                                exponent_size,
+                                0,
+                            )
+                            + 1
+                        )
+                        divisor_failure_exponent_closure_keys.add(
+                            (modulus, zero_possible, divisor_exponents)
+                        )
+                        stabilizer_step, _kneser_lower_bound, kneser_defect = (
+                            cyclic_sumset_kneser_data(
+                                modulus - 1,
+                                (summand[3] for summand in exponent_summands),
+                            )
+                        )
+                        stabilizer_size = (modulus - 1) // stabilizer_step
+                        stabilizer_key = (
+                            modulus,
+                            stabilizer_step,
+                            stabilizer_size,
+                        )
+                        divisor_failure_exponent_stabilizer_counts[
+                            stabilizer_key
+                        ] = (
+                            divisor_failure_exponent_stabilizer_counts.get(
+                                stabilizer_key,
+                                0,
+                            )
+                            + 1
+                        )
+                        kneser_key = (
+                            modulus,
+                            stabilizer_step,
+                            stabilizer_size,
+                            kneser_defect,
+                        )
+                        divisor_failure_exponent_kneser_defect_counts[kneser_key] = (
+                            divisor_failure_exponent_kneser_defect_counts.get(
+                                kneser_key,
+                                0,
+                            )
+                            + 1
+                        )
+                        effective_length, _lower_bound, saturation_gap = (
+                            cyclic_sumset_saturation_gap(
+                                modulus - 1,
+                                (summand[3] for summand in exponent_summands),
+                            )
+                        )
+                        effective_length_key = (modulus, effective_length)
+                        divisor_failure_exponent_effective_length_counts[
+                            effective_length_key
+                        ] = (
+                            divisor_failure_exponent_effective_length_counts.get(
+                                effective_length_key,
+                                0,
+                            )
+                            + 1
+                        )
+                        saturation_gap_key = (
+                            modulus,
+                            stabilizer_step,
+                            stabilizer_size,
+                            saturation_gap,
+                        )
+                        divisor_failure_exponent_saturation_gap_counts[
+                            saturation_gap_key
+                        ] = (
+                            divisor_failure_exponent_saturation_gap_counts.get(
+                                saturation_gap_key,
+                                0,
+                            )
+                            + 1
+                        )
+                        required_key = (modulus, required_exponent)
+                        divisor_failure_required_exponent_counts[required_key] = (
+                            divisor_failure_required_exponent_counts.get(
+                                required_key,
+                                0,
+                            )
+                            + 1
+                        )
+                    structural_label = pythagorean_layered_structural_label(target)
+                    if structural_label is not None:
+                        structural_failure_count += 1
+                        structural_failure_family_counts[structural_label] = (
+                            structural_failure_family_counts.get(structural_label, 0) + 1
+                        )
+                        obligation_label = (obligation, structural_label)
+                        obligation_structural_failure_family_counts[obligation_label] = (
+                            obligation_structural_failure_family_counts.get(
+                                obligation_label,
+                                0,
+                            )
+                            + 1
+                        )
+                        if structural_label == "promoted_345":
+                            promoted_witness = parallel_direction_promoted_345_factor_witness(
+                                target
+                            )
+                            if promoted_witness is None:
+                                raise AssertionError(
+                                    "promoted structural label had no witness"
+                                )
+                            promoted_direction = promoted_witness.direction
+                            promoted_345_failure_direction_counts[promoted_direction] = (
+                                promoted_345_failure_direction_counts.get(
+                                    promoted_direction,
+                                    0,
+                                )
+                                + 1
+                            )
+                            promoted_factor = promoted_witness.factor
+                            promoted_345_failure_factor_counts[promoted_factor] = (
+                                promoted_345_failure_factor_counts.get(
+                                    promoted_factor,
+                                    0,
+                                )
+                                + 1
+                            )
+                            linear_row = (
+                                parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness(
+                                    target,
+                                    direction,
+                                    parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                                        obligation
+                                    ),
+                                    parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                                        obligation
+                                    ),
+                                    promoted_direction,
+                                    promoted_factor,
+                                )
+                            )
+                            if linear_row is None:
+                                raise AssertionError(
+                                    "promoted strip failure had no linear row witness"
+                                )
+                            (
+                                determinant_residue,
+                                k_residue,
+                                k_modulus,
+                                _row_count,
+                            ) = linear_row
+                            promoted_345_failure_integrality_linear_row_modulus_counts[k_modulus] = (
+                                promoted_345_failure_integrality_linear_row_modulus_counts.get(
+                                    k_modulus,
+                                    0,
+                                )
+                                + 1
+                            )
+                            promoted_345_failure_integrality_linear_row_keys.add(
+                                (
+                                    obligation,
+                                    direction,
+                                    promoted_direction,
+                                    promoted_factor,
+                                    determinant_residue,
+                                    k_residue,
+                                    k_modulus,
+                                )
+                            )
+                        elif structural_label == "lattice_pair":
+                            lattice_pair_witness = pythagorean_lattice_pair_witness(
+                                target,
+                                PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+                                PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
+                            )
+                            if lattice_pair_witness is None:
+                                raise AssertionError(
+                                    "lattice-pair structural label had no witness"
+                                )
+                            lattice_determinant = lattice_pair_witness.determinant
+                            lattice_pair_failure_determinant_counts[lattice_determinant] = (
+                                lattice_pair_failure_determinant_counts.get(
+                                    lattice_determinant,
+                                    0,
+                                )
+                                + 1
+                            )
+                            lattice_pair_failure_pair_keys.add(
+                                (
+                                    lattice_pair_witness.first_direction,
+                                    lattice_pair_witness.second_direction,
+                                    lattice_determinant,
+                                )
+                            )
+                            strip_modulus = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                                    obligation
+                                )
+                            )
+                            strip_residue = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                                    obligation
+                                )
+                            )
+                            if not pythagorean_lattice_pair_strip_intersection_holds(
+                                target,
+                                direction,
+                                strip_modulus,
+                                strip_residue,
+                                lattice_pair_witness.first_direction,
+                                lattice_pair_witness.second_direction,
+                            ):
+                                raise AssertionError(
+                                    "lattice-pair strip failure had no linear congruence"
+                                )
+                            (
+                                first_step,
+                                second_step,
+                                residue,
+                                modulus,
+                                linear_gcd,
+                            ) = pythagorean_lattice_pair_strip_linear_congruence(
+                                direction,
+                                strip_modulus,
+                                strip_residue,
+                                lattice_pair_witness.first_direction,
+                                lattice_pair_witness.second_direction,
+                            )
+                            lattice_pair_failure_linear_gcd_counts[linear_gcd] = (
+                                lattice_pair_failure_linear_gcd_counts.get(
+                                    linear_gcd,
+                                    0,
+                                )
+                                + 1
+                            )
+                            lattice_pair_failure_linear_keys.add(
+                                (
+                                    obligation,
+                                    direction,
+                                    lattice_pair_witness.first_direction,
+                                    lattice_pair_witness.second_direction,
+                                    lattice_determinant,
+                                    first_step,
+                                    second_step,
+                                    residue,
+                                    modulus,
+                                    linear_gcd,
+                                )
+                            )
+                        elif structural_label == "orthogonal":
+                            orthogonal_witness = pythagorean_orthogonal_lattice_witness(
+                                target,
+                                PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
+                            )
+                            if orthogonal_witness is None:
+                                raise AssertionError(
+                                    "orthogonal structural label had no witness"
+                                )
+                            strip_modulus = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                                    obligation
+                                )
+                            )
+                            strip_residue = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                                    obligation
+                                )
+                            )
+                            if not pythagorean_lattice_pair_strip_intersection_holds(
+                                target,
+                                direction,
+                                strip_modulus,
+                                strip_residue,
+                                orthogonal_witness.first_direction,
+                                orthogonal_witness.second_direction,
+                            ):
+                                raise AssertionError(
+                                    "orthogonal strip failure had no linear congruence"
+                                )
+                            (
+                                first_step,
+                                second_step,
+                                residue,
+                                modulus,
+                                linear_gcd,
+                            ) = pythagorean_lattice_pair_strip_linear_congruence(
+                                direction,
+                                strip_modulus,
+                                strip_residue,
+                                orthogonal_witness.first_direction,
+                                orthogonal_witness.second_direction,
+                            )
+                            orthogonal_failure_linear_gcd_counts[linear_gcd] = (
+                                orthogonal_failure_linear_gcd_counts.get(
+                                    linear_gcd,
+                                    0,
+                                )
+                                + 1
+                            )
+                            orthogonal_failure_linear_keys.add(
+                                (
+                                    obligation,
+                                    direction,
+                                    orthogonal_witness.first_direction,
+                                    orthogonal_witness.second_direction,
+                                    orthogonal_witness.determinant,
+                                    first_step,
+                                    second_step,
+                                    residue,
+                                    modulus,
+                                    linear_gcd,
+                                )
+                            )
+                        elif structural_label == "standard_completion":
+                            standard_witness = (
+                                parallel_direction_standard_completion_cover_witness(
+                                    target,
+                                    PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER,
+                                )
+                            )
+                            if standard_witness is None:
+                                raise AssertionError(
+                                    "standard-completion structural label had no witness"
+                                )
+                            branch = parallel_direction_standard_completion_branch(
+                                standard_witness.determinant_leg,
+                                standard_witness.factor,
+                            )
+                            if branch is None:
+                                raise AssertionError(
+                                    "standard-completion witness used nonstandard factor"
+                                )
+                            row = (
+                                parallel_direction_standard_completion_quadratic_row_witness(
+                                    target,
+                                    standard_witness.direction,
+                                    branch,
+                                )
+                            )
+                            if row is None:
+                                raise AssertionError(
+                                    "standard-completion failure had no quadratic row"
+                                )
+                            direction_branch = (standard_witness.direction, branch)
+                            standard_completion_failure_direction_branch_counts[
+                                direction_branch
+                            ] = (
+                                standard_completion_failure_direction_branch_counts.get(
+                                    direction_branch,
+                                    0,
+                                )
+                                + 1
+                            )
+                            determinant_residue, dot_residue, row_modulus = row
+                            standard_completion_failure_quadratic_row_keys.add(
+                                (
+                                    obligation,
+                                    direction,
+                                    standard_witness.direction,
+                                    branch,
+                                    determinant_residue,
+                                    dot_residue,
+                                    row_modulus,
+                                )
+                            )
+                            strip_modulus = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+                                    obligation
+                                )
+                            )
+                            strip_residue = (
+                                parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                                    obligation
+                                )
+                            )
+                            linear_row = (
+                                parallel_direction_standard_completion_strip_intersection_linear_row_witness(
+                                    target,
+                                    direction,
+                                    strip_modulus,
+                                    strip_residue,
+                                    standard_witness.direction,
+                                    branch,
+                                )
+                            )
+                            if linear_row is None:
+                                raise AssertionError(
+                                    "standard-completion failure had no linear row"
+                                )
+                            (
+                                linear_determinant_residue,
+                                linear_k_residue,
+                                linear_k_modulus,
+                                _linear_row_count,
+                            ) = linear_row
+                            standard_completion_failure_linear_row_modulus_counts[
+                                linear_k_modulus
+                            ] = (
+                                standard_completion_failure_linear_row_modulus_counts.get(
+                                    linear_k_modulus,
+                                    0,
+                                )
+                                + 1
+                            )
+                            standard_completion_failure_linear_row_keys.add(
+                                (
+                                    obligation,
+                                    direction,
+                                    standard_witness.direction,
+                                    branch,
+                                    linear_determinant_residue,
+                                    linear_k_residue,
+                                    linear_k_modulus,
+                                )
+                            )
+                        continue
+
+                    nonstructural_failure_count += 1
+                    if len(nonstructural_failure_examples) < 10:
+                        nonstructural_failure_examples.append(
+                            (target, direction, obligation)
+                        )
+
+        rows.append(
+            (
+                *obligation,
+                strip_count,
+                divisor_count,
+                failure_count,
+                structural_failure_count,
+                nonstructural_failure_count,
+            )
+        )
+
+    return ParallelDirectionConjugateIdealDivisorObligationStripCensus(
+        max_coordinate=max_coordinate,
+        obligation_rows=tuple(rows),
+        obligation_structural_failure_family_counts=tuple(
+            (obligation, label, count)
+            for (obligation, label), count in sorted(
+                obligation_structural_failure_family_counts.items(),
+                key=lambda item: (
+                    item[0][0][0][0] * item[0][0][0][0]
+                    + item[0][0][0][1] * item[0][0][0][1],
+                    item[0][0],
+                    item[0][1],
+                ),
+            )
+        ),
+        structural_failure_family_counts=tuple(
+            sorted(
+                structural_failure_family_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        divisor_failure_residue_closure_size_counts=_sorted_count_items(
+            divisor_failure_residue_closure_size_counts
+        ),
+        divisor_failure_distinct_residue_closure_count=len(
+            divisor_failure_residue_closure_keys
+        ),
+        divisor_failure_distinct_residue_closure_size_counts=_sorted_count_items(
+            {
+                residue_size: sum(
+                    1
+                    for _modulus, divisor_residues in divisor_failure_residue_closure_keys
+                    if len(divisor_residues) == residue_size
+                )
+                for residue_size in {
+                    len(divisor_residues)
+                    for _modulus, divisor_residues in divisor_failure_residue_closure_keys
+                }
+            }
+        ),
+        divisor_failure_prime_modulus_generators=tuple(
+            sorted(divisor_failure_prime_modulus_generators.items())
+        ),
+        divisor_failure_required_exponent_counts=tuple(
+            (modulus, exponent, count)
+            for (modulus, exponent), count in sorted(
+                divisor_failure_required_exponent_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        divisor_failure_exponent_closure_size_counts=_sorted_count_items(
+            divisor_failure_exponent_closure_size_counts
+        ),
+        divisor_failure_distinct_exponent_closure_count=len(
+            divisor_failure_exponent_closure_keys
+        ),
+        divisor_failure_distinct_exponent_closure_size_counts=_sorted_count_items(
+            {
+                exponent_size: sum(
+                    1
+                    for (
+                        _modulus,
+                        _zero_possible,
+                        divisor_exponents,
+                    ) in divisor_failure_exponent_closure_keys
+                    if len(divisor_exponents) == exponent_size
+                )
+                for exponent_size in {
+                    len(divisor_exponents)
+                    for (
+                        _modulus,
+                        _zero_possible,
+                        divisor_exponents,
+                    ) in divisor_failure_exponent_closure_keys
+                }
+            }
+        ),
+        divisor_failure_exponent_stabilizer_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                divisor_failure_exponent_stabilizer_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        divisor_failure_exponent_kneser_defect_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                divisor_failure_exponent_kneser_defect_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        divisor_failure_exponent_effective_length_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                divisor_failure_exponent_effective_length_counts.items(),
+                key=lambda item: (item[0][0], item[0][1]),
+            )
+        ),
+        divisor_failure_exponent_saturation_gap_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                divisor_failure_exponent_saturation_gap_counts.items(),
+                key=lambda item: (item[0][0], item[0][1], item[0][3]),
+            )
+        ),
+        divisor_exponent_saturation_branch_counts=_sorted_count_items(
+            divisor_exponent_saturation_branch_counts
+        ),
+        divisor_exponent_saturation_branch_modulus_counts=tuple(
+            (modulus, branch, count)
+            for (modulus, branch), count in sorted(
+                divisor_exponent_saturation_branch_modulus_counts.items(),
+                key=lambda item: (item[0][0], item[0][1]),
+            )
+        ),
+        promoted_345_failure_direction_counts=_sorted_count_items(
+            promoted_345_failure_direction_counts
+        ),
+        promoted_345_failure_factor_counts=_sorted_count_items(
+            promoted_345_failure_factor_counts
+        ),
+        promoted_345_failure_integrality_linear_row_modulus_counts=_sorted_count_items(
+            promoted_345_failure_integrality_linear_row_modulus_counts
+        ),
+        promoted_345_failure_distinct_integrality_linear_row_count=len(
+            promoted_345_failure_integrality_linear_row_keys
+        ),
+        promoted_345_failure_distinct_integrality_linear_row_modulus_counts=_sorted_count_items(
+            {
+                modulus: sum(
+                    1
+                    for row_key in promoted_345_failure_integrality_linear_row_keys
+                    if row_key[-1] == modulus
+                )
+                for modulus in {row_key[-1] for row_key in promoted_345_failure_integrality_linear_row_keys}
+            }
+        ),
+        lattice_pair_failure_determinant_counts=_sorted_count_items(
+            lattice_pair_failure_determinant_counts
+        ),
+        lattice_pair_failure_distinct_pair_count=len(lattice_pair_failure_pair_keys),
+        lattice_pair_failure_distinct_pair_determinant_counts=_sorted_count_items(
+            {
+                determinant_value: sum(
+                    1
+                    for pair_key in lattice_pair_failure_pair_keys
+                    if pair_key[-1] == determinant_value
+                )
+                for determinant_value in {
+                    pair_key[-1] for pair_key in lattice_pair_failure_pair_keys
+                }
+            }
+        ),
+        lattice_pair_failure_linear_gcd_counts=_sorted_count_items(
+            lattice_pair_failure_linear_gcd_counts
+        ),
+        lattice_pair_failure_distinct_linear_congruence_count=len(
+            lattice_pair_failure_linear_keys
+        ),
+        lattice_pair_failure_distinct_linear_gcd_counts=_sorted_count_items(
+            {
+                linear_gcd: sum(
+                    1
+                    for linear_key in lattice_pair_failure_linear_keys
+                    if linear_key[-1] == linear_gcd
+                )
+                for linear_gcd in {
+                    linear_key[-1] for linear_key in lattice_pair_failure_linear_keys
+                }
+            }
+        ),
+        orthogonal_failure_linear_gcd_counts=_sorted_count_items(
+            orthogonal_failure_linear_gcd_counts
+        ),
+        orthogonal_failure_distinct_linear_congruence_count=len(
+            orthogonal_failure_linear_keys
+        ),
+        orthogonal_failure_distinct_linear_gcd_counts=_sorted_count_items(
+            {
+                linear_gcd: sum(
+                    1
+                    for linear_key in orthogonal_failure_linear_keys
+                    if linear_key[-1] == linear_gcd
+                )
+                for linear_gcd in {
+                    linear_key[-1] for linear_key in orthogonal_failure_linear_keys
+                }
+            }
+        ),
+        standard_completion_failure_direction_branch_counts=tuple(
+            (direction, branch, count)
+            for (direction, branch), count in sorted(
+                standard_completion_failure_direction_branch_counts.items(),
+                key=lambda item: (-item[1], item[0][0], item[0][1]),
+            )
+        ),
+        standard_completion_failure_distinct_quadratic_row_count=len(
+            standard_completion_failure_quadratic_row_keys
+        ),
+        standard_completion_failure_distinct_quadratic_row_modulus_counts=_sorted_count_items(
+            {
+                row_modulus: sum(
+                    1
+                    for row_key in standard_completion_failure_quadratic_row_keys
+                    if row_key[-1] == row_modulus
+                )
+                for row_modulus in {
+                    row_key[-1]
+                    for row_key in standard_completion_failure_quadratic_row_keys
+                }
+            }
+        ),
+        standard_completion_failure_linear_row_modulus_counts=_sorted_count_items(
+            standard_completion_failure_linear_row_modulus_counts
+        ),
+        standard_completion_failure_distinct_linear_row_count=len(
+            standard_completion_failure_linear_row_keys
+        ),
+        standard_completion_failure_distinct_linear_row_modulus_counts=_sorted_count_items(
+            {
+                linear_k_modulus: sum(
+                    1
+                    for row_key in standard_completion_failure_linear_row_keys
+                    if row_key[-1] == linear_k_modulus
+                )
+                for linear_k_modulus in {
+                    row_key[-1]
+                    for row_key in standard_completion_failure_linear_row_keys
+                }
+            }
+        ),
+        nonstructural_failure_examples=tuple(nonstructural_failure_examples),
+    )
+
+
+def parallel_direction_conjugate_ideal_root_spine_cover_census(
+    max_coordinate: int,
+    max_root_coordinate: int,
+) -> ParallelDirectionConjugateIdealRootShapeCoverCensus:
+    """Census of exact split witnesses from generated root-shape spines."""
+
+    return parallel_direction_conjugate_ideal_root_shape_cover_census(
+        max_coordinate,
+        primitive_pythagorean_root_spine_shapes(max_root_coordinate),
+    )
+
+
+def parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census(
+    max_coordinate: int,
+    max_root_coordinate: int,
+) -> ParallelDirectionConjugateIdealDivisorObligationCensus:
+    """Divisor-root obligation census from generated root-shape spines."""
+
+    return parallel_direction_conjugate_ideal_root_shape_divisor_obligation_census(
+        max_coordinate,
+        primitive_pythagorean_root_spine_shapes(max_root_coordinate),
     )
 
 
