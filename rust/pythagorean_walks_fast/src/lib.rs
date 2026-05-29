@@ -1,4 +1,4 @@
-use pyo3::exceptions::{PyAssertionError, PyValueError};
+use pyo3::exceptions::{PyAssertionError, PyOverflowError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::{Mutex, OnceLock};
@@ -142,6 +142,10 @@ fn determinant(first: (i64, i64), second: (i64, i64)) -> i128 {
     first.0 as i128 * second.1 as i128 - first.1 as i128 * second.0 as i128
 }
 
+fn determinant_i128(first: (i128, i128), second: (i128, i128)) -> i128 {
+    first.0 * second.1 - first.1 * second.0
+}
+
 fn gcd_i128(mut a: i128, mut b: i128) -> i128 {
     a = a.abs();
     b = b.abs();
@@ -219,6 +223,21 @@ fn mul_mod_i128(first: i128, second: i128, modulus: i128) -> i128 {
     result as i128
 }
 
+fn checked_parallel_factor_add(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_add(right)
+        .ok_or_else(|| PyOverflowError::new_err("parallel factor formula exceeded i128"))
+}
+
+fn checked_parallel_factor_sub(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_sub(right)
+        .ok_or_else(|| PyOverflowError::new_err("parallel factor formula exceeded i128"))
+}
+
+fn checked_parallel_factor_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("parallel factor formula exceeded i128"))
+}
+
 fn factor_congruence_holds(target: (i64, i64), direction: (i64, i64), factor: i64) -> bool {
     let u = direction.0 as i128;
     let v = direction.1 as i128;
@@ -234,6 +253,102 @@ fn factor_congruence_holds(target: (i64, i64), direction: (i64, i64), factor: i6
     (determinant_square + factor_square) % (2 * c * factor) == 0
         && (determinant_square - factor_square + 2 * factor * dot_product) % (2 * factor * c * c)
             == 0
+}
+
+fn parallel_direction_factor_congruence_data_i128(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Option<(i128, i128, i128)>> {
+    let g = target.0 as i128;
+    let h = target.1 as i128;
+    let u = direction.0 as i128;
+    let v = direction.1 as i128;
+    let c = isqrt_i128(checked_parallel_factor_add(
+        checked_parallel_factor_mul(u, u)?,
+        checked_parallel_factor_mul(v, v)?,
+    )?);
+    let determinant_leg = checked_parallel_factor_sub(
+        checked_parallel_factor_mul(u, h)?,
+        checked_parallel_factor_mul(v, g)?,
+    )?;
+    if determinant_leg == 0 {
+        return Ok(None);
+    }
+
+    let dot_product = checked_parallel_factor_add(
+        checked_parallel_factor_mul(g, u)?,
+        checked_parallel_factor_mul(h, v)?,
+    )?;
+    let determinant_square = checked_parallel_factor_mul(determinant_leg, determinant_leg)?;
+    let factor = factor as i128;
+    let factor_square = checked_parallel_factor_mul(factor, factor)?;
+
+    let first_numerator = checked_parallel_factor_add(determinant_square, factor_square)?;
+    let first_denominator =
+        checked_parallel_factor_mul(checked_parallel_factor_mul(2, c)?, factor)?;
+    if first_numerator % first_denominator != 0 {
+        return Ok(None);
+    }
+
+    let second_numerator = checked_parallel_factor_add(
+        checked_parallel_factor_sub(determinant_square, factor_square)?,
+        checked_parallel_factor_mul(checked_parallel_factor_mul(2, factor)?, dot_product)?,
+    )?;
+    let second_denominator = checked_parallel_factor_mul(
+        checked_parallel_factor_mul(checked_parallel_factor_mul(2, factor)?, c)?,
+        c,
+    )?;
+    if second_numerator % second_denominator != 0 {
+        return Ok(None);
+    }
+
+    Ok(Some((
+        determinant_leg,
+        first_numerator / first_denominator,
+        second_numerator / second_denominator,
+    )))
+}
+
+fn primitive_factor_determinant_residue_rows_i128(
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Vec<(i128, i128)>> {
+    let u = direction.0 as i128;
+    let v = direction.1 as i128;
+    let c = isqrt_i128(u * u + v * v);
+    let direction_norm = c * c;
+    let factor_modulus = parallel_direction_factor_modulus(direction, factor)? as i128;
+    let Some(inverse_u) = modular_inverse_i128(u, direction_norm) else {
+        return Err(PyValueError::new_err(
+            "direction x-coordinate must be invertible modulo its norm",
+        ));
+    };
+    let factor = factor as i128;
+    let factor_square = factor * factor;
+    let target_dot_multiplier = mul_mod_i128(v, inverse_u, direction_norm);
+
+    let mut rows = Vec::new();
+    for determinant_residue in 0..factor_modulus {
+        let determinant_square = determinant_residue * determinant_residue;
+        if (determinant_square + factor_square) % (2 * c * factor) != 0 {
+            continue;
+        }
+
+        let dot_numerator = factor_square - determinant_square;
+        if dot_numerator % (2 * factor) != 0 {
+            continue;
+        }
+        let factor_dot_residue = (dot_numerator / (2 * factor)).rem_euclid(direction_norm);
+        let target_dot_residue =
+            mul_mod_i128(target_dot_multiplier, determinant_residue, direction_norm);
+        if factor_dot_residue != target_dot_residue {
+            continue;
+        }
+
+        rows.push((determinant_residue, factor_dot_residue));
+    }
+    Ok(rows)
 }
 
 fn primitive_pythagorean_directions(max_parameter: i64) -> Vec<(i64, i64, i64)> {
@@ -354,6 +469,211 @@ fn lattice_pair_witness_from_pairs(
     None
 }
 
+fn checked_i128_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("lattice midpoint exceeded i128"))
+}
+
+fn checked_axis_add(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_add(right)
+        .ok_or_else(|| PyOverflowError::new_err("axis formula exceeded i128"))
+}
+
+fn checked_axis_sub(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_sub(right)
+        .ok_or_else(|| PyOverflowError::new_err("axis formula exceeded i128"))
+}
+
+fn checked_axis_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("axis formula exceeded i128"))
+}
+
+fn checked_theorem3_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("theorem 3 formula exceeded i128"))
+}
+
+fn checked_theorem3_sub(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_sub(right)
+        .ok_or_else(|| PyOverflowError::new_err("theorem 3 formula exceeded i128"))
+}
+
+fn checked_linear_delta_add(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_add(right)
+        .ok_or_else(|| PyOverflowError::new_err("linear delta formula exceeded i128"))
+}
+
+fn checked_linear_delta_sub(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_sub(right)
+        .ok_or_else(|| PyOverflowError::new_err("linear delta formula exceeded i128"))
+}
+
+fn checked_linear_delta_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("linear delta formula exceeded i128"))
+}
+
+fn pythagorean_triple_valid(triple: (i64, i64, i64)) -> bool {
+    let a = triple.0 as i128;
+    let b = triple.1 as i128;
+    let c = triple.2 as i128;
+    a > 0 && b > 0 && c > 0 && a * a + b * b == c * c
+}
+
+fn theorem3_midpoint_i128(
+    target: (i64, i64),
+    triple: (i64, i64, i64),
+    x_sign: i64,
+    y_sign: i64,
+    divisor: i128,
+    require_positive_coefficient: bool,
+    invalid_certificate_is_assertion: bool,
+) -> PyResult<Option<(i128, i128)>> {
+    if ![-1, 1].contains(&x_sign) || ![-1, 1].contains(&y_sign) {
+        return Err(PyValueError::new_err("x_sign and y_sign must be -1 or 1"));
+    }
+    if divisor == 0 {
+        return Err(PyValueError::new_err("divisor must be nonzero"));
+    }
+    if !pythagorean_triple_valid(triple) {
+        return Err(PyValueError::new_err(
+            "triple must be a positive Pythagorean triple",
+        ));
+    }
+
+    let g = target.0 as i128;
+    let h = target.1 as i128;
+    if g == 0 || h == 0 {
+        return Ok(None);
+    }
+    let target_product = g * h;
+    if target_product % divisor != 0 {
+        return Ok(None);
+    }
+
+    let a = triple.0 as i128;
+    let b = triple.1 as i128;
+    let c = triple.2 as i128;
+    let x_direction = x_sign as i128 * a;
+    let y_direction = y_sign as i128 * b;
+    if (c - x_direction) * g != (c + y_direction) * h - divisor {
+        return Ok(None);
+    }
+
+    let coefficient = target_product / divisor;
+    if require_positive_coefficient && coefficient <= 0 {
+        return Ok(None);
+    }
+
+    let midpoint = (
+        checked_theorem3_mul(x_direction, coefficient)?,
+        checked_theorem3_mul(y_direction, coefficient)?,
+    );
+    let second_x = checked_theorem3_sub(g, midpoint.0)?;
+    let second_y = checked_theorem3_sub(h, midpoint.1)?;
+    if second_x != 0 && second_y != 0 {
+        Ok(Some(midpoint))
+    } else if invalid_certificate_is_assertion {
+        Err(PyAssertionError::new_err(
+            "theorem 3 relation did not produce a valid certificate",
+        ))
+    } else {
+        Ok(None)
+    }
+}
+
+fn linear_delta_direction_midpoint_i128(
+    target: (i64, i64),
+    direction: (i64, i64),
+    delta_coefficients: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    let u = direction.0 as i128;
+    let v = direction.1 as i128;
+    if !edge_delta_i128(u, v) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+
+    let g = target.0 as i128;
+    let h = target.1 as i128;
+    let alpha = delta_coefficients.0 as i128;
+    let beta = delta_coefficients.1 as i128;
+    let direction_norm = checked_linear_delta_add(
+        checked_linear_delta_mul(u, u)?,
+        checked_linear_delta_mul(v, v)?,
+    )?;
+    let hypotenuse = isqrt_i128(direction_norm);
+    let signed_delta = checked_linear_delta_add(
+        checked_linear_delta_mul(alpha, g)?,
+        checked_linear_delta_mul(beta, h)?,
+    )?;
+    let target_norm = checked_linear_delta_add(
+        checked_linear_delta_mul(g, g)?,
+        checked_linear_delta_mul(h, h)?,
+    )?;
+    let numerator = checked_linear_delta_sub(
+        target_norm,
+        checked_linear_delta_mul(signed_delta, signed_delta)?,
+    )?;
+    if numerator <= 0 || numerator % 2 != 0 {
+        return Ok(None);
+    }
+
+    let dot_product = checked_linear_delta_add(
+        checked_linear_delta_mul(g, u)?,
+        checked_linear_delta_mul(h, v)?,
+    )?;
+    let denominator = checked_linear_delta_sub(
+        dot_product,
+        checked_linear_delta_mul(signed_delta, hypotenuse)?,
+    )?;
+    if denominator == 0 {
+        return Ok(None);
+    }
+    let double_denominator = checked_linear_delta_mul(2, denominator)?;
+    if numerator % double_denominator != 0 {
+        return Ok(None);
+    }
+
+    let coefficient = numerator / double_denominator;
+    if coefficient <= 0 {
+        return Ok(None);
+    }
+
+    let midpoint = (
+        checked_linear_delta_mul(coefficient, u)?,
+        checked_linear_delta_mul(coefficient, v)?,
+    );
+    let second_x = checked_linear_delta_sub(g, midpoint.0)?;
+    let second_y = checked_linear_delta_sub(h, midpoint.1)?;
+    if second_x != 0 && second_y != 0 {
+        Ok(Some(midpoint))
+    } else {
+        Ok(None)
+    }
+}
+
+fn lattice_certificate_midpoint_i128(
+    target: (i64, i64),
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    let Some((first_coefficient, second_coefficient)) =
+        lattice_coefficients_i128(target, first_direction, second_direction)
+    else {
+        return Ok(None);
+    };
+    if first_coefficient == 0 || second_coefficient == 0 {
+        return Ok(None);
+    }
+    Ok(Some((
+        checked_i128_mul(first_coefficient, first_direction.0 as i128)?,
+        checked_i128_mul(first_coefficient, first_direction.1 as i128)?,
+    )))
+}
+
 fn registered_lattice_pairs() -> &'static Mutex<HashMap<String, Vec<LatticePair>>> {
     LATTICE_PAIR_REGISTRY.get_or_init(|| Mutex::new(HashMap::new()))
 }
@@ -386,6 +706,22 @@ fn parallel_direction_factor_witness_data_i128(
     direction: (i64, i64),
     factor: i64,
 ) -> Option<(i128, i128, i128, i128, i128)> {
+    let (det_value, _paired_factor, other_leg, scaled_hypotenuse, second_length, first_coefficient) =
+        parallel_direction_factor_witness_row_data_i128(target, direction, factor)?;
+    Some((
+        det_value,
+        other_leg,
+        scaled_hypotenuse,
+        second_length,
+        first_coefficient,
+    ))
+}
+
+fn parallel_direction_factor_witness_row_data_i128(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> Option<(i128, i128, i128, i128, i128, i128)> {
     let u = direction.0 as i128;
     let v = direction.1 as i128;
     let c = isqrt_i128(u * u + v * v);
@@ -412,11 +748,13 @@ fn parallel_direction_factor_witness_data_i128(
         return None;
     }
     let first_coefficient = first_coefficient_numerator / direction_norm;
+    let scaled_hypotenuse = factor_sum / 2;
     Some((
         det_value,
+        paired_factor,
         other_leg,
-        factor_sum / 2,
-        (factor_sum / 2) / c,
+        scaled_hypotenuse,
+        scaled_hypotenuse / c,
         first_coefficient,
     ))
 }
@@ -436,6 +774,25 @@ fn parallel_direction_factor_witness_data(
         return Err(PyValueError::new_err("factor must be positive"));
     }
     Ok(parallel_direction_factor_witness_data_i128(
+        target, direction, factor,
+    ))
+}
+
+#[pyfunction]
+fn parallel_direction_factor_witness_row_data(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Option<(i128, i128, i128, i128, i128, i128)>> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
+    }
+    Ok(parallel_direction_factor_witness_row_data_i128(
         target, direction, factor,
     ))
 }
@@ -461,6 +818,16 @@ fn parallel_direction_certificate_midpoint_inner(
 fn signed_swap_point_inner(point: (i64, i64), x_sign: i64, y_sign: i64, swap: bool) -> (i64, i64) {
     let (x, y) = if swap { (point.1, point.0) } else { point };
     (x_sign * x, y_sign * y)
+}
+
+fn signed_swap_point_i128(
+    point: (i128, i128),
+    x_sign: i64,
+    y_sign: i64,
+    swap: bool,
+) -> (i128, i128) {
+    let (x, y) = if swap { (point.1, point.0) } else { point };
+    (x_sign as i128 * x, y_sign as i128 * y)
 }
 
 #[pyfunction]
@@ -499,6 +866,99 @@ fn scale_certificate_data(
             factor * certificate_midpoint.1 as i128,
         ),
     ))
+}
+
+#[pyfunction(signature = (certificate_target, certificate_midpoint, factor, x_sign, y_sign, swap=false))]
+fn scale_signed_swap_certificate_data(
+    certificate_target: (i64, i64),
+    certificate_midpoint: (i64, i64),
+    factor: i64,
+    x_sign: i64,
+    y_sign: i64,
+    swap: bool,
+) -> PyResult<((i128, i128), (i128, i128))> {
+    if factor == 0 {
+        return Err(PyValueError::new_err(
+            "certificate scaling factor must be nonzero",
+        ));
+    }
+    if ![-1, 1].contains(&x_sign) || ![-1, 1].contains(&y_sign) {
+        return Err(PyValueError::new_err("x_sign and y_sign must be -1 or 1"));
+    }
+
+    let factor = factor as i128;
+    let target = (
+        factor * certificate_target.0 as i128,
+        factor * certificate_target.1 as i128,
+    );
+    let midpoint = (
+        factor * certificate_midpoint.0 as i128,
+        factor * certificate_midpoint.1 as i128,
+    );
+    Ok((
+        signed_swap_point_i128(target, x_sign, y_sign, swap),
+        signed_swap_point_i128(midpoint, x_sign, y_sign, swap),
+    ))
+}
+
+fn pythagorean_leg_completion_i128(leg: i128) -> Option<(i128, i128)> {
+    if leg < 3 {
+        return None;
+    }
+    if leg % 2 != 0 {
+        Some(((leg * leg - 1) / 2, (leg * leg + 1) / 2))
+    } else {
+        let half = leg / 2;
+        Some((half * half - 1, half * half + 1))
+    }
+}
+
+#[pyfunction]
+fn even_axis_certificate_midpoint(n: i64) -> Option<(i128, i128)> {
+    if n < 6 || n % 2 != 0 {
+        return None;
+    }
+    let half = n as i128 / 2;
+    let (partner_leg, _hypotenuse) = pythagorean_leg_completion_i128(half)?;
+    Some((half, partner_leg))
+}
+
+#[pyfunction]
+fn consecutive_odd_axis_certificate_data(
+    n: i64,
+) -> PyResult<Option<(i128, i128, i128, i128, i128, i128, i128, i128)>> {
+    if n < 3 || n % 2 == 0 {
+        return Ok(None);
+    }
+
+    let n = n as i128;
+    let first_scale = (n - 1) / 2;
+    let second_scale = (n + 1) / 2;
+    let two_n = checked_axis_mul(2, n)?;
+    let n_square = checked_axis_mul(n, n)?;
+    let shared_leg = checked_axis_mul(n, checked_axis_sub(n_square, 1)?)?;
+    let first_horizontal_leg = checked_axis_mul(first_scale, checked_axis_add(two_n, 1)?)?;
+    let second_horizontal_leg = checked_axis_mul(second_scale, checked_axis_sub(two_n, 1)?)?;
+    let first_hypotenuse = checked_axis_mul(
+        first_scale,
+        checked_axis_add(checked_axis_add(checked_axis_mul(2, n_square)?, two_n)?, 1)?,
+    )?;
+    let second_hypotenuse = checked_axis_mul(
+        second_scale,
+        checked_axis_add(checked_axis_sub(checked_axis_mul(2, n_square)?, two_n)?, 1)?,
+    )?;
+    let target_n = checked_axis_sub(second_horizontal_leg, first_horizontal_leg)?;
+
+    Ok(Some((
+        target_n,
+        -first_horizontal_leg,
+        shared_leg,
+        shared_leg,
+        first_horizontal_leg,
+        second_horizontal_leg,
+        first_hypotenuse,
+        second_hypotenuse,
+    )))
 }
 
 fn gaussian_multiply_i128(point: (i128, i128), multiplier: (i128, i128)) -> (i128, i128) {
@@ -652,6 +1112,36 @@ fn diagonal_pythagorean_multiplier_midpoint(target: (i64, i64)) -> Option<(i128,
     }
 }
 
+#[pyfunction]
+fn theorem3_certificate_midpoint(
+    target: (i64, i64),
+    triple: (i64, i64, i64),
+    x_sign: i64,
+    y_sign: i64,
+) -> PyResult<Option<(i128, i128)>> {
+    theorem3_midpoint_i128(target, triple, x_sign, y_sign, 1, false, true)
+}
+
+#[pyfunction]
+fn theorem3_divisor_certificate_midpoint(
+    target: (i64, i64),
+    triple: (i64, i64, i64),
+    x_sign: i64,
+    y_sign: i64,
+    divisor: i64,
+) -> PyResult<Option<(i128, i128)>> {
+    theorem3_midpoint_i128(target, triple, x_sign, y_sign, divisor as i128, true, false)
+}
+
+#[pyfunction]
+fn linear_delta_direction_midpoint(
+    target: (i64, i64),
+    direction: (i64, i64),
+    delta_coefficients: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    linear_delta_direction_midpoint_i128(target, direction, delta_coefficients)
+}
+
 #[pyfunction(signature = (point, x_sign, y_sign, swap=false))]
 fn signed_swap_point(
     point: (i64, i64),
@@ -701,6 +1191,52 @@ fn lattice_coefficients(
     second_direction: (i64, i64),
 ) -> Option<(i128, i128)> {
     lattice_coefficients_i128(target, first_direction, second_direction)
+}
+
+#[pyfunction]
+fn lattice_coefficient_cramer_data(
+    target: (i64, i64),
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<(i128, i128, i128, bool, bool, Option<i128>, Option<i128>)> {
+    let determinant_value = determinant(first_direction, second_direction);
+    if determinant_value == 0 {
+        return Err(PyValueError::new_err(
+            "lattice directions must be independent",
+        ));
+    }
+
+    let first_numerator = target.0 as i128 * second_direction.1 as i128
+        - target.1 as i128 * second_direction.0 as i128;
+    let second_numerator =
+        first_direction.0 as i128 * target.1 as i128 - first_direction.1 as i128 * target.0 as i128;
+    let first_divisible = first_numerator % determinant_value == 0;
+    let second_divisible = second_numerator % determinant_value == 0;
+    Ok((
+        determinant_value,
+        first_numerator,
+        second_numerator,
+        first_divisible,
+        second_divisible,
+        first_divisible.then_some(first_numerator / determinant_value),
+        second_divisible.then_some(second_numerator / determinant_value),
+    ))
+}
+
+#[pyfunction]
+fn lattice_certificate_midpoint(
+    target: (i64, i64),
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<Option<(i128, i128)>> {
+    if !edge_delta(first_direction.0, first_direction.1)
+        || !edge_delta(second_direction.0, second_direction.1)
+    {
+        return Err(PyValueError::new_err(
+            "directions must be legal Pythagorean edge vectors",
+        ));
+    }
+    lattice_certificate_midpoint_i128(target, first_direction, second_direction)
 }
 
 #[pyfunction]
@@ -810,6 +1346,117 @@ fn parallel_direction_factor_congruence_holds(
 }
 
 #[pyfunction]
+fn parallel_direction_factor_congruence_data(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Option<(i128, i128, i128)>> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
+    }
+    parallel_direction_factor_congruence_data_i128(target, direction, factor)
+}
+
+#[pyfunction]
+fn parallel_direction_factor_pair_row_from_congruence_data(
+    target: (i64, i64),
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Option<(i128, i128, i128, i128, i128, i128)>> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
+    }
+
+    let Some((determinant_leg, second_length, first_coefficient)) =
+        parallel_direction_factor_congruence_data_i128(target, direction, factor)?
+    else {
+        return Ok(None);
+    };
+    let factor = factor as i128;
+    let determinant_square = checked_parallel_factor_mul(determinant_leg, determinant_leg)?;
+    if determinant_square % factor != 0 {
+        return Ok(None);
+    }
+
+    let paired_factor = determinant_square / factor;
+    let u = direction.0 as i128;
+    let v = direction.1 as i128;
+    let c = isqrt_i128(checked_parallel_factor_add(
+        checked_parallel_factor_mul(u, u)?,
+        checked_parallel_factor_mul(v, v)?,
+    )?);
+    let scaled_hypotenuse = checked_parallel_factor_mul(c, second_length)?;
+    if checked_parallel_factor_add(factor, paired_factor)?
+        != checked_parallel_factor_mul(2, scaled_hypotenuse)?
+    {
+        return Err(PyAssertionError::new_err(
+            "congruence data did not recover the factor-pair sum",
+        ));
+    }
+
+    let target_x = target.0 as i128;
+    let target_y = target.1 as i128;
+    let dot_product = checked_parallel_factor_add(
+        checked_parallel_factor_mul(target_x, u)?,
+        checked_parallel_factor_mul(target_y, v)?,
+    )?;
+    let difference = checked_parallel_factor_sub(paired_factor, factor)?;
+    let coefficient_lhs =
+        checked_parallel_factor_add(difference, checked_parallel_factor_mul(2, dot_product)?)?;
+    let c_square = checked_parallel_factor_mul(c, c)?;
+    let coefficient_rhs =
+        checked_parallel_factor_mul(checked_parallel_factor_mul(2, first_coefficient)?, c_square)?;
+    if coefficient_lhs != coefficient_rhs {
+        return Err(PyAssertionError::new_err(
+            "congruence data did not recover the coefficient row",
+        ));
+    }
+    if difference % 2 != 0 {
+        return Err(PyAssertionError::new_err(
+            "factor-pair difference must be even",
+        ));
+    }
+
+    Ok(Some((
+        determinant_leg,
+        paired_factor,
+        difference / 2,
+        scaled_hypotenuse,
+        second_length,
+        first_coefficient,
+    )))
+}
+
+#[pyfunction]
+fn parallel_direction_primitive_factor_determinant_residue_rows(
+    direction: (i64, i64),
+    factor: i64,
+) -> PyResult<Vec<(i128, i128)>> {
+    if !edge_delta(direction.0, direction.1) {
+        return Err(PyValueError::new_err(
+            "direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if gcd_i128(direction.0 as i128, direction.1 as i128) != 1 {
+        return Err(PyValueError::new_err("direction must be primitive"));
+    }
+    if factor <= 0 {
+        return Err(PyValueError::new_err("factor must be positive"));
+    }
+    primitive_factor_determinant_residue_rows_i128(direction, factor)
+}
+
+#[pyfunction]
 fn ray_parallel_factor_residues(
     ray: (i64, i64),
     direction: (i64, i64),
@@ -916,6 +1563,272 @@ fn parallel_direction_factor_integrality_strip_intersection_residue_count(
     Ok((lcm_modulus, compatible * lift_count))
 }
 
+#[pyfunction]
+fn pythagorean_lattice_pair_strip_linear_congruence(
+    strip_direction: (i64, i64),
+    strip_modulus: i64,
+    strip_residue: i64,
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<(i128, i128, i128, i128, i128)> {
+    if !edge_delta(strip_direction.0, strip_direction.1) {
+        return Err(PyValueError::new_err(
+            "strip direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if strip_modulus <= 1 {
+        return Err(PyValueError::new_err(
+            "strip modulus must be greater than 1",
+        ));
+    }
+    if !edge_delta(first_direction.0, first_direction.1)
+        || !edge_delta(second_direction.0, second_direction.1)
+    {
+        return Err(PyValueError::new_err(
+            "lattice directions must be legal Pythagorean edge vectors",
+        ));
+    }
+    if determinant(first_direction, second_direction) == 0 {
+        return Err(PyValueError::new_err(
+            "lattice directions must be independent",
+        ));
+    }
+
+    let modulus = strip_modulus as i128;
+    let strip = (strip_direction.0 as i128, strip_direction.1 as i128);
+    let first = (first_direction.0 as i128, first_direction.1 as i128);
+    let second = (second_direction.0 as i128, second_direction.1 as i128);
+    let first_step = determinant_i128(strip, first).rem_euclid(modulus);
+    let second_step = determinant_i128(strip, second).rem_euclid(modulus);
+    let residue = (strip_residue as i128).rem_euclid(modulus);
+    let linear_gcd = gcd_i128(gcd_i128(first_step, second_step), modulus);
+    Ok((first_step, second_step, residue, modulus, linear_gcd))
+}
+
+#[pyfunction]
+fn two_variable_linear_congruence_gcd(
+    first_step: i64,
+    second_step: i64,
+    residue: i64,
+    modulus: i64,
+) -> PyResult<(i128, bool)> {
+    if modulus <= 0 {
+        return Err(PyValueError::new_err("modulus must be positive"));
+    }
+
+    let linear_gcd = gcd_i128(
+        gcd_i128(first_step as i128, second_step as i128),
+        modulus as i128,
+    );
+    Ok((linear_gcd, (residue as i128) % linear_gcd == 0))
+}
+
+fn two_variable_linear_congruence_pair_data_i128(
+    first_step: i128,
+    second_step: i128,
+    first_residue: i128,
+    first_modulus: i128,
+    second_residue: i128,
+    second_modulus: i128,
+) -> PyResult<(i128, i128, i128, Option<i128>, bool, bool)> {
+    if first_modulus <= 0 || second_modulus <= 0 {
+        return Err(PyValueError::new_err("moduli must be positive"));
+    }
+
+    let shared_modulus = gcd_i128(first_modulus, second_modulus);
+    let lcm_modulus = (first_modulus / shared_modulus) * second_modulus;
+    let linear_gcd = gcd_i128(gcd_i128(first_step, second_step), lcm_modulus);
+    let first_residue = first_residue.rem_euclid(first_modulus);
+    let second_residue = second_residue.rem_euclid(second_modulus);
+    let residues_compatible = (first_residue - second_residue).rem_euclid(shared_modulus) == 0;
+    if !residues_compatible {
+        return Ok((shared_modulus, lcm_modulus, linear_gcd, None, false, false));
+    }
+
+    let first_coprime_part = first_modulus / shared_modulus;
+    let second_coprime_part = second_modulus / shared_modulus;
+    let quotient_residue = (second_residue - first_residue) / shared_modulus;
+    let Some(inverse) = modular_inverse_i128(first_coprime_part, second_coprime_part) else {
+        return Err(PyValueError::new_err("reduced moduli must be coprime"));
+    };
+    let lift = mul_mod_i128(quotient_residue, inverse, second_coprime_part);
+    let combined_residue = (first_residue + first_modulus * lift).rem_euclid(lcm_modulus);
+    Ok((
+        shared_modulus,
+        lcm_modulus,
+        linear_gcd,
+        Some(combined_residue),
+        true,
+        combined_residue % linear_gcd == 0,
+    ))
+}
+
+#[pyfunction]
+fn two_variable_linear_congruence_pair_data(
+    first_step: i64,
+    second_step: i64,
+    first_residue: i64,
+    first_modulus: i64,
+    second_residue: i64,
+    second_modulus: i64,
+) -> PyResult<(i128, i128, i128, Option<i128>, bool, bool)> {
+    two_variable_linear_congruence_pair_data_i128(
+        first_step as i128,
+        second_step as i128,
+        first_residue as i128,
+        first_modulus as i128,
+        second_residue as i128,
+        second_modulus as i128,
+    )
+}
+
+#[pyfunction]
+fn pythagorean_lattice_pair_strip_crt_data(
+    strip_direction: (i64, i64),
+    first_modulus: i64,
+    first_residue: i64,
+    second_modulus: i64,
+    second_residue: i64,
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<(i128, i128, i128, i128, i128, Option<i128>, bool, bool)> {
+    if !edge_delta(strip_direction.0, strip_direction.1) {
+        return Err(PyValueError::new_err(
+            "strip direction must be a legal Pythagorean edge vector",
+        ));
+    }
+    if first_modulus <= 1 || second_modulus <= 1 {
+        return Err(PyValueError::new_err("strip moduli must be greater than 1"));
+    }
+    if !edge_delta(first_direction.0, first_direction.1)
+        || !edge_delta(second_direction.0, second_direction.1)
+    {
+        return Err(PyValueError::new_err(
+            "lattice directions must be legal Pythagorean edge vectors",
+        ));
+    }
+    if determinant(first_direction, second_direction) == 0 {
+        return Err(PyValueError::new_err(
+            "lattice directions must be independent",
+        ));
+    }
+
+    let strip = (strip_direction.0 as i128, strip_direction.1 as i128);
+    let first = (first_direction.0 as i128, first_direction.1 as i128);
+    let second = (second_direction.0 as i128, second_direction.1 as i128);
+    let first_step = determinant_i128(strip, first);
+    let second_step = determinant_i128(strip, second);
+    let (shared_modulus, lcm_modulus, linear_gcd, combined_residue, compatible, solvable) =
+        two_variable_linear_congruence_pair_data_i128(
+            first_step,
+            second_step,
+            first_residue as i128,
+            first_modulus as i128,
+            second_residue as i128,
+            second_modulus as i128,
+        )?;
+    Ok((
+        first_step,
+        second_step,
+        shared_modulus,
+        lcm_modulus,
+        linear_gcd,
+        combined_residue,
+        compatible,
+        solvable,
+    ))
+}
+
+#[pyfunction]
+fn pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+    strip_direction: (i64, i64),
+    first_modulus: i64,
+    first_residue: i64,
+    second_modulus: i64,
+    second_residue: i64,
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<Option<(i128, i128, i128, i128, i128)>> {
+    let (
+        first_step,
+        second_step,
+        _shared_modulus,
+        lcm_modulus,
+        linear_gcd,
+        combined_residue,
+        compatible,
+        _solvable,
+    ) = pythagorean_lattice_pair_strip_crt_data(
+        strip_direction,
+        first_modulus,
+        first_residue,
+        second_modulus,
+        second_residue,
+        first_direction,
+        second_direction,
+    )?;
+    if !compatible {
+        return Ok(None);
+    }
+    let combined_residue = combined_residue
+        .ok_or_else(|| PyValueError::new_err("compatible CRT row has no combined residue"))?;
+    Ok(Some((
+        first_step.rem_euclid(lcm_modulus),
+        second_step.rem_euclid(lcm_modulus),
+        combined_residue,
+        lcm_modulus,
+        linear_gcd,
+    )))
+}
+
+fn checked_count_mul(left: i128, right: i128) -> PyResult<i128> {
+    left.checked_mul(right)
+        .ok_or_else(|| PyOverflowError::new_err("lattice strip count exceeded i128"))
+}
+
+#[pyfunction]
+fn pythagorean_lattice_pair_same_strip_intersection_residue_count(
+    strip_direction: (i64, i64),
+    first_modulus: i64,
+    first_residue: i64,
+    second_modulus: i64,
+    second_residue: i64,
+    first_direction: (i64, i64),
+    second_direction: (i64, i64),
+) -> PyResult<(i128, i128)> {
+    let (
+        _first_step,
+        _second_step,
+        _shared_modulus,
+        row_modulus,
+        linear_gcd,
+        _combined_residue,
+        compatible,
+        solvable,
+    ) = pythagorean_lattice_pair_strip_crt_data(
+        strip_direction,
+        first_modulus,
+        first_residue,
+        second_modulus,
+        second_residue,
+        first_direction,
+        second_direction,
+    )?;
+    let pair_determinant = determinant(first_direction, second_direction).abs();
+    let shared_modulus = gcd_i128(pair_determinant, row_modulus);
+    let target_modulus = checked_count_mul(pair_determinant / shared_modulus, row_modulus)?;
+    if !compatible || !solvable {
+        return Ok((target_modulus, 0));
+    }
+
+    let numerator = checked_count_mul(
+        checked_count_mul(target_modulus, target_modulus)?,
+        linear_gcd,
+    )?;
+    let denominator = checked_count_mul(row_modulus, pair_determinant)?;
+    Ok((target_modulus, numerator / denominator))
+}
+
 #[pyfunction(signature = (target, max_parameter, max_determinant=None))]
 fn pythagorean_lattice_pair_witness(
     target: (i64, i64),
@@ -1010,6 +1923,9 @@ fn pythagorean_walks_fast(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(edge_delta, m)?)?;
     m.add_function(wrap_pyfunction!(certificate_valid, m)?)?;
     m.add_function(wrap_pyfunction!(scale_certificate_data, m)?)?;
+    m.add_function(wrap_pyfunction!(scale_signed_swap_certificate_data, m)?)?;
+    m.add_function(wrap_pyfunction!(even_axis_certificate_midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(consecutive_odd_axis_certificate_data, m)?)?;
     m.add_function(wrap_pyfunction!(gaussian_multiply, m)?)?;
     m.add_function(wrap_pyfunction!(gaussian_transform_certificate_data, m)?)?;
     m.add_function(wrap_pyfunction!(gaussian_quotient_components, m)?)?;
@@ -1019,9 +1935,14 @@ fn pythagorean_walks_fast(m: &Bound<'_, PyModule>) -> PyResult<()> {
         diagonal_pythagorean_multiplier_midpoint,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(theorem3_certificate_midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(theorem3_divisor_certificate_midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(linear_delta_direction_midpoint, m)?)?;
     m.add_function(wrap_pyfunction!(signed_swap_point, m)?)?;
     m.add_function(wrap_pyfunction!(sign_swap_certificate_midpoint, m)?)?;
     m.add_function(wrap_pyfunction!(lattice_coefficients, m)?)?;
+    m.add_function(wrap_pyfunction!(lattice_coefficient_cramer_data, m)?)?;
+    m.add_function(wrap_pyfunction!(lattice_certificate_midpoint, m)?)?;
     m.add_function(wrap_pyfunction!(
         gaussian_root_conjugate_divisibility_residue,
         m
@@ -1036,7 +1957,23 @@ fn pythagorean_walks_fast(m: &Bound<'_, PyModule>) -> PyResult<()> {
         parallel_direction_factor_congruence_holds,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        parallel_direction_factor_congruence_data,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        parallel_direction_factor_pair_row_from_congruence_data,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        parallel_direction_primitive_factor_determinant_residue_rows,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(parallel_direction_factor_witness_data, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        parallel_direction_factor_witness_row_data,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(ray_parallel_factor_residues, m)?)?;
     m.add_function(wrap_pyfunction!(
         parallel_direction_factor_residue_classes,
@@ -1044,6 +1981,27 @@ fn pythagorean_walks_fast(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(
         parallel_direction_factor_integrality_strip_intersection_residue_count,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pythagorean_lattice_pair_strip_linear_congruence,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(two_variable_linear_congruence_gcd, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        two_variable_linear_congruence_pair_data,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pythagorean_lattice_pair_strip_crt_data,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pythagorean_lattice_pair_same_strip_combined_linear_congruence,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pythagorean_lattice_pair_same_strip_intersection_residue_count,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(pythagorean_lattice_pair_witness, m)?)?;

@@ -1,26 +1,50 @@
 Agent Goal
 
-  Make progress toward the final Pythagorean-walk proof using the full updated stack: Lean/mathlib as the proof kernel, Python as the research orchestration and regression layer, and the Rust/PyO3 accelerator as the required engine for expensive finite
-  searches, parity checks, and performance-sensitive audits.
+  Make publishable progress toward the Pythagorean-walk conjecture by closing
+  named infinite theorem slices. New finite audits, helper predicates, fast
+  kernels, or Lean row lemmas count as progress only when they directly reduce
+  or prove a chosen theorem slice.
 
-  Operating Loop
+Strategic Focus
 
-  1. Use Python to explore proof candidates, generate row families, run finite audits, and compare structural decompositions.
-  2. Use the Rust fast paths for heavy kernels whenever available: divisor/residue computations, lattice-pair probes, parallel-direction covers, certificate validation, and finite audit dispatch. Do not silently rely on slow fallback behavior for serious
-  searches.
-  3. Maintain Python fallback correctness, but treat Rust/Python parity as mandatory. Any new accelerated path must have fallback parity tests, including edge cases and representative large cases.
-  4. Use Lean/mathlib to promote discovered algebra into theorem-level statements. Python and Rust may generate candidates and finite data; Lean should verify the generic mathematical reduction or the finite-discharge theorem.
-  5. Prefer proof steps that reduce search:
-      - replace target-box scans with congruence-row statements,
-      - replace repeated lower-box traversal with the canonical cached audit dispatcher,
-      - replace opaque Rust/Python enumeration with named predicates and Lean lemmas,
-      - keep bounded computation as evidence or finite verification, not as an unqualified proof.
+  The repository already has many promoted algebraic rows and only a few
+  end-to-end theorem slices. The agent should therefore choose a natural
+  infinite target class first, then seek a parametric or structural certificate
+  mechanism that covers the whole class. Individual certificates and finite
+  tables are allowed only as probes, counterexamples, or finite boundary checks.
+  Promote only the algebra needed to prove that mechanism generically.
 
-  6. Work creatively but systematically: for each candidate family, first seek counterexamples with the accelerated search stack, then compress the successful cases into algebraic rows, then formalize the row theorem or finite discharge in Lean.
+Preferred Slices
 
-  Required Verification Discipline
+  1. Full unit-coordinate line beyond the current finite audit.
+  2. Gaussian-root spine families: primary shapes `(1,2k)` and `(2,2k+1)`,
+     plus secondary shapes when they admit clean statements.
+  3. A clean fixed-direction divisor/congruence slice from the
+     parallel-direction program.
+  4. A named infinite part of the signed `3-4-5` parallel-factor layer.
+  5. Stronger ray theorems using the divisor-strengthened Theorem 3 machinery.
 
-  Before trusting a result, run the relevant subset of the updated workflow:
+Operating Loop
+
+  1. State the intended theorem before adding infrastructure.
+  2. Use Python to find certificates, falsify naive hypotheses, compare
+     decompositions, and identify the minimal covering mechanism.
+  3. Use Rust fast paths for expensive kernels: divisor/residue computations,
+     lattice-pair probes, parallel-direction covers, certificate validation,
+     and finite audit dispatch. Keep Python fallbacks correct and add
+     Rust/Python parity for new accelerated paths.
+  4. Convert successful experimental coverage into a written theorem with the
+     target class, hypotheses, construction, exceptions, and proof reason.
+  5. Promote the minimum Lean/mathlib rows needed for that theorem. Avoid
+     standalone lemma work unless it serves the selected slice.
+  6. Prefer congruence, divisor, and ray statements over target-box scans.
+     Bounded computation is evidence, counterexample search, or finite
+     verification, not an unqualified proof of an infinite class.
+
+Verification
+
+  Iterate with narrower commands, but before integrating a theorem slice run the
+  relevant full stack:
 
   maturin develop --release
   cargo test --release
@@ -30,17 +54,9 @@ Agent Goal
   pytest -q --durations=20
   lake build
 
-  Use narrower commands while iterating, but the full stack must pass before considering the proof step integrated.
+Definition Of Progress
 
-  Near-Term Proof Targets
-
-  1. Formalize certificate validity, scaling, and sign/swap transport in Lean.
-  2. Formalize the two-edge lattice certificate criterion, using Python/Rust audits only to generate examples and regression cases.
-  3. Formalize fixed-direction factor integrality rows and their distinction from pointwise certificate nondegeneracy.
-  4. Use Rust-accelerated censuses to identify compact determinant-strip CRT obligations, then prove the generic CRT row lemma in Lean.
-  5. Use the Rust/Python dispatcher to stress-test Gaussian-root spine obligations, then promote stable divisor-residue claims into Lean.
-
-  Definition Of Progress
-
-  A useful step leaves behind all three artifacts: a passing Rust/Python regression or parity test, a Lean theorem or clearly isolated Lean TODO, and a short note explaining which part of the final conjecture moved from experimental search toward
-  theorem-level proof.
+  A useful step leaves a theorem-shaped artifact: a written infinite statement,
+  an executable certificate constructor or finite-discharge checker, targeted
+  tests, minimal Lean support, and a progress-report update explaining exactly
+  which part of the conjecture moved from search toward theorem-level proof.

@@ -7,11 +7,12 @@ as proofs rather than only as proof-search notes.  It is intended to be read
 beside Jan Willemson's paper "Pythagorean walks on `Z^2`"
 (`arXiv:2605.20831v1`, 20 May 2026).
 
-The report does not prove the full conjecture.  It proves two complete slices
+The report does not prove the full conjecture.  It proves three complete slices
 that are now part of this workspace:
 
 1. the axis slice;
-2. the non-primitive part of the exceptional `(2,1)` ray.
+2. the full sign/swap orbit of the `(1,3)` ray;
+3. the non-primitive part of the exceptional `(2,1)` ray.
 
 The broader non-axis proof program is summarized at the end, with explicit
 separation between theorem-level statements and finite computational guardrails.
@@ -222,6 +223,273 @@ Executable guardrails:
 - `test_horizontal_axis_proof_certificate_case_split`
 - `test_axis_orbit_proof_certificate`
 
+## 4.5. The Full `(1,3)` Ray
+
+The signed Theorem 3 divisor row also closes a complete non-axis ray.
+
+**Theorem 4.2.**  For every integer `N` with `|N|>0`, the target `(N,3N)` and
+every sign/swap image of it has distance at most two from the origin.
+
+It is enough to prove the positive case.  For `N>0`, put
+
+```text
+P=(9N,-12N).
+```
+
+Then
+
+```text
+(9N)^2 + (-12N)^2 = (15N)^2,
+(N-9N)^2 + (3N+12N)^2 = (17N)^2.
+```
+
+All coordinate differences are nonzero.  Thus `P` is a two-step certificate for
+`(N,3N)`.  The same row is the modulus-one case of the divisor-strengthened
+signed Theorem 3 with triple `(3,4,5)` and signs `(1,-1)`, since the ray
+divisor is
+
+```text
+(5-4)*3 - (5-3)*1 = 1.
+```
+
+Sign changes and coordinate swap give the full orbit, including the `(3,1)`
+ray.
+
+Executable guardrails:
+
+- `one_three_ray_theorem3_certificate`
+- `one_three_ray_theorem3_orbit_certificate`
+- `test_one_three_ray_theorem3_family`
+
+## 4.6. The Signed `3-4-5` Unit-Divisor Ray-Fan Table
+
+The preceding ray is the first member of a complete unit-divisor table for the
+signed `(3,4,5)` Theorem 3 row.
+
+**Theorem 4.3.**  Let `N` be a nonzero integer.  If `R` is one of
+
+```text
+(p,2p+1),      p >= 1,
+(p,8p+1),      p >= 1,
+(9t+4,2t+1),   t >= 0,
+(9t+1,8t+1),   t >= 0,
+```
+
+then the target `N R` and every sign/swap image of it has distance at most two
+from the origin.
+
+For `N>0`, each row has fixed divisor `L=1` in
+
+```text
+L=(5+s_y*4)q - (5-s_x*3)p.
+```
+
+The table is:
+
+```text
+ray R              signs (s_x,s_y)     midpoint P for target N R
+(p,2p+1)           ( 1,-1)              ( 3pqN,-4pqN)
+(p,8p+1)           (-1,-1)              (-3pqN,-4pqN)
+(9t+4,2t+1)        ( 1, 1)              ( 3pqN, 4pqN)
+(9t+1,8t+1)        (-1, 1)              (-3pqN, 4pqN)
+```
+
+Here `(p,q)=R`.  Each displayed row satisfies `L=1`, so the
+divisor-strengthened Theorem 3 certificate has coefficient `pqN`.  The Lean
+rows
+`certificateValid_threeFourFiveOddSlopeRay`,
+`certificateValid_threeFourFiveSteepOddSlopeRay`,
+`certificateValid_threeFourFiveWideOddSlopeRay`, and
+`certificateValid_threeFourFiveNearDiagonalRay` prove the four parametric
+certificate identities and nondegeneracy checks.  Sign changes and coordinate
+swap give the full orbit.
+
+Executable guardrails:
+
+- `certificateValid_threeFourFiveOddSlopeRay`
+- `certificateValid_threeFourFiveSteepOddSlopeRay`
+- `certificateValid_threeFourFiveWideOddSlopeRay`
+- `certificateValid_threeFourFiveNearDiagonalRay`
+- `three_four_five_unit_divisor_ray_certificate`
+- `three_four_five_unit_divisor_ray_orbit_certificate`
+- `test_three_four_five_unit_divisor_ray_table`
+
+## 4.7. The Signed `5-12-13` Unit-Divisor Ray-Fan Table
+
+The same unit-divisor mechanism gives a second explicit table from the
+`(5,12,13)` triple.
+
+**Theorem 4.4.**  Let `N` be a nonzero integer.  If `R` is one of
+
+```text
+(p,8p+1),           p >= 1,
+(p,18p+1),          p >= 1,
+(25t+3,8t+1),       t >= 0,
+(25t+18,18t+13),    t >= 0,
+```
+
+then the target `N R` and every sign/swap image of it has distance at most two
+from the origin.
+
+For `N>0`, each row has fixed divisor `L=1` in
+
+```text
+L=(13+s_y*12)q - (13-s_x*5)p.
+```
+
+The table is:
+
+```text
+ray R                 signs (s_x,s_y)     midpoint P for target N R
+(p,8p+1)              ( 1,-1)              ( 5pqN,-12pqN)
+(p,18p+1)             (-1,-1)              (-5pqN,-12pqN)
+(25t+3,8t+1)          ( 1, 1)              ( 5pqN, 12pqN)
+(25t+18,18t+13)       (-1, 1)              (-5pqN, 12pqN)
+```
+
+Here `(p,q)=R`.  Each row satisfies `L=1`, so the
+divisor-strengthened Theorem 3 certificate has coefficient `pqN`.  The Lean
+rows `certificateValid_fiveTwelveThirteenEightSlopeRay`,
+`certificateValid_fiveTwelveThirteenEighteenSlopeRay`,
+`certificateValid_fiveTwelveThirteenTwentyFiveEightRay`, and
+`certificateValid_fiveTwelveThirteenTwentyFiveEighteenRay` prove the four
+parametric certificate identities and nondegeneracy checks.  Sign changes and
+coordinate swap give the full orbit.
+
+Executable guardrails:
+
+- `certificateValid_fiveTwelveThirteenEightSlopeRay`
+- `certificateValid_fiveTwelveThirteenEighteenSlopeRay`
+- `certificateValid_fiveTwelveThirteenTwentyFiveEightRay`
+- `certificateValid_fiveTwelveThirteenTwentyFiveEighteenRay`
+- `five_twelve_thirteen_unit_divisor_ray_certificate`
+- `five_twelve_thirteen_unit_divisor_ray_orbit_certificate`
+- `test_five_twelve_thirteen_unit_divisor_ray_table`
+
+## 4.8. The Consecutive-Euclid Unit-Divisor Ray Fan
+
+The table pattern has a uniform first-row form for every consecutive Euclid
+triple.
+
+**Theorem 4.5.**  Let `r,p` be integers with `r,p >= 1`, and let `N` be a
+nonzero integer.  Put
+
+```text
+R=(p,(2r^2)p+1).
+```
+
+Then the target `N R` and every sign/swap image of it has distance at most two
+from the origin.
+
+For `N>0`, take the consecutive Euclid triple
+
+```text
+a=2r+1,      b=2r(r+1),      c=2r^2+2r+1.
+```
+
+Since `c-b=1` and `c-a=2r^2`, the signed Theorem 3 ray divisor with signs
+`(1,-1)` is
+
+```text
+L=(c-b)((2r^2)p+1) - (c-a)p = 1.
+```
+
+Thus the midpoint is
+
+```text
+P=((2r+1)p((2r^2)p+1)N, -2r(r+1)p((2r^2)p+1)N).
+```
+
+The Lean row `certificateValid_consecutiveEuclidUnitDivisorRay` proves this
+parametric certificate and the nondegeneracy conditions.  The first cases
+`r=1` and `r=2` recover the first rows of the signed `3-4-5` and `5-12-13`
+tables; every `r>=3` gives a new infinite ray fan.
+
+Executable guardrails:
+
+- `certificateValid_consecutiveEuclidUnitDivisorRay`
+- `consecutive_euclid_unit_divisor_ray_certificate`
+- `consecutive_euclid_unit_divisor_ray_orbit_certificate`
+- `test_consecutive_euclid_unit_divisor_ray_family`
+
+## 4.9. The Swapped-Leg Consecutive-Euclid Affine Strip
+
+The swapped-leg branch of the same consecutive Euclid triple gives an affine
+strip rather than a ray.
+
+**Theorem 4.6.**  Let `r,h` be integers with `r,h >= 1`.  Then the target
+`(2r^2h-1,h)` and every sign/swap image of it has distance at most two from the
+origin.
+
+For the consecutive Euclid triple
+
+```text
+a=2r(r+1),      b=2r+1,      c=2r^2+2r+1,
+```
+
+we have `c-a=1` and `c-b=2r^2`.  With signs `(1,-1)`, the signed Theorem 3
+unit-divisor relation is
+
+```text
+(c-a)(2r^2h-1) = (c-b)h - 1.
+```
+
+Thus the midpoint is
+
+```text
+P=(2r(r+1)(2r^2h-1)h, -(2r+1)(2r^2h-1)h).
+```
+
+The Lean row `certificateValid_consecutiveEuclidAffineStrip` proves this
+parametric certificate and the nondegeneracy checks.  Sign changes and
+coordinate swap give the full orbit.
+
+Executable guardrails:
+
+- `certificateValid_consecutiveEuclidAffineStrip`
+- `consecutive_euclid_affine_strip_certificate`
+- `consecutive_euclid_affine_strip_orbit_certificate`
+- `test_consecutive_euclid_affine_strip_family`
+
+## 4.10. The Affine Consecutive-Hypotenuse Strip
+
+The consecutive-hypotenuse Euclid triple gives another infinite affine strip,
+now promoted to a Lean row.  For `m >= 2`, set
+
+```text
+u=2m-1,      v=2m(m-1),      c=m^2+(m-1)^2.
+```
+
+Let `q,t` be nonzero integers with `v | q(1-q)`, and write
+`ell = q(1-q)/v`.  Put
+
+```text
+A=m(m-1)t,      B=uA-q,      r=ell+uqt-2A^2.
+```
+
+Whenever `r`, `B`, and `B^2-A^2` are nonzero, the target
+
+```text
+(cqt + u*ell, q)
+```
+
+has midpoint `r(u,v)` and second edge `(2AB, B^2-A^2)`.  Both are
+Pythagorean: `(u,v,c)` is the consecutive-hypotenuse triple and the second edge
+is Euclid's `(2AB, B^2-A^2)` form.
+
+The Lean row `certificateValid_affineConsecutiveHypotenuseStrip` proves the
+quotient-form certificate identity and nondegeneracy hypotheses.  The executable
+constructors retain the target-facing recognizer and coordinate-swap wrapper.
+
+Executable guardrails:
+
+- `certificateValid_affineConsecutiveHypotenuseStrip`
+- `affine_consecutive_hypotenuse_certificate`
+- `affine_consecutive_hypotenuse_target_certificate`
+- `affine_consecutive_hypotenuse_orbit_certificate`
+- `test_affine_consecutive_hypotenuse_family`
+- `test_affine_consecutive_hypotenuse_target_solver`
+
 ## 5. The Exceptional `(2,1)` Ray
 
 The primitive target `(2,1)` is a known distance-three obstruction.  The newest
@@ -273,6 +541,17 @@ for target `(6,3)`, since
 12^2 + (-5)^2 = 13^2,
 (6-12)^2 + (3-(-5))^2 = (-6)^2 + 8^2 = 10^2.
 ```
+
+The divisor-strengthened signed Theorem 3 in fact proves the whole
+multiple-of-three subray.  For `N=3m` with `m != 0`, the midpoint
+
+```text
+P=(12m,-5m)
+```
+
+certifies `(6m,3m)=(2N,N)`, because the two edge lengths are `13|m|` and
+`10|m|`.  This gives a standalone infinite theorem slice, and the sign/swap
+orbit follows from the symmetries in Section 2.
 
 Now let `p>=7` be a prime with `p == 3 mod 4`, and set
 
@@ -414,12 +693,16 @@ Written source:
 Executable guardrails:
 
 - `two_one_ray_even_certificate`
+- `two_one_ray_multiple_of_three_theorem3_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_certificate`
 - `two_one_ray_three_mod_four_certificate`
 - `two_one_ray_double_direction_certificate`
 - `two_one_ray_prime_one_mod_four_double_direction_certificate`
 - `two_one_ray_prime_divisor_lift_certificate`
 - `two_one_ray_prime_divisor_lift_orbit_certificate`
 - `test_two_one_ray_even_family`
+- `test_two_one_ray_multiple_of_three_theorem3_family`
+- `test_two_one_ray_mod60_theorem3_skeleton_family`
 - `test_two_one_ray_three_mod_four_family`
 - `test_two_one_ray_determinant_split_factor_layers`
 - `test_two_one_ray_divisor_lift_reduces_remaining_ray_to_primes`
@@ -580,6 +863,12 @@ algebra used by the proof program:
 - Lean-proved sign/swap transport for legal steps and certificates,
   corresponding to `normSq_signedSwapPoint`,
   `legalStep_signedSwapPoint`, and `certificateValid_signedSwapPoint`;
+- Lean-proved combined scale and sign/swap transport, corresponding to
+  `signedSwapPoint_smul` and `certificateValid_signedSwapPoint_smul`;
+- Lean-proved row constructors for the axis proof program:
+  `certificateValid_evenAxisMidpoint`,
+  `certificateValid_axisDifferenceOfSharedLeg`, and
+  `certificateValid_axisSumOfSharedLeg`;
 - Lean-proved Gaussian multiplication and Gaussian-divisor certificate
   transport, including `normSq_gaussianMul`,
   `certificateValid_gaussianMul`,
@@ -588,21 +877,34 @@ algebra used by the proof program:
 - Lean-proved diagonal Gaussian row certificates:
   `diagonalBaseCertificateValid`, `certificateValid_diagonalGaussianMultiplier`,
   and `certificateValid_diagonalGaussianRow`;
+- Lean-proved signed length-difference and signed Theorem 3 row constructors:
+  `certificateValid_linearDeltaDirection`,
+  `certificateValid_theorem3Divisor`, `certificateValid_theorem3Unit`, and the
+  explicit ray rows `certificateValid_twoOneRayMultipleOfThree` and
+  `certificateValid_oneThreeRayTheorem3`;
+- Lean-proved affine consecutive-hypotenuse strip row:
+  `certificateValid_affineConsecutiveHypotenuseStrip`;
 - Lean-proved Cramer/lattice certificate constructors:
   `cramerTarget_eq_add_smul`, `latticeCertificateValid`,
-  `latticeCertificateValid_of_cramer`, and
+  `latticeCertificateValid_of_cramer`,
+  `certificateValid_latticeMidpointData`, and
   `exists_latticeCertificateValid_of_cramer`;
 - Lean-proved fixed-direction parallel-factor certificate machinery:
   `normSq_mul_normSq_sub_smul`,
   `normSq_sub_smul_of_parallelFactor`,
-  `isIntSquare_sub_smul_of_parallelFactor`, and
-  `parallelFactorCertificateValid_of_nondegenerate`;
+  `isIntSquare_sub_smul_of_parallelFactor`,
+  `parallelFactorCertificateValid_of_nondegenerate`,
+  `sq_add_sq_of_factorPair`, `parallelFactorCompletion_of_factorPair`,
+  `parallelFactorCertificateValid_of_factorPair`, and
+  `parallelFactorCertificateValid_of_factorPairRow`;
 - Lean-proved CRT and root-residue algebra:
   `crtModEq_compat`, `exists_int_crt_of_gcd_modEq`, and
   `gaussianRootResidue_sq_neg_one`;
 - `lakefile.toml`, `lean-toolchain`, and `lake-manifest.json`: Lake/mathlib
   project metadata.
 
-These Lean checks prove reusable algebraic constructors and congruence lemmas.
-They do not yet formalize Theorem 4.1, Theorem 5.1, or the paper's
-distance-three obstruction proofs as end-to-end Lean statements.
+These Lean checks prove reusable algebraic constructors, row certificates, and
+congruence lemmas. They now cover theorem-level rows used inside the written
+axis and non-axis proof program, but they do not yet formalize Theorem 4.1,
+Theorem 5.1, or the paper's distance-three obstruction proofs as end-to-end
+Lean statements.

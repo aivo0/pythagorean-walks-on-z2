@@ -4616,6 +4616,54 @@ Executable guardrail:
 - `two_one_ray_mod20_skeleton_residues`
 - `test_two_one_ray_mod20_skeleton_family`
 
+## Theorem 3 Multiples Of Three On The Exceptional Ray
+
+The divisor-strengthened signed Theorem 3 gives a direct infinite subray inside
+the exceptional direction. Use the triple $(12,5,13)$ with signs
+$(s_x,s_y)=(1,-1)$. For $n=3m$ with $m\ge1$, the target is
+$$
+T=(2n,n)=(6m,3m).
+$$
+The ray divisor is
+$$
+((13-5)\cdot1-(13-12)\cdot2)n=6n=18m,
+$$
+and it divides $T_xT_y=18m^2$. The Theorem 3 divisor coefficient is $m$, so the
+midpoint is
+$$
+P=(12m,-5m).
+$$
+Directly,
+$$
+12^2m^2+(-5)^2m^2=(13m)^2,\qquad
+(6m-12m)^2+(3m+5m)^2=(10m)^2.
+$$
+All coordinate differences are nonzero for $m\ne0$. Hence every positive
+multiplier divisible by $3$ on the $(2,1)$ ray has distance at most $2$, and
+sign changes plus coordinate swap give the corresponding orbit. The Lean row
+`certificateValid_twoOneRayMultipleOfThree` now proves the scaled midpoint
+identity for every nonzero integer $m$.
+
+Combining this row with the mod-$20$ skeleton gives a mod-$60$ refinement. The
+old skeleton missed the two classes $1,9\pmod {20}$; after adding this Theorem
+3 row, the only classes left modulo $60$ are
+$$
+1,\ 29,\ 41,\ 49 \pmod {60}.
+$$
+The helper `two_one_ray_mod60_theorem3_skeleton_residues` records exactly this
+finite residue split.
+
+Executable guardrail:
+
+- `certificateValid_twoOneRayMultipleOfThree`
+- `two_one_ray_multiple_of_three_theorem3_certificate`
+- `two_one_ray_multiple_of_three_theorem3_orbit_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_orbit_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_residues`
+- `test_two_one_ray_multiple_of_three_theorem3_family`
+- `test_two_one_ray_mod60_theorem3_skeleton_family`
+
 ## Mod-260 Skeleton On The Exceptional Ray
 
 The fixed consecutive-strip direction $u=5$ gives a further exact refinement
@@ -5777,6 +5825,12 @@ $$
 Therefore the displayed affine strip point has distance at most $2$ whenever
 $r\ne0$, $B\ne0$, and $B^2-A^2\ne0$.
 
+The quotient-form Lean row
+`certificateValid_affineConsecutiveHypotenuseStrip` proves this identity with an
+explicit integer $L$ satisfying $q(1-q)=vL$, avoiding any hidden integer-division
+assumption.  The executable constructor computes that quotient when
+$v\mid q(1-q)$ and applies the same nondegeneracy checks.
+
 The same formula now has a target-facing recognition form. For a requested
 target $(g,q)$ with $q\ne0$, the fixed-$m$ strip applies exactly when
 $$
@@ -5796,6 +5850,7 @@ recognizer for strips whose fixed coordinate is first rather than second.
 
 Executable guardrail:
 
+- `certificateValid_affineConsecutiveHypotenuseStrip`
 - `affine_consecutive_hypotenuse_target_certificate`
 - `affine_consecutive_hypotenuse_orbit_certificate`
 - `test_affine_consecutive_hypotenuse_target_solver`
@@ -5809,6 +5864,7 @@ The previous multiple-of-five strip is the first case $m=2$, where $c=5$.
 Executable guardrail:
 
 - `affine_consecutive_hypotenuse_certificate`
+- `certificateValid_affineConsecutiveHypotenuseStrip`
 - `consecutive_hypotenuse_unit_coordinate_certificate`
 - `unit_coordinate_consecutive_hypotenuse_certificate`
 - `unit_coordinate_multiple_of_five_certificate`
@@ -5905,11 +5961,137 @@ $$
 and the resulting graph steps are nondegenerate. If $|L|=1$, the whole ray is
 covered. For example, the slope $(3,1)$ has $L=1$ using
 $(a,b,c)=(5,12,13)$ with $s_x=s_y=1$, so every nonzero multiple of $(3,1)$ has
-a two-step certificate from this single ray family. On the exceptional ray
-$(2,1)$, the same framework gives infinite multiplier classes such as $3\mid n$
-from $(a,b,c)=(12,5,13)$ with signs $(1,-1)$, and $29\mid n$ from
-$(15,112,113)$ with signs $(1,1)$; it still does not certify the primitive
-obstruction.
+a two-step certificate from this single ray family.
+
+The sign/swapped companion is now promoted as a named full-ray theorem. For
+the ray $(1,3)$, take $(a,b,c)=(3,4,5)$ and signs $(1,-1)$. Then
+$$
+L=(5-4)\cdot3-(5-3)\cdot1=1.
+$$
+Thus every positive target
+$$
+T=(n,3n)
+$$
+has the explicit midpoint
+$$
+P=(9n,-12n).
+$$
+Indeed,
+$$
+(9n)^2+(-12n)^2=(15n)^2,\qquad
+(n-9n)^2+(3n+12n)^2=(17n)^2.
+$$
+The Lean row `certificateValid_oneThreeRayTheorem3` proves the scaled identity
+for every nonzero integer multiplier, and sign changes plus coordinate swap
+give the full orbit of the $(1,3)$ and $(3,1)$ rays.
+
+The same signed $(3,4,5)$ divisor row actually closes the full unit-divisor
+table obtained from the four sign choices. For a positive ray $R=(p,q)$, the
+fixed divisor is
+$$
+L=(5+s_y4)q-(5-s_x3)p.
+$$
+Solving $L=1$ gives four infinite ray fans:
+$$
+\begin{array}{c|c|c}
+R & (s_x,s_y) & \text{parameter range}\\
+\hline
+(p,2p+1) & (1,-1) & p\ge1\\
+(p,8p+1) & (-1,-1) & p\ge1\\
+(9t+4,2t+1) & (1,1) & t\ge0\\
+(9t+1,8t+1) & (-1,1) & t\ge0.
+\end{array}
+$$
+For every positive multiplier $n$, the target $nR$ has midpoint
+$$
+P=(3s_xpqn,\ 4s_ypqn).
+$$
+The divisor-strengthened Theorem 3 row gives coefficient $pqn$, and the
+parametric Lean rows
+`certificateValid_threeFourFiveOddSlopeRay`,
+`certificateValid_threeFourFiveSteepOddSlopeRay`,
+`certificateValid_threeFourFiveWideOddSlopeRay`, and
+`certificateValid_threeFourFiveNearDiagonalRay` prove the nondegenerate
+certificate identities for the four rows. The Python table constructor
+`three_four_five_unit_divisor_ray_certificate` exposes the construction, and
+`three_four_five_unit_divisor_ray_orbit_certificate` recognizes the full
+sign/swap orbit. The promoted $(1,3)$ ray is the first case of the first row.
+
+The next primitive triple gives a second complete unit-divisor table. For
+$(a,b,c)=(5,12,13)$, the fixed divisor is
+$$
+L=(13+s_y12)q-(13-s_x5)p.
+$$
+Solving $L=1$ gives
+$$
+\begin{array}{c|c|c}
+R & (s_x,s_y) & \text{parameter range}\\
+\hline
+(p,8p+1) & (1,-1) & p\ge1\\
+(p,18p+1) & (-1,-1) & p\ge1\\
+(25t+3,8t+1) & (1,1) & t\ge0\\
+(25t+18,18t+13) & (-1,1) & t\ge0.
+\end{array}
+$$
+For every positive multiplier $n$, the target $nR$ has midpoint
+$$
+P=(5s_xpqn,\ 12s_ypqn).
+$$
+The Lean rows `certificateValid_fiveTwelveThirteenEightSlopeRay`,
+`certificateValid_fiveTwelveThirteenEighteenSlopeRay`,
+`certificateValid_fiveTwelveThirteenTwentyFiveEightRay`, and
+`certificateValid_fiveTwelveThirteenTwentyFiveEighteenRay` prove the four
+parametric identities and nondegeneracy checks. The Python table constructor
+`five_twelve_thirteen_unit_divisor_ray_certificate` and orbit recognizer
+`five_twelve_thirteen_unit_divisor_ray_orbit_certificate` expose the theorem.
+
+There is also a uniform first-row theorem for all consecutive Euclid triples.
+For $r\ge1$, set
+$$
+a=2r+1,\qquad b=2r(r+1),\qquad c=2r^2+2r+1.
+$$
+Then $a^2+b^2=c^2$, $c-b=1$, and $c-a=2r^2$.  With signs $(1,-1)$, every ray
+$$
+R=(p,2r^2p+1),\qquad p\ge1,
+$$
+has fixed divisor
+$$
+L=(c-b)(2r^2p+1)-(c-a)p=1.
+$$
+Thus every positive multiplier $n$ has midpoint
+$$
+P=((2r+1)p(2r^2p+1)n,\ -2r(r+1)p(2r^2p+1)n).
+$$
+The Lean row `certificateValid_consecutiveEuclidUnitDivisorRay` proves the
+identity and nondegeneracy checks for all $r,p>0$, and the Python constructor
+`consecutive_euclid_unit_divisor_ray_certificate` plus orbit recognizer expose
+the full sign/swap orbit. The cases $r=1,2$ recover the first rows of the
+`3-4-5` and `5-12-13` unit-divisor tables; all $r\ge3$ are new infinite fans.
+
+The swapped-leg consecutive-Euclid branch also gives a uniform affine strip. For
+$r\ge1$, use
+$$
+a=2r(r+1),\qquad b=2r+1,\qquad c=2r^2+2r+1.
+$$
+Then $c-a=1$ and $c-b=2r^2$.  With signs $(1,-1)$, every target
+$$
+T=(2r^2h-1,\ h),\qquad h\ge1,
+$$
+has unit divisor and midpoint
+$$
+P=(2r(r+1)(2r^2h-1)h,\ -(2r+1)(2r^2h-1)h).
+$$
+The Lean row `certificateValid_consecutiveEuclidAffineStrip` proves the
+parametric certificate, while
+`consecutive_euclid_affine_strip_certificate` and
+`consecutive_euclid_affine_strip_orbit_certificate` expose the strip and its
+full sign/swap orbit.  This is the theorem-shaped version of the corresponding
+quadratic-strip constructor.
+
+On the exceptional ray $(2,1)$, the same framework gives infinite multiplier
+classes such as $3\mid n$ from $(a,b,c)=(12,5,13)$ with signs $(1,-1)$, and
+$29\mid n$ from $(15,112,113)$ with signs $(1,1)$; it still does not certify
+the primitive obstruction.
 
 Equivalently, a fixed ray divisor has an exact multiplier modulus
 $$
@@ -5996,6 +6178,18 @@ Executable guardrail:
 - `theorem3_ray_divisor_certificate`
 - `theorem3_ray_divisor_modulus`
 - `theorem3_ray_pell_divisor_certificate`
+- `one_three_ray_theorem3_certificate`
+- `one_three_ray_theorem3_orbit_certificate`
+- `three_four_five_unit_divisor_ray_certificate`
+- `three_four_five_unit_divisor_ray_orbit_certificate`
+- `five_twelve_thirteen_unit_divisor_ray_certificate`
+- `five_twelve_thirteen_unit_divisor_ray_orbit_certificate`
+- `consecutive_euclid_unit_divisor_ray_certificate`
+- `consecutive_euclid_unit_divisor_ray_orbit_certificate`
+- `consecutive_euclid_affine_strip_certificate`
+- `consecutive_euclid_affine_strip_orbit_certificate`
+- `three_four_five_odd_slope_ray_certificate`
+- `three_four_five_odd_slope_ray_orbit_certificate`
 - `theorem3_quadratic_strip_certificate`
 - `theorem3_quadratic_strip_orbit_certificate`
 - `test_paper_theorem3_signed_certificate_examples`
@@ -6003,6 +6197,12 @@ Executable guardrail:
 - `test_theorem3_ray_divisor_family`
 - `test_theorem3_ray_divisor_modulus`
 - `test_theorem3_ray_pell_divisor_family`
+- `test_one_three_ray_theorem3_family`
+- `test_three_four_five_unit_divisor_ray_table`
+- `test_five_twelve_thirteen_unit_divisor_ray_table`
+- `test_consecutive_euclid_unit_divisor_ray_family`
+- `test_consecutive_euclid_affine_strip_family`
+- `test_three_four_five_odd_slope_ray_family`
 - `test_paper_theorem3_line_constructor`
 - `test_theorem3_quadratic_strip_family`
 - `test_paper_theorem3_rejects_non_matching_relations`

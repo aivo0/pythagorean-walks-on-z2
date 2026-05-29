@@ -5,6 +5,564 @@ The goal is to keep false starts cheap to detect and hard to reintroduce.
 
 ## 2026-05-29
 
+### Verification Run: Promoted Infinite Theorem Slices
+
+The promoted `(1,3)` ray, signed `3-4-5` and `5-12-13` unit-divisor ray-fan
+tables, consecutive-Euclid unit-divisor fan, swapped-leg consecutive-Euclid
+affine strip, affine consecutive-hypotenuse strip, and `3 | n`
+exceptional-ray slices were checked against the full current stack after
+rebuilding the Rust extension. The run covered the
+theorem-specific Python constructors,
+Rust/Python parity tests, perf-marked finite audits, the full Python suite, and
+the Lean proof kernel.
+
+Commands passed:
+
+- `maturin develop --release`
+- `cargo test --release`
+- `python -m py_compile experiments/pythagorean_walks.py tests/test_pythagorean_walks.py tests/test_pythagorean_walks_fast.py`
+- `pytest -q tests/test_pythagorean_walks_fast.py`
+- `pytest -q -m perf tests/test_pythagorean_walks.py --durations=10`
+- `pytest -q --durations=20`
+- `lake build`
+
+### Promoted: Affine Consecutive-Hypotenuse Strip Lean Row
+
+The affine consecutive-hypotenuse strip now has a Lean-proved quotient-form row.
+For `m >= 2`, set `u=2m-1`, `v=2m(m-1)`, and
+`c=m^2+(m-1)^2`. If `q(1-q)=v*ell`, `t != 0`, and the Euclid parameters
+
+`A=m(m-1)t`, `B=uA-q`, `r=ell+uqt-2A^2`
+
+satisfy `r != 0`, `B != 0`, and `B^2-A^2 != 0`, then
+
+`(cqt+u*ell, q)`
+
+is certified by midpoint `r(u,v)` and second edge `(2AB,B^2-A^2)`.
+
+Lean proves the row as
+`certificateValid_affineConsecutiveHypotenuseStrip`. The Python constructors
+already compute `ell=q(1-q)/v` when `v | q(1-q)` and expose both target-facing
+and coordinate-swap recognizers.
+
+Executable guardrail:
+
+- `certificateValid_affineConsecutiveHypotenuseStrip`
+- `affine_consecutive_hypotenuse_certificate`
+- `affine_consecutive_hypotenuse_target_certificate`
+- `affine_consecutive_hypotenuse_orbit_certificate`
+- `test_affine_consecutive_hypotenuse_family`
+- `test_affine_consecutive_hypotenuse_target_solver`
+
+### Promoted: Consecutive-Euclid Affine Strip
+
+The swapped-leg consecutive-Euclid row is now promoted as a uniform infinite
+theorem. For `r,h >= 1`, the triple
+
+`(2r(r+1), 2r+1, 2r^2+2r+1)`
+
+has `c-a=1` and `c-b=2r^2`, so the signed Theorem 3 row with signs `(1,-1)`
+has unit divisor on the affine strip `(2r^2h-1,h)`. The certificate midpoint is
+
+`(2r(r+1)(2r^2h-1)h, -(2r+1)(2r^2h-1)h)`.
+
+Lean proves the full parametric row as
+`certificateValid_consecutiveEuclidAffineStrip`, and Python exposes both the
+constructor and the sign/swap orbit recognizer. The Python guardrail also checks
+that this row agrees with the existing quadratic-strip constructor.
+
+Executable guardrail:
+
+- `certificateValid_consecutiveEuclidAffineStrip`
+- `consecutive_euclid_affine_strip_certificate`
+- `consecutive_euclid_affine_strip_orbit_certificate`
+- `test_consecutive_euclid_affine_strip_family`
+
+### Promoted: Consecutive-Euclid Unit-Divisor Ray Fan
+
+The first unit-divisor row for every consecutive Euclid triple is now promoted
+as a uniform infinite theorem.  For `r,p >= 1`, the triple
+
+`(2r+1, 2r(r+1), 2r^2+2r+1)`
+
+has `c-b=1` and `c-a=2r^2`, so the signed Theorem 3 row with signs `(1,-1)`
+has fixed divisor one on the ray `(p,2r^2p+1)`. Every positive multiplier `n`
+is certified by midpoint
+
+`((2r+1)p(2r^2p+1)n, -2r(r+1)p(2r^2p+1)n)`.
+
+Lean proves the full parametric row as
+`certificateValid_consecutiveEuclidUnitDivisorRay`, and Python exposes both a
+constructor and a sign/swap orbit recognizer.  The cases `r=1,2` recover rows
+already present in the `3-4-5` and `5-12-13` unit-divisor tables; `r>=3` gives
+new infinite ray fans.
+
+Executable guardrail:
+
+- `certificateValid_consecutiveEuclidUnitDivisorRay`
+- `consecutive_euclid_unit_divisor_ray_certificate`
+- `consecutive_euclid_unit_divisor_ray_orbit_certificate`
+- `test_consecutive_euclid_unit_divisor_ray_family`
+
+### Promoted: Signed 5-12-13 Unit-Divisor Ray-Fan Table
+
+The signed `(5,12,13)` Theorem 3 row now has a complete unit-divisor table.
+For positive rays, the divisor is
+
+`L=(13+s_y*12)q - (13-s_x*5)p`.
+
+Solving `L=1` gives the four infinite fans `(p,8p+1)`, `(p,18p+1)`,
+`(25t+3,8t+1)`, and `(25t+18,18t+13)`, with `p >= 1` and `t >= 0`.
+Every positive multiplier `n` is certified by midpoint
+`(5*s_x*p*q*n, 12*s_y*p*q*n)`, and sign/swap transport gives the full orbit.
+
+Lean proves the parametric rows as
+`certificateValid_fiveTwelveThirteenEightSlopeRay`,
+`certificateValid_fiveTwelveThirteenEighteenSlopeRay`,
+`certificateValid_fiveTwelveThirteenTwentyFiveEightRay`, and
+`certificateValid_fiveTwelveThirteenTwentyFiveEighteenRay`. Python exposes a
+table constructor and orbit recognizer.
+
+Executable guardrail:
+
+- `certificateValid_fiveTwelveThirteenEightSlopeRay`
+- `certificateValid_fiveTwelveThirteenEighteenSlopeRay`
+- `certificateValid_fiveTwelveThirteenTwentyFiveEightRay`
+- `certificateValid_fiveTwelveThirteenTwentyFiveEighteenRay`
+- `five_twelve_thirteen_unit_divisor_ray_certificate`
+- `five_twelve_thirteen_unit_divisor_ray_orbit_certificate`
+- `test_five_twelve_thirteen_unit_divisor_ray_table`
+
+### Promoted: Signed 3-4-5 Unit-Divisor Ray-Fan Table
+
+The modulus-one ray-divisor condition for the signed `(3,4,5)` row now closes
+the full four-sign unit-divisor table.  For positive rays, the divisor is
+
+`L=(5+s_y*4)q - (5-s_x*3)p`.
+
+Solving `L=1` gives the four infinite fans `(p,2p+1)`, `(p,8p+1)`,
+`(9t+4,2t+1)`, and `(9t+1,8t+1)`, with `p >= 1` and `t >= 0`.
+Every positive multiplier `n` is certified by midpoint
+`(3*s_x*p*q*n, 4*s_y*p*q*n)`, and sign/swap transport gives the full orbit.
+The existing `(1,3)` theorem is the first case of the first row.
+
+Lean proves the parametric rows as `certificateValid_threeFourFiveOddSlopeRay`,
+`certificateValid_threeFourFiveSteepOddSlopeRay`,
+`certificateValid_threeFourFiveWideOddSlopeRay`, and
+`certificateValid_threeFourFiveNearDiagonalRay`. Python exposes a table
+constructor and orbit recognizer, while preserving the earlier odd-slope wrapper
+as the first table row.
+
+Executable guardrail:
+
+- `certificateValid_threeFourFiveOddSlopeRay`
+- `certificateValid_threeFourFiveSteepOddSlopeRay`
+- `certificateValid_threeFourFiveWideOddSlopeRay`
+- `certificateValid_threeFourFiveNearDiagonalRay`
+- `three_four_five_unit_divisor_ray_certificate`
+- `three_four_five_unit_divisor_ray_orbit_certificate`
+- `test_three_four_five_unit_divisor_ray_table`
+
+### Promoted: Full One-Three Ray Theorem 3 Slice
+
+The modulus-one ray-divisor case of the signed Theorem 3 machinery now closes a
+full non-axis ray. For every positive multiplier `n`, the target `(n,3n)` is
+certified by midpoint `(9n,-12n)` using the `(3,4,5)` triple with signs
+`(1,-1)`. The two step lengths are `15n` and `17n`, and sign/swap transport
+gives the full orbit of the `(1,3)` and `(3,1)` rays.
+
+Lean proves the scaled row as `certificateValid_oneThreeRayTheorem3`. Python
+exposes the theorem-specific constructor and orbit wrapper, and the tests check
+the explicit formula against the generic ray-divisor constructor.
+
+Executable guardrail:
+
+- `certificateValid_oneThreeRayTheorem3`
+- `one_three_ray_theorem3_certificate`
+- `one_three_ray_theorem3_orbit_certificate`
+- `test_one_three_ray_theorem3_family`
+
+### Promoted: Theorem 3 Multiple-Of-Three Exceptional-Ray Slice
+
+The divisor-strengthened signed Theorem 3 now closes a named infinite subray of
+the exceptional direction. For every positive multiplier `n=3m`, the target
+`(2n,n)=(6m,3m)` is certified by midpoint `(12m,-5m)`, coming from the
+`(12,5,13)` triple with signs `(1,-1)`. Lean proves the scaled certificate row
+as `certificateValid_twoOneRayMultipleOfThree`.
+
+The Python layer exposes this as
+`two_one_ray_multiple_of_three_theorem3_certificate` and its sign/swap orbit
+wrapper. Combining it with the existing mod-20 skeleton gives a mod-60
+refinement: the only remaining multiplier classes modulo 60 are
+`1, 29, 41, 49`. The new skeleton helper records this exact split instead of
+increasing any target box.
+
+Executable guardrail:
+
+- `certificateValid_twoOneRayMultipleOfThree`
+- `two_one_ray_multiple_of_three_theorem3_certificate`
+- `two_one_ray_multiple_of_three_theorem3_orbit_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_orbit_certificate`
+- `two_one_ray_mod60_theorem3_skeleton_residues`
+- `test_two_one_ray_multiple_of_three_theorem3_family`
+- `test_two_one_ray_mod60_theorem3_skeleton_family`
+
+### Promoted: Parallel-Factor Congruence Row Extraction
+
+The fixed-direction factor-integrality path now has a reverse algebraic bridge
+from congruence quotients back to factor-pair row data.
+`factorPairRow_of_parallelFactorCongruenceData` proves that, once the tested
+factor divides the determinant square, `parallelFactorCongruenceData` recovers
+the paired-factor sum and coefficient equations used by the certificate row.
+`parallelFactorCertificateValid_of_congruenceData_factorPair` then feeds that
+extracted row into the existing nondegenerate certificate theorem.
+
+The Rust extension now exposes
+`parallel_direction_factor_pair_row_from_congruence_data`, and Python dispatches
+to it for signed-`i64` inputs while keeping an arbitrary-precision fallback.
+Regression coverage compares the Rust and Python rows, checks invalid inputs,
+and includes a beyond-`i64` fallback target.
+
+Executable guardrail:
+
+- `factorPairRow_of_parallelFactorCongruenceData`
+- `parallelFactorCertificateValid_of_congruenceData_factorPair`
+- `parallel_direction_factor_pair_row_from_congruence_data`
+- `test_parallel_direction_divisor_reduction`
+- `test_fast_certificate_transforms_match_python_reference`
+
+### Promoted: Lattice Cramer Divisibility Data
+
+The two-edge lattice certificate path now has an explicit Cramer divisibility
+bridge. `latticeCoefficients_cramer` identifies lattice coefficients with the
+two determinant numerator equations, `exists_latticeCoefficients_iff_cramer_dvd`
+reduces membership in the generated lattice to divisibility of those numerators,
+and `exists_latticeCertificateValid_of_cramer_dvd_nondegenerate` packages the
+nonzero-numerator case into a certificate existence theorem.
+
+The Rust extension now exposes `lattice_coefficient_cramer_data`, and Python
+dispatches to it for signed-`i64` inputs while keeping an arbitrary-precision
+fallback. Regression coverage checks divisible, non-divisible, dependent-basis,
+large signed-`i64`, and beyond-`i64` fallback cases.
+
+Executable guardrail:
+
+- `latticeCoefficients_cramer`
+- `exists_latticeCoefficients_iff_cramer_dvd`
+- `exists_latticeCertificateValid_of_cramer_dvd_nondegenerate`
+- `lattice_coefficient_cramer_data`
+- `test_lattice_coefficients_build_two_step_certificates`
+- `test_fast_certificate_transforms_match_python_reference`
+
+### Promoted: Same-Strip LCM Count Row
+
+The same-strip CRT compression now feeds a reusable residue-count row.
+`exists_latticePairSameStripCombinedLinearCongruence` proves that existence of
+lattice coefficients satisfying two same-direction strip rows is equivalent to
+existence of coefficients satisfying the single combined lcm row. The executable
+count row then applies the existing one-row lattice-pair counting formula after
+CRT compression.
+
+The Rust extension now exposes
+`pythagorean_lattice_pair_same_strip_intersection_residue_count`, and Python
+dispatches to it for signed-`i64` rows. Parity/regression coverage includes
+compatible rows, CRT-incompatible rows, gcd-incompatible rows, invalid inputs,
+and a beyond-`i64` fallback count.
+
+Executable guardrail:
+
+- `exists_latticePairSameStripCombinedLinearCongruence`
+- `pythagorean_lattice_pair_same_strip_intersection_residue_count`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Same-Strip CRT Row Compression
+
+Two same-direction determinant strips on one lattice can now be compressed back
+to a single lcm-modulus coefficient row. `latticePairSameStripCombinedLinearCongruence`
+proves that, for a target expressed in the lattice basis, the paired strip
+predicates are equivalent to the one coefficient congruence against the chosen
+lcm CRT witness.
+
+The Rust extension now exposes
+`pythagorean_lattice_pair_same_strip_combined_linear_congruence`, and Python
+dispatches to it for signed-`i64` rows. Parity tests verify that the combined
+row is exactly the projected lcm row from `pythagorean_lattice_pair_strip_crt_data`,
+including compatible rows, CRT-incompatible rows, gcd-incompatible rows, invalid
+inputs, and a beyond-`i64` fallback case.
+
+Executable guardrail:
+
+- `latticePairSameStripCombinedLinearCongruence`
+- `pythagorean_lattice_pair_same_strip_combined_linear_congruence`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Lattice-Pair Same-Strip CRT Row
+
+The paired CRT bridge now reaches the lattice-pair determinant-strip layer.
+`latticePairSameStripLinearCongruence` proves that two same-direction
+determinant strip predicates for a fixed lattice target are exactly the two
+coefficient congruences in the lattice coordinates. The existential row
+`exists_latticePairSameStrip_iff_crtWitness_gcd_dvd` combines that reduction
+with the fixed CRT witness criterion for the strip coefficients
+`det strip u` and `det strip v`.
+
+The Rust extension now exposes `pythagorean_lattice_pair_strip_crt_data`, and
+Python dispatches to it for signed-`i64` rows. Parity tests cover compatible,
+CRT-incompatible, gcd-incompatible, negative-residue, and invalid strip rows;
+the Python regression also covers a beyond-`i64` same-strip fallback row.
+
+Executable guardrail:
+
+- `latticePairSameStripLinearCongruence`
+- `exists_latticePairSameStrip_iff_crtWitness_gcd_dvd`
+- `pythagorean_lattice_pair_strip_crt_data`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Strengthened: Fixed CRT Witness Divisibility Criterion
+
+The lcm CRT bridge now has the fixed-witness form needed by the executable
+helper. `modEq_lcm_of_modEq_pair` proves that two congruences to the same
+value combine modulo `lcm(m, n)`, and
+`exists_twoVariableLinearCongruence_pair_iff_crtWitness_gcd_dvd` proves that
+for any chosen CRT witness `x`, the two-row coefficient problem is solvable
+exactly when `gcd(gcd(a, b), lcm(m, n))` divides `x`.
+
+The Python regression now checks that lcm-shifted CRT witnesses preserve both
+input residues and the same divisibility decision. Fast parity also asserts
+that the Rust-returned combined residue projects to both input rows and drives
+the solvability flag by the advertised linear gcd.
+
+Executable guardrail:
+
+- `modEq_lcm_of_modEq_pair`
+- `exists_twoVariableLinearCongruence_pair_iff_crtWitness_gcd_dvd`
+- `two_variable_linear_congruence_pair_data`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Strengthened: Canonical LCM Pair Row Witness
+
+The paired linear congruence bridge now matches the executable modulus exactly.
+`exists_twoVariableLinearCongruence_pair_iff_exists_lcm_crt_gcd_dvd` replaces
+the product-modulus bridge with the canonical `lcm(m, n)` CRT witness: two
+coefficient rows are solvable exactly when their residues have an lcm CRT
+witness that is divisible by `gcd(gcd(a, b), lcm(m, n))`.
+
+`two_variable_linear_congruence_pair_data` now returns the canonical combined
+CRT residue modulo the lcm, or `None` for CRT-incompatible residue rows. The
+Python regression asserts that this witness projects to both input residues and
+that the solvability flag is exactly the linear-gcd divisibility condition,
+while Rust/Python parity still covers large signed rows and fallback-only
+beyond-`i64` inputs.
+
+Executable guardrail:
+
+- `exists_twoVariableLinearCongruence_pair_iff_exists_lcm_crt_gcd_dvd`
+- `two_variable_linear_congruence_pair_data`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Paired Linear Congruence CRT Bridge
+
+The determinant-strip CRT layer now has a theorem-level bridge for two
+coefficient rows. `linearCombination_gcd_dvd` isolates the divisibility
+invariant for every integer linear combination,
+`twoVariableLinearCongruence_pair_crt_compat` names the CRT compatibility
+obligation, and
+`exists_twoVariableLinearCongruence_pair_iff_exists_crt_gcd_dvd` reduces the
+existence of one coefficient pair satisfying two modular rows to a CRT witness
+that is reachable by the same linear-combination gcd.
+
+The Rust extension now exposes `two_variable_linear_congruence_pair_data`, with
+Python fallback parity covering compatible rows, CRT-incompatible rows,
+gcd-incompatible CRT rows, zero-coefficient rows, negative residues, and a
+beyond-`i64` fallback regression. This gives the search layer a named predicate
+for paired determinant-strip obligations instead of ad hoc nested residue scans.
+
+Executable guardrail:
+
+- `linearCombination_gcd_dvd`
+- `twoVariableLinearCongruence_pair_crt_compat`
+- `exists_twoVariableLinearCongruence_pair_iff_exists_crt_gcd_dvd`
+- `two_variable_linear_congruence_pair_data`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Strengthened: Two-Variable Linear Congruence Iff
+
+The determinant-strip CRT row now has both directions in Lean.
+`twoVariableLinearCongruence_gcd_dvd` proves that any solution to
+`a*r + b*s == residue mod modulus` forces `gcd(gcd(a, b), modulus)` to divide
+the residue, and `exists_twoVariableLinearCongruence_iff_gcd_dvd` packages the
+necessity direction with the existing Bézout construction.
+
+The Rust/Python parity checks for `two_variable_linear_congruence_gcd` now cover
+zero coefficients, negative residues, and unsolvable zero-linear rows. The
+Python regression also covers a beyond-`i64` fallback case so the accelerated
+predicate and pure fallback continue to agree on the theorem's boundary cases.
+
+Executable guardrail:
+
+- `twoVariableLinearCongruence_gcd_dvd`
+- `exists_twoVariableLinearCongruence_iff_gcd_dvd`
+- `two_variable_linear_congruence_gcd`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Two-Variable Linear Congruence GCD Row
+
+The determinant-strip CRT row now has a generic solvability kernel.
+`exists_twoVariableLinearCongruence_of_gcd_dvd` proves that
+`gcd(gcd(a, b), modulus)` dividing the residue is enough to solve
+`a*r + b*s == residue mod modulus`.
+
+The Rust extension now exposes `two_variable_linear_congruence_gcd`, and Python
+uses that helper from `pythagorean_lattice_pair_strip_intersection_residue_count`
+instead of recomputing the divisibility predicate inline. Fast parity covers
+solvable, unsolvable, negative, and large signed-`i64` rows.
+
+Executable guardrail:
+
+- `exists_twoVariableLinearCongruence_of_gcd_dvd`
+- `two_variable_linear_congruence_gcd`
+- `pythagorean_lattice_pair_strip_intersection_residue_count`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Lattice-Pair Strip Linearization
+
+The determinant-strip reduction for lattice-pair rows now has a Lean algebra
+kernel. `det_add_smul_smul` proves determinant linearity for
+`r*u + s*v`, and `latticeStripLinearCongruence` proves that a target expressed
+in a two-direction lattice satisfies a determinant strip exactly when its
+lattice coefficients satisfy the corresponding linear congruence. This is the
+row-level proof behind `pythagorean_lattice_pair_strip_linear_congruence`.
+
+The Rust extension now exposes `pythagorean_lattice_pair_strip_linear_congruence`,
+and Python dispatches the row helper to it for signed `i64` inputs. Fast parity
+covers representative strip/lattice rows plus invalid strip directions,
+invalid moduli, invalid lattice directions, and dependent lattice directions.
+
+Executable guardrail:
+
+- `det_add_smul_smul`
+- `latticeStripLinearCongruence`
+- `pythagorean_lattice_pair_strip_linear_congruence`
+- `test_pythagorean_lattice_pair_cover_closes_promoted_residual_tail`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Primitive Determinant-Residue Compression
+
+The primitive fixed-direction residue compression now has a Lean algebra row.
+`dot_modEq_det_mul_left_inverse` proves that if the first coordinate of a
+direction has inverse `inv` modulo `normSq u`, then every target satisfies
+
+`dot target u ≡ u.y * inv * det u target [ZMOD normSq u]`.
+
+This is the theorem-level reason the primitive factor row can enumerate
+determinant residues and recover the forced dot class, instead of scanning the
+full two-dimensional residue box.
+
+The Rust extension now exposes
+`parallel_direction_primitive_factor_determinant_residue_rows`, and Python
+dispatches the cached primitive row enumerator to it for signed `i64` input.
+Fast parity covers several primitive directions/factors, invalid directions,
+non-primitive directions, and invalid factors.
+
+Executable guardrail:
+
+- `dot_modEq_det_mul_left_inverse`
+- `parallel_direction_primitive_factor_determinant_residue_rows`
+- `parallel_direction_primitive_factor_determinant_residue_holds`
+- `test_parallel_direction_factor_residue_classes`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Parallel-Factor Congruence Data Row
+
+The fixed-direction factor layer now names the compact determinant/dot
+congruence data in Lean. `parallelFactorCongruenceData` records the two
+quotients used by the executable congruence predicate, and
+`parallelFactorCongruenceData_of_factorPairRow` proves that the factor-pair row
+data behind `parallel_direction_factor_witness_row_data` implies those
+quotients. `parallelFactorCongruence_of_factorPairRow` packages the nonzero
+determinant case as an existential congruence row. This separates the periodic
+integrality condition from the later pointwise nonzero and non-axis certificate
+checks.
+
+The Rust extension now exposes `parallel_direction_factor_congruence_data`, and
+Python adds the same helper with arbitrary-precision fallback. Fast parity
+checks accepted and rejected factor rows, invalid input, and a large shifted
+target whose determinant and row data exceed signed `i64` while staying inside
+the accelerated `i128` kernel.
+
+Executable guardrail:
+
+- `parallelFactorCongruenceData`
+- `parallelFactorCongruenceData_of_factorPairRow`
+- `parallelFactorCongruence_of_factorPairRow`
+- `parallel_direction_factor_congruence_data`
+- `test_parallel_direction_divisor_reduction`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Linear Signed-Delta Direction Row
+
+The generic signed-delta slice behind `linear_delta_direction_certificate` now
+has a Lean proof kernel row. `certificateValid_linearDeltaDirection` proves
+that a legal Pythagorean direction `(u,v)` and coefficient `k` certify midpoint
+`k(u,v)` whenever
+`g^2 + h^2 - d^2 = 2k(gu + hv - dc)` and the resulting second edge is
+non-axis. This moves the signed length-difference identity from executable
+checking into theorem-level certificate construction.
+
+The Rust extension now exposes `linear_delta_direction_midpoint`, and Python
+dispatches `linear_delta_direction_certificate` to it for signed `i64` input
+with arbitrary-precision fallback on `i128` overflow. Fast parity covers
+accepted rows, rejected divisibility/nondegeneracy rows, invalid directions,
+and a large target whose midpoint exceeds signed `i64`.
+
+Executable guardrail:
+
+- `certificateValid_linearDeltaDirection`
+- `linear_delta_direction_midpoint`
+- `linear_delta_direction_certificate`
+- `test_linear_delta_direction_certificate`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Signed Theorem 3 Divisor Row
+
+The signed Theorem 3 constructor now has a Lean proof kernel row.
+`certificateValid_theorem3Divisor` proves that a signed Pythagorean direction
+`(sx*a, sy*b)` with divisor relation
+`(c - sx*a)g = (c + sy*b)h - q` certifies midpoint
+`(sx*a*k, sy*b*k)` whenever `q*k = g*h` and the second edge is non-axis.
+`certificateValid_theorem3Unit` packages the paper's unit-divisor case with
+`k = g*h`.
+
+The Rust extension now exposes `theorem3_certificate_midpoint` and
+`theorem3_divisor_certificate_midpoint`. Python dispatches the unit and
+divisor constructors to these kernels for signed `i64` input, preserving
+arbitrary-precision fallback on `i128` overflow. Fast parity covers unit,
+divisor, rejected-relation, degenerate-divisor, invalid-input, and large
+midpoint cases whose coordinates exceed signed `i64`.
+
+The Python certificate checker now also range-guards its fast validity path, so
+large theorem rows fall back to arbitrary-precision square checks instead of
+asking the PyO3 `i64` API to accept oversized midpoint coordinates.
+
+Executable guardrail:
+
+- `certificateValid_theorem3Divisor`
+- `certificateValid_theorem3Unit`
+- `theorem3_certificate_midpoint`
+- `theorem3_divisor_certificate_midpoint`
+- `theorem3_certificate`
+- `theorem3_divisor_certificate`
+- `test_fast_arithmetic_matches_python_reference`
+
 ### Promoted: Sign/Swap Certificate Transport To Lean And Rust
 
 The sign-change and coordinate-swap symmetry is now represented in the Lean
@@ -24,6 +582,72 @@ Executable guardrail:
 - `certificateValid_signedSwapPoint`
 - `signed_swap_point`
 - `sign_swap_certificate_midpoint`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Combined Scale Sign/Swap Transport
+
+The scale and sign/swap transports now have a named composition in Lean.
+`signedSwapPoint_smul` proves the two maps commute on points, and
+`certificateValid_signedSwapPoint_smul` proves that a valid certificate remains
+valid after nonzero integer scaling followed by any sign/swap automorphism.
+This packages the transport pattern used by orbit and ray-lift constructors.
+
+The Rust extension now exposes `scale_signed_swap_certificate_data`, and Python
+adds `scale_signed_swap_certificate` with arbitrary-precision fallback. Fast
+parity covers positive and negative factors, both swap modes, validation edge
+cases, and a representative large case whose transformed coordinates exceed
+signed `i64`.
+
+Executable guardrail:
+
+- `signedSwapPoint_smul`
+- `certificateValid_signedSwapPoint_smul`
+- `scale_signed_swap_certificate_data`
+- `scale_signed_swap_certificate`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Even Horizontal Axis Midpoint Row
+
+The even-axis midpoint family now has a Lean row theorem.
+`certificateValid_evenAxisMidpoint` proves that if `a^2 + b^2 = c^2` with
+nonzero legs, then `(a,b)` is a valid two-step midpoint for the horizontal
+target `(2a,0)`. This is the theorem-level core of
+`midpoint_axis_certificate` for even axis targets.
+
+The Rust extension now exposes `even_axis_certificate_midpoint`, and Python
+dispatches `midpoint_axis_certificate` to it for signed `i64` input while
+preserving arbitrary-precision fallback. Fast parity covers excluded small
+targets, ordinary even-axis targets, and a representative large target whose
+midpoint leg exceeds signed `i64`.
+
+Executable guardrail:
+
+- `certificateValid_evenAxisMidpoint`
+- `even_axis_certificate_midpoint`
+- `midpoint_axis_certificate`
+- `test_fast_arithmetic_matches_python_reference`
+
+### Promoted: Shared-Leg Horizontal Axis Rows
+
+The shared-leg axis construction now has generic Lean row theorems.
+`certificateValid_axisDifferenceOfSharedLeg` proves that two Pythagorean
+triangles sharing a vertical leg certify the horizontal difference target, and
+`certificateValid_axisSumOfSharedLeg` proves the companion sum target. These
+are the theorem-level row identities behind the generated shared-leg axis
+records and the odd-axis consecutive-parameter formula.
+
+The Rust extension now exposes `consecutive_odd_axis_certificate_data`, and
+Python dispatches `consecutive_parameter_odd_axis_certificate` to it for signed
+`i64` input while preserving arbitrary-precision fallback on overflow. Fast
+parity covers excluded small targets, ordinary odd-axis targets, and a
+representative large odd target whose record fields exceed signed `i64`.
+
+Executable guardrail:
+
+- `certificateValid_axisDifferenceOfSharedLeg`
+- `certificateValid_axisSumOfSharedLeg`
+- `consecutive_odd_axis_certificate_data`
+- `consecutive_parameter_odd_axis_certificate`
 - `test_fast_arithmetic_matches_python_reference`
 
 ### Promoted: Certificate Scaling Transport To Lean And Rust
@@ -53,17 +677,24 @@ The two-edge lattice criterion now has a Lean Cramer bridge. The theorem
 recover the decomposition `target = rU + sV` whenever `det(U,V) != 0`.
 `latticeCertificateValid_of_cramer` then turns nonzero Cramer coefficients and
 legal directions into a theorem-level two-step certificate.
+`certificateValid_latticeMidpointData` packages the same criterion around the
+midpoint returned by the executable constructor.
 
-The Rust extension now exposes `lattice_coefficients` as the accelerated
-determinant-coefficient kernel used by lattice-pair probes, and the fast test
-suite compares it with the Python reference on zero-determinant,
-non-divisible, ordinary, and representative large exact-decomposition cases.
+The Rust extension now exposes `lattice_coefficients` and
+`lattice_certificate_midpoint` as accelerated determinant/coefficient kernels,
+and Python dispatches both `lattice_coefficients` and
+`lattice_two_step_certificate` to those fast paths for signed `i64` inputs.
+The fast test suite compares them with the Python reference on
+zero-determinant, non-divisible, ordinary, invalid-direction, and representative
+large exact-decomposition cases.
 
 Executable guardrail:
 
 - `cramerTarget_eq_add_smul`
 - `latticeCertificateValid_of_cramer`
+- `certificateValid_latticeMidpointData`
 - `lattice_coefficients`
+- `lattice_certificate_midpoint`
 - `test_fast_arithmetic_matches_python_reference`
 
 ### Promoted: Fixed-Direction Factor Square-Length Algebra
@@ -88,22 +719,29 @@ $$
 in the integer form used by the witness, and
 `parallelFactorCertificateValid_of_factorPair` combines that identity with the
 dot/coefficient relation to produce a valid nondegenerate certificate.
+`parallelFactorCertificateValid_of_factorPairRow` now uses the cleared
+coefficient equation directly,
+`paired - factor + 2*T.dot(U) = 2*r*c^2`, matching the executable integrality
+test for the first-step coefficient.
 
 The Rust extension now exposes the fixed-factor congruence predicate directly
-as `parallel_direction_factor_congruence_holds` and the witness row data as
-`parallel_direction_factor_witness_data`; Python dispatches
-`parallel_direction_factor_witness` to the fast path for signed `i64` inputs.
-The fast test suite checks these against the Python fallback on valid, invalid,
-determinant-zero, and large shifted target cases.
+as `parallel_direction_factor_congruence_holds`, the certificate witness data
+as `parallel_direction_factor_witness_data`, and the theorem-shaped row tuple
+as `parallel_direction_factor_witness_row_data`; Python dispatches the witness
+helpers to the fast path for signed `i64` inputs. The fast test suite checks
+these against the Python fallback on valid, invalid, determinant-zero, and
+large shifted target cases, and asserts the factor-pair/coefficient equations.
 
 Executable guardrail:
 
 - `normSq_sub_smul_of_parallelFactor`
 - `sq_add_sq_of_factorPair`
 - `parallelFactorCertificateValid_of_factorPair`
+- `parallelFactorCertificateValid_of_factorPairRow`
 - `parallelFactorCertificateValid_of_nondegenerate`
 - `parallel_direction_factor_congruence_holds`
 - `parallel_direction_factor_witness_data`
+- `parallel_direction_factor_witness_row_data`
 - `test_fast_arithmetic_matches_python_reference`
 
 ### Promoted: Generic CRT Compatibility
@@ -2061,9 +2699,13 @@ $$
 now has an explicit Euclid-parameter certificate whenever the displayed edge
 vectors are nondegenerate. The unit-coordinate family is the specialization
 $q=1$, and the earlier multiple-of-five strip is the first case $m=2$.
+The quotient-form Lean row
+`certificateValid_affineConsecutiveHypotenuseStrip` now proves the same
+certificate identity.
 
 Executable guardrail:
 
+- `certificateValid_affineConsecutiveHypotenuseStrip`
 - `affine_consecutive_hypotenuse_certificate`
 - `consecutive_hypotenuse_unit_coordinate_certificate`
 - `unit_coordinate_consecutive_hypotenuse_certificate`

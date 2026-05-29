@@ -1,5 +1,5 @@
 import json
-from math import gcd, isqrt
+from math import gcd, isqrt, lcm
 from pathlib import Path
 import unittest
 
@@ -153,6 +153,10 @@ from experiments.pythagorean_walks import (
     bounded_two_step_search,
     canonical_known_distance_three_representative,
     consecutive_direction_strip_certificate,
+    consecutive_euclid_affine_strip_certificate,
+    consecutive_euclid_affine_strip_orbit_certificate,
+    consecutive_euclid_unit_divisor_ray_certificate,
+    consecutive_euclid_unit_divisor_ray_orbit_certificate,
     consecutive_leg_pythagorean_triple,
     consecutive_leg_swap_lattice_certificate,
     consecutive_parameter_odd_axis_certificate,
@@ -172,6 +176,9 @@ from experiments.pythagorean_walks import (
     explicit_axis_certificate,
     first_gaussian_divisor_certificate,
     find_two_step_certificate,
+    five_twelve_thirteen_unit_divisor_ray_certificate,
+    five_twelve_thirteen_unit_divisor_ray_data,
+    five_twelve_thirteen_unit_divisor_ray_orbit_certificate,
     four_three_factor_five_parallel_certificate,
     gaussian_root_conjugate_divisibility_residue,
     gaussian_divisor_certificate,
@@ -203,6 +210,7 @@ from experiments.pythagorean_walks import (
     is_square,
     is_two_step_certificate,
     integer_slope_consecutive_ray_certificate,
+    lattice_coefficient_cramer_data,
     lattice_coefficients,
     lattice_two_step_certificate,
     linear_delta_direction_certificate,
@@ -213,6 +221,8 @@ from experiments.pythagorean_walks import (
     primitive_root_mod_prime,
     midpoint_axis_certificate,
     odd_residues,
+    one_three_ray_theorem3_certificate,
+    one_three_ray_theorem3_orbit_certificate,
     path_is_valid,
     parallel_direction_certificate,
     beta_square_is_axis_degenerate,
@@ -248,8 +258,10 @@ from experiments.pythagorean_walks import (
     parallel_direction_factor_coefficient,
     parallel_direction_factor_certificate,
     parallel_direction_factor_certificate_residue_classes,
+    parallel_direction_factor_congruence_data,
     parallel_direction_factor_congruence_holds,
     parallel_direction_factor_modulus,
+    parallel_direction_factor_pair_row_from_congruence_data,
     parallel_direction_primitive_factor_determinant_residue_holds,
     parallel_direction_primitive_factor_determinant_residue_rows,
     parallel_direction_factor_residue_certificate,
@@ -328,8 +340,13 @@ from experiments.pythagorean_walks import (
     pythagorean_lattice_pair_cover_certificate,
     pythagorean_lattice_pair_strip_intersection_holds,
     pythagorean_lattice_pair_strip_intersection_residue_count,
+    pythagorean_lattice_pair_strip_crt_data,
     pythagorean_lattice_pair_strip_linear_congruence,
+    pythagorean_lattice_pair_same_strip_combined_linear_congruence,
+    pythagorean_lattice_pair_same_strip_intersection_residue_count,
     pythagorean_lattice_pair_witness,
+    two_variable_linear_congruence_gcd,
+    two_variable_linear_congruence_pair_data,
     prime_determinant_lattice_certificate,
     rational_slope_consecutive_ray_certificate,
     ray_multiplier,
@@ -337,6 +354,7 @@ from experiments.pythagorean_walks import (
     ray_parallel_factor_residues,
     residue_witnesses,
     scale_certificate,
+    scale_signed_swap_certificate,
     same_projective_class_mod,
     shared_leg_axis_certificate_records,
     shared_leg_axis_certificate_table,
@@ -361,6 +379,11 @@ from experiments.pythagorean_walks import (
     theorem3_ray_divisor_certificate,
     theorem3_ray_divisor_modulus,
     theorem3_ray_pell_divisor_certificate,
+    three_four_five_unit_divisor_ray_certificate,
+    three_four_five_unit_divisor_ray_data,
+    three_four_five_unit_divisor_ray_orbit_certificate,
+    three_four_five_odd_slope_ray_certificate,
+    three_four_five_odd_slope_ray_orbit_certificate,
     TwoOneRayDeterminantSplitFactorWitness,
     TWO_ONE_RAY_PROMOTED_DETERMINANT_SPLIT_FACTOR_HYPOTENUSES,
     TWO_ONE_RAY_PROMOTED_INVERSE_ROOT_PARAMETERS,
@@ -391,6 +414,9 @@ from experiments.pythagorean_walks import (
     two_one_ray_mod20_skeleton_certificate,
     two_one_ray_mod20_skeleton_orbit_certificate,
     two_one_ray_mod20_skeleton_residues,
+    two_one_ray_mod60_theorem3_skeleton_certificate,
+    two_one_ray_mod60_theorem3_skeleton_orbit_certificate,
+    two_one_ray_mod60_theorem3_skeleton_residues,
     two_one_ray_mod260_skeleton_certificate,
     two_one_ray_mod260_skeleton_orbit_certificate,
     two_one_ray_mod260_skeleton_residues,
@@ -454,6 +480,8 @@ from experiments.pythagorean_walks import (
     two_one_ray_square_determinant_factor_certificate,
     two_one_ray_square_determinant_factor_period,
     two_one_ray_square_determinant_factor_residues,
+    two_one_ray_multiple_of_three_theorem3_certificate,
+    two_one_ray_multiple_of_three_theorem3_orbit_certificate,
     two_one_ray_three_mod_four_certificate,
     two_one_ray_three_mod_four_orbit_certificate,
     unit_coordinate_500_audit_certificate,
@@ -607,6 +635,28 @@ class CertificateTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             scale_certificate(base, 0)
+
+    def test_certificate_scale_sign_swap_transport(self):
+        base = Certificate(target=(3, 2), midpoint=(24, -18))
+        self.assertTrue(base.valid())
+
+        for factor, x_sign, y_sign, swap in ((5, -1, 1, False), (-7, 1, -1, True)):
+            transformed = scale_signed_swap_certificate(base, factor, x_sign, y_sign, swap)
+            scaled = scale_certificate(base, factor)
+            self.assertEqual(
+                transformed.target,
+                signed_swap_point(scaled.target, x_sign, y_sign, swap),
+            )
+            self.assertEqual(
+                transformed.midpoint,
+                signed_swap_point(scaled.midpoint, x_sign, y_sign, swap),
+            )
+            self.assertTrue(transformed.valid())
+
+        with self.assertRaises(ValueError):
+            scale_signed_swap_certificate(base, 0, 1, 1)
+        with self.assertRaises(ValueError):
+            scale_signed_swap_certificate(base, 1, 0, 1)
 
     def test_sign_swap_certificate_transport(self):
         base = Certificate(target=(3, 2), midpoint=(24, -18))
@@ -804,6 +854,20 @@ class CertificateTests(unittest.TestCase):
             second_length = isqrt(certificate.second_length_squared)
             self.assertEqual(first_length - second_length, signed_delta)
 
+        large_target = (3_000_000_000_000_000_000, 3_000_000_000_000_000_000)
+        large_certificate = linear_delta_direction_certificate(
+            large_target,
+            (-3, 4),
+            (0, 0),
+        )
+        self.assertIsNotNone(large_certificate)
+        self.assertEqual(
+            large_certificate.midpoint,
+            (-9_000_000_000_000_000_000, 12_000_000_000_000_000_000),
+        )
+        self.assertGreater(abs(large_certificate.midpoint[1]), (1 << 63) - 1)
+        self.assertTrue(large_certificate.valid())
+
         self.assertIsNone(linear_delta_direction_certificate((2, 1), (3, 4), (0, 0)))
         self.assertIsNone(linear_delta_direction_certificate((1, 8), (3, 4), (1, -1)))
         with self.assertRaises(ValueError):
@@ -981,18 +1045,50 @@ class CertificateTests(unittest.TestCase):
 
     def test_lattice_coefficients_build_two_step_certificates(self):
         self.assertEqual(lattice_coefficients((7, 0), (3, 4), (4, 3)), (-3, 4))
+        self.assertEqual(
+            lattice_coefficient_cramer_data((7, 0), (3, 4), (4, 3)),
+            (-7, 21, -28, True, True, -3, 4),
+        )
         cert = lattice_two_step_certificate((7, 0), (3, 4), (4, 3))
         self.assertIsNotNone(cert)
         self.assertEqual(cert.midpoint, (-9, -12))
         self.assertTrue(cert.valid())
 
         self.assertEqual(lattice_coefficients((1, 1), (3, -4), (4, -3)), (-1, 1))
+        self.assertEqual(
+            lattice_coefficient_cramer_data((1, 1), (3, -4), (4, -3)),
+            (7, -7, 7, True, True, -1, 1),
+        )
         cert = lattice_two_step_certificate((1, 1), (3, -4), (4, -3))
         self.assertIsNotNone(cert)
         self.assertEqual(cert.midpoint, (-3, 4))
         self.assertTrue(cert.valid())
 
         self.assertIsNone(lattice_coefficients((1, 0), (3, 4), (4, 3)))
+        self.assertEqual(
+            lattice_coefficient_cramer_data((1, 0), (3, 4), (4, 3)),
+            (-7, 3, -4, False, False, None, None),
+        )
+        first_coefficient = (1 << 63) + 5
+        second_coefficient = -(1 << 63) - 9
+        large_target = (
+            3 * first_coefficient + 4 * second_coefficient,
+            4 * first_coefficient + 3 * second_coefficient,
+        )
+        self.assertEqual(
+            lattice_coefficient_cramer_data(large_target, (3, 4), (4, 3)),
+            (
+                -7,
+                -7 * first_coefficient,
+                -7 * second_coefficient,
+                True,
+                True,
+                first_coefficient,
+                second_coefficient,
+            ),
+        )
+        with self.assertRaises(ValueError):
+            lattice_coefficient_cramer_data((1, 1), (1, 1), (4, 4))
         with self.assertRaises(ValueError):
             lattice_two_step_certificate((1, 1), (1, 1), (4, 3))
 
@@ -1083,6 +1179,18 @@ class CertificateTests(unittest.TestCase):
 
         self.assertEqual(parallel_direction_factor_modulus((3, 4), 648), 32400)
         self.assertEqual(parallel_direction_factor_coefficient((39, 64), (3, 4), 648), 2)
+        self.assertEqual(
+            parallel_direction_factor_congruence_data((39, 64), (3, 4), 648),
+            (36, 65, 2),
+        )
+        self.assertEqual(
+            parallel_direction_factor_pair_row_from_congruence_data(
+                (39, 64),
+                (3, 4),
+                648,
+            ),
+            (36, 2, -323, 325, 65, 2),
+        )
         witness = parallel_direction_factor_witness((39, 64), (3, 4), 648)
         self.assertEqual(
             witness,
@@ -1841,6 +1949,18 @@ class CertificateTests(unittest.TestCase):
         self.assertIsNotNone(certificate)
         self.assertEqual(certificate.midpoint, (222, 296))
         self.assertTrue(certificate.valid())
+        self.assertEqual(
+            parallel_direction_factor_congruence_data((6, 101), (3, 4), 27),
+            (279, 291, 74),
+        )
+        self.assertEqual(
+            parallel_direction_factor_pair_row_from_congruence_data(
+                (6, 101),
+                (3, 4),
+                27,
+            ),
+            (279, 2883, 1428, 1455, 291, 74),
+        )
 
         modulus = parallel_direction_factor_modulus((3, 4), 27)
         shifted_target = (6 + 2 * modulus, 101 - modulus)
@@ -1856,7 +1976,45 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(shifted_certificate.target, shifted_target)
         self.assertTrue(shifted_certificate.valid())
 
+        large_fallback_target = (
+            6 + (1 << 63) * modulus,
+            101 - (1 << 63) * modulus,
+        )
+        large_fallback_row = parallel_direction_factor_pair_row_from_congruence_data(
+            large_fallback_target,
+            (3, 4),
+            27,
+        )
+        self.assertIsNotNone(large_fallback_row)
+        (
+            determinant_leg,
+            paired_factor,
+            other_leg,
+            scaled_hypotenuse,
+            second_length,
+            first_coefficient,
+        ) = large_fallback_row
+        self.assertEqual(determinant_leg * determinant_leg, 27 * paired_factor)
+        self.assertEqual(paired_factor - 27, 2 * other_leg)
+        self.assertEqual(27 + paired_factor, 2 * scaled_hypotenuse)
+        self.assertEqual(
+            (determinant_leg, second_length, first_coefficient),
+            parallel_direction_factor_congruence_data(
+                large_fallback_target,
+                (3, 4),
+                27,
+            ),
+        )
+
         self.assertIsNone(parallel_direction_factor_certificate((39, 64), (3, 4), 5))
+        self.assertIsNone(parallel_direction_factor_congruence_data((39, 64), (3, 4), 5))
+        self.assertIsNone(
+            parallel_direction_factor_pair_row_from_congruence_data(
+                (39, 64),
+                (3, 4),
+                5,
+            )
+        )
         self.assertIsNone(parallel_direction_certificate((6, 8), (3, 4)))
         self.assertIsNone(parallel_direction_witness((6, 8), (3, 4)))
         with self.assertRaises(ValueError):
@@ -1867,6 +2025,14 @@ class CertificateTests(unittest.TestCase):
             parallel_direction_factor_modulus((1, 1), 1)
         with self.assertRaises(ValueError):
             parallel_direction_factor_coefficient((39, 64), (3, 4), 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_congruence_data((39, 64), (1, 1), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_congruence_data((39, 64), (3, 4), 0)
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_pair_row_from_congruence_data((39, 64), (1, 1), 1)
+        with self.assertRaises(ValueError):
+            parallel_direction_factor_pair_row_from_congruence_data((39, 64), (3, 4), 0)
         with self.assertRaises(ValueError):
             parallel_direction_witness((39, 64), (1, 1))
 
@@ -2984,6 +3150,248 @@ class CertificateTests(unittest.TestCase):
             ),
             (3, 7, 7, 13, 1),
         )
+        self.assertEqual(two_variable_linear_congruence_gcd(3, 7, 7, 13), (1, True))
+        self.assertEqual(
+            two_variable_linear_congruence_gcd(18, 18, 30, 34),
+            (2, True),
+        )
+        self.assertEqual(
+            two_variable_linear_congruence_gcd(4, 6, 5, 12),
+            (2, False),
+        )
+        self.assertEqual(two_variable_linear_congruence_gcd(0, 0, 0, 9), (9, True))
+        self.assertEqual(two_variable_linear_congruence_gcd(0, 0, 4, 9), (9, False))
+        self.assertEqual(
+            two_variable_linear_congruence_gcd(0, 12, -18, 30),
+            (6, True),
+        )
+        self.assertEqual(
+            two_variable_linear_congruence_gcd(2**70, 2**69, 2**68 + 1, 2**66),
+            (2**66, False),
+        )
+        with self.assertRaises(ValueError):
+            two_variable_linear_congruence_gcd(1, 2, 3, 0)
+
+        def brute_pair_solvable(
+            first_step: int,
+            second_step: int,
+            first_residue: int,
+            first_modulus: int,
+            second_residue: int,
+            second_modulus: int,
+        ) -> bool:
+            coefficient_period = lcm(first_modulus, second_modulus)
+            return any(
+                (
+                    (first_step * r + second_step * s - first_residue)
+                    % first_modulus
+                    == 0
+                    and (
+                        first_step * r + second_step * s - second_residue
+                    )
+                    % second_modulus
+                    == 0
+                )
+                for r in range(coefficient_period)
+                for s in range(coefficient_period)
+            )
+
+        pair_rows = (
+            ((3, 7, 7, 13, 2, 5), (1, 65, 1, 7, True, True)),
+            ((4, 6, 2, 8, 5, 12), (4, 24, 2, None, False, False)),
+            ((4, 6, 1, 4, 1, 6), (2, 12, 2, 1, True, False)),
+            ((0, 0, 0, 4, 0, 6), (2, 12, 12, 0, True, True)),
+            ((0, 0, 1, 4, 1, 6), (2, 12, 12, 1, True, False)),
+        )
+        for args, expected in pair_rows:
+            self.assertEqual(two_variable_linear_congruence_pair_data(*args), expected)
+            combined_residue = expected[3]
+            if combined_residue is None:
+                self.assertFalse(expected[4])
+            else:
+                self.assertEqual(combined_residue % args[3], args[2] % args[3])
+                self.assertEqual(combined_residue % args[5], args[4] % args[5])
+                self.assertEqual(expected[-1], combined_residue % expected[2] == 0)
+                for shift in (-2, -1, 0, 1, 3):
+                    shifted_witness = combined_residue + shift * expected[1]
+                    self.assertEqual(shifted_witness % args[3], args[2] % args[3])
+                    self.assertEqual(shifted_witness % args[5], args[4] % args[5])
+                    self.assertEqual(
+                        expected[-1],
+                        shifted_witness % expected[2] == 0,
+                    )
+            self.assertEqual(expected[-1], brute_pair_solvable(*args))
+        self.assertEqual(
+            two_variable_linear_congruence_pair_data(
+                2**70,
+                2**69,
+                1,
+                4,
+                1,
+                6,
+            ),
+            (2, 12, 4, 1, True, False),
+        )
+        with self.assertRaises(ValueError):
+            two_variable_linear_congruence_pair_data(1, 2, 3, 0, 5, 7)
+
+        strip_crt_data = pythagorean_lattice_pair_strip_crt_data(
+            strip_direction,
+            13,
+            7,
+            5,
+            2,
+            first_direction,
+            second_direction,
+        )
+        self.assertEqual(strip_crt_data, (16, 33, 1, 65, 1, 7, True, True))
+        self.assertEqual(
+            strip_crt_data[2:],
+            two_variable_linear_congruence_pair_data(16, 33, 7, 13, 2, 5),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                strip_direction,
+                13,
+                7,
+                5,
+                2,
+                first_direction,
+                second_direction,
+            ),
+            (16, 33, 7, 65, 1),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                strip_direction,
+                13,
+                7,
+                5,
+                2,
+                first_direction,
+                second_direction,
+            ),
+            (455, 455),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_crt_data(
+                strip_direction,
+                10,
+                7,
+                15,
+                8,
+                first_direction,
+                second_direction,
+            ),
+            (16, 33, 5, 30, 1, None, False, False),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                strip_direction,
+                10,
+                7,
+                15,
+                8,
+                first_direction,
+                second_direction,
+            ),
+            None,
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                strip_direction,
+                10,
+                7,
+                15,
+                8,
+                first_direction,
+                second_direction,
+            ),
+            (210, 0),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_crt_data(
+                (-8, -15),
+                4,
+                1,
+                6,
+                1,
+                (-4, 3),
+                (-12, 5),
+            ),
+            (-84, -220, 2, 12, 4, 1, True, False),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                (-8, -15),
+                4,
+                1,
+                6,
+                1,
+                (-4, 3),
+                (-12, 5),
+            ),
+            (0, 8, 1, 12, 4),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                (-8, -15),
+                4,
+                1,
+                6,
+                1,
+                (-4, 3),
+                (-12, 5),
+            ),
+            (48, 0),
+        )
+        scale = 2**63
+        self.assertEqual(
+            pythagorean_lattice_pair_strip_crt_data(
+                (3 * scale, 4 * scale),
+                4,
+                0,
+                6,
+                0,
+                (3, 4),
+                (5, 12),
+            ),
+            (0, 16 * scale, 2, 12, 4, 0, True, True),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                (3 * scale, 4 * scale),
+                4,
+                0,
+                6,
+                0,
+                (3, 4),
+                (5, 12),
+            ),
+            (0, 8, 0, 12, 4),
+        )
+        self.assertEqual(
+            pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                (3 * scale, 4 * scale),
+                4,
+                0,
+                6,
+                0,
+                (3, 4),
+                (5, 12),
+            ),
+            (48, 48),
+        )
+        with self.assertRaises(ValueError):
+            pythagorean_lattice_pair_strip_crt_data(
+                (1, 1),
+                13,
+                7,
+                5,
+                2,
+                first_direction,
+                second_direction,
+            )
         self.assertEqual(
             pythagorean_lattice_pair_strip_intersection_residue_count(
                 strip_direction,
@@ -7422,6 +7830,91 @@ class CertificateTests(unittest.TestCase):
         for target in ((2, 1), (18, 9), (42, 21), (7, 1), (0, 5), (10, 0)):
             self.assertIsNone(two_one_ray_mod20_skeleton_orbit_certificate(target))
 
+    def test_two_one_ray_multiple_of_three_theorem3_family(self):
+        triple = PythagoreanTriple(12, 5, 13)
+        for multiplier in (3, 6, 9, 12, 21, 69, 3003):
+            cert = two_one_ray_multiple_of_three_theorem3_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            parameter = multiplier // 3
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertEqual(cert.midpoint, (12 * parameter, -5 * parameter))
+            self.assertTrue(cert.valid())
+            self.assertEqual(
+                cert,
+                theorem3_ray_divisor_certificate((2, 1), multiplier, triple, 1, -1),
+            )
+
+        for multiplier in (-3, 0, 1, 2, 4, 5, 10):
+            self.assertIsNone(
+                two_one_ray_multiple_of_three_theorem3_certificate(multiplier)
+            )
+
+        for target in (
+            (18, 9),
+            (-18, 9),
+            (18, -9),
+            (9, 18),
+            (-9, 18),
+            (9, -18),
+            (42, -21),
+        ):
+            orbit_cert = two_one_ray_multiple_of_three_theorem3_orbit_certificate(
+                target
+            )
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (10, 5), (29, 1), (0, 3), (6, 0)):
+            self.assertIsNone(
+                two_one_ray_multiple_of_three_theorem3_orbit_certificate(target)
+            )
+
+    def test_two_one_ray_mod60_theorem3_skeleton_family(self):
+        missing_residues = (1, 29, 41, 49)
+        self.assertEqual(
+            two_one_ray_mod60_theorem3_skeleton_residues(),
+            tuple(residue for residue in range(60) if residue not in missing_residues),
+        )
+
+        for multiplier in (9, 21):
+            cert = two_one_ray_mod60_theorem3_skeleton_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(
+                cert,
+                two_one_ray_multiple_of_three_theorem3_certificate(multiplier),
+            )
+
+        for multiplier in range(2, 240):
+            cert = two_one_ray_mod60_theorem3_skeleton_certificate(multiplier)
+            if multiplier % 60 in missing_residues:
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = two_one_ray_mod60_theorem3_skeleton_orbit_certificate(
+                    target
+                )
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (58, 29), (82, 41), (98, 49), (0, 5), (10, 0)):
+            self.assertIsNone(
+                two_one_ray_mod60_theorem3_skeleton_orbit_certificate(target)
+            )
+
     def test_two_one_ray_mod260_skeleton_family(self):
         missing_residues = (
             1,
@@ -9612,6 +10105,15 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(cert.midpoint, (40, -75))
         self.assertTrue(cert.valid())
 
+        large_g = 3_037_000_499
+        large_target = (large_g, 2 * large_g + 1)
+        cert = theorem3_certificate(large_target, triple_3_4_5, x_sign=1, y_sign=-1)
+        self.assertIsNotNone(cert)
+        coefficient = large_target[0] * large_target[1]
+        self.assertEqual(cert.midpoint, (3 * coefficient, -4 * coefficient))
+        self.assertGreater(abs(cert.midpoint[0]), (1 << 63) - 1)
+        self.assertTrue(cert.valid())
+
     def test_theorem3_divisor_generalization(self):
         examples = (
             ((1, 10), PythagoreanTriple(3, 4, 5), -1, -1, 2),
@@ -9654,6 +10156,21 @@ class CertificateTests(unittest.TestCase):
                     (1, -1),
                 ),
             )
+
+        large_target = (3_000_000_000, 24_000_000_006)
+        large_divisor = 6
+        large_certificate = theorem3_divisor_certificate(
+            large_target,
+            PythagoreanTriple(3, 4, 5),
+            -1,
+            -1,
+            large_divisor,
+        )
+        self.assertIsNotNone(large_certificate)
+        large_coefficient = large_target[0] * large_target[1] // large_divisor
+        self.assertEqual(large_certificate.midpoint, (-3 * large_coefficient, -4 * large_coefficient))
+        self.assertGreater(abs(large_certificate.midpoint[0]), (1 << 63) - 1)
+        self.assertTrue(large_certificate.valid())
 
         self.assertEqual(
             theorem3_divisor_certificate((2, 5), PythagoreanTriple(3, 4, 5), 1, -1, 1),
@@ -9770,6 +10287,427 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(theorem3_ray_divisor((2, 1), swapped_triple, 1, -1), 6)
         with self.assertRaises(ValueError):
             theorem3_ray_pell_divisor_certificate((1, 3), 1, 0, 1)
+
+    def test_one_three_ray_theorem3_family(self):
+        triple = PythagoreanTriple(3, 4, 5)
+        self.assertEqual(theorem3_ray_divisor((1, 3), triple, 1, -1), 1)
+        self.assertEqual(theorem3_ray_divisor_modulus((1, 3), triple, 1, -1), 1)
+
+        for multiplier in (1, 2, 5, 17, 3003):
+            cert = one_three_ray_theorem3_certificate(multiplier)
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (multiplier, 3 * multiplier))
+            self.assertEqual(cert.midpoint, (9 * multiplier, -12 * multiplier))
+            self.assertTrue(cert.valid())
+            self.assertEqual(
+                cert,
+                theorem3_ray_divisor_certificate((1, 3), multiplier, triple, 1, -1),
+            )
+
+        for multiplier in (-1, 0):
+            self.assertIsNone(one_three_ray_theorem3_certificate(multiplier))
+
+        for target in (
+            (1, 3),
+            (-1, 3),
+            (1, -3),
+            (3, 1),
+            (-3, 1),
+            (3, -1),
+            (17, -51),
+            (-51, -17),
+        ):
+            orbit_cert = one_three_ray_theorem3_orbit_certificate(target)
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (0, 3), (3, 0)):
+            self.assertIsNone(one_three_ray_theorem3_orbit_certificate(target))
+
+    def test_three_four_five_odd_slope_ray_family(self):
+        triple = PythagoreanTriple(3, 4, 5)
+
+        for ray_parameter in (1, 2, 5, 17):
+            ray = (ray_parameter, 2 * ray_parameter + 1)
+            self.assertEqual(theorem3_ray_divisor(ray, triple, 1, -1), 1)
+            self.assertEqual(theorem3_ray_divisor_modulus(ray, triple, 1, -1), 1)
+
+            for multiplier in (1, 2, 11, 3003):
+                cert = three_four_five_odd_slope_ray_certificate(
+                    ray_parameter,
+                    multiplier,
+                )
+                self.assertIsNotNone(cert, (ray_parameter, multiplier))
+                product = ray_parameter * (2 * ray_parameter + 1) * multiplier
+                self.assertEqual(
+                    cert.target,
+                    (ray_parameter * multiplier, (2 * ray_parameter + 1) * multiplier),
+                )
+                self.assertEqual(cert.midpoint, (3 * product, -4 * product))
+                self.assertTrue(cert.valid())
+                self.assertEqual(
+                    cert,
+                    theorem3_ray_divisor_certificate(ray, multiplier, triple, 1, -1),
+                )
+
+        for ray_parameter, multiplier in ((0, 1), (-1, 1), (1, 0), (1, -1)):
+            self.assertIsNone(
+                three_four_five_odd_slope_ray_certificate(
+                    ray_parameter,
+                    multiplier,
+                )
+            )
+
+        for target in (
+            (1, 3),
+            (-1, 3),
+            (1, -3),
+            (3, 1),
+            (-3, 1),
+            (3, -1),
+            (4, 10),
+            (-10, -4),
+            (55, -25),
+            (-35, 15),
+        ):
+            orbit_cert = three_four_five_odd_slope_ray_orbit_certificate(target)
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (3, 10), (2, 7), (0, 3), (3, 0)):
+            self.assertIsNone(
+                three_four_five_odd_slope_ray_orbit_certificate(target)
+            )
+
+    def test_three_four_five_unit_divisor_ray_table(self):
+        triple = PythagoreanTriple(3, 4, 5)
+        families = {
+            "odd_slope": ((1, 2, 9), 1, -1),
+            "steep_odd_slope": ((1, 2, 7), -1, -1),
+            "wide_odd_slope": ((0, 1, 6), 1, 1),
+            "near_diagonal": ((0, 1, 5), -1, 1),
+        }
+
+        for family, (parameters, x_sign, y_sign) in families.items():
+            for parameter in parameters:
+                data = three_four_five_unit_divisor_ray_data(family, parameter)
+                self.assertIsNotNone(data, (family, parameter))
+                ray, row_x_sign, row_y_sign = data
+                self.assertEqual((row_x_sign, row_y_sign), (x_sign, y_sign))
+                self.assertEqual(
+                    theorem3_ray_divisor(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+                self.assertEqual(
+                    theorem3_ray_divisor_modulus(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+
+                for multiplier in (1, 2, 13, 3003):
+                    cert = three_four_five_unit_divisor_ray_certificate(
+                        family,
+                        parameter,
+                        multiplier,
+                    )
+                    self.assertIsNotNone(cert, (family, parameter, multiplier))
+                    product = ray[0] * ray[1] * multiplier
+                    self.assertEqual(
+                        cert.target,
+                        (ray[0] * multiplier, ray[1] * multiplier),
+                    )
+                    self.assertEqual(
+                        cert.midpoint,
+                        (x_sign * 3 * product, y_sign * 4 * product),
+                    )
+                    self.assertTrue(cert.valid())
+                    self.assertEqual(
+                        cert,
+                        theorem3_ray_divisor_certificate(
+                            ray,
+                            multiplier,
+                            triple,
+                            x_sign,
+                            y_sign,
+                        ),
+                    )
+
+        self.assertIsNone(
+            three_four_five_unit_divisor_ray_certificate("odd_slope", 0, 1)
+        )
+        self.assertIsNone(
+            three_four_five_unit_divisor_ray_certificate("wide_odd_slope", -1, 1)
+        )
+        self.assertIsNone(
+            three_four_five_unit_divisor_ray_certificate("near_diagonal", 0, 0)
+        )
+        with self.assertRaises(ValueError):
+            three_four_five_unit_divisor_ray_data("missing", 1)
+
+        for target in (
+            (1, 3),
+            (3, 1),
+            (2, 17),
+            (-17, -2),
+            (4, 1),
+            (-4, 1),
+            (26, -6),
+            (10, 9),
+            (-45, 50),
+            (116, -26),
+            (55, -25),
+        ):
+            orbit_cert = three_four_five_unit_divisor_ray_orbit_certificate(target)
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (3, 10), (2, 7), (11, 10), (0, 3), (3, 0)):
+            self.assertIsNone(
+                three_four_five_unit_divisor_ray_orbit_certificate(target)
+            )
+
+    def test_five_twelve_thirteen_unit_divisor_ray_table(self):
+        triple = PythagoreanTriple(5, 12, 13)
+        families = {
+            "eight_slope": ((1, 2, 9), 1, -1),
+            "eighteen_slope": ((1, 2, 5), -1, -1),
+            "twentyfive_eight": ((0, 1, 6), 1, 1),
+            "twentyfive_eighteen": ((0, 1, 4), -1, 1),
+        }
+
+        for family, (parameters, x_sign, y_sign) in families.items():
+            for parameter in parameters:
+                data = five_twelve_thirteen_unit_divisor_ray_data(family, parameter)
+                self.assertIsNotNone(data, (family, parameter))
+                ray, row_x_sign, row_y_sign = data
+                self.assertEqual((row_x_sign, row_y_sign), (x_sign, y_sign))
+                self.assertEqual(
+                    theorem3_ray_divisor(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+                self.assertEqual(
+                    theorem3_ray_divisor_modulus(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+
+                for multiplier in (1, 2, 17, 3003):
+                    cert = five_twelve_thirteen_unit_divisor_ray_certificate(
+                        family,
+                        parameter,
+                        multiplier,
+                    )
+                    self.assertIsNotNone(cert, (family, parameter, multiplier))
+                    product = ray[0] * ray[1] * multiplier
+                    self.assertEqual(
+                        cert.target,
+                        (ray[0] * multiplier, ray[1] * multiplier),
+                    )
+                    self.assertEqual(
+                        cert.midpoint,
+                        (x_sign * 5 * product, y_sign * 12 * product),
+                    )
+                    self.assertTrue(cert.valid())
+                    self.assertEqual(
+                        cert,
+                        theorem3_ray_divisor_certificate(
+                            ray,
+                            multiplier,
+                            triple,
+                            x_sign,
+                            y_sign,
+                        ),
+                    )
+
+        self.assertIsNone(
+            five_twelve_thirteen_unit_divisor_ray_certificate("eight_slope", 0, 1)
+        )
+        self.assertIsNone(
+            five_twelve_thirteen_unit_divisor_ray_certificate(
+                "twentyfive_eight",
+                -1,
+                1,
+            )
+        )
+        self.assertIsNone(
+            five_twelve_thirteen_unit_divisor_ray_certificate(
+                "twentyfive_eighteen",
+                0,
+                0,
+            )
+        )
+        with self.assertRaises(ValueError):
+            five_twelve_thirteen_unit_divisor_ray_data("missing", 1)
+
+        for target in (
+            (1, 9),
+            (9, 1),
+            (2, 17),
+            (1, 19),
+            (-19, -1),
+            (3, 1),
+            (-28, 9),
+            (56, -18),
+            (18, 13),
+            (13, 18),
+            (86, -62),
+        ):
+            orbit_cert = five_twelve_thirteen_unit_divisor_ray_orbit_certificate(
+                target
+            )
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (3, 10), (2, 7), (11, 10), (1, 18), (0, 9)):
+            self.assertIsNone(
+                five_twelve_thirteen_unit_divisor_ray_orbit_certificate(target)
+            )
+
+    def test_consecutive_euclid_unit_divisor_ray_family(self):
+        for euclid_parameter in (1, 2, 3, 7):
+            triple = PythagoreanTriple(
+                2 * euclid_parameter + 1,
+                2 * euclid_parameter * (euclid_parameter + 1),
+                2 * euclid_parameter * euclid_parameter + 2 * euclid_parameter + 1,
+            )
+            self.assertTrue(triple.valid())
+            for ray_parameter in (1, 2, 11):
+                ray = (
+                    ray_parameter,
+                    2 * euclid_parameter * euclid_parameter * ray_parameter + 1,
+                )
+                self.assertEqual(theorem3_ray_divisor(ray, triple, 1, -1), 1)
+                self.assertEqual(
+                    theorem3_ray_divisor_modulus(ray, triple, 1, -1),
+                    1,
+                )
+
+                for multiplier in (1, 2, 19, 3003):
+                    cert = consecutive_euclid_unit_divisor_ray_certificate(
+                        euclid_parameter,
+                        ray_parameter,
+                        multiplier,
+                    )
+                    self.assertIsNotNone(
+                        cert,
+                        (euclid_parameter, ray_parameter, multiplier),
+                    )
+                    product = ray[0] * ray[1] * multiplier
+                    self.assertEqual(
+                        cert.target,
+                        (ray[0] * multiplier, ray[1] * multiplier),
+                    )
+                    self.assertEqual(
+                        cert.midpoint,
+                        (
+                            (2 * euclid_parameter + 1) * product,
+                            -2
+                            * euclid_parameter
+                            * (euclid_parameter + 1)
+                            * product,
+                        ),
+                    )
+                    self.assertTrue(cert.valid())
+                    self.assertEqual(
+                        cert,
+                        theorem3_ray_divisor_certificate(
+                            ray,
+                            multiplier,
+                            triple,
+                            1,
+                            -1,
+                        ),
+                    )
+
+        for args in ((0, 1, 1), (1, 0, 1), (1, 1, 0)):
+            self.assertIsNone(consecutive_euclid_unit_divisor_ray_certificate(*args))
+
+        for target in (
+            (1, 3),
+            (2, 17),
+            (1, 19),
+            (3, 151),
+            (-151, -3),
+            (37, -2),
+            (3, 295),
+            (295, 3),
+        ):
+            orbit_cert = consecutive_euclid_unit_divisor_ray_orbit_certificate(
+                target
+            )
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (3, 10), (2, 7), (1, 18), (0, 3)):
+            self.assertIsNone(
+                consecutive_euclid_unit_divisor_ray_orbit_certificate(target)
+            )
+
+    def test_consecutive_euclid_affine_strip_family(self):
+        for euclid_parameter in (1, 2, 3, 7):
+            triple = PythagoreanTriple(
+                2 * euclid_parameter * (euclid_parameter + 1),
+                2 * euclid_parameter + 1,
+                2 * euclid_parameter * euclid_parameter + 2 * euclid_parameter + 1,
+            )
+            self.assertTrue(triple.valid())
+
+            for free_coordinate in (1, 2, 11, 3003):
+                target = (
+                    2 * euclid_parameter * euclid_parameter * free_coordinate - 1,
+                    free_coordinate,
+                )
+                cert = consecutive_euclid_affine_strip_certificate(
+                    euclid_parameter,
+                    free_coordinate,
+                )
+                self.assertIsNotNone(cert, (euclid_parameter, free_coordinate))
+                coefficient = target[0] * target[1]
+                self.assertEqual(cert.target, target)
+                self.assertEqual(
+                    cert.midpoint,
+                    (
+                        2
+                        * euclid_parameter
+                        * (euclid_parameter + 1)
+                        * coefficient,
+                        -(2 * euclid_parameter + 1) * coefficient,
+                    ),
+                )
+                self.assertTrue(cert.valid())
+                self.assertEqual(
+                    cert,
+                    theorem3_certificate(target, triple, 1, -1),
+                )
+                self.assertEqual(
+                    cert,
+                    theorem3_quadratic_strip_certificate(target, euclid_parameter),
+                )
+
+                for orbit_target in sign_swap_orbit(target):
+                    orbit_cert = consecutive_euclid_affine_strip_orbit_certificate(
+                        orbit_target,
+                        euclid_parameter,
+                    )
+                    self.assertIsNotNone(orbit_cert, orbit_target)
+                    self.assertEqual(orbit_cert.target, orbit_target)
+                    self.assertTrue(orbit_cert.valid())
+
+        for args in ((0, 1), (1, 0), (1, -1)):
+            self.assertIsNone(consecutive_euclid_affine_strip_certificate(*args))
+        with self.assertRaises(ValueError):
+            consecutive_euclid_affine_strip_orbit_certificate((1, 1), 0)
+
+        self.assertIsNone(consecutive_euclid_affine_strip_orbit_certificate((1, 3), 1))
+        self.assertIsNone(consecutive_euclid_affine_strip_orbit_certificate((2, 1), 1))
+        self.assertIsNone(consecutive_euclid_affine_strip_orbit_certificate((3, 10), 2))
 
     def test_paper_theorem3_line_constructor(self):
         triples = (

@@ -17,10 +17,10 @@ sign/swap images are the only distance-`3` vertices.
 
 Start with [papers/pythagorean-walks-progress-report.md](papers/pythagorean-walks-progress-report.md)
 for a paper-style account of the current proved results and how to check them.
-It consolidates the definitions, symmetry reductions, axis theorem,
-non-primitive exceptional-ray theorem, executable guardrails, and Lean
-theorem-kernel checks. The longer full-conjecture note remains the research
-notebook for proof-search machinery and open directions.
+It consolidates the definitions, symmetry reductions, axis theorem, full
+`(1,3)` ray theorem, non-primitive exceptional-ray theorem, executable
+guardrails, and Lean theorem-kernel checks. The longer full-conjecture note
+remains the research notebook for proof-search machinery and open directions.
 
 ## ELI5 Visualization
 
@@ -43,6 +43,21 @@ What is now proved or encoded:
   `(+/-1,+/-2)`.
 - The full axis case is classified. Every horizontal or vertical target with
   absolute nonzero coordinate at least `3` has a two-step certificate.
+- The full `(1,3)` ray orbit is classified. Every nonzero multiple of `(1,3)`
+  and every sign/swap image has a two-step certificate from the signed
+  Theorem 3 divisor row.
+- The signed `3-4-5` row now closes the full unit-divisor ray-fan table:
+  `(p,2p+1)`, `(p,8p+1)`, `(9t+4,2t+1)`, and `(9t+1,8t+1)`, with their
+  sign/swap orbits.
+- The signed `5-12-13` row now closes its unit-divisor ray-fan table:
+  `(p,8p+1)`, `(p,18p+1)`, `(25t+3,8t+1)`, and `(25t+18,18t+13)`, with their
+  sign/swap orbits.
+- The consecutive-Euclid unit-divisor fan is closed: for every `r,p >= 1`,
+  every nonzero multiple of `(p, 2r^2 p + 1)` and every sign/swap image has a
+  two-step certificate from the triple `(2r+1, 2r(r+1), 2r^2+2r+1)`.
+- The swapped-leg consecutive-Euclid affine strip is closed: for every
+  `r,h >= 1`, `(2r^2 h - 1,h)` and its sign/swap orbit has a two-step
+  certificate.
 - The full exceptional `(2,1)` ray is classified. For every integer `n` with
   `|n| > 1`, the target `(2n,n)` and all sign/swap images have two-step
   certificates; the primitive `|n| = 1` targets are exactly the known
@@ -63,7 +78,11 @@ What is now proved or encoded:
   proof program: scaling and sign/swap transport, Gaussian multiplication and
   divisor transport, an explicit diagonal Gaussian row, Cramer-style lattice
   certificates, fixed-direction parallel-factor certificates, CRT compatibility
-  and existence, and a Gaussian root-residue lemma.
+  and existence, an affine consecutive-hypotenuse strip row, and a Gaussian
+  root-residue lemma. It also now proves several theorem-shaped certificate rows
+  used by the written proof program: even-axis midpoint certificates, shared-leg
+  axis difference/sum rows, signed length-difference rows,
+  signed/divisor-strengthened Theorem 3 rows, and factor-pair parallel rows.
 
 ## Main Complete Results
 
@@ -78,7 +97,60 @@ target `4`. By coordinate swap it also proves the vertical axis. Together with
 the paper's obstruction proof for `(1,0)` and `(2,0)`, this resolves the axis
 part of the conjecture.
 
-The exceptional-ray theorem is the newest complete classification:
+The full `(1,3)` ray theorem is a complete non-axis ray slice:
+
+```text
+For every integer n with |n| > 0, d((0,0),(n,3n)) <= 2.
+```
+
+The midpoint `(9n,-12n)` gives edge lengths `15|n|` and `17|n|`, and sign/swap
+transport covers the full orbit.
+
+The signed `3-4-5` unit-divisor theorem extends that ray to a table of
+infinite fans:
+
+```text
+For every nonzero n, d((0,0), nR) <= 2 whenever R is one of
+(p,2p+1), (p,8p+1), (9t+4,2t+1), or (9t+1,8t+1),
+with p >= 1 and t >= 0.
+```
+
+The midpoint is the signed `(3,4)` direction scaled by the product of the ray
+coordinates and `|n|`; sign/swap transport covers the full orbit.
+
+The signed `5-12-13` unit-divisor theorem gives the companion table:
+
+```text
+For every nonzero n, d((0,0), nR) <= 2 whenever R is one of
+(p,8p+1), (p,18p+1), (25t+3,8t+1), or (25t+18,18t+13),
+with p >= 1 and t >= 0.
+```
+
+The midpoint is the signed `(5,12)` direction scaled by the product of the ray
+coordinates and `|n|`.
+
+The consecutive-Euclid unit-divisor theorem packages the first row of every
+consecutive Euclid triple:
+
+```text
+For every r,p >= 1 and every integer n with |n| > 0,
+d((0,0), n(p, 2r^2 p + 1)) <= 2.
+```
+
+The midpoint is `(2r+1, -2r(r+1))` scaled by `p(2r^2p+1)|n|`; sign/swap
+transport covers the full orbit.
+
+The swapped-leg consecutive-Euclid affine-strip theorem is the companion unit
+row:
+
+```text
+For every r,h >= 1, d((0,0),(2r^2h-1,h)) <= 2.
+```
+
+The midpoint is `(2r(r+1), -(2r+1))` scaled by `(2r^2h-1)h`; sign/swap
+transport covers the full orbit.
+
+The exceptional-ray theorem is the largest complete classification:
 
 ```text
 For every integer n with |n| > 1, d((0,0),(2n,n)) <= 2.
@@ -102,7 +174,8 @@ the original paper:
 - two-edge lattice membership tests;
 - fixed-direction parallel divisor criteria;
 - signed length-difference conic-slice probes;
-- Euclid-strip, half-leg, unit-coordinate, and consecutive-direction families;
+- Euclid-strip, affine consecutive-hypotenuse, half-leg, unit-coordinate, and
+  consecutive-direction families;
 - signed and divisor-strengthened versions of the paper's Theorem 3.
 
 The strongest current candidate for the remaining non-axis work is the
@@ -222,7 +295,8 @@ extrapolated outside their stated ranges.
 - `PythagoreanWalks/Certificate.lean`: Lean/mathlib formalization of
   certificate validity and algebraic certificate constructors: scaling,
   sign/swap transport, Gaussian transport and divisibility, a diagonal Gaussian
-  row, Cramer/lattice constructors, fixed-direction parallel-factor
+  row, Cramer/lattice constructors, axis row constructors,
+  signed-delta/Theorem 3 row constructors, fixed-direction parallel-factor
   certificates, CRT lemmas, and a Gaussian root-residue lemma.
 
 - `lakefile.toml` and `lean-toolchain`: Lake project configuration for the Lean
@@ -251,20 +325,33 @@ the algebraic reductions. `PythagoreanWalks/Certificate.lean` currently proves:
 - scaling of legal steps and certificates by any nonzero integer;
 - independent sign-change and coordinate-swap transport for legal steps and
   certificates;
+- the combined scale-and-sign/swap transport pattern used by orbit and ray-lift
+  constructors;
+- row-level axis certificate constructors: the even-axis midpoint row and the
+  shared-leg difference/sum rows behind the consecutive-parameter odd-axis
+  formula;
 - Gaussian multiplication preserving square norms, plus certificate transport
   through square-norm Gaussian multipliers;
 - a target-facing Gaussian-divisor criterion from dot/determinant quotient
   components;
 - the base diagonal certificate for `(1,1)` and its parametrized Gaussian row;
+- the signed length-difference row behind `linear_delta_direction_certificate`;
+- the affine consecutive-hypotenuse strip row
+  `certificateValid_affineConsecutiveHypotenuseStrip`;
+- signed and divisor-strengthened Theorem 3 certificate rows, including the
+  unit-divisor case, the full `(1,3)` ray row, and an explicit
+  multiple-of-three row on the exceptional `(2,1)` ray;
 - Cramer-style two-edge lattice certificate constructors;
-- a fixed-direction parallel-factor certificate criterion;
+- a fixed-direction parallel-factor certificate criterion, including
+  factor-pair row data matching the executable witness format;
 - integer CRT compatibility and existence lemmas;
 - a Gaussian root-residue lemma proving that a conjugate-divisibility residue is
   a square root of `-1` modulo the Gaussian norm.
 
-The axis theorem and the non-primitive exceptional-ray classification are still
-documented as written algebraic proofs and executable guardrails, not as Lean
-theorems.
+These Lean row proofs cover more of the algebra used in the written axis and
+non-axis proof program. The full axis theorem, the non-primitive exceptional-ray
+classification, and the paper's distance-three obstruction proofs are still not
+formalized as end-to-end Lean statements.
 
 Lean setup follows the mathlib downstream-project pattern:
 

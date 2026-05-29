@@ -1,3 +1,5 @@
+from math import isqrt
+
 import pytest
 
 from experiments import pythagorean_walks as py
@@ -57,6 +59,63 @@ def test_fast_arithmetic_matches_python_reference():
             ) == (expected.target, expected.midpoint)
         with pytest.raises(ValueError):
             fast.scale_certificate_data((1, 1), (4, -3), 0)
+
+        for certificate, factor, x_sign, y_sign, swap in (
+            (py.Certificate((1, 1), (4, -3)), 17, -1, 1, False),
+            (py.Certificate((3, 2), (24, -18)), -11, 1, -1, True),
+            (
+                py.Certificate(
+                    (3_037_000_499, -3_037_000_500),
+                    (3_037_000_500, 3_037_000_499),
+                ),
+                3_037_000_499,
+                -1,
+                -1,
+                True,
+            ),
+        ):
+            expected = py.scale_signed_swap_certificate(
+                certificate,
+                factor,
+                x_sign,
+                y_sign,
+                swap,
+            )
+            assert fast.scale_signed_swap_certificate_data(
+                certificate.target,
+                certificate.midpoint,
+                factor,
+                x_sign,
+                y_sign,
+                swap,
+            ) == (expected.target, expected.midpoint)
+        with pytest.raises(ValueError):
+            fast.scale_signed_swap_certificate_data((1, 1), (4, -3), 0, 1, 1)
+        with pytest.raises(ValueError):
+            fast.scale_signed_swap_certificate_data((1, 1), (4, -3), 1, 0, 1)
+
+        for n in (2, 3, 4, 6, 8, 10, 400, 18_000_000_000):
+            expected = py.midpoint_axis_certificate(n)
+            assert fast.even_axis_certificate_midpoint(n) == (
+                None if expected is None else expected.midpoint
+            )
+
+        for n in (1, 2, 3, 5, 401, 3_037_000_499):
+            expected = py.consecutive_parameter_odd_axis_certificate(n)
+            assert fast.consecutive_odd_axis_certificate_data(n) == (
+                None
+                if expected is None
+                else (
+                    expected.target_n,
+                    expected.midpoint[0],
+                    expected.midpoint[1],
+                    expected.shared_leg,
+                    expected.first_horizontal_leg,
+                    expected.second_horizontal_leg,
+                    expected.first_hypotenuse,
+                    expected.second_hypotenuse,
+                )
+            )
 
         for point, multiplier in (
             ((1, 1), (5, 12)),
@@ -142,6 +201,74 @@ def test_fast_arithmetic_matches_python_reference():
                 None if expected is None else expected.midpoint
             )
 
+        for target, triple, x_sign, y_sign in (
+            ((2, 5), py.PythagoreanTriple(3, 4, 5), 1, -1),
+            ((1, 9), py.PythagoreanTriple(3, 4, 5), -1, -1),
+            ((3_037_000_499, 6_074_000_999), py.PythagoreanTriple(3, 4, 5), 1, -1),
+            ((2, 1), py.PythagoreanTriple(3, 4, 5), 1, -1),
+            ((0, 5), py.PythagoreanTriple(3, 4, 5), 1, -1),
+        ):
+            expected = py.theorem3_certificate(target, triple, x_sign, y_sign)
+            assert fast.theorem3_certificate_midpoint(
+                target,
+                (triple.leg_a, triple.leg_b, triple.hypotenuse),
+                x_sign,
+                y_sign,
+            ) == (None if expected is None else expected.midpoint)
+        with pytest.raises(ValueError):
+            fast.theorem3_certificate_midpoint((1, 1), (1, 1, 2), 1, -1)
+        with pytest.raises(ValueError):
+            fast.theorem3_certificate_midpoint((1, 1), (3, 4, 5), 0, -1)
+
+        for target, triple, x_sign, y_sign, divisor in (
+            ((1, 10), py.PythagoreanTriple(3, 4, 5), -1, -1, 2),
+            ((3, 33), py.PythagoreanTriple(3, 4, 5), -1, -1, 9),
+            ((3_000_000_000, 24_000_000_006), py.PythagoreanTriple(3, 4, 5), -1, -1, 6),
+            ((1, 10), py.PythagoreanTriple(3, 4, 5), -1, -1, 3),
+            ((-3, -6), py.PythagoreanTriple(3, 4, 5), -1, -1, 18),
+        ):
+            expected = py.theorem3_divisor_certificate(
+                target,
+                triple,
+                x_sign,
+                y_sign,
+                divisor,
+            )
+            assert fast.theorem3_divisor_certificate_midpoint(
+                target,
+                (triple.leg_a, triple.leg_b, triple.hypotenuse),
+                x_sign,
+                y_sign,
+                divisor,
+            ) == (None if expected is None else expected.midpoint)
+        with pytest.raises(ValueError):
+            fast.theorem3_divisor_certificate_midpoint((1, 10), (3, 4, 5), -1, -1, 0)
+        with pytest.raises(ValueError):
+            fast.theorem3_divisor_certificate_midpoint((1, 10), (1, 1, 2), -1, -1, 2)
+        with pytest.raises(ValueError):
+            fast.theorem3_divisor_certificate_midpoint((1, 10), (3, 4, 5), 0, -1, 2)
+
+        for target, direction, delta_coefficients in (
+            ((1, 1), (-3, 4), (0, 0)),
+            ((2, 5), (3, -4), (1, -1)),
+            ((3, 6), (-5, 12), (1, 0)),
+            ((3_000_000_000_000_000_000, 3_000_000_000_000_000_000), (-3, 4), (0, 0)),
+            ((2, 1), (3, 4), (0, 0)),
+            ((1, 8), (3, 4), (1, -1)),
+        ):
+            expected = py.linear_delta_direction_certificate(
+                target,
+                direction,
+                delta_coefficients,
+            )
+            assert fast.linear_delta_direction_midpoint(
+                target,
+                direction,
+                delta_coefficients,
+            ) == (None if expected is None else expected.midpoint)
+        with pytest.raises(ValueError):
+            fast.linear_delta_direction_midpoint((1, 1), (1, 1), (0, 0))
+
         base = py.Certificate(target=(3, 2), midpoint=(24, -18))
         for swap in (False, True):
             for x_sign in (-1, 1):
@@ -171,6 +298,21 @@ def test_fast_arithmetic_matches_python_reference():
             assert fast.lattice_coefficients(target, first, second) == (
                 py.lattice_coefficients(target, first, second)
             )
+            expected = py.lattice_two_step_certificate(target, first, second)
+            assert fast.lattice_certificate_midpoint(target, first, second) == (
+                None if expected is None else expected.midpoint
+            )
+
+        for target, first, second in (
+            ((7, 0), (3, 4), (4, 3)),
+            ((1, 1), (3, -4), (4, -3)),
+            ((1, 0), (3, 4), (4, 3)),
+        ):
+            assert fast.lattice_coefficient_cramer_data(target, first, second) == (
+                py.lattice_coefficient_cramer_data(target, first, second)
+            )
+        with pytest.raises(ValueError):
+            fast.lattice_coefficient_cramer_data((10, 10), (3, 4), (6, 8))
 
         first = (3, 4)
         second = (4, 3)
@@ -187,6 +329,16 @@ def test_fast_arithmetic_matches_python_reference():
         assert fast.lattice_coefficients(large_target, first, second) == (
             py.lattice_coefficients(large_target, first, second)
         )
+        assert fast.lattice_coefficient_cramer_data(large_target, first, second) == (
+            py.lattice_coefficient_cramer_data(large_target, first, second)
+        )
+        expected = py.lattice_two_step_certificate(large_target, first, second)
+        assert expected is not None
+        assert fast.lattice_certificate_midpoint(large_target, first, second) == (
+            expected.midpoint
+        )
+        with pytest.raises(ValueError):
+            fast.lattice_certificate_midpoint((1, 1), (1, 1), (4, 3))
 
         for target, direction, factor in (
             ((39, 64), (3, 4), 648),
@@ -203,22 +355,82 @@ def test_fast_arithmetic_matches_python_reference():
                 direction,
                 factor,
             )
+            assert fast.parallel_direction_factor_congruence_data(
+                target,
+                direction,
+                factor,
+            ) == py.parallel_direction_factor_congruence_data(
+                target,
+                direction,
+                factor,
+            )
 
         with pytest.raises(ValueError):
             fast.parallel_direction_factor_congruence_holds((1, 1), (1, 1), 1)
         with pytest.raises(ValueError):
             fast.parallel_direction_factor_congruence_holds((1, 1), (3, 4), 0)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_congruence_data((1, 1), (1, 1), 1)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_congruence_data((1, 1), (3, 4), 0)
+
+        for direction, factor in (
+            ((3, 4), 1),
+            ((4, 3), 5),
+            ((-4, -3), 1),
+            ((20, -21), 2),
+        ):
+            assert tuple(
+                tuple(row)
+                for row in fast.parallel_direction_primitive_factor_determinant_residue_rows(
+                    direction,
+                    factor,
+                )
+            ) == py.parallel_direction_primitive_factor_determinant_residue_rows(
+                direction,
+                factor,
+            )
+        with pytest.raises(ValueError):
+            fast.parallel_direction_primitive_factor_determinant_residue_rows((1, 1), 1)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_primitive_factor_determinant_residue_rows((6, 8), 1)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_primitive_factor_determinant_residue_rows((3, 4), 0)
 
         modulus = py.parallel_direction_factor_modulus((3, 4), 27)
         shifted_target = (6 + 10_000_000 * modulus, 101 - 7_000_000 * modulus)
+        large_shifted_target = (
+            6 + 1_000_000_000_000_000 * modulus,
+            101 - 1_000_000_000_000_000 * modulus,
+        )
         for target, direction, factor in (
             ((39, 64), (3, 4), 648),
             ((39, 64), (3, 4), 5),
             ((6, 8), (3, 4), 1),
             ((6, 101), (3, 4), 27),
             (shifted_target, (3, 4), 27),
+            (large_shifted_target, (3, 4), 27),
         ):
             expected = py.parallel_direction_factor_witness(target, direction, factor)
+            congruence_data = fast.parallel_direction_factor_congruence_data(
+                target,
+                direction,
+                factor,
+            )
+            assert congruence_data == py.parallel_direction_factor_congruence_data(
+                target,
+                direction,
+                factor,
+            )
+            assert fast.parallel_direction_factor_pair_row_from_congruence_data(
+                target,
+                direction,
+                factor,
+            ) == py.parallel_direction_factor_pair_row_from_congruence_data(
+                target,
+                direction,
+                factor,
+            )
             assert fast.parallel_direction_factor_witness_data(
                 target,
                 direction,
@@ -235,10 +447,62 @@ def test_fast_arithmetic_matches_python_reference():
                 )
             )
 
+            expected_row = py.parallel_direction_factor_witness_row_data(
+                target,
+                direction,
+                factor,
+            )
+            assert fast.parallel_direction_factor_witness_row_data(
+                target,
+                direction,
+                factor,
+            ) == expected_row
+            if expected_row is not None:
+                (
+                    determinant_leg,
+                    paired_factor,
+                    other_leg,
+                    scaled_hypotenuse,
+                    second_length,
+                    first_coefficient,
+                ) = expected_row
+                assert congruence_data == (
+                    determinant_leg,
+                    second_length,
+                    first_coefficient,
+                )
+                u, v = direction
+                c = isqrt(u * u + v * v)
+                dot_product = target[0] * u + target[1] * v
+                assert determinant_leg * determinant_leg == factor * paired_factor
+                assert paired_factor - factor == 2 * other_leg
+                assert factor + paired_factor == 2 * scaled_hypotenuse
+                assert scaled_hypotenuse == c * second_length
+                assert (
+                    paired_factor - factor + 2 * dot_product
+                    == 2 * first_coefficient * c * c
+                )
+
         with pytest.raises(ValueError):
             fast.parallel_direction_factor_witness_data((1, 1), (1, 1), 1)
         with pytest.raises(ValueError):
             fast.parallel_direction_factor_witness_data((1, 1), (3, 4), 0)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_witness_row_data((1, 1), (1, 1), 1)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_witness_row_data((1, 1), (3, 4), 0)
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_pair_row_from_congruence_data(
+                (1, 1),
+                (1, 1),
+                1,
+            )
+        with pytest.raises(ValueError):
+            fast.parallel_direction_factor_pair_row_from_congruence_data(
+                (1, 1),
+                (3, 4),
+                0,
+            )
 
         for args in (
             ((3, 4), 2, 1, (-4, -3), 1),
@@ -266,6 +530,198 @@ def test_fast_arithmetic_matches_python_reference():
                 0,
                 (-4, -3),
                 1,
+            )
+
+        for args in (
+            (3, 7, 7, 13),
+            (18, 18, 30, 34),
+            (4, 6, 5, 12),
+            (4, 6, 8, 12),
+            (0, 0, 0, 9),
+            (0, 0, 4, 9),
+            (0, 12, -18, 30),
+            (-14, 21, -35, 28),
+            (
+                9_223_372_036_854_775_000,
+                -9_223_372_036_854_774_998,
+                14,
+                42,
+            ),
+        ):
+            assert fast.two_variable_linear_congruence_gcd(
+                *args
+            ) == py.two_variable_linear_congruence_gcd(*args)
+        with pytest.raises(ValueError):
+            fast.two_variable_linear_congruence_gcd(1, 2, 3, 0)
+
+        for args in (
+            (3, 7, 7, 13, 2, 5),
+            (4, 6, 2, 8, 5, 12),
+            (4, 6, 1, 4, 1, 6),
+            (0, 0, 0, 4, 0, 6),
+            (0, 0, 1, 4, 1, 6),
+            (-14, 21, -35, 28, 7, 20),
+            (
+                9_223_372_036_854_775_000,
+                -9_223_372_036_854_774_998,
+                -35,
+                28,
+                7,
+                20,
+            ),
+        ):
+            actual = fast.two_variable_linear_congruence_pair_data(*args)
+            expected = py.two_variable_linear_congruence_pair_data(*args)
+            assert actual == expected
+            combined_residue = actual[3]
+            if combined_residue is not None:
+                assert combined_residue % args[3] == args[2] % args[3]
+                assert combined_residue % args[5] == args[4] % args[5]
+                assert actual[-1] == (combined_residue % actual[2] == 0)
+        with pytest.raises(ValueError):
+            fast.two_variable_linear_congruence_pair_data(1, 2, 3, 0, 5, 7)
+        with pytest.raises(ValueError):
+            fast.two_variable_linear_congruence_pair_data(1, 2, 3, 5, 7, 0)
+
+        for args in (
+            ((-12, -5), 13, 7, 5, 2, (-4, -3), (-3, -4)),
+            ((-12, -5), 10, 7, 15, 8, (-4, -3), (-3, -4)),
+            ((-8, -15), 4, 1, 6, 1, (-4, 3), (-12, 5)),
+            ((20, -21), 58, -11, 14, 3, (5, 12), (-8, 15)),
+        ):
+            actual = fast.pythagorean_lattice_pair_strip_crt_data(*args)
+            expected = py.pythagorean_lattice_pair_strip_crt_data(*args)
+            assert actual == expected
+            assert actual[2:] == py.two_variable_linear_congruence_pair_data(
+                actual[0],
+                actual[1],
+                args[2],
+                args[1],
+                args[4],
+                args[3],
+            )
+            combined = fast.pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                *args
+            )
+            assert combined == py.pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                *args
+            )
+            if combined is None:
+                assert not actual[6]
+            else:
+                assert actual[6]
+                assert combined == (
+                    actual[0] % actual[3],
+                    actual[1] % actual[3],
+                    actual[5],
+                    actual[3],
+                    actual[4],
+                )
+            assert fast.pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                *args
+            ) == py.pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                *args
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_crt_data(
+                (1, 1),
+                13,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                (1, 1),
+                13,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                (1, 1),
+                13,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_crt_data(
+                (-12, -5),
+                1,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_same_strip_combined_linear_congruence(
+                (-12, -5),
+                1,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_same_strip_intersection_residue_count(
+                (-12, -5),
+                1,
+                7,
+                5,
+                2,
+                (-4, -3),
+                (-3, -4),
+            )
+
+        for args in (
+            ((-12, -5), 13, 7, (-4, -3), (-3, -4)),
+            ((-8, -15), 34, 30, (-4, 3), (-12, 5)),
+            ((20, -21), 58, -11, (5, 12), (-8, 15)),
+        ):
+            assert fast.pythagorean_lattice_pair_strip_linear_congruence(
+                *args
+            ) == py.pythagorean_lattice_pair_strip_linear_congruence(*args)
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_linear_congruence(
+                (1, 1),
+                13,
+                7,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_linear_congruence(
+                (-12, -5),
+                1,
+                7,
+                (-4, -3),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_linear_congruence(
+                (-12, -5),
+                13,
+                7,
+                (1, 1),
+                (-3, -4),
+            )
+        with pytest.raises(ValueError):
+            fast.pythagorean_lattice_pair_strip_linear_congruence(
+                (-12, -5),
+                13,
+                7,
+                (-4, -3),
+                (-8, -6),
             )
 
         for root in (
