@@ -4078,6 +4078,57 @@ theorem det_add_smul_smul (strip u v : Point) (r s : Int) :
   simp [det, add, smul]
   ring
 
+theorem det_add_smul_line (strip u w : Point) (r : Int) :
+    det strip (add (smul r u) w) =
+      r * det strip u + det strip w := by
+  simp [det, add, smul]
+  ring
+
+theorem lineStripRowValid {strip direction secondStep : Point}
+    {r paired pairedResidue pairedModulus stripResidue stripModulus : Int}
+    (hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction))
+    (hpaired : paired ≡ pairedResidue [ZMOD pairedModulus])
+    (hcoeff :
+      det strip direction * r + det strip secondStep ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid (add (smul r direction) secondStep) (smul r direction) ∧
+      det strip (add (smul r direction) secondStep) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      paired ≡ pairedResidue [ZMOD pairedModulus] := by
+  refine ⟨hline, ?_, hpaired⟩
+  calc
+    det strip (add (smul r direction) secondStep)
+        = r * det strip direction + det strip secondStep :=
+          det_add_smul_line strip direction secondStep r
+    _ = det strip direction * r + det strip secondStep := by ring
+    _ ≡ stripResidue [ZMOD stripModulus] := hcoeff
+
+theorem lineStripCertificateValid {strip direction secondStep : Point}
+    {r paired pairedResidue pairedModulus stripResidue stripModulus : Int}
+    (hr : r ≠ 0)
+    (hdirection : legalStep direction)
+    (hsecondStep : legalStep secondStep)
+    (hpaired : paired ≡ pairedResidue [ZMOD pairedModulus])
+    (hcoeff :
+      det strip direction * r + det strip secondStep ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid (add (smul r direction) secondStep) (smul r direction) ∧
+      det strip (add (smul r direction) secondStep) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      paired ≡ pairedResidue [ZMOD pairedModulus] := by
+  have hsub :
+      sub (add (smul r direction) secondStep) (smul r direction) =
+        secondStep := by
+    ext <;> simp [sub, add, smul]
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    constructor
+    · exact legalStep_smul hr hdirection
+    · rw [hsub]
+      exact hsecondStep
+  exact lineStripRowValid hline hpaired hcoeff
+
 theorem latticeStripLinearCongruence {target strip u v : Point}
     {r s residue modulus : Int}
     (htarget : target = add (smul r u) (smul s v)) :
@@ -4936,6 +4987,480 @@ theorem certificateValid_oneEvenRootSpineLine {k q t r : Int}
           simp [sq]
           ring_nf
 
+theorem certificateValid_oneSixSplitEightyNineThreeFortyNineResidueTwentyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -35, y := 12 } : Point) * r +
+          det strip
+            ({ x := 70 * t * t - 18 * t - 112,
+                y := -24 * t * t - 182 * t - 15 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -35, y := 12 } : Point))
+          ({ x := 70 * t * t - 18 * t - 112,
+              y := -24 * t * t - 182 * t - 15 } : Point))
+        (smul r ({ x := -35, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -35, y := 12 } : Point))
+            ({ x := 70 * t * t - 18 * t - 112,
+                y := -24 * t * t - 182 * t - 15 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      74 * t + 21 ≡ 21 [ZMOD 74] := by
+  let direction : Point := { x := -35, y := 12 }
+  let secondStep : Point :=
+    { x := 70 * t * t - 18 * t - 112,
+      y := -24 * t * t - 182 * t - 15 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (7 * t + 8) * (5 * t - 7) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (7 * t + 8) * (5 * t - 7)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : (12 * t + 1) * (-2 * t - 15) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (12 * t + 1) * (-2 * t - 15)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨74 * t * t + 42 * t + 113, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 74 * t + 21 ≡ 21 [ZMOD 74] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 74 * t + 21)
+    (pairedResidue := 21) (pairedModulus := 74)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitEightyNineThreeFortyNineResidueFiftyNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 35 } : Point) * r +
+          det strip
+            ({ x := 24 * t * t - 622 * t - 1045,
+                y := -70 * t * t - 338 * t + 1332 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 35 } : Point))
+          ({ x := 24 * t * t - 622 * t - 1045,
+              y := -70 * t * t - 338 * t + 1332 } : Point))
+        (smul r ({ x := -12, y := 35 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 35 } : Point))
+            ({ x := 24 * t * t - 622 * t - 1045,
+                y := -70 * t * t - 338 * t + 1332 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      74 * t + 59 ≡ 59 [ZMOD 74] := by
+  let direction : Point := { x := -12, y := 35 }
+  let secondStep : Point :=
+    { x := 24 * t * t - 622 * t - 1045,
+      y := -70 * t * t - 338 * t + 1332 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (-12 * t - 19) * (-2 * t + 55) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (-12 * t - 19) * (-2 * t + 55)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 2 * (5 * t + 37) * (-7 * t + 18) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (5 * t + 37) * (-7 * t + 18)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨74 * t * t + 118 * t + 1693, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 74 * t + 59 ≡ 59 [ZMOD 74] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 74 * t + 59)
+    (pairedResidue := 59) (pairedModulus := 74)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -35, y := 12 } : Point) * r +
+          det strip
+            ({ x := 70 * t * t - 18 * t - 112,
+                y := -24 * t * t - 182 * t - 15 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -35, y := 12 } : Point))
+            ({ x := 70 * t * t - 18 * t - 112,
+                y := -24 * t * t - 182 * t - 15 } : Point))
+          (smul r ({ x := -35, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -35, y := 12 } : Point))
+              ({ x := 70 * t * t - 18 * t - 112,
+                  y := -24 * t * t - 182 * t - 15 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        74 * t + 21 ≡ 21 [ZMOD 74]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -12, y := 35 } : Point) * r +
+          det strip
+            ({ x := 24 * t * t - 622 * t - 1045,
+                y := -70 * t * t - 338 * t + 1332 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 35 } : Point))
+            ({ x := 24 * t * t - 622 * t - 1045,
+                y := -70 * t * t - 338 * t + 1332 } : Point))
+          (smul r ({ x := -12, y := 35 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 35 } : Point))
+              ({ x := 24 * t * t - 622 * t - 1045,
+                  y := -70 * t * t - 338 * t + 1332 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        74 * t + 59 ≡ 59 [ZMOD 74]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneSixSplitEightyNineThreeFortyNineResidueTwentyOneLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneSixSplitEightyNineThreeFortyNineResidueFiftyNineLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -582) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -35, y := 12 } : Point) * r +
+          det strip
+            ({ x := 5 * ((6 * t - 91) * (6 * t - 91) -
+                  (-t - 582) * (-t - 582)),
+                y := 10 * (6 * t - 91) * (-t - 582) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -35, y := 12 } : Point))
+          ({ x := 5 * ((6 * t - 91) * (6 * t - 91) -
+                (-t - 582) * (-t - 582)),
+              y := 10 * (6 * t - 91) * (-t - 582) } : Point))
+        (smul r ({ x := -35, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -35, y := 12 } : Point))
+            ({ x := 5 * ((6 * t - 91) * (6 * t - 91) -
+                  (-t - 582) * (-t - 582)),
+                y := 10 * (6 * t - 91) * (-t - 582) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      37 * t + 36 ≡ 36 [ZMOD 37] := by
+  let direction : Point := { x := -35, y := 12 }
+  let secondStep : Point :=
+    { x := 5 * ((6 * t - 91) * (6 * t - 91) -
+          (-t - 582) * (-t - 582)),
+      y := 10 * (6 * t - 91) * (-t - 582) }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 5 * (7 * t + 491) * (5 * t - 673) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          5 * (7 * t + 491) * (5 * t - 673)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 10 * (6 * t - 91) * (-t - 582) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          10 * (6 * t - 91) * (-t - 582)
+              = secondStep.y := by simp [secondStep]
+          _ = 0 := hy
+    · refine ⟨5 * ((6 * t - 91) * (6 * t - 91) +
+          (-t - 582) * (-t - 582)), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 37 * t + 36 ≡ 36 [ZMOD 37] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 37 * t + 36)
+    (pairedResidue := 36) (pairedModulus := 37)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 35 } : Point) * r +
+          det strip
+            ({ x := 10 * (-444 * t - 307) * (-74 * t - 51),
+                y := -5 * ((-444 * t - 307) * (-444 * t - 307) -
+                  (-74 * t - 51) * (-74 * t - 51)) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 35 } : Point))
+          ({ x := 10 * (-444 * t - 307) * (-74 * t - 51),
+              y := -5 * ((-444 * t - 307) * (-444 * t - 307) -
+                (-74 * t - 51) * (-74 * t - 51)) } : Point))
+        (smul r ({ x := -12, y := 35 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 35 } : Point))
+            ({ x := 10 * (-444 * t - 307) * (-74 * t - 51),
+                y := -5 * ((-444 * t - 307) * (-444 * t - 307) -
+                  (-74 * t - 51) * (-74 * t - 51)) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      2738 * t + 1893 ≡ 1893 [ZMOD 2738] := by
+  let direction : Point := { x := -12, y := 35 }
+  let secondStep : Point :=
+    { x := 10 * (-444 * t - 307) * (-74 * t - 51),
+      y := -5 * ((-444 * t - 307) * (-444 * t - 307) -
+        (-74 * t - 51) * (-74 * t - 51)) }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 10 * (-444 * t - 307) * (-74 * t - 51) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          10 * (-444 * t - 307) * (-74 * t - 51)
+              = secondStep.x := by simp [secondStep]
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -20 * (185 * t + 128) * (259 * t + 179) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -20 * (185 * t + 128) * (259 * t + 179)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨5 * ((-444 * t - 307) * (-444 * t - 307) +
+          (-74 * t - 51) * (-74 * t - 51)), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 2738 * t + 1893 ≡ 1893 [ZMOD 2738] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 2738 * t + 1893)
+    (pairedResidue := 1893) (pairedModulus := 2738)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitTwentyNineSeventeenResidueFortyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -35, y := -12 } : Point) * r +
+          det strip
+            ({ x := 490 * t * t + 574 * t + 168,
+                y := 168 * t * t + 182 * t + 49 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -35, y := -12 } : Point))
+          ({ x := 490 * t * t + 574 * t + 168,
+              y := 168 * t * t + 182 * t + 49 } : Point))
+        (smul r ({ x := -35, y := -12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -35, y := -12 } : Point))
+            ({ x := 490 * t * t + 574 * t + 168,
+                y := 168 * t * t + 182 * t + 49 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      74 * t + 43 ≡ 43 [ZMOD 74] := by
+  let direction : Point := { x := -35, y := -12 }
+  let secondStep : Point :=
+    { x := 490 * t * t + 574 * t + 168,
+      y := 168 * t * t + 182 * t + 49 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 14 * (5 * t + 3) * (7 * t + 4) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          14 * (5 * t + 3) * (7 * t + 4)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 7 * (2 * t + 1) * (12 * t + 7) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          7 * (2 * t + 1) * (12 * t + 7)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨7 * (74 * t * t + 86 * t + 25), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 74 * t + 43 ≡ 43 [ZMOD 74] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 74 * t + 43)
+    (pairedResidue := 43) (pairedModulus := 74)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitTwentyNineSeventeenResidueThirtyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := -35 } : Point) * r +
+          det strip
+            ({ x := 168 * t * t + 154 * t + 35,
+                y := 490 * t * t + 406 * t + 84 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := -35 } : Point))
+          ({ x := 168 * t * t + 154 * t + 35,
+              y := 490 * t * t + 406 * t + 84 } : Point))
+        (smul r ({ x := -12, y := -35 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := -35 } : Point))
+            ({ x := 168 * t * t + 154 * t + 35,
+                y := 490 * t * t + 406 * t + 84 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      74 * t + 31 ≡ 31 [ZMOD 74] := by
+  let direction : Point := { x := -12, y := -35 }
+  let secondStep : Point :=
+    { x := 168 * t * t + 154 * t + 35,
+      y := 490 * t * t + 406 * t + 84 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 7 * (2 * t + 1) * (12 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          7 * (2 * t + 1) * (12 * t + 5)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 14 * (5 * t + 2) * (7 * t + 3) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          14 * (5 * t + 2) * (7 * t + 3)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨7 * (74 * t * t + 62 * t + 13), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 74 * t + 31 ≡ 31 [ZMOD 74] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 74 * t + 31)
+    (pairedResidue := 31) (pairedModulus := 74)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSplitTwentyNineSeventeenLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -35, y := -12 } : Point) * r +
+          det strip
+            ({ x := 490 * t * t + 574 * t + 168,
+                y := 168 * t * t + 182 * t + 49 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -35, y := -12 } : Point))
+            ({ x := 490 * t * t + 574 * t + 168,
+                y := 168 * t * t + 182 * t + 49 } : Point))
+          (smul r ({ x := -35, y := -12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -35, y := -12 } : Point))
+              ({ x := 490 * t * t + 574 * t + 168,
+                  y := 168 * t * t + 182 * t + 49 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        74 * t + 43 ≡ 43 [ZMOD 74]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -12, y := -35 } : Point) * r +
+          det strip
+            ({ x := 168 * t * t + 154 * t + 35,
+                y := 490 * t * t + 406 * t + 84 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := -35 } : Point))
+            ({ x := 168 * t * t + 154 * t + 35,
+                y := 490 * t * t + 406 * t + 84 } : Point))
+          (smul r ({ x := -12, y := -35 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := -35 } : Point))
+              ({ x := 168 * t * t + 154 * t + 35,
+                  y := 490 * t * t + 406 * t + 84 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        74 * t + 31 ≡ 31 [ZMOD 74]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneSixSplitTwentyNineSeventeenResidueFortyThreeLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneSixSplitTwentyNineSeventeenResidueThirtyOneLineStrip
+      (strip := strip) hr hcoeff
+
 theorem certificateValid_oneFourRootSpineLine {q t r : Int}
     (hq : q ≠ 0) (hr : r ≠ 0) :
     certificateValid
@@ -5114,6 +5639,348 @@ theorem certificateValid_oneFourEvenRootSpineLineSwap {m a b r : Int}
           simp [sq]
           ring_nf
 
+theorem certificateValid_oneFourEvenSplitTwoFortyOneResidueTwelveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 56) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -15, y := -8 } : Point) * r +
+          det strip
+            ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                  (-t + 56) * (-t + 56),
+                y := 2 * (-4 * t - 17) * (-t + 56) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -15, y := -8 } : Point))
+          ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                (-t + 56) * (-t + 56),
+              y := 2 * (-4 * t - 17) * (-t + 56) } : Point))
+        (smul r ({ x := -15, y := -8 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -15, y := -8 } : Point))
+            ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                  (-t + 56) * (-t + 56),
+                y := 2 * (-4 * t - 17) * (-t + 56) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      17 * t + 12 ≡ 12 [ZMOD 17] := by
+  let direction : Point := { x := -15, y := -8 }
+  let secondStep : Point :=
+    { x := (-4 * t - 17) * (-4 * t - 17) - (-t + 56) * (-t + 56),
+      y := 2 * (-4 * t - 17) * (-t + 56) }
+  have ha : -4 * t - 17 ≠ 0 := by omega
+  have hb : -t + 56 ≠ 0 := by omega
+  have hab :
+      (-4 * t - 17) * (-4 * t - 17) ≠ (-t + 56) * (-t + 56) := by
+    intro hsq
+    have hprod : (-3 * t - 73) * (-5 * t + 39) = 0 := by
+      calc
+        (-3 * t - 73) * (-5 * t + 39)
+            =
+              (-4 * t - 17) * (-4 * t - 17) -
+                (-t + 56) * (-t + 56) := by
+              ring
+        _ = 0 := by rw [hsq]; ring
+    exact (mul_ne_zero (by omega) (by omega)) hprod
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_oneFourEvenRootSpineLineSwap
+        (m := 1) (a := -4 * t - 17) (b := -t + 56) (r := r)
+        (by norm_num) ha hb hab hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 17 * t + 12 ≡ 12 [ZMOD 17] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 17 * t + 12)
+    (pairedResidue := 12) (pairedModulus := 17)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_oneFourEvenSplitTwoFortyOneResidueFiveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -57) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -8, y := -15 } : Point) * r +
+          det strip
+            ({ x := -2 * (4 * t - 13) * (-t - 57),
+                y := (4 * t - 13) * (4 * t - 13) -
+                  (-t - 57) * (-t - 57) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -8, y := -15 } : Point))
+          ({ x := -2 * (4 * t - 13) * (-t - 57),
+              y := (4 * t - 13) * (4 * t - 13) -
+                (-t - 57) * (-t - 57) } : Point))
+        (smul r ({ x := -8, y := -15 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -8, y := -15 } : Point))
+            ({ x := -2 * (4 * t - 13) * (-t - 57),
+                y := (4 * t - 13) * (4 * t - 13) -
+                  (-t - 57) * (-t - 57) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      17 * t + 5 ≡ 5 [ZMOD 17] := by
+  let direction : Point := { x := -8, y := -15 }
+  let secondStep : Point :=
+    { x := -2 * (4 * t - 13) * (-t - 57),
+      y := (4 * t - 13) * (4 * t - 13) - (-t - 57) * (-t - 57) }
+  have ha : 4 * t - 13 ≠ 0 := by omega
+  have hb : -t - 57 ≠ 0 := by omega
+  have hab :
+      (4 * t - 13) * (4 * t - 13) ≠ (-t - 57) * (-t - 57) := by
+    intro hsq
+    have hprod : (5 * t + 44) * (3 * t - 70) = 0 := by
+      calc
+        (5 * t + 44) * (3 * t - 70)
+            =
+              (4 * t - 13) * (4 * t - 13) -
+                (-t - 57) * (-t - 57) := by
+              ring
+        _ = 0 := by rw [hsq]; ring
+    exact (mul_ne_zero (by omega) (by omega)) hprod
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_oneFourEvenRootSpineLine
+        (m := 1) (a := 4 * t - 13) (b := -t - 57) (r := r)
+        (by norm_num) ha hb hab hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 17 * t + 5 ≡ 5 [ZMOD 17] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 17 * t + 5)
+    (pairedResidue := 5) (pairedModulus := 17)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_oneFourEvenSplitTwoFortyOneLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 56 → r ≠ 0 →
+      det strip ({ x := -15, y := -8 } : Point) * r +
+          det strip
+            ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                  (-t + 56) * (-t + 56),
+                y := 2 * (-4 * t - 17) * (-t + 56) } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -15, y := -8 } : Point))
+            ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                  (-t + 56) * (-t + 56),
+                y := 2 * (-4 * t - 17) * (-t + 56) } : Point))
+          (smul r ({ x := -15, y := -8 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -15, y := -8 } : Point))
+              ({ x := (-4 * t - 17) * (-4 * t - 17) -
+                    (-t + 56) * (-t + 56),
+                  y := 2 * (-4 * t - 17) * (-t + 56) } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        17 * t + 12 ≡ 12 [ZMOD 17]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -57 → r ≠ 0 →
+      det strip ({ x := -8, y := -15 } : Point) * r +
+          det strip
+            ({ x := -2 * (4 * t - 13) * (-t - 57),
+                y := (4 * t - 13) * (4 * t - 13) -
+                  (-t - 57) * (-t - 57) } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -8, y := -15 } : Point))
+            ({ x := -2 * (4 * t - 13) * (-t - 57),
+                y := (4 * t - 13) * (4 * t - 13) -
+                  (-t - 57) * (-t - 57) } : Point))
+          (smul r ({ x := -8, y := -15 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -8, y := -15 } : Point))
+              ({ x := -2 * (4 * t - 13) * (-t - 57),
+                  y := (4 * t - 13) * (4 * t - 13) -
+                    (-t - 57) * (-t - 57) } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        17 * t + 5 ≡ 5 [ZMOD 17]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_oneFourEvenSplitTwoFortyOneResidueTwelveLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_oneFourEvenSplitTwoFortyOneResidueFiveLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeResidueThirtyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -15, y := 8 } : Point) * r +
+          det strip
+            ({ x := 510 * t * t - 15538 * t - 486336,
+                y := -272 * t * t - 31518 * t + 220745 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -15, y := 8 } : Point))
+          ({ x := 510 * t * t - 15538 * t - 486336,
+              y := -272 * t * t - 31518 * t + 220745 } : Point))
+        (smul r ({ x := -15, y := 8 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -15, y := 8 } : Point))
+            ({ x := 510 * t * t - 15538 * t - 486336,
+                y := -272 * t * t - 31518 * t + 220745 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      34 * t + 33 ≡ 33 [ZMOD 34] := by
+  let direction : Point := { x := -15, y := 8 }
+  let secondStep : Point :=
+    { x := 510 * t * t - 15538 * t - 486336,
+      y := -272 * t * t - 31518 * t + 220745 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨17, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 34 * (3 * t - 149) * (5 * t + 96) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          34 * (3 * t - 149) * (5 * t + 96)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -17 * (2 * t + 245) * (8 * t - 53) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -17 * (2 * t + 245) * (8 * t - 53)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨17 * (34 * t * t + 66 * t + 31417), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 34 * t + 33 ≡ 33 [ZMOD 34] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 34 * t + 33)
+    (pairedResidue := 33) (pairedModulus := 34)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeResidueTwentyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -8, y := 15 } : Point) * r +
+          det strip
+            ({ x := 272 * t * t + 306 * t + 85,
+                y := -510 * t * t - 646 * t - 204 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -8, y := 15 } : Point))
+          ({ x := 272 * t * t + 306 * t + 85,
+              y := -510 * t * t - 646 * t - 204 } : Point))
+        (smul r ({ x := -8, y := 15 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -8, y := 15 } : Point))
+            ({ x := 272 * t * t + 306 * t + 85,
+                y := -510 * t * t - 646 * t - 204 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      34 * t + 21 ≡ 21 [ZMOD 34] := by
+  let direction : Point := { x := -8, y := 15 }
+  let secondStep : Point :=
+    { x := 272 * t * t + 306 * t + 85,
+      y := -510 * t * t - 646 * t - 204 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨17, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 17 * (2 * t + 1) * (8 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          17 * (2 * t + 1) * (8 * t + 5)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -34 * (3 * t + 2) * (5 * t + 3) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -34 * (3 * t + 2) * (5 * t + 3)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨17 * (34 * t * t + 42 * t + 13), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 34 * t + 21 ≡ 21 [ZMOD 34] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 34 * t + 21)
+    (pairedResidue := 21) (pairedModulus := 34)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -15, y := 8 } : Point) * r +
+          det strip
+            ({ x := 510 * t * t - 15538 * t - 486336,
+                y := -272 * t * t - 31518 * t + 220745 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -15, y := 8 } : Point))
+            ({ x := 510 * t * t - 15538 * t - 486336,
+                y := -272 * t * t - 31518 * t + 220745 } : Point))
+          (smul r ({ x := -15, y := 8 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -15, y := 8 } : Point))
+              ({ x := 510 * t * t - 15538 * t - 486336,
+                  y := -272 * t * t - 31518 * t + 220745 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        34 * t + 33 ≡ 33 [ZMOD 34]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -8, y := 15 } : Point) * r +
+          det strip
+            ({ x := 272 * t * t + 306 * t + 85,
+                y := -510 * t * t - 646 * t - 204 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -8, y := 15 } : Point))
+            ({ x := 272 * t * t + 306 * t + 85,
+                y := -510 * t * t - 646 * t - 204 } : Point))
+          (smul r ({ x := -8, y := 15 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -8, y := 15 } : Point))
+              ({ x := 272 * t * t + 306 * t + 85,
+                  y := -510 * t * t - 646 * t - 204 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        34 * t + 21 ≡ 21 [ZMOD 34]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeResidueThirtyThreeLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeResidueTwentyOneLineStrip
+      (strip := strip) hr hcoeff
+
 theorem certificateValid_twoThreeOddRootSpineLine {q t r : Int}
     (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
     certificateValid
@@ -5205,6 +6072,1109 @@ theorem certificateValid_twoThreeOddRootSpineLineSwap {q t r : Int}
           (q * (26 * t * t - 10 * t + 1)) := by
         simp [sq]
         ring_nf
+
+theorem certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeResidueTwentyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -1) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 312 * t * t + 494 * t + 195,
+                y := -130 * t * t - 234 * t - 104 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 312 * t * t + 494 * t + 195,
+              y := -130 * t * t - 234 * t - 104 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 312 * t * t + 494 * t + 195,
+                y := -130 * t * t - 234 * t - 104 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 21 ≡ 21 [ZMOD 26] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 312 * t * t + 494 * t + 195,
+      y := -130 * t * t - 234 * t - 104 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 13 * (4 * t + 3) * (6 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          13 * (4 * t + 3) * (6 * t + 5)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -26 * (t + 1) * (5 * t + 4) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -26 * (t + 1) * (5 * t + 4)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * (26 * t * t + 42 * t + 17), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 21 ≡ 21 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 21)
+    (pairedResidue := 21) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeResidueTwentyFiveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 90) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 130 * t * t - 11102 * t - 53820,
+                y := -312 * t * t - 5330 * t + 98423 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 130 * t * t - 11102 * t - 53820,
+              y := -312 * t * t - 5330 * t + 98423 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 130 * t * t - 11102 * t - 53820,
+                y := -312 * t * t - 5330 * t + 98423 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 25 ≡ 25 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 130 * t * t - 11102 * t - 53820,
+      y := -312 * t * t - 5330 * t + 98423 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 26 * (t - 90) * (5 * t + 23) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          26 * (t - 90) * (5 * t + 23)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -13 * (4 * t + 113) * (6 * t - 67) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -13 * (4 * t + 113) * (6 * t - 67)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * (26 * t * t + 50 * t + 8629), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 25 ≡ 25 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 25)
+    (pairedResidue := 25) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -1 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 312 * t * t + 494 * t + 195,
+                y := -130 * t * t - 234 * t - 104 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 312 * t * t + 494 * t + 195,
+                y := -130 * t * t - 234 * t - 104 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 312 * t * t + 494 * t + 195,
+                  y := -130 * t * t - 234 * t - 104 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 21 ≡ 21 [ZMOD 26]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 90 → r ≠ 0 →
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 130 * t * t - 11102 * t - 53820,
+                y := -312 * t * t - 5330 * t + 98423 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 130 * t * t - 11102 * t - 53820,
+                y := -312 * t * t - 5330 * t + 98423 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 130 * t * t - 11102 * t - 53820,
+                  y := -312 * t * t - 5330 * t + 98423 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 25 ≡ 25 [ZMOD 26]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeResidueTwentyOneLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeResidueTwentyFiveLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueOneOhNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := -5 } : Point) * r +
+          det strip
+            ({ x := 52728 * t * t + 34138 * t + 5525,
+                y := 21970 * t * t + 13858 * t + 2184 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := -5 } : Point))
+          ({ x := 52728 * t * t + 34138 * t + 5525,
+              y := 21970 * t * t + 13858 * t + 2184 } : Point))
+        (smul r ({ x := -12, y := -5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := -5 } : Point))
+            ({ x := 52728 * t * t + 34138 * t + 5525,
+                y := 21970 * t * t + 13858 * t + 2184 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      338 * t + 109 ≡ 109 [ZMOD 338] := by
+  let direction : Point := { x := -12, y := -5 }
+  let secondStep : Point :=
+    { x := 52728 * t * t + 34138 * t + 5525,
+      y := 21970 * t * t + 13858 * t + 2184 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 13 * (52 * t + 17) * (78 * t + 25) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          13 * (52 * t + 17) * (78 * t + 25)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 26 * (13 * t + 4) * (65 * t + 21) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          26 * (13 * t + 4) * (65 * t + 21)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * (4394 * t * t + 2834 * t + 457), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 338 * t + 109 ≡ 109 [ZMOD 338] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 338 * t + 109)
+    (pairedResidue := 109) (pairedModulus := 338)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -1) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := -12 } : Point) * r +
+          det strip
+            ({ x := 130 * t * t + 234 * t + 104,
+                y := 312 * t * t + 494 * t + 195 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := -12 } : Point))
+          ({ x := 130 * t * t + 234 * t + 104,
+              y := 312 * t * t + 494 * t + 195 } : Point))
+        (smul r ({ x := -5, y := -12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := -12 } : Point))
+            ({ x := 130 * t * t + 234 * t + 104,
+                y := 312 * t * t + 494 * t + 195 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 21 ≡ 21 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := -12 }
+  let secondStep : Point :=
+    { x := 130 * t * t + 234 * t + 104,
+      y := 312 * t * t + 494 * t + 195 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 26 * (t + 1) * (5 * t + 4) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          26 * (t + 1) * (5 * t + 4)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 13 * (4 * t + 3) * (6 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          13 * (4 * t + 3) * (6 * t + 5)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * (26 * t * t + 42 * t + 17), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 21 ≡ 21 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 21)
+    (pairedResidue := 21) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneResidueNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -28) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 12 * t * t - 38 * t - 390,
+                y := -5 * t * t - 138 * t + 56 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 12 * t * t - 38 * t - 390,
+              y := -5 * t * t - 138 * t + 56 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 12 * t * t - 38 * t - 390,
+                y := -5 * t * t - 138 * t + 56 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 9 ≡ 9 [ZMOD 13] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 12 * t * t - 38 * t - 390,
+      y := -5 * t * t - 138 * t + 56 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (2 * t - 15) * (3 * t + 13) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (2 * t - 15) * (3 * t + 13)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(t + 28) * (5 * t - 2) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(t + 28) * (5 * t - 2)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * t * t + 18 * t + 394, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 9 ≡ 9 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 9)
+    (pairedResidue := 9) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneResidueSevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 46) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 5 * t * t - 218 * t - 552,
+                y := -12 * t * t - 106 * t + 986 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 5 * t * t - 218 * t - 552,
+              y := -12 * t * t - 106 * t + 986 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 5 * t * t - 218 * t - 552,
+                y := -12 * t * t - 106 * t + 986 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 7 ≡ 7 [ZMOD 13] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 5 * t * t - 218 * t - 552,
+      y := -12 * t * t - 106 * t + 986 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (t - 46) * (5 * t + 12) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (t - 46) * (5 * t + 12)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (2 * t + 29) * (3 * t - 17) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (2 * t + 29) * (3 * t - 17)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * t * t + 14 * t + 1130, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 7 ≡ 7 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 7)
+    (pairedResidue := 7) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -28 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 12 * t * t - 38 * t - 390,
+                y := -5 * t * t - 138 * t + 56 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 12 * t * t - 38 * t - 390,
+                y := -5 * t * t - 138 * t + 56 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 12 * t * t - 38 * t - 390,
+                  y := -5 * t * t - 138 * t + 56 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 9 ≡ 9 [ZMOD 13]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 46 → r ≠ 0 →
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 5 * t * t - 218 * t - 552,
+                y := -12 * t * t - 106 * t + 986 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 5 * t * t - 218 * t - 552,
+                y := -12 * t * t - 106 * t + 986 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 5 * t * t - 218 * t - 552,
+                  y := -12 * t * t - 106 * t + 986 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 7 ≡ 7 [ZMOD 13]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneResidueNineLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneResidueSevenLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_twoThreeEvenSplitNineteenSixFortyOneResidueNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -8) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 12 * t * t + 2 * t - 30,
+                y := -5 * t * t - 42 * t - 16 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 12 * t * t + 2 * t - 30,
+              y := -5 * t * t - 42 * t - 16 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 12 * t * t + 2 * t - 30,
+                y := -5 * t * t - 42 * t - 16 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 9 ≡ 9 [ZMOD 13] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 12 * t * t + 2 * t - 30,
+      y := -5 * t * t - 42 * t - 16 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (2 * t - 3) * (3 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (2 * t - 3) * (3 * t + 5)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(t + 8) * (5 * t + 2) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(t + 8) * (5 * t + 2)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * t * t + 18 * t + 34, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 9 ≡ 9 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 9)
+    (pairedResidue := 9) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeEvenSplitNineteenSixFortyOneResidueSevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 246) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 5 * t * t - 1178 * t - 12792,
+                y := -12 * t * t - 506 * t + 28906 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 5 * t * t - 1178 * t - 12792,
+              y := -12 * t * t - 506 * t + 28906 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 5 * t * t - 1178 * t - 12792,
+                y := -12 * t * t - 506 * t + 28906 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 7 ≡ 7 [ZMOD 13] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 5 * t * t - 1178 * t - 12792,
+      y := -12 * t * t - 506 * t + 28906 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (t - 246) * (5 * t + 52) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (t - 246) * (5 * t + 52)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (2 * t + 149) * (3 * t - 97) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (2 * t + 149) * (3 * t - 97)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * t * t + 14 * t + 31610, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 7 ≡ 7 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 7)
+    (pairedResidue := 7) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeEvenSplitNineteenSixFortyOneLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -8 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 12 * t * t + 2 * t - 30,
+                y := -5 * t * t - 42 * t - 16 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 12 * t * t + 2 * t - 30,
+                y := -5 * t * t - 42 * t - 16 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 12 * t * t + 2 * t - 30,
+                  y := -5 * t * t - 42 * t - 16 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 9 ≡ 9 [ZMOD 13]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 246 → r ≠ 0 →
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 5 * t * t - 1178 * t - 12792,
+                y := -12 * t * t - 506 * t + 28906 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 5 * t * t - 1178 * t - 12792,
+                y := -12 * t * t - 506 * t + 28906 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 5 * t * t - 1178 * t - 12792,
+                  y := -12 * t * t - 506 * t + 28906 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 7 ≡ 7 [ZMOD 13]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeEvenSplitNineteenSixFortyOneResidueNineLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeEvenSplitNineteenSixFortyOneResidueSevenLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeResidueNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -4) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 120 * t * t + 10 * t - 75,
+                y := -50 * t * t - 210 * t - 40 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 120 * t * t + 10 * t - 75,
+              y := -50 * t * t - 210 * t - 40 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 120 * t * t + 10 * t - 75,
+                y := -50 * t * t - 210 * t - 40 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 9 ≡ 9 [ZMOD 26] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 120 * t * t + 10 * t - 75,
+      y := -50 * t * t - 210 * t - 40 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 5 * (4 * t - 3) * (6 * t + 5) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          5 * (4 * t - 3) * (6 * t + 5)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -10 * (t + 4) * (5 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -10 * (t + 4) * (5 * t + 1)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨5 * (26 * t * t + 18 * t + 17), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 9 ≡ 9 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 9)
+    (pairedResidue := 9) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeResidueSevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 33) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 50 * t * t - 1570 * t - 2640,
+                y := -120 * t * t - 730 * t + 5125 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 50 * t * t - 1570 * t - 2640,
+              y := -120 * t * t - 730 * t + 5125 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 50 * t * t - 1570 * t - 2640,
+                y := -120 * t * t - 730 * t + 5125 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 7 ≡ 7 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 50 * t * t - 1570 * t - 2640,
+      y := -120 * t * t - 730 * t + 5125 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 10 * (t - 33) * (5 * t + 8) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          10 * (t - 33) * (5 * t + 8)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -5 * (4 * t + 41) * (6 * t - 25) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -5 * (4 * t + 41) * (6 * t - 25)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨5 * (26 * t * t + 14 * t + 1153), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 7 ≡ 7 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 7)
+    (pairedResidue := 7) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -4 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 120 * t * t + 10 * t - 75,
+                y := -50 * t * t - 210 * t - 40 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 120 * t * t + 10 * t - 75,
+                y := -50 * t * t - 210 * t - 40 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 120 * t * t + 10 * t - 75,
+                  y := -50 * t * t - 210 * t - 40 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 9 ≡ 9 [ZMOD 26]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 33 → r ≠ 0 →
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 50 * t * t - 1570 * t - 2640,
+                y := -120 * t * t - 730 * t + 5125 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 50 * t * t - 1570 * t - 2640,
+                y := -120 * t * t - 730 * t + 5125 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 50 * t * t - 1570 * t - 2640,
+                  y := -120 * t * t - 730 * t + 5125 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 7 ≡ 7 [ZMOD 26]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeResidueNineLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeResidueSevenLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenResidueEightLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -1) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 276 * t * t + 322 * t + 92,
+                y := -115 * t * t - 184 * t - 69 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 276 * t * t + 322 * t + 92,
+              y := -115 * t * t - 184 * t - 69 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 276 * t * t + 322 * t + 92,
+                y := -115 * t * t - 184 * t - 69 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 8 ≡ 8 [ZMOD 13] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 276 * t * t + 322 * t + 92,
+      y := -115 * t * t - 184 * t - 69 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 46 * (2 * t + 1) * (3 * t + 2) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          46 * (2 * t + 1) * (3 * t + 2)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -23 * (t + 1) * (5 * t + 3) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -23 * (t + 1) * (5 * t + 3)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨23 * (13 * t * t + 16 * t + 5), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 8 ≡ 8 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 8)
+    (pairedResidue := 8) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenResidueTwelveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 121) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 115 * t * t - 13248 * t - 80707,
+                y := -276 * t * t - 6118 * t + 158700 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 115 * t * t - 13248 * t - 80707,
+              y := -276 * t * t - 6118 * t + 158700 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 115 * t * t - 13248 * t - 80707,
+                y := -276 * t * t - 6118 * t + 158700 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      13 * t + 12 ≡ 12 [ZMOD 13] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 115 * t * t - 13248 * t - 80707,
+      y := -276 * t * t - 6118 * t + 158700 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 23 * (t - 121) * (5 * t + 29) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          23 * (t - 121) * (5 * t + 29)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -46 * (2 * t + 75) * (3 * t - 46) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -46 * (2 * t + 75) * (3 * t - 46)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨23 * (13 * t * t + 24 * t + 7741), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 13 * t + 12 ≡ 12 [ZMOD 13] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 13 * t + 12)
+    (pairedResidue := 12) (pairedModulus := 13)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -1 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 276 * t * t + 322 * t + 92,
+                y := -115 * t * t - 184 * t - 69 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 276 * t * t + 322 * t + 92,
+                y := -115 * t * t - 184 * t - 69 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 276 * t * t + 322 * t + 92,
+                  y := -115 * t * t - 184 * t - 69 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 8 ≡ 8 [ZMOD 13]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 121 → r ≠ 0 →
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 115 * t * t - 13248 * t - 80707,
+                y := -276 * t * t - 6118 * t + 158700 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 115 * t * t - 13248 * t - 80707,
+                y := -276 * t * t - 6118 * t + 158700 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 115 * t * t - 13248 * t - 80707,
+                  y := -276 * t * t - 6118 * t + 158700 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        13 * t + 12 ≡ 12 [ZMOD 13]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenResidueEightLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenResidueTwelveLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (htx : t ≠ -18) (hty : t ≠ 77) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -35, y := -12 } : Point) * r +
+          det strip
+            ({ x := 175 * t * t + 1550 * t - 28800,
+                y := 60 * t * t - 4490 * t - 10010 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -35, y := -12 } : Point))
+          ({ x := 175 * t * t + 1550 * t - 28800,
+              y := 60 * t * t - 4490 * t - 10010 } : Point))
+        (smul r ({ x := -35, y := -12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -35, y := -12 } : Point))
+            ({ x := 175 * t * t + 1550 * t - 28800,
+                y := 60 * t * t - 4490 * t - 10010 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      37 * t + 1 ≡ 1 [ZMOD 37] := by
+  let direction : Point := { x := -35, y := -12 }
+  let secondStep : Point :=
+    { x := 175 * t * t + 1550 * t - 28800,
+      y := 60 * t * t - 4490 * t - 10010 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 25 * (t + 18) * (7 * t - 64) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          25 * (t + 18) * (7 * t - 64)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 10 * (t - 77) * (6 * t + 13) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          10 * (t - 77) * (6 * t + 13)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨5 * (37 * t * t + 2 * t + 6098), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 37 * t + 1 ≡ 1 [ZMOD 37] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 37 * t + 1)
+    (pairedResidue := 1) (pairedModulus := 37)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueTwentySevenThirtySevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := -35 } : Point) * r +
+          det strip
+            ({ x := 328560 * t * t + 989380 * t + 650810,
+                y := 958300 * t * t + 1801900 * t + 814800 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := -35 } : Point))
+          ({ x := 328560 * t * t + 989380 * t + 650810,
+              y := 958300 * t * t + 1801900 * t + 814800 } : Point))
+        (smul r ({ x := -12, y := -35 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := -35 } : Point))
+            ({ x := 328560 * t * t + 989380 * t + 650810,
+                y := 958300 * t * t + 1801900 * t + 814800 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      2738 * t + 2737 ≡ 2737 [ZMOD 2738] := by
+  let direction : Point := { x := -12, y := -35 }
+  let secondStep : Point :=
+    { x := 328560 * t * t + 989380 * t + 650810,
+      y := 958300 * t * t + 1801900 * t + 814800 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨37, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 10 * (74 * t + 151) * (444 * t + 431) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          10 * (74 * t + 151) * (444 * t + 431)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 100 * (37 * t + 28) * (259 * t + 291) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          100 * (37 * t + 28) * (259 * t + 291)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨10 * (101306 * t * t + 202538 * t + 104281), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 2738 * t + 2737 ≡ 2737 [ZMOD 2738] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 2738 * t + 2737)
+    (pairedResidue := 2737) (pairedModulus := 2738)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
 
 theorem certificateValid_twoOddRootSpineLine {k q t r : Int}
     (hk : 1 ≤ k) (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
@@ -5332,6 +7302,65 @@ theorem certificateValid_twoThreeOddGeneralRootSpineLine {m a b r : Int}
           simp [delta, paired, hyp, sq]
           ring_nf
 
+theorem certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := -5 } : Point) * r +
+          det strip
+            ({ x := -((78 * t + 29) * (-52 * t - 23)),
+                y := 26 * (5 * t + 2) * (13 * t + 3) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := -5 } : Point))
+          ({ x := -((78 * t + 29) * (-52 * t - 23)),
+              y := 26 * (5 * t + 2) * (13 * t + 3) } : Point))
+        (smul r ({ x := -12, y := -5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := -5 } : Point))
+            ({ x := -((78 * t + 29) * (-52 * t - 23)),
+                y := 26 * (5 * t + 2) * (13 * t + 3) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      338 * t + 133 ≡ 133 [ZMOD 338] := by
+  let direction : Point := { x := -12, y := -5 }
+  let secondStep : Point :=
+    { x := -((78 * t + 29) * (-52 * t - 23)),
+      y := 26 * (5 * t + 2) * (13 * t + 3) }
+  have hdelta :
+      2 * (39 * t + 14) * (39 * t + 14) + 2 * (39 * t + 14) -
+          2 * (-26 * t - 12) * (-26 * t - 12) - 2 * (-26 * t - 12) ≠ 0 := by
+    have hfirst : 5 * t + 2 ≠ 0 := by omega
+    have hsecond : 13 * t + 3 ≠ 0 := by omega
+    have hprod : 26 * (5 * t + 2) * (13 * t + 3) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hzero
+    apply hprod
+    calc
+      26 * (5 * t + 2) * (13 * t + 3)
+          =
+            2 * (39 * t + 14) * (39 * t + 14) + 2 * (39 * t + 14) -
+              2 * (-26 * t - 12) * (-26 * t - 12) - 2 * (-26 * t - 12) := by
+            ring
+      _ = 0 := hzero
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_twoThreeOddGeneralRootSpineLine
+        (m := 1) (a := 39 * t + 14) (b := -26 * t - 12) (r := r)
+        (by norm_num) hdelta hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 338 * t + 133 ≡ 133 [ZMOD 338] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 338 * t + 133)
+    (pairedResidue := 133) (pairedModulus := 338)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
 theorem certificateValid_twoThreeOddGeneralRootSpineLineSwap {m a b r : Int}
     (hm : m ≠ 0) (hdelta : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
     (hr : r ≠ 0) :
@@ -5381,6 +7410,65 @@ theorem certificateValid_twoThreeOddGeneralRootSpineLineSwap {m a b r : Int}
         _ = (m * hyp) * (m * hyp) := by
           simp [delta, paired, hyp, sq]
           ring_nf
+
+theorem certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -3) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := -12 } : Point) * r +
+          det strip
+            ({ x := 2 * (t + 3) * (5 * t + 4),
+                y := (-6 * t - 7) * (-4 * t - 1) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := -12 } : Point))
+          ({ x := 2 * (t + 3) * (5 * t + 4),
+              y := (-6 * t - 7) * (-4 * t - 1) } : Point))
+        (smul r ({ x := -5, y := -12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := -12 } : Point))
+            ({ x := 2 * (t + 3) * (5 * t + 4),
+                y := (-6 * t - 7) * (-4 * t - 1) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 23 ≡ 23 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := -12 }
+  let secondStep : Point :=
+    { x := 2 * (t + 3) * (5 * t + 4),
+      y := (-6 * t - 7) * (-4 * t - 1) }
+  have hdelta :
+      2 * (-3 * t - 4) * (-3 * t - 4) + 2 * (-3 * t - 4) -
+          2 * (-2 * t - 1) * (-2 * t - 1) - 2 * (-2 * t - 1) ≠ 0 := by
+    have hfirst : t + 3 ≠ 0 := by omega
+    have hsecond : 5 * t + 4 ≠ 0 := by omega
+    have hprod : 2 * (t + 3) * (5 * t + 4) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hzero
+    apply hprod
+    calc
+      2 * (t + 3) * (5 * t + 4)
+          =
+            2 * (-3 * t - 4) * (-3 * t - 4) + 2 * (-3 * t - 4) -
+              2 * (-2 * t - 1) * (-2 * t - 1) - 2 * (-2 * t - 1) := by
+            ring
+      _ = 0 := hzero
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_twoThreeOddGeneralRootSpineLineSwap
+        (m := 1) (a := -3 * t - 4) (b := -2 * t - 1) (r := r)
+        (by norm_num) hdelta hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 26 * t + 23 ≡ 23 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 23)
+    (pairedResidue := 23) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
 
 theorem certificateValid_twoThreeEvenRootSpineLine {m a b r : Int}
     (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
@@ -5512,6 +7600,1293 @@ theorem certificateValid_twoFiveRootSpineLineSwap {m a b r : Int}
         _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
           simp [sq]
           ring_nf
+
+theorem certificateValid_twoFiveSplitOneFifteenEightyThreeResidueTwelveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -21, y := 20 } : Point) * r +
+          det strip
+            ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                  (-2 * t - 1) * (-2 * t - 1)),
+                y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -21, y := 20 } : Point))
+          ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                (-2 * t - 1) * (-2 * t - 1)),
+              y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point))
+        (smul r ({ x := -21, y := 20 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -21, y := 20 } : Point))
+            ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                  (-2 * t - 1) * (-2 * t - 1)),
+                y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      29 * t + 12 ≡ 12 [ZMOD 29] := by
+  let direction : Point := { x := -21, y := 20 }
+  let secondStep : Point :=
+    { x := 5 * ((5 * t + 2) * (5 * t + 2) -
+          (-2 * t - 1) * (-2 * t - 1)),
+      y := 10 * (5 * t + 2) * (-2 * t - 1) }
+  have ha : 5 * t + 2 ≠ 0 := by omega
+  have hb : -2 * t - 1 ≠ 0 := by omega
+  have hab : (5 * t + 2) * (5 * t + 2) ≠
+      (-2 * t - 1) * (-2 * t - 1) := by
+    intro hsq
+    have hprod : (7 * t + 3) * (3 * t + 1) = 0 := by
+      calc
+        (7 * t + 3) * (3 * t + 1)
+            =
+              (5 * t + 2) * (5 * t + 2) -
+                (-2 * t - 1) * (-2 * t - 1) := by
+              ring
+        _ = 0 := by rw [hsq]; ring
+    exact (mul_ne_zero (by omega) (by omega)) hprod
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_twoFiveRootSpineLineSwap
+        (m := 5) (a := 5 * t + 2) (b := -2 * t - 1) (r := r)
+        (by norm_num) ha hb hab hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 29 * t + 12 ≡ 12 [ZMOD 29] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 29 * t + 12)
+    (pairedResidue := 12) (pairedModulus := 29)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_twoFiveSplitOneFifteenEightyThreeResidueTwentyEightLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -20, y := 21 } : Point) * r +
+          det strip
+            ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+                y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                  (-2 * t + 271) * (-2 * t + 271)) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -20, y := 21 } : Point))
+          ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+              y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                (-2 * t + 271) * (-2 * t + 271)) } : Point))
+        (smul r ({ x := -20, y := 21 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -20, y := 21 } : Point))
+            ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+                y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                  (-2 * t + 271) * (-2 * t + 271)) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      29 * t + 28 ≡ 28 [ZMOD 29] := by
+  let direction : Point := { x := -20, y := 21 }
+  let secondStep : Point :=
+    { x := 10 * (-5 * t - 114) * (-2 * t + 271),
+      y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+        (-2 * t + 271) * (-2 * t + 271)) }
+  have ha : -5 * t - 114 ≠ 0 := by omega
+  have hb : -2 * t + 271 ≠ 0 := by omega
+  have hab : (-5 * t - 114) * (-5 * t - 114) ≠
+      (-2 * t + 271) * (-2 * t + 271) := by
+    intro hsq
+    have hprod : (-3 * t - 385) * (-7 * t + 157) = 0 := by
+      calc
+        (-3 * t - 385) * (-7 * t + 157)
+            =
+              (-5 * t - 114) * (-5 * t - 114) -
+                (-2 * t + 271) * (-2 * t + 271) := by
+              ring
+        _ = 0 := by rw [hsq]; ring
+    exact (mul_ne_zero (by omega) (by omega)) hprod
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_twoFiveRootSpineLine
+        (m := 5) (a := -5 * t - 114) (b := -2 * t + 271) (r := r)
+        (by norm_num) ha hb hab hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 29 * t + 28 ≡ 28 [ZMOD 29] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 29 * t + 28)
+    (pairedResidue := 28) (pairedModulus := 29)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -21, y := 20 } : Point) * r +
+          det strip
+            ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                  (-2 * t - 1) * (-2 * t - 1)),
+                y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -21, y := 20 } : Point))
+            ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                  (-2 * t - 1) * (-2 * t - 1)),
+                y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point))
+          (smul r ({ x := -21, y := 20 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -21, y := 20 } : Point))
+              ({ x := 5 * ((5 * t + 2) * (5 * t + 2) -
+                    (-2 * t - 1) * (-2 * t - 1)),
+                  y := 10 * (5 * t + 2) * (-2 * t - 1) } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        29 * t + 12 ≡ 12 [ZMOD 29]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -20, y := 21 } : Point) * r +
+          det strip
+            ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+                y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                  (-2 * t + 271) * (-2 * t + 271)) } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -20, y := 21 } : Point))
+            ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+                y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                  (-2 * t + 271) * (-2 * t + 271)) } : Point))
+          (smul r ({ x := -20, y := 21 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -20, y := 21 } : Point))
+              ({ x := 10 * (-5 * t - 114) * (-2 * t + 271),
+                  y := -5 * ((-5 * t - 114) * (-5 * t - 114) -
+                    (-2 * t + 271) * (-2 * t + 271)) } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        29 * t + 28 ≡ 28 [ZMOD 29]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoFiveSplitOneFifteenEightyThreeResidueTwelveLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoFiveSplitOneFifteenEightyThreeResidueTwentyEightLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineResidueFiftySevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -21, y := 20 } : Point) * r +
+          det strip
+            ({ x := 966 * t * t - 47242 * t - 736368,
+                y := -920 * t * t - 53406 * t + 604601 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -21, y := 20 } : Point))
+          ({ x := 966 * t * t - 47242 * t - 736368,
+              y := -920 * t * t - 53406 * t + 604601 } : Point))
+        (smul r ({ x := -21, y := 20 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -21, y := 20 } : Point))
+            ({ x := 966 * t * t - 47242 * t - 736368,
+                y := -920 * t * t - 53406 * t + 604601 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      58 * t + 57 ≡ 57 [ZMOD 58] := by
+  let direction : Point := { x := -21, y := 20 }
+  let secondStep : Point :=
+    { x := 966 * t * t - 47242 * t - 736368,
+      y := -920 * t * t - 53406 * t + 604601 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨29, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 46 * (3 * t - 184) * (7 * t + 87) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          46 * (3 * t - 184) * (7 * t + 87)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -23 * (4 * t + 271) * (10 * t - 97) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -23 * (4 * t + 271) * (10 * t - 97)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨23 * (58 * t * t + 114 * t + 41425), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 58 * t + 57 ≡ 57 [ZMOD 58] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 58 * t + 57)
+    (pairedResidue := 57) (pairedModulus := 58)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineResidueSeventeenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -20, y := 21 } : Point) * r +
+          det strip
+            ({ x := 920 * t * t + 506 * t + 69,
+                y := -966 * t * t - 598 * t - 92 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -20, y := 21 } : Point))
+          ({ x := 920 * t * t + 506 * t + 69,
+              y := -966 * t * t - 598 * t - 92 } : Point))
+        (smul r ({ x := -20, y := 21 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -20, y := 21 } : Point))
+            ({ x := 920 * t * t + 506 * t + 69,
+                y := -966 * t * t - 598 * t - 92 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      58 * t + 17 ≡ 17 [ZMOD 58] := by
+  let direction : Point := { x := -20, y := 21 }
+  let secondStep : Point :=
+    { x := 920 * t * t + 506 * t + 69,
+      y := -966 * t * t - 598 * t - 92 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨29, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 23 * (4 * t + 1) * (10 * t + 3) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          23 * (4 * t + 1) * (10 * t + 3)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -46 * (3 * t + 1) * (7 * t + 2) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -46 * (3 * t + 1) * (7 * t + 2)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨23 * (58 * t * t + 34 * t + 5), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 58 * t + 17 ≡ 17 [ZMOD 58] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 58 * t + 17)
+    (pairedResidue := 17) (pairedModulus := 58)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -21, y := 20 } : Point) * r +
+          det strip
+            ({ x := 966 * t * t - 47242 * t - 736368,
+                y := -920 * t * t - 53406 * t + 604601 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -21, y := 20 } : Point))
+            ({ x := 966 * t * t - 47242 * t - 736368,
+                y := -920 * t * t - 53406 * t + 604601 } : Point))
+          (smul r ({ x := -21, y := 20 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -21, y := 20 } : Point))
+              ({ x := 966 * t * t - 47242 * t - 736368,
+                  y := -920 * t * t - 53406 * t + 604601 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        58 * t + 57 ≡ 57 [ZMOD 58]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -20, y := 21 } : Point) * r +
+          det strip
+            ({ x := 920 * t * t + 506 * t + 69,
+                y := -966 * t * t - 598 * t - 92 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -20, y := 21 } : Point))
+            ({ x := 920 * t * t + 506 * t + 69,
+                y := -966 * t * t - 598 * t - 92 } : Point))
+          (smul r ({ x := -20, y := 21 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -20, y := 21 } : Point))
+              ({ x := 920 * t * t + 506 * t + 69,
+                  y := -966 * t * t - 598 * t - 92 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        58 * t + 17 ≡ 17 [ZMOD 58]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineResidueFiftySevenLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineResidueSeventeenLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineResidueEightyNineLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -45, y := 28 } : Point) * r +
+          det strip
+            ({ x := 90 * t * t - 38 * t - 352,
+                y := -56 * t * t - 398 * t - 135 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -45, y := 28 } : Point))
+          ({ x := 90 * t * t - 38 * t - 352,
+              y := -56 * t * t - 398 * t - 135 } : Point))
+        (smul r ({ x := -45, y := 28 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -45, y := 28 } : Point))
+            ({ x := 90 * t * t - 38 * t - 352,
+                y := -56 * t * t - 398 * t - 135 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      106 * t + 89 ≡ 89 [ZMOD 106] := by
+  let direction : Point := { x := -45, y := 28 }
+  let secondStep : Point :=
+    { x := 90 * t * t - 38 * t - 352,
+      y := -56 * t * t - 398 * t - 135 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨53, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (5 * t - 11) * (9 * t + 16) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (5 * t - 11) * (9 * t + 16)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(4 * t + 27) * (14 * t + 5) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(4 * t + 27) * (14 * t + 5)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨106 * t * t + 178 * t + 377, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 106 * t + 89 ≡ 89 [ZMOD 106] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 106 * t + 89)
+    (pairedResidue := 89) (pairedModulus := 106)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineResidueThirtyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -28, y := 45 } : Point) * r +
+          det strip
+            ({ x := 56 * t * t - 354 * t - 377,
+                y := -90 * t * t - 298 * t + 336 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -28, y := 45 } : Point))
+          ({ x := 56 * t * t - 354 * t - 377,
+              y := -90 * t * t - 298 * t + 336 } : Point))
+        (smul r ({ x := -28, y := 45 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -28, y := 45 } : Point))
+            ({ x := 56 * t * t - 354 * t - 377,
+                y := -90 * t * t - 298 * t + 336 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      106 * t + 33 ≡ 33 [ZMOD 106] := by
+  let direction : Point := { x := -28, y := 45 }
+  let secondStep : Point :=
+    { x := 56 * t * t - 354 * t - 377,
+      y := -90 * t * t - 298 * t + 336 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨53, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (4 * t - 29) * (14 * t + 13) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (4 * t - 29) * (14 * t + 13)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (5 * t + 21) * (9 * t - 8) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (5 * t + 21) * (9 * t - 8)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨106 * t * t + 66 * t + 505, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 106 * t + 33 ≡ 33 [ZMOD 106] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 106 * t + 33)
+    (pairedResidue := 33) (pairedModulus := 106)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -45, y := 28 } : Point) * r +
+          det strip
+            ({ x := 90 * t * t - 38 * t - 352,
+                y := -56 * t * t - 398 * t - 135 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -45, y := 28 } : Point))
+            ({ x := 90 * t * t - 38 * t - 352,
+                y := -56 * t * t - 398 * t - 135 } : Point))
+          (smul r ({ x := -45, y := 28 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -45, y := 28 } : Point))
+              ({ x := 90 * t * t - 38 * t - 352,
+                  y := -56 * t * t - 398 * t - 135 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        106 * t + 89 ≡ 89 [ZMOD 106]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -28, y := 45 } : Point) * r +
+          det strip
+            ({ x := 56 * t * t - 354 * t - 377,
+                y := -90 * t * t - 298 * t + 336 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -28, y := 45 } : Point))
+            ({ x := 56 * t * t - 354 * t - 377,
+                y := -90 * t * t - 298 * t + 336 } : Point))
+          (smul r ({ x := -28, y := 45 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -28, y := 45 } : Point))
+              ({ x := 56 * t * t - 354 * t - 377,
+                  y := -90 * t * t - 298 * t + 336 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        106 * t + 33 ≡ 33 [ZMOD 106]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineResidueEightyNineLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineResidueThirtyThreeLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeResidueThirteenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -45, y := 28 } : Point) * r +
+          det strip
+            ({ x := 45 * t * t + 2 * t - 8,
+                y := -28 * t * t - 46 * t - 6 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -45, y := 28 } : Point))
+          ({ x := 45 * t * t + 2 * t - 8,
+              y := -28 * t * t - 46 * t - 6 } : Point))
+        (smul r ({ x := -45, y := 28 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -45, y := 28 } : Point))
+            ({ x := 45 * t * t + 2 * t - 8,
+                y := -28 * t * t - 46 * t - 6 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      53 * t + 13 ≡ 13 [ZMOD 53] := by
+  let direction : Point := { x := -45, y := 28 }
+  let secondStep : Point :=
+    { x := 45 * t * t + 2 * t - 8,
+      y := -28 * t * t - 46 * t - 6 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨53, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (5 * t - 2) * (9 * t + 4) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (5 * t - 2) * (9 * t + 4)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (2 * t + 3) * (7 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (2 * t + 3) * (7 * t + 1)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨53 * t * t + 26 * t + 10, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 53 * t + 13 ≡ 13 [ZMOD 53] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 53 * t + 13)
+    (pairedResidue := 13) (pairedModulus := 53)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeResidueThirtyFourLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -28, y := 45 } : Point) * r +
+          det strip
+            ({ x := 28 * t * t - 1922 * t - 14496,
+                y := -45 * t * t - 1276 * t + 20497 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -28, y := 45 } : Point))
+          ({ x := 28 * t * t - 1922 * t - 14496,
+              y := -45 * t * t - 1276 * t + 20497 } : Point))
+        (smul r ({ x := -28, y := 45 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -28, y := 45 } : Point))
+            ({ x := 28 * t * t - 1922 * t - 14496,
+                y := -45 * t * t - 1276 * t + 20497 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      53 * t + 34 ≡ 34 [ZMOD 53] := by
+  let direction : Point := { x := -28, y := 45 }
+  let secondStep : Point :=
+    { x := 28 * t * t - 1922 * t - 14496,
+      y := -45 * t * t - 1276 * t + 20497 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨53, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (2 * t - 151) * (7 * t + 48) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (2 * t - 151) * (7 * t + 48)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(5 * t + 199) * (9 * t - 103) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(5 * t + 199) * (9 * t - 103)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨53 * t * t + 68 * t + 25105, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 53 * t + 34 ≡ 34 [ZMOD 53] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 53 * t + 34)
+    (pairedResidue := 34) (pairedModulus := 53)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -45, y := 28 } : Point) * r +
+          det strip
+            ({ x := 45 * t * t + 2 * t - 8,
+                y := -28 * t * t - 46 * t - 6 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -45, y := 28 } : Point))
+            ({ x := 45 * t * t + 2 * t - 8,
+                y := -28 * t * t - 46 * t - 6 } : Point))
+          (smul r ({ x := -45, y := 28 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -45, y := 28 } : Point))
+              ({ x := 45 * t * t + 2 * t - 8,
+                  y := -28 * t * t - 46 * t - 6 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        53 * t + 13 ≡ 13 [ZMOD 53]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -28, y := 45 } : Point) * r +
+          det strip
+            ({ x := 28 * t * t - 1922 * t - 14496,
+                y := -45 * t * t - 1276 * t + 20497 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -28, y := 45 } : Point))
+            ({ x := 28 * t * t - 1922 * t - 14496,
+                y := -45 * t * t - 1276 * t + 20497 } : Point))
+          (smul r ({ x := -28, y := 45 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -28, y := 45 } : Point))
+              ({ x := 28 * t * t - 1922 * t - 14496,
+                  y := -45 * t * t - 1276 * t + 20497 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        53 * t + 34 ≡ 34 [ZMOD 53]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeResidueThirteenLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeResidueThirtyFourLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_twoThreeOddSplitOneHundredSevenOneFifteenResidueTwoThirtyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 4056 * t * t + 4394 * t + 639,
+                y := -1690 * t * t - 5070 * t - 2480 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 4056 * t * t + 4394 * t + 639,
+              y := -1690 * t * t - 5070 * t - 2480 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 4056 * t * t + 4394 * t + 639,
+                y := -1690 * t * t - 5070 * t - 2480 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      338 * t + 231 ≡ 231 [ZMOD 338] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 4056 * t * t + 4394 * t + 639,
+      y := -1690 * t * t - 5070 * t - 2480 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (52 * t + 9) * (78 * t + 71) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (52 * t + 9) * (78 * t + 71)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -10 * (13 * t + 8) * (13 * t + 31) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -10 * (13 * t + 8) * (13 * t + 31)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨13 * (338 * t * t + 462 * t + 197), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 338 * t + 231 ≡ 231 [ZMOD 338] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 338 * t + 231)
+    (pairedResidue := 231) (pairedModulus := 338)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitTwentyThreeFiveThirtyFiveResidueOneFortyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 1690 * t * t + 858 * t + 56,
+                y := -4056 * t * t - 3614 * t - 783 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 1690 * t * t + 858 * t + 56,
+              y := -4056 * t * t - 3614 * t - 783 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 1690 * t * t + 858 * t + 56,
+                y := -4056 * t * t - 3614 * t - 783 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      338 * t + 141 ≡ 141 [ZMOD 338] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 1690 * t * t + 858 * t + 56,
+      y := -4056 * t * t - 3614 * t - 783 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (13 * t + 1) * (65 * t + 28) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (13 * t + 1) * (65 * t + 28)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(52 * t + 27) * (78 * t + 29) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(52 * t + 27) * (78 * t + 29)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨4394 * t * t + 3666 * t + 785, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 338 * t + 141 ≡ 141 [ZMOD 338] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 338 * t + 141)
+    (pairedResidue := 141) (pairedModulus := 338)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueEightyOneLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := -5 } : Point) * r +
+          det strip
+            ({ x := 4056 * t * t + 2054 * t + 255,
+                y := 1690 * t * t + 546 * t + 32 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := -5 } : Point))
+          ({ x := 4056 * t * t + 2054 * t + 255,
+              y := 1690 * t * t + 546 * t + 32 } : Point))
+        (smul r ({ x := -12, y := -5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := -5 } : Point))
+            ({ x := 4056 * t * t + 2054 * t + 255,
+                y := 1690 * t * t + 546 * t + 32 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      338 * t + 81 ≡ 81 [ZMOD 338] := by
+  let direction : Point := { x := -12, y := -5 }
+  let secondStep : Point :=
+    { x := 4056 * t * t + 2054 * t + 255,
+      y := 1690 * t * t + 546 * t + 32 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (52 * t + 15) * (78 * t + 17) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (52 * t + 15) * (78 * t + 17)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : 2 * (13 * t + 1) * (65 * t + 16) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (13 * t + 1) * (65 * t + 16)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨4394 * t * t + 2106 * t + 257, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 338 * t + 81 ≡ 81 [ZMOD 338] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 338 * t + 81)
+    (pairedResidue := 81) (pairedModulus := 338)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueTwentyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -3) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -5, y := -12 } : Point) * r +
+          det strip
+            ({ x := 10 * t * t + 38 * t + 24,
+                y := 24 * t * t + 34 * t + 7 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := -12 } : Point))
+          ({ x := 10 * t * t + 38 * t + 24,
+              y := 24 * t * t + 34 * t + 7 } : Point))
+        (smul r ({ x := -5, y := -12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := -12 } : Point))
+            ({ x := 10 * t * t + 38 * t + 24,
+                y := 24 * t * t + 34 * t + 7 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 23 ≡ 23 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := -12 }
+  let secondStep : Point :=
+    { x := 10 * t * t + 38 * t + 24,
+      y := 24 * t * t + 34 * t + 7 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (t + 3) * (5 * t + 4) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (t + 3) * (5 * t + 4)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : (4 * t + 1) * (6 * t + 7) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (4 * t + 1) * (6 * t + 7)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨26 * t * t + 46 * t + 25, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 23 ≡ 23 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 23)
+    (pairedResidue := 23) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenResidueThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -13) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 24 * t * t - 46 * t - 165,
+                y := -10 * t * t - 126 * t + 52 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -12, y := 5 } : Point))
+          ({ x := 24 * t * t - 46 * t - 165,
+              y := -10 * t * t - 126 * t + 52 } : Point))
+        (smul r ({ x := -12, y := 5 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 24 * t * t - 46 * t - 165,
+                y := -10 * t * t - 126 * t + 52 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 3 ≡ 3 [ZMOD 26] := by
+  let direction : Point := { x := -12, y := 5 }
+  let secondStep : Point :=
+    { x := 24 * t * t - 46 * t - 165,
+      y := -10 * t * t - 126 * t + 52 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : (4 * t - 15) * (6 * t + 11) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          (4 * t - 15) * (6 * t + 11)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (t + 13) * (5 * t - 2) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (t + 13) * (5 * t - 2)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨26 * t * t + 6 * t + 173, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 3 ≡ 3 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 3)
+    (pairedResidue := 3) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenResidueElevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 49) (hr : r ≠ 0)
+    (hcoeff :
+          det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 10 * t * t - 466 * t - 1176,
+                y := -24 * t * t - 218 * t + 2257 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -5, y := 12 } : Point))
+          ({ x := 10 * t * t - 466 * t - 1176,
+              y := -24 * t * t - 218 * t + 2257 } : Point))
+        (smul r ({ x := -5, y := 12 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 10 * t * t - 466 * t - 1176,
+                y := -24 * t * t - 218 * t + 2257 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      26 * t + 11 ≡ 11 [ZMOD 26] := by
+  let direction : Point := { x := -5, y := 12 }
+  let secondStep : Point :=
+    { x := 10 * t * t - 466 * t - 1176,
+      y := -24 * t * t - 218 * t + 2257 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨13, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (t - 49) * (5 * t + 12) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (t - 49) * (5 * t + 12)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(4 * t + 61) * (6 * t - 37) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(4 * t + 61) * (6 * t - 37)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨26 * t * t + 22 * t + 2545, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 26 * t + 11 ≡ 11 [ZMOD 26] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 26 * t + 11)
+    (pairedResidue := 11) (pairedModulus := 26)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ -13 → r ≠ 0 →
+      det strip ({ x := -12, y := 5 } : Point) * r +
+          det strip
+            ({ x := 24 * t * t - 46 * t - 165,
+                y := -10 * t * t - 126 * t + 52 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -12, y := 5 } : Point))
+            ({ x := 24 * t * t - 46 * t - 165,
+                y := -10 * t * t - 126 * t + 52 } : Point))
+          (smul r ({ x := -12, y := 5 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -12, y := 5 } : Point))
+              ({ x := 24 * t * t - 46 * t - 165,
+                  y := -10 * t * t - 126 * t + 52 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 3 ≡ 3 [ZMOD 26]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      t ≠ 49 → r ≠ 0 →
+          det strip ({ x := -5, y := 12 } : Point) * r +
+          det strip
+            ({ x := 10 * t * t - 466 * t - 1176,
+                y := -24 * t * t - 218 * t + 2257 } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -5, y := 12 } : Point))
+            ({ x := 10 * t * t - 466 * t - 1176,
+                y := -24 * t * t - 218 * t + 2257 } : Point))
+          (smul r ({ x := -5, y := 12 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -5, y := 12 } : Point))
+              ({ x := 10 * t * t - 466 * t - 1176,
+                  y := -24 * t * t - 218 * t + 2257 } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        26 * t + 11 ≡ 11 [ZMOD 26]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenResidueThreeLineStrip
+      (strip := strip) ht hr hcoeff
+  · intro t r stripResidue stripModulus strip ht hr hcoeff
+    exact certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenResidueElevenLineStrip
+      (strip := strip) ht hr hcoeff
+
+theorem certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueThirtyOneTwentyThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -9, y := 40 } : Point) * r +
+          det strip
+            ({ x := 60516 * t * t + 109388 * t + 49392,
+                y := -268960 * t * t - 500364 * t - 232706 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -9, y := 40 } : Point))
+          ({ x := 60516 * t * t + 109388 * t + 49392,
+              y := -268960 * t * t - 500364 * t - 232706 } : Point))
+        (smul r ({ x := -9, y := 40 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -9, y := 40 } : Point))
+            ({ x := 60516 * t * t + 109388 * t + 49392,
+                y := -268960 * t * t - 500364 * t - 232706 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      3362 * t + 3123 ≡ 3123 [ZMOD 3362] := by
+  let direction : Point := { x := -9, y := 40 }
+  let secondStep : Point :=
+    { x := 60516 * t * t + 109388 * t + 49392,
+      y := -268960 * t * t - 500364 * t - 232706 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨41, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 4 * (41 * t + 36) * (369 * t + 343) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          4 * (41 * t + 36) * (369 * t + 343)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -2 * (328 * t + 307) * (410 * t + 379) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -2 * (328 * t + 307) * (410 * t + 379)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨2 * (137842 * t * t + 256086 * t + 118945), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 3362 * t + 3123 ≡ 3123 [ZMOD 3362] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 3362 * t + 3123)
+    (pairedResidue := 3123) (pairedModulus := 3362)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ -53) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -40, y := 9 } : Point) * r +
+          det strip
+            ({ x := 40 * t * t - 62 * t - 1404,
+                y := -9 * t * t - 476 * t + 53 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -40, y := 9 } : Point))
+          ({ x := 40 * t * t - 62 * t - 1404,
+              y := -9 * t * t - 476 * t + 53 } : Point))
+        (smul r ({ x := -40, y := 9 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -40, y := 9 } : Point))
+            ({ x := 40 * t * t - 62 * t - 1404,
+                y := -9 * t * t - 476 * t + 53 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      41 * t + 22 ≡ 22 [ZMOD 41] := by
+  let direction : Point := { x := -40, y := 9 }
+  let secondStep : Point :=
+    { x := 40 * t * t - 62 * t - 1404,
+      y := -9 * t * t - 476 * t + 53 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨41, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 2 * (4 * t - 27) * (5 * t + 26) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          2 * (4 * t - 27) * (5 * t + 26)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -(t + 53) * (9 * t - 1) ≠ 0 := by
+          exact mul_ne_zero (by omega) (by omega)
+        apply hfactor
+        calc
+          -(t + 53) * (9 * t - 1)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨41 * t * t + 44 * t + 1405, ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 41 * t + 22 ≡ 22 [ZMOD 41] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 41 * t + 22)
+    (pairedResidue := 22) (pairedModulus := 41)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
+
+theorem certificateValid_oneTwoSquareclassFiveThirtyFiveSplitNineFortySevenResidueThreeLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (ht : t ≠ 0) (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -3, y := 4 } : Point) * r +
+          det strip
+            ({ x := 80250 * t * t + 5350 * t,
+                y := -107000 * t * t - 16050 * t - 535 } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -3, y := 4 } : Point))
+          ({ x := 80250 * t * t + 5350 * t,
+              y := -107000 * t * t - 16050 * t - 535 } : Point))
+        (smul r ({ x := -3, y := 4 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -3, y := 4 } : Point))
+            ({ x := 80250 * t * t + 5350 * t,
+                y := -107000 * t * t - 16050 * t - 535 } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      50 * t + 3 ≡ 3 [ZMOD 50] := by
+  let direction : Point := { x := -3, y := 4 }
+  let secondStep : Point :=
+    { x := 80250 * t * t + 5350 * t,
+      y := -107000 * t * t - 16050 * t - 535 }
+  have hdirection : legalStep direction := by
+    constructor
+    · constructor <;> norm_num [direction]
+    · refine ⟨5, ?_⟩
+      norm_num [direction, normSq, sq]
+  have hsecondStep : legalStep secondStep := by
+    constructor
+    · constructor
+      · intro hx
+        have hfactor : 5350 * t * (15 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) ht) (by omega)
+        apply hfactor
+        calc
+          5350 * t * (15 * t + 1)
+              = secondStep.x := by simp [secondStep]; ring
+          _ = 0 := hx
+      · intro hy
+        have hfactor : -535 * (10 * t + 1) * (20 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (by norm_num) (by omega)) (by omega)
+        apply hfactor
+        calc
+          -535 * (10 * t + 1) * (20 * t + 1)
+              = secondStep.y := by simp [secondStep]; ring
+          _ = 0 := hy
+    · refine ⟨535 * (250 * t * t + 30 * t + 1), ?_⟩
+      simp [secondStep, normSq, sq]
+      ring
+  have hpaired : 50 * t + 3 ≡ 3 [ZMOD 50] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripCertificateValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 50 * t + 3)
+    (pairedResidue := 3) (pairedModulus := 50)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hr hdirection hsecondStep hpaired hcoeff
 
 theorem certificateValid_threeFourRootSpineLine {m a b r : Int}
     (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
@@ -5878,5 +9253,536 @@ theorem certificateValid_threeEightOddRootSpineLineSwap {m a b r : Int}
         _ = (m * hyp) * (m * hyp) := by
           simp [delta, paired, hyp, sq]
           ring_nf
+
+theorem certificateValid_threeEightOddSplitNineteenFifteenThirtyOneResidueOneTwentySevenLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -55, y := 48 } : Point) * r +
+          det strip
+            ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                  2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+                y := (16 * t - 49) * (-6 * t - 173) } : Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -55, y := 48 } : Point))
+          ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+              y := (16 * t - 49) * (-6 * t - 173) } : Point))
+        (smul r ({ x := -55, y := 48 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -55, y := 48 } : Point))
+            ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                  2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+                y := (16 * t - 49) * (-6 * t - 173) } : Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      146 * t + 127 ≡ 127 [ZMOD 146] := by
+  let direction : Point := { x := -55, y := 48 }
+  let secondStep : Point :=
+    { x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+          2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+      y := (16 * t - 49) * (-6 * t - 173) }
+  have hdelta :
+      2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+          2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87) ≠ 0 := by
+    have hprod : 2 * (5 * t - 111) * (11 * t + 62) ≠ 0 := by
+      exact mul_ne_zero (mul_ne_zero (by norm_num) (by omega)) (by omega)
+    intro hzero
+    apply hprod
+    calc
+      2 * (5 * t - 111) * (11 * t + 62)
+          =
+            2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+              2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87) := by
+            ring
+      _ = 0 := hzero
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_threeEightOddRootSpineLine
+        (m := 1) (a := 8 * t - 25) (b := -3 * t - 87) (r := r)
+        (by norm_num) hdelta hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 146 * t + 127 ≡ 127 [ZMOD 146] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 146 * t + 127)
+    (pairedResidue := 127) (pairedModulus := 146)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_threeEightOddSplitNineteenFifteenThirtyOneResidueSeventyFiveLineStrip
+    {t r stripResidue stripModulus : Int} {strip : Point}
+    (hr : r ≠ 0)
+    (hcoeff :
+      det strip ({ x := -48, y := 55 } : Point) * r +
+          det strip
+            ({ x := (-16 * t - 9) * (-6 * t - 1),
+                y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                  2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+              Point) ≡
+        stripResidue [ZMOD stripModulus]) :
+    certificateValid
+        (add (smul r ({ x := -48, y := 55 } : Point))
+          ({ x := (-16 * t - 9) * (-6 * t - 1),
+              y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+            Point))
+        (smul r ({ x := -48, y := 55 } : Point)) ∧
+      det strip
+          (add (smul r ({ x := -48, y := 55 } : Point))
+            ({ x := (-16 * t - 9) * (-6 * t - 1),
+                y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                  2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+              Point)) ≡
+        stripResidue [ZMOD stripModulus] ∧
+      146 * t + 75 ≡ 75 [ZMOD 146] := by
+  let direction : Point := { x := -48, y := 55 }
+  let secondStep : Point :=
+    { x := (-16 * t - 9) * (-6 * t - 1),
+      y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+        2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) }
+  have hdelta :
+      2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+          2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1) ≠ 0 := by
+    have hprod : 2 * (5 * t + 4) * (11 * t + 5) ≠ 0 := by
+      exact mul_ne_zero (mul_ne_zero (by norm_num) (by omega)) (by omega)
+    intro hzero
+    apply hprod
+    calc
+      2 * (5 * t + 4) * (11 * t + 5)
+          =
+            2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+              2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1) := by
+            ring
+      _ = 0 := hzero
+  have hline :
+      certificateValid (add (smul r direction) secondStep) (smul r direction) := by
+    have hraw :=
+      certificateValid_threeEightOddRootSpineLineSwap
+        (m := 1) (a := -8 * t - 5) (b := -3 * t - 1) (r := r)
+        (by norm_num) hdelta hr
+    convert hraw using 1
+    · ext <;> simp [direction, secondStep, add, smul] <;> ring
+    · ext <;> simp [direction, smul] <;> ring
+  have hpaired : 146 * t + 75 ≡ 75 [ZMOD 146] := by
+    apply Int.modEq_iff_dvd.mpr
+    refine ⟨-t, ?_⟩
+    ring
+  exact lineStripRowValid (strip := strip) (direction := direction)
+    (secondStep := secondStep) (r := r) (paired := 146 * t + 75)
+    (pairedResidue := 75) (pairedModulus := 146)
+    (stripResidue := stripResidue) (stripModulus := stripModulus)
+    hline hpaired hcoeff
+
+theorem certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip :
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -55, y := 48 } : Point) * r +
+          det strip
+            ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                  2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+                y := (16 * t - 49) * (-6 * t - 173) } : Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -55, y := 48 } : Point))
+            ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                  2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+                y := (16 * t - 49) * (-6 * t - 173) } : Point))
+          (smul r ({ x := -55, y := 48 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -55, y := 48 } : Point))
+              ({ x := 2 * (8 * t - 25) * (8 * t - 25) + 2 * (8 * t - 25) -
+                    2 * (-3 * t - 87) * (-3 * t - 87) - 2 * (-3 * t - 87),
+                  y := (16 * t - 49) * (-6 * t - 173) } : Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        146 * t + 127 ≡ 127 [ZMOD 146]) ∧
+    (∀ {t r stripResidue stripModulus : Int} {strip : Point},
+      r ≠ 0 →
+      det strip ({ x := -48, y := 55 } : Point) * r +
+          det strip
+            ({ x := (-16 * t - 9) * (-6 * t - 1),
+                y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                  2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+              Point) ≡
+        stripResidue [ZMOD stripModulus] →
+      certificateValid
+          (add (smul r ({ x := -48, y := 55 } : Point))
+            ({ x := (-16 * t - 9) * (-6 * t - 1),
+                y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                  2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+              Point))
+          (smul r ({ x := -48, y := 55 } : Point)) ∧
+        det strip
+            (add (smul r ({ x := -48, y := 55 } : Point))
+              ({ x := (-16 * t - 9) * (-6 * t - 1),
+                  y := -(2 * (-8 * t - 5) * (-8 * t - 5) + 2 * (-8 * t - 5) -
+                    2 * (-3 * t - 1) * (-3 * t - 1) - 2 * (-3 * t - 1)) } :
+                Point)) ≡
+          stripResidue [ZMOD stripModulus] ∧
+        146 * t + 75 ≡ 75 [ZMOD 146]) := by
+  constructor
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_threeEightOddSplitNineteenFifteenThirtyOneResidueOneTwentySevenLineStrip
+      (strip := strip) hr hcoeff
+  · intro t r stripResidue stripModulus strip hr hcoeff
+    exact certificateValid_threeEightOddSplitNineteenFifteenThirtyOneResidueSeventyFiveLineStrip
+      (strip := strip) hr hcoeff
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow01 :
+    certificateValid
+      ({ x := 10375, y := -11282 } : Point)
+      ({ x := -480, y := 550 } : Point) := by
+  simpa using
+    (certificateValid_threeEightOddRootSpineLineSwap
+      (m := 1) (a := 83) (b := 32) (r := 10)
+      (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow02 :
+    certificateValid
+      ({ x := -297590, y := 313261 } : Point)
+      ({ x := -20, y := 21 } : Point) := by
+  simpa using
+    (certificateValid_twoFiveRootSpineLine
+      (m := 5) (a := -109) (b := 273) (r := 1)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow03 :
+    certificateValid
+      ({ x := -1538, y := -3185 } : Point)
+      ({ x := -56, y := -105 } : Point) := by
+  simpa using
+    (certificateValid_oneFourEvenRootSpineLine
+      (m := 1) (a := -13) (b := -57) (r := 7)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow04 :
+    certificateValid
+      ({ x := 312988, y := -297330 } : Point)
+      ({ x := -252, y := 240 } : Point) := by
+  simpa using
+    (certificateValid_twoFiveRootSpineLineSwap
+      (m := 5) (a := -273) (b := 109) (r := 12)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow05 :
+    certificateValid
+      ({ x := -11997, y := 10999 } : Point)
+      ({ x := -165, y := 144 } : Point) := by
+  simpa using
+    (certificateValid_threeEightOddRootSpineLine
+      (m := 1) (a := -33) (b := -84) (r := 3)
+      (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow06 :
+    certificateValid
+      ({ x := -3185, y := -1538 } : Point)
+      ({ x := -105, y := -56 } : Point) := by
+  simpa using
+    (certificateValid_oneFourEvenRootSpineLineSwap
+      (m := 1) (a := -13) (b := 57) (r := 7)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow07 :
+    certificateValid
+      ({ x := 2233, y := 1166 } : Point)
+      ({ x := -24, y := -10 } : Point) := by
+  simpa using
+    (certificateValid_twoThreeOddGeneralRootSpineLine
+      (m := 1) (a := -31) (b := 18) (r := 2)
+      (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow08 :
+    certificateValid
+      ({ x := 1166, y := 2233 } : Point)
+      ({ x := -10, y := -24 } : Point) := by
+  simpa using
+    (certificateValid_twoThreeOddGeneralRootSpineLineSwap
+      (m := 1) (a := -31) (b := -19) (r := 2)
+      (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow09 :
+    certificateValid
+      ({ x := -2582, y := 808 } : Point)
+      ({ x := -1280, y := 288 } : Point) := by
+  simpa using
+    (certificateValid_fourFiveRootSpineLineSwap
+      (m := 1) (a := -21) (b := 31) (r := 32)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem certificateValid_pinnedGlobalRootChoiceAlternateLineRow10 :
+    certificateValid
+      ({ x := 151, y := 338 } : Point)
+      ({ x := -369, y := 1640 } : Point) := by
+  simpa using
+    (certificateValid_fourFiveRootSpineLine
+      (m := 1) (a := -31) (b := 21) (r := 41)
+      (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+
+theorem pinnedGlobalRootChoiceAlternateLineRow01_strip :
+    det ({ x := -12, y := -5 } : Point) ({ x := 10375, y := -11282 } : Point) ≡
+      7 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow02_strip :
+    det ({ x := 5, y := -12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+      7 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow03_strip :
+    det ({ x := 12, y := 5 } : Point) ({ x := -1538, y := -3185 } : Point) ≡
+      7 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow04_strip :
+    det ({ x := 12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+      7 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow05_strip :
+    det ({ x := -12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+      6 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow06_strip :
+    det ({ x := -5, y := -12 } : Point) ({ x := -11997, y := 10999 } : Point) ≡
+      6 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow07_strip :
+    det ({ x := 5, y := 12 } : Point) ({ x := -3185, y := -1538 } : Point) ≡
+      6 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow08_strip :
+    det ({ x := 5, y := 12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+      6 [ZMOD 13] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow09_strip :
+    det ({ x := 9, y := -40 } : Point) ({ x := 2233, y := 1166 } : Point) ≡
+      20 [ZMOD 82] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow10_strip :
+    det ({ x := 40, y := -9 } : Point) ({ x := 1166, y := 2233 } : Point) ≡
+      20 [ZMOD 82] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow11_strip :
+    det ({ x := -48, y := 55 } : Point) ({ x := -4055, y := -2002 } : Point) ≡
+      38 [ZMOD 73] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow12_strip :
+    det ({ x := 55, y := 48 } : Point) ({ x := -2582, y := 808 } : Point) ≡
+      38 [ZMOD 73] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow13_strip :
+    det ({ x := -55, y := 48 } : Point) ({ x := -2002, y := -4055 } : Point) ≡
+      38 [ZMOD 73] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow14_strip :
+    det ({ x := -48, y := -55 } : Point) ({ x := 151, y := 338 } : Point) ≡
+      38 [ZMOD 73] := by
+  norm_num [det]
+
+theorem pinnedGlobalRootChoiceAlternateLineRow01_valid :
+    certificateValid ({ x := 10375, y := -11282 } : Point)
+        ({ x := -480, y := 550 } : Point) ∧
+      det ({ x := -12, y := -5 } : Point) ({ x := 10375, y := -11282 } : Point) ≡
+        7 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow01,
+    pinnedGlobalRootChoiceAlternateLineRow01_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow02_valid :
+    certificateValid ({ x := -297590, y := 313261 } : Point)
+        ({ x := -20, y := 21 } : Point) ∧
+      det ({ x := 5, y := -12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+        7 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow02,
+    pinnedGlobalRootChoiceAlternateLineRow02_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow03_valid :
+    certificateValid ({ x := -1538, y := -3185 } : Point)
+        ({ x := -56, y := -105 } : Point) ∧
+      det ({ x := 12, y := 5 } : Point) ({ x := -1538, y := -3185 } : Point) ≡
+        7 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow03,
+    pinnedGlobalRootChoiceAlternateLineRow03_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow04_valid :
+    certificateValid ({ x := 312988, y := -297330 } : Point)
+        ({ x := -252, y := 240 } : Point) ∧
+      det ({ x := 12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+        7 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow04,
+    pinnedGlobalRootChoiceAlternateLineRow04_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow05_valid :
+    certificateValid ({ x := 312988, y := -297330 } : Point)
+        ({ x := -252, y := 240 } : Point) ∧
+      det ({ x := -12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+        6 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow04,
+    pinnedGlobalRootChoiceAlternateLineRow05_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow06_valid :
+    certificateValid ({ x := -11997, y := 10999 } : Point)
+        ({ x := -165, y := 144 } : Point) ∧
+      det ({ x := -5, y := -12 } : Point) ({ x := -11997, y := 10999 } : Point) ≡
+        6 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow05,
+    pinnedGlobalRootChoiceAlternateLineRow06_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow07_valid :
+    certificateValid ({ x := -3185, y := -1538 } : Point)
+        ({ x := -105, y := -56 } : Point) ∧
+      det ({ x := 5, y := 12 } : Point) ({ x := -3185, y := -1538 } : Point) ≡
+        6 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow06,
+    pinnedGlobalRootChoiceAlternateLineRow07_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow08_valid :
+    certificateValid ({ x := -297590, y := 313261 } : Point)
+        ({ x := -20, y := 21 } : Point) ∧
+      det ({ x := 5, y := 12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+        6 [ZMOD 13] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow02,
+    pinnedGlobalRootChoiceAlternateLineRow08_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow09_valid :
+    certificateValid ({ x := 2233, y := 1166 } : Point)
+        ({ x := -24, y := -10 } : Point) ∧
+      det ({ x := 9, y := -40 } : Point) ({ x := 2233, y := 1166 } : Point) ≡
+        20 [ZMOD 82] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow07,
+    pinnedGlobalRootChoiceAlternateLineRow09_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow10_valid :
+    certificateValid ({ x := 1166, y := 2233 } : Point)
+        ({ x := -10, y := -24 } : Point) ∧
+      det ({ x := 40, y := -9 } : Point) ({ x := 1166, y := 2233 } : Point) ≡
+        20 [ZMOD 82] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow08,
+    pinnedGlobalRootChoiceAlternateLineRow10_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow11_valid :
+    certificateValid ({ x := -4055, y := -2002 } : Point)
+        ({ x := -975, y := -520 } : Point) ∧
+      det ({ x := -48, y := 55 } : Point) ({ x := -4055, y := -2002 } : Point) ≡
+        38 [ZMOD 73] := by
+  constructor
+  · simpa using
+      (certificateValid_oneFourEvenRootSpineLineSwap
+        (m := 1) (a := -13) (b := 57) (r := 65)
+        (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+  · exact pinnedGlobalRootChoiceAlternateLineRow11_strip
+
+theorem pinnedGlobalRootChoiceAlternateLineRow12_valid :
+    certificateValid ({ x := -2582, y := 808 } : Point)
+        ({ x := -1280, y := 288 } : Point) ∧
+      det ({ x := 55, y := 48 } : Point) ({ x := -2582, y := 808 } : Point) ≡
+        38 [ZMOD 73] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow09,
+    pinnedGlobalRootChoiceAlternateLineRow12_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRow13_valid :
+    certificateValid ({ x := -2002, y := -4055 } : Point)
+        ({ x := -520, y := -975 } : Point) ∧
+      det ({ x := -55, y := 48 } : Point) ({ x := -2002, y := -4055 } : Point) ≡
+        38 [ZMOD 73] := by
+  constructor
+  · simpa using
+      (certificateValid_oneFourEvenRootSpineLine
+        (m := 1) (a := -13) (b := -57) (r := 65)
+        (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num))
+  · exact pinnedGlobalRootChoiceAlternateLineRow13_strip
+
+theorem pinnedGlobalRootChoiceAlternateLineRow14_valid :
+    certificateValid ({ x := 151, y := 338 } : Point)
+        ({ x := -369, y := 1640 } : Point) ∧
+      det ({ x := -48, y := -55 } : Point) ({ x := 151, y := 338 } : Point) ≡
+        38 [ZMOD 73] := by
+  exact ⟨certificateValid_pinnedGlobalRootChoiceAlternateLineRow10,
+    pinnedGlobalRootChoiceAlternateLineRow14_strip⟩
+
+theorem pinnedGlobalRootChoiceAlternateLineRows_valid :
+    (certificateValid ({ x := 10375, y := -11282 } : Point)
+        ({ x := -480, y := 550 } : Point) ∧
+      det ({ x := -12, y := -5 } : Point) ({ x := 10375, y := -11282 } : Point) ≡
+        7 [ZMOD 13]) ∧
+      (certificateValid ({ x := -297590, y := 313261 } : Point)
+          ({ x := -20, y := 21 } : Point) ∧
+        det ({ x := 5, y := -12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+          7 [ZMOD 13]) ∧
+      (certificateValid ({ x := -1538, y := -3185 } : Point)
+          ({ x := -56, y := -105 } : Point) ∧
+        det ({ x := 12, y := 5 } : Point) ({ x := -1538, y := -3185 } : Point) ≡
+          7 [ZMOD 13]) ∧
+      (certificateValid ({ x := 312988, y := -297330 } : Point)
+          ({ x := -252, y := 240 } : Point) ∧
+        det ({ x := 12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+          7 [ZMOD 13]) ∧
+      (certificateValid ({ x := 312988, y := -297330 } : Point)
+          ({ x := -252, y := 240 } : Point) ∧
+        det ({ x := -12, y := 5 } : Point) ({ x := 312988, y := -297330 } : Point) ≡
+          6 [ZMOD 13]) ∧
+      (certificateValid ({ x := -11997, y := 10999 } : Point)
+          ({ x := -165, y := 144 } : Point) ∧
+        det ({ x := -5, y := -12 } : Point) ({ x := -11997, y := 10999 } : Point) ≡
+          6 [ZMOD 13]) ∧
+      (certificateValid ({ x := -3185, y := -1538 } : Point)
+          ({ x := -105, y := -56 } : Point) ∧
+        det ({ x := 5, y := 12 } : Point) ({ x := -3185, y := -1538 } : Point) ≡
+          6 [ZMOD 13]) ∧
+      (certificateValid ({ x := -297590, y := 313261 } : Point)
+          ({ x := -20, y := 21 } : Point) ∧
+        det ({ x := 5, y := 12 } : Point) ({ x := -297590, y := 313261 } : Point) ≡
+          6 [ZMOD 13]) ∧
+      (certificateValid ({ x := 2233, y := 1166 } : Point)
+          ({ x := -24, y := -10 } : Point) ∧
+        det ({ x := 9, y := -40 } : Point) ({ x := 2233, y := 1166 } : Point) ≡
+          20 [ZMOD 82]) ∧
+      (certificateValid ({ x := 1166, y := 2233 } : Point)
+          ({ x := -10, y := -24 } : Point) ∧
+        det ({ x := 40, y := -9 } : Point) ({ x := 1166, y := 2233 } : Point) ≡
+          20 [ZMOD 82]) ∧
+      (certificateValid ({ x := -4055, y := -2002 } : Point)
+          ({ x := -975, y := -520 } : Point) ∧
+        det ({ x := -48, y := 55 } : Point) ({ x := -4055, y := -2002 } : Point) ≡
+          38 [ZMOD 73]) ∧
+      (certificateValid ({ x := -2582, y := 808 } : Point)
+          ({ x := -1280, y := 288 } : Point) ∧
+        det ({ x := 55, y := 48 } : Point) ({ x := -2582, y := 808 } : Point) ≡
+          38 [ZMOD 73]) ∧
+      (certificateValid ({ x := -2002, y := -4055 } : Point)
+          ({ x := -520, y := -975 } : Point) ∧
+        det ({ x := -55, y := 48 } : Point) ({ x := -2002, y := -4055 } : Point) ≡
+          38 [ZMOD 73]) ∧
+      (certificateValid ({ x := 151, y := 338 } : Point)
+          ({ x := -369, y := 1640 } : Point) ∧
+        det ({ x := -48, y := -55 } : Point) ({ x := 151, y := 338 } : Point) ≡
+          38 [ZMOD 73]) := by
+  exact ⟨pinnedGlobalRootChoiceAlternateLineRow01_valid,
+    pinnedGlobalRootChoiceAlternateLineRow02_valid,
+    pinnedGlobalRootChoiceAlternateLineRow03_valid,
+    pinnedGlobalRootChoiceAlternateLineRow04_valid,
+    pinnedGlobalRootChoiceAlternateLineRow05_valid,
+    pinnedGlobalRootChoiceAlternateLineRow06_valid,
+    pinnedGlobalRootChoiceAlternateLineRow07_valid,
+    pinnedGlobalRootChoiceAlternateLineRow08_valid,
+    pinnedGlobalRootChoiceAlternateLineRow09_valid,
+    pinnedGlobalRootChoiceAlternateLineRow10_valid,
+    pinnedGlobalRootChoiceAlternateLineRow11_valid,
+    pinnedGlobalRootChoiceAlternateLineRow12_valid,
+    pinnedGlobalRootChoiceAlternateLineRow13_valid,
+    pinnedGlobalRootChoiceAlternateLineRow14_valid⟩
 
 end PythagoreanWalks

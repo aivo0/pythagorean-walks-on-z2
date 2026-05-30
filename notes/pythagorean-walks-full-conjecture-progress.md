@@ -1,6 +1,6 @@
 # Pythagorean Walks: Full Conjecture Progress
 
-Date: 2026-05-28
+Date: 2026-05-30
 
 ## Scope
 
@@ -13,6 +13,125 @@ and their images under sign changes and coordinate swap.
 
 This note records proof ingredients for the full conjecture beyond the completed
 horizontal-axis subproblem. It is not a proof of the full conjecture.
+
+## Plain-Language Current Status
+
+The grand goal is to prove the full Pythagorean-walks conjecture:
+every lattice point except the known distance-three orbit has a two-step
+Pythagorean-walk certificate.
+
+Equivalently, after the already solved axis cases and the known obstruction
+orbit, the remaining goal is to prove that every non-axis target $(g,h)$ outside
+the exceptional sign/swap orbit has some midpoint $P$ such that both
+$$
+O\to P,\qquad P\to (g,h)
+$$
+are legal Pythagorean steps.
+
+The proof program has made real progress.  The problem is no longer an
+undifferentiated search for midpoints.  The current reduction organizes almost
+all targets into explicit certificate families: Gaussian divisor certificates,
+two-edge lattice certificates, parallel-direction divisor certificates,
+standard completions, orthogonal completions, and promoted root-spine line
+families.  These families are backed by executable checks, and many of the
+certificate identities have already been promoted to Lean theorems.
+
+The main remaining obstruction is now much narrower.  Some targets lie on a
+fixed determinant strip where the expected local divisor class fails.  Early in
+the project this looked like a failure of the pinned strip method.  The current
+work shows that this interpretation was too local: those targets can still be
+certified, but sometimes the certificate must come from a different root-spine
+line than the pinned strip originally suggests.  The missing theorem is therefore
+a **global root-choice theorem**: after the local divisor and structural
+branches fail, choose the right alternate root-spine line and prove that it gives
+a valid certificate.
+
+This global obstruction has been made much more explicit.  In the main
+radius-$500$ guardrail, there are $105337$ pinned divisor-class failures.  Of
+these, $105323$ are discharged by local or structural arguments, and only $14$
+require a genuinely alternate root choice.  Those $14$ cases are no longer just
+examples: they have been compressed into $14$ portable line/strip rows, coming
+from $10$ alternate squareclass line rows.  Each row records:
+
+- the failed pinned strip,
+- the alternate line direction,
+- the squareclass and split factors,
+- the paired-factor residue condition,
+- the coefficient congruence needed for the alternate line to meet the pinned
+  strip,
+- and a representative certificate.
+
+The important point is that these rows are executable proof artifacts.  A row is
+not merely a discovered target; it is a reusable congruence recipe saying that a
+whole alternate line intersects the failed pinned strip in certificate-producing
+targets.  On the Lean side, the initial $14$-row frontier is now represented by
+concrete certificate theorems and determinant-congruence theorems, packaged as a
+single finite-frontier lemma.
+
+The next improvement was to connect these alternate rows to the reason the local
+divisor method failed.  The local failure has a short exponent-signature: a
+small finite sumset of possible prime-power exponent residues does not contain
+the required exponent.  The current audit records those short signatures and the
+alternate line templates that fix them.  In the radius-$500$ frontier, the $14$
+global rows compress to $10$ short signatures and $10$ alternate line templates.
+Thus the target is no longer "search for an alternate root"; it is:
+
+> Given a short exponent-signature left over by the local divisor method,
+> construct one of the matching alternate squareclass line templates and prove
+> that it meets the original pinned strip in a valid certificate.
+
+This is the key conceptual achievement of the recent work.  It creates a
+target-facing interface between the divisor obstruction and the alternate
+certificate families.  The root-spine search can now be replaced, inside finite
+guardrails, by signature-template tables that choose the alternate line directly.
+
+The first intended Lean milestone has now been reached.  There is a general
+line/strip bridge: once an alternate line family proves a valid certificate, and
+the first coefficient satisfies the one-variable determinant congruence for the
+original pinned strip, Lean derives both the certificate and the required pinned
+strip residue.  This means the global-root-choice work no longer has to prove a
+new determinant calculation separately for every representative target.
+
+The work has also moved beyond one example family.  A theorem-backed registry
+now records thirty normalized alternate line families, together with the Lean
+theorem name proving each family.  These include the full radius-$1000$
+signature-template frontier, the original large counterexample family of shape
+$(1,2)$, all radius-$1250$ signature-template rows, and the first two
+normalized families from the radius-$1500$ frontier.  The executable
+proved-family branch only uses templates whose normalized family appears in this
+registry.
+
+Inside the radius-$1000$ finite scan, the proved-family branch now covers all
+$42$ global root-choice rows.  Those $42$ target hits collapse to $40$ distinct
+signature-template rows, and every one of those rows is backed by a normalized
+Lean family theorem.  In that guardrail, the alternate branch can therefore be
+read as theorem-backed signature-template dispatch rather than root-spine
+search.
+
+The finite evidence remains useful but still finite.  Signature-template tables
+have been checked through increasing boxes.  Through radius $1250$, pinned
+signature-template tables replace the root-spine search in the full finite scan.
+Starting from the radius-$1250$ table, an iterated closure process also closes
+the sampled boxes at radii $1500$, $1750$, and $2000$: each stage records which
+new short signatures and line templates appear, adds them, and then covers the
+whole finite box with no missing or mismatched global rows.
+
+This should not be mistaken for the full proof.  The frontier still grows as the
+box grows.  More finite rows alone will not prove the conjecture.  What the
+finite work has achieved is a precise target for the infinite argument:
+
+> Prove parametrically that every short exponent-signature left after the local
+> divisor/Kneser discharge belongs to one of the normalized alternate
+> squareclass line-template families, and prove that the corresponding
+> line/strip congruence gives a valid two-step certificate.
+
+A good next milestone is to turn the theorem-backed registry into a genuine
+case theorem for a natural infinite class of short signatures.  The next proof
+should not merely add another finite row: it should explain why a recurring
+short-signature pattern forces one of the normalized families already in the
+registry, or else add a new normalized family together with the arithmetic reason
+that the short signature selects it.  That is the remaining step from
+theorem-backed finite frontier to an actual global root-choice proof.
 
 ## Symmetry Orbit And Current Reduction
 
@@ -2851,6 +2970,803 @@ The next concrete global-choice theorem target is therefore:
 A perf-scoped regression test in `tests/test_pythagorean_walks.py` currently
 checks this target claim on the same `1 <= g,h <= 500` range against all pinned
 obligations.
+
+The helper
+`parallel_direction_conjugate_ideal_global_root_choice_audit` now extracts the
+same global-root-choice guardrail as a direct proof artifact.  Instead of
+rescanning the full box for every signed direction, it iterates each pinned
+determinant strip by solving the linear congruence
+$$
+u_xh-u_yg\equiv R\pmod S.
+$$
+In the `1 <= g,h <= 500` guardrail this audits $105337$ divisor-class failures:
+$105323$ discharge through the local divisor/structural stack and the remaining
+$14$ discharge through an alternate root-spine witness.  All $14$ alternate
+witnesses first pass the target-facing squareclass line-residue certificate
+for their recorded $(U,q,a)$ row, then reconstruct through the promoted
+explicit line rows; the helper records no missing, residue-line-missing, or
+unreconstructed rows.  Their promoted root shapes are
+$$
+(1,4):4,\quad (2,5):4,\quad (2,3):2,\quad (3,8):2,\quad (4,5):2.
+$$
+The audit rows also record the minimal paired-factor period and the surviving
+paired residue $b\bmod P$ for each alternate line.  By row mass these periods
+are
+$$
+P=17:4,\quad P=29:4,\quad P=146:2,\quad
+P=26:1,\quad P=41:1,\quad P=338:1,\quad P=3362:1.
+$$
+For each such fixed alternate split line, the original failed pinned strip
+reduces to the first-coefficient congruence
+$$
+\det(U,V)r\equiv R-\det(U,W)\pmod S,
+$$
+where $U$ is the pinned strip direction, $V$ is the alternate line direction,
+and $W$ is the alternate second edge.  The audit records no missing
+line/strip intersections.  By row mass the resulting coefficient moduli are
+$$
+13:8,\quad 73:4,\quad 82:2.
+$$
+Thus the $14$ non-local target hits reduce to $14$ distinct
+failed-strip/alternate-line intersection rows but only $10$ distinct alternate
+squareclass line rows before the pinned-strip intersection is imposed.
+The audit now validates these distinct intersection rows directly: for each
+new row key it rebuilds the representative certificate at the recorded
+first-coefficient residue and checks that this representative lies on the
+original pinned strip.  Thus the row table is not only a summary of target
+examples; each row is independently executable as a certificate-producing
+line/strip congruence.
+The row table is also materialized as
+`PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS`, and
+`pinned_global_root_choice_alternate_line_strip_rows_valid` checks it without
+rerunning the target-box audit.  The audit test requires this portable table to
+match the discovered rows exactly, giving a finite artifact that can be ported
+to a theorem statement separately from the search procedure.  The table
+validator also rebuilds the representative
+`ParallelDirectionConjugateIdealWitness` for each row and checks that
+`promoted_root_spine_line_certificate_from_witness` returns the same
+certificate, so the portable rows carry both the line/strip congruence proof and
+the promoted explicit-row reconstruction.
+The same table is now usable in the target-facing direction via
+`pinned_global_root_choice_table_witness` and
+`pinned_global_root_choice_table_certificate`.  Given a target, a failed pinned
+strip direction, and its divisor obligation, these helpers first verify the
+original determinant strip, then try only the matching portable alternate rows.
+They enforce the recorded paired-factor residue class, rebuild the squareclass
+line certificate, reconstruct the promoted conjugate-ideal witness, and return
+only if the promoted certificate agrees exactly.  The audit regression checks
+that this table discharge reproduces all fourteen non-local witnesses recorded
+by the finite frontier.  The global pinned-obligation discharge now tries this
+table before the generic root-spine cover search and records the branch
+`alternate_root_spine_table` when it succeeds.  In the 500-box guardrail, every
+recorded finite-frontier non-local row takes this table branch; larger examples
+that are not in the portable table still fall through to the isolated
+`alternate_root_spine` branch.  This separates the already-explicit finite
+frontier from the remaining infinite existence problem instead of mixing both
+behind one opaque root-spine call.
+The helper
+`parallel_direction_conjugate_ideal_global_root_choice_branch_audit` exposes
+this split directly over pinned strip failures.  At radius $500$ it reports
+$105337$ divisor-obligation strip failures, with $105323$ local discharges:
+$$
+\text{promoted\_345}:100191,\quad
+\text{lattice\_pair}:4968,\quad
+\text{standard\_completion}:111,\quad
+\text{orthogonal}:53,
+$$
+and $14$ global discharges, all through `alternate_root_spine_table`.  The
+same audit also records the alternate root-shape and direction counts for the
+global rows, so new non-table rows can be separated by promoted family instead
+of rediscovered through the opaque root-spine scan.
+The helper
+`parallel_direction_conjugate_ideal_global_root_choice_exponent_signature_audit`
+now records the divisor-exponent profiles of these non-local rows.  In every
+sampled global row through radius $1750$, the local divisor obstruction is a
+`short_failure`: the Kneser saturation branch has not fired, and the required
+divisor exponent is outside the finite sumset generated by the prime-power
+residue choices of the determinant quotient.  At radius $500$, the $14$
+global rows compress to $10$ such signatures.  Their effective-length counts
+are
+$$
+1:6,\quad 2:4,\quad 3:4,
+$$
+and their prime-modulus counts are
+$$
+13:8,\quad 41:2,\quad 73:4.
+$$
+This gives a sharper target for the remaining infinite argument: prove an
+alternate root-spine construction for the short exponent-signature cases left
+after the local divisor/Kneser discharge, rather than for all strip points at
+once.
+The companion audit
+`parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit`
+correlates those short signatures with the alternate line templates that
+discharge them.  At radius $500$, the $10$ short exponent signatures meet $10$
+alternate line templates through $14$ signature-template incidences.  Four
+modulus-$13$ signatures each split across two sign/swap-related templates; the
+remaining signatures are single-template in this finite frontier.  This is the
+first executable interface between the divisor-exponent obstruction and the
+alternate root-spine line families: an infinite proof can now aim to construct
+one of the recorded line-template types directly from a short exponent
+signature, instead of appealing to the root-spine search as a black box.
+The signature itself is now exposed independently of any radius audit as
+`global_root_choice_short_exponent_signature`.  It returns the tuple
+$(p,e,z,\ell,\mathcal S)$ only for profiles whose saturation branch is
+`short_failure`; non-short profiles have no short signature.  The target-facing
+signature-template path uses this helper directly, so the signature definition
+is no longer just an internal byproduct of the finite audit summaries.
+This interface is now target-facing as well.  The helper
+`global_root_choice_signature_template_witness` takes a target, pinned
+obligation, and a table of short-signature/line-template incidences; it computes
+the target's divisor-exponent signature, selects matching templates, recomputes
+the paired split from the target determinant, and returns the explicit
+promoted-line witness when the target lies on one of those templates.  In the
+radius-$500$ guardrail, the signature-template rows reconstructed from the
+audit reproduce every non-local alternate witness exactly, including the
+alternate direction, squareclass, split factors, beta, and first coefficient.
+The radius-$500$ signature-template rows are now pinned as
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS`, and
+`parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit`
+measures how far any such table reaches.  Applied at radius $750$, the
+radius-$500$ signature-template table covers the original $14$ global rows and
+misses exactly the six new generic rows.  The missing short-signature counts
+are
+$$
+(13,7,\{0,1\}+\{0,10\}):2,\quad
+(13,7,\{0,6,9\}+\{0,11\}):2,\quad
+(17,1,\{0,6\}):2,
+$$
+with missing root-shape counts $(2,7):4$ and $(2,3):2$.  This turns the next
+frontier into a concrete list of short exponent signatures and alternate
+templates to construct, instead of another undifferentiated collection of
+target examples.
+Those six rows are now promoted into
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS`: the radius-$750$
+signature-template table has $20$ incidences, $13$ distinct short signatures,
+and $16$ distinct alternate templates, and it reconstructs all $20$ radius-$750$
+global rows with no mismatch.  A probe against the radius-$1000$ branch audit
+shows that this $750$ table covers exactly the previous $20$ rows and misses
+the next $22$ rows, with missing root-shape counts
+$$
+(1,6):14,\quad (2,3):6,\quad (2,5):2.
+$$
+These missing templates are exactly the radius-$1000$ portable-template
+frontier, now also visible as a short-signature-template frontier.
+The radius-$1000$ frontier has now also been promoted:
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS` contains $40$
+signature-template incidences, representing $21$ distinct short signatures and
+$28$ distinct alternate templates, and it reconstructs all $42$ radius-$1000$
+global rows with no mismatch.  Applying this table at radius $1250$ covers the
+previous $42$ rows and misses the next $20$ rows, with missing root-shape counts
+$$
+(2,3):12,\quad (1,4):6,\quad (1,6):2.
+$$
+Again the missing alternate templates match the independently pinned
+radius-$1250$ portable-template frontier.
+The helper
+`parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit`
+now packages this operation.  For a fixed radius it reuses the global branch
+audit, measures which rows a signature-template table covers, extracts the
+missing short-signature/template rows from the observed alternate witnesses,
+and repeats until the finite box is covered.  The audit now also returns the
+actual saturated `final_rows` table and the `new_rows` introduced at each
+layer, so the closure output can be fed directly into the no-root-spine
+signature-template discharge path instead of remaining only a count summary.
+The companion
+`parallel_direction_conjugate_ideal_global_root_choice_signature_template_closure_chain_audit`
+threads those generated `final_rows` through an increasing sequence of finite
+boxes.  This is still a sampled finite process, but it matches the intended
+inductive proof shape more closely: each stage is a finite saturation lemma
+whose output table becomes the input table for the next radius.
+The chain audit also emits a compact ledger row for each stage.  Each row
+records the input and output table sizes, the stage's initial nonlocal deficit,
+the final coverage counts, the generated signature/template/normalized-shape
+projection counts, the reused normalized-shape counts, and the missed
+root-shape distribution.  For the sampled radius chain $(1500,1750,2000)$ from
+the radius-$1250$ signature-template table, the ledger rows are
+$$
+\begin{array}{c|c|c|c|c|c|c|c}
+R & \text{in} & \text{out} & \text{global} & \text{missed} &
+\text{new rows} & \text{new sigs} & \text{new templates}\\
+\hline
+1500 & 60 & 108 & 112 & 50 & 48 & 18\ (12\ \mathrm{new}) & 30\\
+1750 & 108 & 144 & 148 & 36 & 36 & 20\ (8\ \mathrm{new}) & 18\\
+2000 & 144 & 192 & 198 & 50 & 48 & 22\ (12\ \mathrm{new}) & 36
+\end{array}
+$$
+All three stages close with zero final misses and zero mismatches; the 2000
+stage is the first one in this sampled chain with a reused normalized template
+shape.
+The same ledger rows now also record normalized-template root-shape projection
+counts.  For the three sampled stages the new normalized alternate-template
+root-shape counts are
+$$
+\begin{array}{c|l}
+R & \text{new normalized alternate-template root shapes}\\
+\hline
+1500 & (2,3):10,\ (4,5):4,\ (1,4):2,\ (2,5):2,\ (1,6):1\\
+1750 & (2,3):9,\ (2,5):2,\ (4,5):2,\ (1,4):1\\
+2000 & (2,3):14,\ (1,4):10,\ (3,4):2
+\end{array}
+$$
+At radius $2000$ the novel counts are the same except that the $(1,4)$ count is
+$9$ rather than $10$, because one $(1,4)$ normalized shape was already present
+in the input table.  This separates genuinely new root-shape families from
+recombinations of already-seen normalized shapes.
+The ledger also records the divisor-modulus projection of the generated short
+signatures.  The novel short-signature modulus counts in the same sampled
+chain are
+$$
+\begin{array}{c|l}
+1500 & 13:6,\ 73:4,\ 17:2\\
+1750 & 13:2,\ 17:2,\ 41:2,\ 73:2\\
+2000 & 41:6,\ 73:3,\ 13:2,\ 29:1
+\end{array}
+$$
+Thus the radius-$2000$ stage is also the first sampled stage in this chain that
+introduces modulus $29$, while most genuinely new signatures in that layer sit
+over modulus $41$.  The ledger further records the combined modulus/root-shape
+projection for normalized short-signature/template shapes.  In the radius
+$2000$ stage the first $(3,4)$ normalized signature-template shapes all occur
+over modulus $41$:
+$$
+(41,(3,4)):2.
+$$
+The only reused normalized short-signature/template cross-cell in that stage is
+$$
+(13,(1,4)):1.
+$$
+This is the current smallest arithmetic split separating the new $(3,4)$
+frontier from the reused $(1,4)$ shape.
+Finally, the ledger records the pinned divisor-obligation keys responsible for
+the stage's initial deficit.  The sampled chain is still concentrated on a
+small number of obligation families: six at radius $1500$, eight at radius
+$1750$, and nine at radius $2000$.  The radius-$2000$ deficit is dominated by
+the two $(2,3)$ modulus-$13$ obligations, with $14$ targets each, followed by
+the two $(4,5)$ modulus-$41$ obligations, with $5$ targets each.  The first
+modulus-$29$ obligation appears there as a single $(2,5)$ frontier target:
+$$
+((2,5),10,29,17,12,28,17):1.
+$$
+At radius $1000$, starting from
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS`, one iteration
+closes the box:
+$$
+20\ \text{input rows},\quad 22\ \text{missed global rows},\quad
+20\ \text{new signature-template rows},\quad 40\ \text{output rows}.
+$$
+The final coverage audit then covers all $42$ radius-$1000$ global rows with no
+misses or mismatches, and the saturated `final_rows` are exactly
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS`.  This is still
+finite, but it makes the target-facing signature-template saturation step
+explicit and reusable.
+The same iterative mechanism closes the radius-$1500$ branch audit from the
+radius-$1250$ signature-template table in one layer:
+$$
+60\ \text{input rows},\quad 50\ \text{missed global rows},\quad
+48\ \text{new signature-template rows},\quad 108\ \text{output rows}.
+$$
+The final coverage audit covers all $112$ radius-$1500$ global rows with no
+misses or mismatches.  The fact that $50$ missed targets yield $48$ new
+signature-template rows records the first small collision in this target-facing
+closure format.  Projecting this layer gives $18$ distinct short signatures,
+$12$ genuinely new short signatures, $30$ alternate line templates, $19$
+normalized alternate-template shapes, and $33$ normalized
+short-signature/template shapes.  All $30$ templates and all normalized shapes
+in the layer are new relative to the radius-$1250$ input table.
+Feeding the generated radius-$1500$ `final_rows` table into the radius-$1750$
+branch audit closes the next sampled box in one layer as well:
+$$
+108\ \text{input rows},\quad 36\ \text{missed global rows},\quad
+36\ \text{new signature-template rows},\quad 144\ \text{output rows}.
+$$
+The final coverage audit covers all $148$ radius-$1750$ global rows with no
+misses or mismatches.  In contrast to the radius-$1500$ layer, the $36$ missed
+targets give $36$ distinct new signature-template rows.  Projecting the new
+layer gives $20$ distinct short signatures, $8$ genuinely new short signatures,
+$18$ alternate line templates, $14$ normalized alternate-template shapes, and
+$28$ normalized short-signature/template shapes; again all templates and
+normalized shapes in the layer are new relative to the input table.  The
+normalized shape summary of the resulting $144$-row table has $47$ short
+signatures, $88$
+alternate templates, $60$ normalized alternate-template shapes, and $105$
+normalized short-signature/template shapes, with root-shape counts
+$$
+(2,3):64,\quad (1,4):20,\quad (2,5):20,\quad (4,5):18,\quad
+(1,6):16,\quad (2,7):4,\quad (3,8):2.
+$$
+The next sampled layer, from the generated radius-$1750$ table to radius
+$2000$, also closes in one iteration:
+$$
+144\ \text{input rows},\quad 50\ \text{missed global rows},\quad
+48\ \text{new signature-template rows},\quad 192\ \text{output rows}.
+$$
+The final coverage audit covers all $198$ radius-$2000$ global rows with no
+misses or mismatches.  Its missed root-shape counts are
+$$
+(2,3):26,\quad (1,4):22,\quad (3,4):2,
+$$
+so this sample is the first target-facing signature-template layer in this
+chain that introduces the promoted $(3,4)$ root shape.  Projecting the layer
+gives $22$ distinct short signatures, $12$ genuinely new short signatures,
+$36$ alternate line templates, $26$ normalized alternate-template shapes, and
+$39$ normalized short-signature/template shapes.  Here one normalized
+alternate-template shape and one normalized short-signature/template shape are
+already present in the input table, so the novelty counts are $25$ and $38$,
+respectively.  The repeated normalized template is
+$$
+((1,4),\ 17,\ (1,1033),\ 34),
+$$
+and the repeated normalized short-signature/template shape is obtained by
+prefixing it with the short signature
+$$
+(13,\ 7,\ \mathrm{False},\ 1,\ ((0,11),)).
+$$
+The normalized shape summary of the resulting $192$-row table has $59$ short
+signatures, $124$ alternate templates, $85$ normalized alternate-template
+shapes, and $143$ normalized short-signature/template shapes, with root-shape
+counts
+$$
+(2,3):90,\quad (1,4):40,\quad (2,5):20,\quad (4,5):18,\quad
+(1,6):16,\quad (2,7):4,\quad (3,4):2,\quad (3,8):2.
+$$
+The same promotion has now been made at radius $1250$:
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS` has $60$
+signature-template incidences, $27$ distinct short signatures, and $40$
+distinct alternate templates, and it reconstructs all $62$ radius-$1250$
+global rows with no mismatch.  Applied to the radius-$1500$ branch audit, this
+table covers the previous $62$ rows and misses the next $50$ rows, whose
+root-shape counts are
+$$
+(2,3):28,\quad (4,5):10,\quad (2,5):6,\quad (1,4):4,\quad (1,6):2.
+$$
+This is the same residual layer already seen in the radius-$1500$ portable
+template audit, but expressed in target-facing short-signature form.
+The helper `global_root_choice_signature_template_shape_audit` now records a
+coarser case count by suppressing signs and split-factor order in each
+alternate line template while retaining the root shape, squareclass, split pair,
+and period.  On the radius-$1250$ signature-template table this reduces the
+$60$ raw incidences to $27$ normalized template shapes and $44$ normalized
+short-signature/template shapes.  This normalization is not yet a proof of
+symmetry equivalence, but it identifies the smaller collection of arithmetic
+template shapes that a parametric argument would need to explain.
+There is also now a direct discharge helper,
+`parallel_direction_conjugate_ideal_divisor_obligation_signature_template_discharge_witness`,
+which performs the local divisor/structural checks and then uses a supplied
+signature-template table for the alternate branch, without calling the
+root-spine cover search.  The radius-$1250$ guardrail verifies that
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS` reconstructs
+the exact structural row for every one of the $62$ global rows through this
+no-root-spine-search discharge path.
+The finite scan itself can also be run without the root-spine search:
+`parallel_direction_conjugate_ideal_signature_template_branch_audit` iterates
+the pinned strip failures, applies the local discharge stack, and uses only a
+supplied signature-template table for the remaining branch.  At radius $500$,
+using `PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS`, this
+no-root audit has the same $105337$ checked strip failures, the same $105323$
+local discharges, and $14$ alternate discharges through
+`alternate_signature_template`; its global structural rows match the original
+root-spine branch audit exactly.
+The same no-root finite scan is now checked at radius $750$ with
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS`: it sees
+$233598$ checked strip failures, $233578$ local discharges, and all $20$
+non-local rows discharge through `alternate_signature_template`, again with no
+missing rows and structural rows matching the original root-spine branch audit.
+At radius $1000$, the no-root finite scan using
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS` likewise
+matches the original branch audit on the checked strip failures and local
+discharges, and discharges all $42$ non-local rows through
+`alternate_signature_template` with matching structural rows.  Thus the
+target-facing signature-template tables replace the root-spine search in the
+full finite branch scan through radius $1000$.
+The same replacement has now been checked at radius $1250$ with
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS`: the no-root
+scan has the same checked strip failures and local discharges as the original
+branch audit, discharges all $62$ non-local rows through
+`alternate_signature_template`, and has no missing or unreconstructed rows.
+Using the concrete `final_rows` produced by the radius-$1500$ iterated
+signature-template closure gives the analogous finite branch-scan replacement
+at radius $1500$: all $112$ non-local rows discharge through
+`alternate_signature_template`, with structural rows matching the original
+root-spine branch audit.  This extends the no-root-spine finite guardrail from
+the pinned tables to a table generated by the saturation closure itself.
+The reconstruction check now has a final explicit beta-line tier:
+`promoted_root_spine_line_certificate_from_witness` first tries the named
+promoted rows and their sign/swap orbits, and if those do not cover the witness
+it rebuilds the direct
+`parallel_direction_squareclass_beta_line_certificate` from the witness's
+direction, squareclass, beta, and first coefficient.  This is still conditional
+on having an alternate root-spine witness, but once the witness exists the
+certificate itself is no longer search-only.  The branch audit records
+`unreconstructed_rows`; the radius-$500$ and radius-$750$ regressions both
+require this list to be empty.  At radius $750$ the first six non-table global
+rows appear, with shapes $(2,7),(2,3),(2,3),(2,7),(2,7),(2,7)$, and all six
+reconstruct through the promoted/beta-line path.
+These first six non-table rows are now also converted into portable
+line/strip rows by
+`global_root_choice_branch_row_alternate_line_strip_row` and pinned as
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS`.  Each row
+passes the same `pinned_global_root_choice_alternate_line_strip_row_valid`
+validator as the original $14$-row finite frontier, and an extended row table
+consisting of the original $14$ rows plus these six rows discharges the six
+radius-$750$ generic branches target-facing.  This is not an infinite
+existence theorem, but it turns the next observed generic fallback layer into
+the same finite line/strip certificate format used by the explicit frontier.
+The portable-row growth is now measured separately by
+`parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit`.
+Relative to the original $14$ rows, radius $750$ has $20$ distinct global
+line/strip rows and exactly the six pinned new rows above; relative to the
+extended $20$-row table it has no new rows.  The six new radius-$750$ rows have
+root-shape counts
+$$
+(2,7):4,\quad (2,3):2,
+$$
+and alternate-direction counts
+$$
+(-45,28):2,\quad (-28,45):2,\quad (-12,5):1,\quad (-5,12):1.
+$$
+At radius $1000$, however, the same extended table sees $42$ distinct global
+line/strip rows, hence $22$ new valid portable rows.  Their root-shape counts
+are
+$$
+(1,6):14,\quad (2,3):6,\quad (2,5):2,
+$$
+with the dominant new alternate directions $(-35,12):6$ and $(-12,35):6$.
+At the line-template level these $22$ rows compress to $12$ templates.  The
+four dominant templates each account for three pinned strip intersections:
+$$
+((-35,12),1,89,-349,74,21),\quad
+((-35,12),10,3583,-1,37,36),
+$$
+$$
+((-12,35),1,349,-89,74,59),\quad
+((-12,35),10,1,-3583,2738,1893).
+$$
+Here each tuple records
+$(\text{alternate direction},q,a,b,\text{paired period},\text{paired residue})$.
+The helper `global_root_choice_line_template_strip_rows` now expands such a
+template across all pinned divisor-obligation strips.  For the four dominant
+templates above, the expansions have sizes $24,40,24,40$ respectively.  All
+expanded rows pass the portable row validator; rows with coefficient residue
+$0$ use the coefficient modulus as the nonzero representative certificate
+coefficient, preserving the congruence while avoiding a degenerate midpoint.
+The union helper `global_root_choice_line_template_table_rows` deduplicates
+these expansions into $128$ valid portable rows.  Adding those template rows to
+the $20$-row radius-$750$ table reduces the radius-$1000$ deficit from $22$ new
+rows to $10$, with remaining root-shape counts
+$$
+(2,3):6,\quad (1,6):2,\quad (2,5):2.
+$$
+Those ten remaining rows are pinned as the residual template set
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES`; its eight
+templates expand to $192$ valid portable rows.  Together,
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES` and the
+residual templates expand to $320$ valid portable rows, and adding those rows
+to the $20$-row radius-$750$ table closes the radius-$1000$ portable-row audit:
+$42$ global rows, $42$ distinct rows, and $0$ new rows.
+This closure can also be reproduced automatically by
+`parallel_direction_conjugate_ideal_global_root_choice_iterated_template_closure_audit`:
+starting from the $20$-row table, its first layer observes $22$ new rows,
+compresses them to $12$ line templates, expands those templates to $320$ valid
+portable rows, and closes with a $340$-row finite table and no remaining
+radius-$1000$ deficit.  This records the finite template-saturation operation
+as a reusable audit rather than only as a manually staged list of template
+constants.
+The same template audit has now been pushed to radius $1250$.  After the
+radius-$1000$ template closure, the residual radius-$1250$ frontier has $20$
+new rows with root-shape counts
+$$
+(2,3):12,\quad (1,4):6,\quad (1,6):2.
+$$
+These compress to
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES`, a set of $12$
+line templates whose pinned-strip expansion contains $352$ valid portable rows.
+Adding those rows closes the radius-$1250$ portable-row audit: $62$ global
+rows, $62$ distinct rows, and $0$ new rows.  The helper
+`parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit`
+packages this operation: it expands a given template set, adds it to a base
+portable table, and returns the remaining portable-row audit.  This shows
+finite template closures can be built at increasing radii, but also that the
+template frontier continues to grow; the remaining proof needs a parametric
+existence mechanism for these growing line/strip families, not just more finite
+template enumeration.
+The next closure layer is also recorded.  After the radius-$1250$ template
+closure, the radius-$1500$ frontier has $50$ new rows with root-shape counts
+$$
+(2,3):28,\quad (4,5):10,\quad (2,5):6,\quad (1,4):4,\quad (1,6):2.
+$$
+These compress to
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES`, a set of $30$
+line templates whose pinned-strip expansion contains $823$ valid portable rows.
+Adding those rows closes the radius-$1500$ portable-row audit: $112$ global
+rows, $112$ distinct rows, and $0$ new rows.
+The next sampled layer has the same shape.  After the radius-$1500$ template
+closure, the radius-$1750$ frontier has $36$ new rows with root-shape counts
+$$
+(2,3):16,\quad (2,5):8,\quad (1,4):6,\quad (4,5):6.
+$$
+These compress to
+`PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES`, a set of $18$
+line templates whose pinned-strip expansion contains $523$ valid portable rows.
+Adding those rows closes the radius-$1750$ portable-row audit: $148$ global
+rows, $148$ distinct rows, and $0$ new rows.  A smaller radius-$1600$ probe
+found only the first four of these templates, accounting for $8$ new rows, so
+the finite frontiers are still appearing in bounded layers rather than
+stabilizing to a fixed table.
+On the Lean side, the ten distinct alternate squareclass line rows are now
+also represented by concrete certificate theorems
+`certificateValid_pinnedGlobalRootChoiceAlternateLineRow01` through
+`certificateValid_pinnedGlobalRootChoiceAlternateLineRow10`.  Each theorem is
+proved by specializing the corresponding promoted root-spine family theorem,
+so the finite table is tied directly to the named Lean proof rows rather than
+to arithmetic replay alone.  The fourteen original pinned strip intersections
+are represented by the companion Lean congruence theorems
+`pinnedGlobalRootChoiceAlternateLineRow01_strip` through
+`pinnedGlobalRootChoiceAlternateLineRow14_strip`, each proving the required
+determinant residue for the row representative.  These are also packaged as
+combined row theorems
+`pinnedGlobalRootChoiceAlternateLineRow01_valid` through
+`pinnedGlobalRootChoiceAlternateLineRow14_valid`, whose conclusion contains
+both the certificate and the pinned-strip congruence for the representative.
+The aggregate theorem `pinnedGlobalRootChoiceAlternateLineRows_valid` packages
+all fourteen combined rows into one finite-frontier lemma.
+The first target-facing Lean bridge is now parametric.  The theorem
+`lineStripCertificateValid` proves the generic row-validity step used by the
+alternate template program: once the alternate direction and second step are
+legal graph edges, a nonzero first coefficient, a recorded paired-factor
+residue, and the one-variable line/strip coefficient congruence imply both
+`certificateValid` for the line target and the required pinned
+determinant-strip congruence.  The companion `lineStripRowValid` packages the
+same determinant-strip conclusion when a promoted line theorem has already
+proved `certificateValid`, and `det_add_smul_line` supplies the linear
+determinant expansion behind both bridges.
+One recurrent normalized `(2,3)` family from the frontier is also ported:
+`certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip`
+covers the alternate direction `(-12,-5)` with squareclass `1`, split `11`,
+and signed paired factor `338t+133`, i.e. the normalized residue class
+`b ≡ 133 mod 338`.  For every nonzero first coefficient satisfying the
+line/strip coefficient congruence, the theorem produces the certificate and
+the pinned-strip residue.  This replaces another representative pin for that
+family with a theorem over the full residue line.
+The companion swapped-direction split-$11$ line is now ported as
+`certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip`.  It
+covers direction `(-5,-12)` with second step
+`(2(t+3)(5t+4), (-6t-7)(-4t-1))` and paired factor `26t+23`, hence the
+normalized residue class `b ≡ 23 mod 26`.  The only extra degeneracy excluded
+by the underlying promoted root-spine theorem is `t != -3`; under that
+condition, a nonzero first coefficient and the same one-variable line/strip
+coefficient congruence imply the certificate, pinned determinant residue, and
+paired-residue congruence.
+The next recurrent normalized family is now ported too:
+`certificateValid_oneFourEvenSplitTwoFortyOneLineStrip` packages the two
+orientation lemmas for root shape `(1,4)`, squareclass `2`, split pair
+`(5,241)`, and paired-factor period `17`.  The `(-15,-8)` orientation uses
+paired factor `17t+12` and excludes only the degenerate parameter `t = 56`;
+the `(-8,-15)` orientation uses paired factor `17t+5` and excludes only
+`t = -57`.  Away from those axis-degenerate second-step parameters, each
+orientation proves the line certificate, the pinned determinant residue, and
+the paired-residue congruence from the same line/strip coefficient congruence.
+The largest remaining radius-$1000$ normalized family is now ported directly:
+`certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip` covers root
+shape `(1,6)`, squareclass `1`, split pair `(89,349)`, and paired-factor
+period `74`.  The `(-35,12)` orientation uses paired factor `74t+21` and
+second step `(70t^2-18t-112,-24t^2-182t-15)`; the `(-12,35)` orientation uses
+paired factor `74t+59` and second step
+`(24t^2-622t-1045,-70t^2-338t+1332)`.  Both second-step vectors are proved
+legal directly by polynomial nonzero factorizations and square-norm identities,
+then fed through `lineStripCertificateValid`.  This avoids relying on the
+fallback beta-line reconstruction for this family.
+Two adjacent `(1,6)` split-$3583$ families are also ported with direct
+line/strip proofs.  The period-$37$ family
+`certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip`
+covers direction `(-35,12)`, squareclass `10`, split `3583`, and paired
+factor `37t+36`; it excludes only the axis-degenerate parameter `t=-582`.
+The period-$2738$ family
+`certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip`
+covers direction `(-12,35)`, squareclass `10`, split `1`, and paired factor
+`2738t+1893`.  Both use explicit beta-square second steps and the generic
+`lineStripCertificateValid` bridge.
+The signed-direction `(1,6)` split-$2917$ family is ported similarly as
+`certificateValid_oneSixSplitTwentyNineSeventeenLineStrip`, covering
+directions `(-35,-12)` and `(-12,-35)` with squareclass `7`, split pair
+`(1,2917)`, period `74`, and paired residues `43` and `31`.
+The `(2,3)` squareclass-$13$ split-$473$ family is now theorem-backed as
+`certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip`.
+It covers directions `(-12,5)` and `(-5,12)` with paired residues `21` and
+`25` modulo `26`, excluding only the two axis-degenerate parameters in the
+corresponding orientation formulas.
+The clean `(2,5)` split-$1583$ family is also theorem-backed:
+`certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip` packages the two
+orientations with squareclass `10`, split pair `(1,1583)`, and paired-factor
+period `29`.  The `(-21,20)` orientation has paired factor `29t+12` and
+specializes `certificateValid_twoFiveRootSpineLineSwap` with beta
+`(5t+2,-2t-1)`; the `(-20,21)` orientation has paired factor `29t+28` and
+specializes `certificateValid_twoFiveRootSpineLine` with beta
+`(-5t-114,-2t+271)`.  Both orientations have nonzero and non-axis hypotheses
+discharged arithmetically for all integer `t`, so the theorem only needs the
+nonzero first coefficient and the line/strip coefficient congruence.
+The `(2,5)` squareclass-$23$ split-$1549$ family is now ported as
+`certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip`.
+It packages directions `(-21,20)` and `(-20,21)` with paired residues `57`
+and `17` modulo `58`, proving the beta-square legal-step witnesses directly
+and then discharging the pinned strip row through `lineStripCertificateValid`.
+The two recurrent `(2,7)` doubletons are now ported the same way.  The odd
+split pair `(179,229)` is
+`certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip`, with
+directions `(-45,28)` and `(-28,45)` and paired residues `89` and `33`
+modulo `106`.  The squareclass-$2$ split pair `(19,1153)` is
+`certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip`, with
+the same two directions and paired residues `13` and `34` modulo `53`.
+The six remaining radius-$1000$ singleton normalized shapes are now ported as
+theorem-backed line/strip families as well: the `(2,3)` odd split rows
+`certificateValid_twoThreeOddSplitOneHundredSevenOneFifteenResidueTwoThirtyOneLineStrip`,
+`certificateValid_twoThreeOddSplitTwentyThreeFiveThirtyFiveResidueOneFortyOneLineStrip`,
+`certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueEightyOneLineStrip`,
+and `certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueTwentyThreeLineStrip`,
+plus the `(4,5)` squareclass-$2$ rows
+`certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueThirtyOneTwentyThreeLineStrip`
+and `certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip`.
+The period-$26$ split-$257$ row excludes the same axis-degenerate parameter
+`t=-3` as the earlier period-$26$ split-$881$ row, and the period-$41$
+split-$239$ row excludes its axis-degenerate parameter `t=-53`; the other four
+singleton rows have all axis and nonzero conditions discharged for every
+integer parameter.
+The largest missing radius-$1250$ normalized shape is now theorem-backed too:
+`certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip`
+covers root shape `(1,4)`, squareclass `17`, split pair `(1,1033)`, and
+period `34`.  Its two orientations have directions `(-15,8)` and `(-8,15)`
+with paired residues `33` and `21`, and their second-step legal-edge
+conditions are discharged directly for every integer parameter.  This adds
+the six radius-$1250$ signature-template incidences for that normalized shape
+to the proved signature-template row set.
+The next radius-$1250$ squareclass-$13$ `(2,3)` family is now ported as two
+period-specific theorem rows:
+`certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueOneOhNineLineStrip`
+for direction `(-12,-5)`, period `338`, residue `109`, and
+`certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip`
+for direction `(-5,-12)`, period `26`, residue `21`.  Together they cover the
+six split-$905$ radius-$1250$ signature-template incidences, with only the
+period-$26$ orientation excluding its axis-degenerate parameter `t=-1`.
+The rest of the radius-$1250$ frontier is now theorem-backed as well.  The
+remaining `(2,3)` shapes are
+`certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip`,
+`certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip`,
+and `certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip`,
+covering normalized templates `((2,3),2,(71,121),13)`,
+`((2,3),5,(19,173),26)`, and `((2,3),46,(1,317),13)`.  The two split-$475$
+`(1,6)` rows are ported as
+`certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueOneLineStrip`
+and
+`certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueTwentySevenThirtySevenLineStrip`.
+After these ports, the proved signature-template row set covers all $60$
+radius-$1250$ signature-template rows, plus the large pre-existing
+counterexample row.
+The first radius-$1500$ normalized frontier family is now theorem-backed:
+`certificateValid_twoThreeEvenSplitNineteenSixFortyOneLineStrip` covers root
+shape `(2,3)`, squareclass `2`, split pair `(19,641)`, and period `13`.
+Its two orientations have directions `(-12,5)` and `(-5,12)` with paired
+residues `9` and `7`; the only axis-degenerate parameters excluded are
+`t=-8` and `t=246`.  This adds the six matching radius-$1500$
+signature-template incidences to the proved row set.
+The next four-incidence radius-$1500$ `(2,3)` family is also ported:
+`certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenLineStrip` covers
+squareclass `1`, split pair `(67,257)`, and period `26`.  Its orientations
+have paired residues `3` and `11`; the only axis-degenerate parameters are
+`t=-13` and `t=49`.
+The large pre-existing local-discharge counterexample now has its own
+theorem-backed normalized family:
+`certificateValid_oneTwoSquareclassFiveThirtyFiveSplitNineFortySevenResidueThreeLineStrip`.
+It covers direction `(-3,4)`, squareclass `535`, split pair `(1,947)`, paired
+residue `3` modulo `50`, and excludes only the degenerate representative
+`t=0`.  The executable template witness was tightened accordingly: instead of
+requiring the residue-class enumerator to accept the least representative, it
+constructs the certificate from the actual paired determinant factor and then
+validates the resulting line certificate.  This lets the proved
+signature-template branch discharge the counterexample row with structural
+data `((-3,4),(1,2),535,1,-947,(-379,189),9586654)` without invoking the
+root-spine search.
+The `(3,8)` split-$1531$ family is now ported as
+`certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip`.  It
+packages the `(-55,48)` orientation with paired factor `146t+127` and the
+`(-48,55)` orientation with paired factor `146t+75`, both by specializing the
+odd `(3,8)` root-spine line theorem and then applying `lineStripRowValid`.
+The executable side now has the matching radius-independent proved-family
+registry:
+`GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES`.  It records the
+thirty
+normalized template shapes
+$$
+((1,4),2,(5,241),17),\qquad
+((1,4),17,(1,1033),34),\qquad
+((1,6),1,(89,349),74),\qquad
+((1,6),10,(1,3583),37),\qquad
+((1,6),10,(1,3583),2738),\qquad
+((1,6),10,(1,475),37),\qquad
+((1,6),10,(1,475),2738),\qquad
+((1,6),7,(1,2917),74),\qquad
+((1,2),535,(1,947),50),\qquad
+((2,3),1,(11,881),338),\qquad ((2,3),1,(11,881),26),\qquad
+((2,3),1,(11,257),338),\qquad ((2,3),1,(11,257),26),\qquad
+((2,3),1,(23,535),338),\qquad ((2,3),1,(67,257),26),\qquad
+((2,3),1,(107,115),338),\qquad
+((2,3),13,(1,473),26),\qquad
+((2,3),13,(1,905),338),\qquad ((2,3),13,(1,905),26),\qquad
+((2,3),2,(71,121),13),\qquad
+((2,3),2,(19,641),13),\qquad
+((2,3),5,(19,173),26),\qquad
+((2,3),46,(1,317),13),\qquad
+((2,5),10,(1,1583),29),\qquad
+((2,5),23,(1,1549),58),\qquad
+((2,7),1,(179,229),106),\qquad
+((2,7),2,(19,1153),53),\qquad
+((4,5),2,(19,239),3362),\qquad
+((4,5),2,(19,239),41),\qquad
+((3,8),1,(19,1531),146)
+$$
+together with the Lean theorem names above.  The radius-$1000$
+signature-template regression checks that all forty distinct
+signature-template frontier rows with the radius-$1000$ subset of these
+normalized shapes are exactly the
+two split-$11$ short signatures
+$(13,7,\mathrm{False},1,((0,5),(0,)))$ and
+$(17,1,\mathrm{False},1,((0,14),(0,)))$ paired with the two proved normalized
+families, the six split-$349$ rows on signatures
+$(13,7,\mathrm{False},1,((0,11),))$,
+$(17,1,\mathrm{False},1,((0,14),))$, and
+$(73,\{44,62\},\mathrm{False},2,((0,31),(0,39)))$, the four split-$241$ rows
+on signatures
+$(13,7,\mathrm{False},3,((0,1),(0,9),(0,1)))$,
+$(73,44,\mathrm{False},2,((0,4),(0,30)))$, and
+$(73,62,\mathrm{False},2,((0,4),(0,30)))$, the four split-$3583$ rows on
+signatures $(13,7,\mathrm{False},1,((0,11),))$ and
+$(41,\{9,19\},\mathrm{False},2,((0,39),(0,29)))$, the two split-$2917$ rows
+on signature $(13,7,\mathrm{False},1,((0,11),))$, the two squareclass-$13$
+split-$473$ rows on signature $(13,7,\mathrm{False},2,((0,1),(0,10)))$, plus
+the four split-$1583$
+rows on
+signatures $(13,7,\mathrm{False},2,((0,9),(0,2)))$ and
+$(13,7,\mathrm{False},3,((0,6,9),(0,5)))$, the two squareclass-$23$
+split-$1549$ rows on signature
+$(13,7,\mathrm{False},2,((0,9),(0,8)))$, the two odd split-$(179,229)$ rows
+on signature $(17,1,\mathrm{False},1,((0,6),))$, the two squareclass-$2$
+split-$(19,1153)$ rows on signature
+$(13,7,\mathrm{False},3,((0,6,9),(0,11)))$, the four singleton `(2,3)` rows
+on signatures $(17,1,\mathrm{False},1,((0,14),))$ and
+$(41,\{9,19\},\mathrm{False},1,((0,8),))$, the two singleton `(4,5)` rows on
+$(73,\{44,62\},\mathrm{False},1,((0,34)))$, and the two split-$1531$ rows on
+$(13,7,\mathrm{False},1,((0,11),))$.  This keeps the finite table as a
+frontier audit while making the ported normalized-family case split explicit.
+The helper `global_root_choice_proved_signature_template_witness` is the
+target-facing version of this registry: it uses the short signature to select
+candidate template rows, but only attempts rows whose normalized template has a
+Lean theorem in `GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES`.  The
+companion discharge wrapper records the branch
+`alternate_proved_signature_template`.  In the radius-$1000$ regression this
+proved-family path covers all $42$ branch rows, collapsing to exactly the
+forty distinct frontier rows above and no unproved normalized templates.
+This separates theorem-backed parametric cases from the remaining finite
+evidence.
+The Python helper `pinned_global_root_choice_alternate_line_strip_summary`
+exposes the matching compact finite artifact: $14$ row-table entries, $10$
+distinct alternate line rows, $14$ distinct failed-strip intersections,
+coefficient moduli $13:8$, $73:4$, and $82:2$, with the portable row-table
+validator passing.  Its obligation distribution is concentrated on six pinned
+obligations:
+$$
+((2,3),1,13,5,7,4,11):4,\quad
+((2,3),1,13,8,6,4,11):4,
+$$
+$$
+((4,5),2,41,9,10,33,19):1,\quad
+((4,5),2,41,32,10,8,34):1,
+$$
+$$
+((3,8),1,73,27,38,69,19):2,\quad
+((3,8),1,73,46,38,4,71):2.
+$$
+This is still finite evidence, not the infinite global root-choice theorem, but
+it makes the exact non-local frontier auditable without relying on the older
+opaque nested search loop.
 
 The largest fallback bucket is no longer opaque. Since the promoted
 $3$-$4$-$5$ layer is itself a finite table of signed directions and determinant

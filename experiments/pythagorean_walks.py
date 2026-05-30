@@ -752,6 +752,71 @@ DivisorObligationKey = tuple[Point, int, int, int, int, int, int]
 FactorDeterminantResidueRow = tuple[int, int]
 ParallelFactorPairRowData = tuple[int, int, int, int, int, int]
 FactorIntegralityStripIntersectionLinearRow = tuple[int, int, int, int]
+SquareclassLineStripIntersectionCongruence = tuple[int, int, int, int, int, int]
+GlobalRootChoiceAlternateLineStripRow = tuple[
+    DivisorObligationKey,
+    Point,
+    Point,
+    int,
+    int,
+    int,
+    int,
+    int,
+    int,
+    int,
+]
+GlobalRootChoiceLineTemplate = tuple[Point, int, int, int, int, int]
+GlobalRootChoiceExponentSignature = tuple[
+    int,
+    int,
+    bool,
+    int,
+    tuple[tuple[int, ...], ...],
+]
+GlobalRootChoiceSignatureTemplate = tuple[
+    int,
+    int,
+    bool,
+    int,
+    tuple[tuple[int, ...], ...],
+    Point,
+    int,
+    int,
+    int,
+    int,
+    int,
+]
+GlobalRootChoiceSignatureTemplateCountRow = tuple[
+    int,
+    int,
+    bool,
+    int,
+    tuple[tuple[int, ...], ...],
+    Point,
+    int,
+    int,
+    int,
+    int,
+    int,
+    int,
+]
+GlobalRootChoiceNormalizedLineTemplate = tuple[Point, int, tuple[int, int], int]
+GlobalRootChoiceNormalizedSignatureTemplate = tuple[
+    int,
+    int,
+    bool,
+    int,
+    tuple[tuple[int, ...], ...],
+    Point,
+    int,
+    tuple[int, int],
+    int,
+]
+GlobalRootChoiceProvedNormalizedLineFamily = tuple[
+    GlobalRootChoiceNormalizedLineTemplate,
+    str,
+]
+GlobalRootChoiceSignatureModulusRootShapeCount = tuple[int, Point, int]
 LatticeCoefficientCramerData = tuple[
     int, int, int, bool, bool, int | None, int | None
 ]
@@ -2086,6 +2151,315 @@ class DivisorObligationDischargeWitness:
 
 
 @dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceAuditRow:
+    target: Point
+    direction: Point
+    obligation: DivisorObligationKey
+    alternate_direction: Point
+    alternate_root_shape: Point
+    alternate_squareclass: int
+    alternate_split_factor: int
+    alternate_signed_paired_split_factor: int
+    alternate_residue_period: int
+    alternate_paired_residue: int
+    alternate_strip_step: int
+    alternate_strip_residue: int
+    alternate_strip_modulus: int
+    alternate_strip_gcd: int
+    alternate_coefficient_residue: int
+    alternate_coefficient_modulus: int
+    alternate_beta: Point
+    alternate_first_coefficient: int
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceAudit:
+    max_coordinate: int
+    max_root_coordinate: int
+    checked_strip_failures: int
+    local_discharge_count: int
+    alternate_root_spine_count: int
+    alternate_root_shape_counts: tuple[tuple[Point, int], ...]
+    alternate_direction_counts: tuple[tuple[Point, int], ...]
+    alternate_residue_period_counts: tuple[tuple[int, int], ...]
+    alternate_coefficient_modulus_counts: tuple[tuple[int, int], ...]
+    distinct_alternate_line_row_counts: tuple[tuple[Point, int, int, int, int, int], ...]
+    distinct_alternate_line_strip_row_count: int
+    row_family_certificate_miss_rows: tuple[DivisorObligationGlobalRootChoiceAuditRow, ...]
+    strip_intersection_miss_rows: tuple[DivisorObligationGlobalRootChoiceAuditRow, ...]
+    residue_line_miss_rows: tuple[DivisorObligationGlobalRootChoiceAuditRow, ...]
+    unreconstructed_rows: tuple[DivisorObligationGlobalRootChoiceAuditRow, ...]
+    missing_rows: tuple[tuple[Point, Point, DivisorObligationKey], ...]
+    rows: tuple[DivisorObligationGlobalRootChoiceAuditRow, ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceBranchAuditRow:
+    target: Point
+    direction: Point
+    obligation: DivisorObligationKey
+    branch: str
+    structural_row: tuple[object, ...] | None
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceBranchAudit:
+    max_coordinate: int
+    max_root_coordinate: int
+    checked_strip_failures: int
+    local_discharge_count: int
+    global_discharge_count: int
+    local_branch_counts: tuple[tuple[str, int], ...]
+    global_branch_counts: tuple[tuple[str, int], ...]
+    global_root_shape_counts: tuple[tuple[Point, int], ...]
+    global_direction_counts: tuple[tuple[Point, int], ...]
+    global_rows: tuple[DivisorObligationGlobalRootChoiceBranchAuditRow, ...]
+    unreconstructed_rows: tuple[DivisorObligationGlobalRootChoiceBranchAuditRow, ...]
+    missing_rows: tuple[tuple[Point, Point, DivisorObligationKey], ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoicePortableRowAudit:
+    max_coordinate: int
+    global_row_count: int
+    distinct_row_count: int
+    base_table_row_count: int
+    new_row_count: int
+    new_root_shape_counts: tuple[tuple[Point, int], ...]
+    new_alternate_direction_counts: tuple[tuple[Point, int], ...]
+    new_obligation_counts: tuple[tuple[DivisorObligationKey, int], ...]
+    new_line_template_counts: tuple[tuple[Point, int, int, int, int, int, int], ...]
+    new_rows: tuple[GlobalRootChoiceAlternateLineStripRow, ...]
+    invalid_rows: tuple[GlobalRootChoiceAlternateLineStripRow, ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceTemplateClosureAudit:
+    max_coordinate: int
+    base_row_count: int
+    template_count: int
+    template_expanded_row_count: int
+    combined_row_count: int
+    portable_row_audit: DivisorObligationGlobalRootChoicePortableRowAudit
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceTemplateClosureLayer:
+    iteration: int
+    input_row_count: int
+    new_row_count: int
+    new_template_count: int
+    template_expanded_row_count: int
+    output_row_count: int
+    new_root_shape_counts: tuple[tuple[Point, int], ...]
+    new_line_template_counts: tuple[tuple[Point, int, int, int, int, int, int], ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceIteratedTemplateClosureAudit:
+    max_coordinate: int
+    base_row_count: int
+    final_row_count: int
+    iteration_count: int
+    closed: bool
+    layers: tuple[DivisorObligationGlobalRootChoiceTemplateClosureLayer, ...]
+    final_portable_row_audit: DivisorObligationGlobalRootChoicePortableRowAudit
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceExponentSignatureAudit:
+    max_coordinate: int
+    global_row_count: int
+    missing_row_count: int
+    saturation_branch_counts: tuple[tuple[str, int], ...]
+    modulus_counts: tuple[tuple[int, int], ...]
+    effective_length_counts: tuple[tuple[int, int], ...]
+    summand_count_counts: tuple[tuple[int, int], ...]
+    signature_counts: tuple[
+        tuple[int, int, bool, int, tuple[tuple[int, ...], ...], int],
+        ...,
+    ]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateAudit:
+    max_coordinate: int
+    global_row_count: int
+    missing_row_count: int
+    signature_count: int
+    template_count: int
+    signature_template_count: int
+    signatures_with_multiple_templates: tuple[
+        tuple[int, int, bool, int, tuple[tuple[int, ...], ...], int],
+        ...,
+    ]
+    template_counts: tuple[tuple[Point, int, int, int, int, int, int], ...]
+    signature_template_counts: tuple[GlobalRootChoiceSignatureTemplateCountRow, ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateCoverageAudit:
+    max_coordinate: int
+    signature_template_row_count: int
+    global_row_count: int
+    covered_count: int
+    missing_count: int
+    mismatch_count: int
+    missing_root_shape_counts: tuple[tuple[Point, int], ...]
+    missing_signature_counts: tuple[
+        tuple[int, int, bool, int, tuple[tuple[int, ...], ...], int],
+        ...,
+    ]
+    missing_template_counts: tuple[tuple[Point, int, int, int, int, int, int], ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateClosureLayer:
+    iteration: int
+    input_row_count: int
+    missing_count: int
+    new_row_count: int
+    output_row_count: int
+    new_rows: tuple[GlobalRootChoiceSignatureTemplate, ...]
+    new_signature_count: int
+    novel_signature_count: int
+    new_template_count: int
+    novel_template_count: int
+    new_normalized_template_shape_count: int
+    novel_normalized_template_shape_count: int
+    reused_normalized_template_shapes: tuple[
+        GlobalRootChoiceNormalizedLineTemplate,
+        ...,
+    ]
+    new_normalized_signature_template_shape_count: int
+    novel_normalized_signature_template_shape_count: int
+    reused_normalized_signature_template_shapes: tuple[
+        GlobalRootChoiceNormalizedSignatureTemplate,
+        ...,
+    ]
+    missing_root_shape_counts: tuple[tuple[Point, int], ...]
+    missing_obligation_counts: tuple[tuple[DivisorObligationKey, int], ...]
+    missing_signature_counts: tuple[
+        tuple[int, int, bool, int, tuple[tuple[int, ...], ...], int],
+        ...,
+    ]
+    missing_template_counts: tuple[tuple[Point, int, int, int, int, int, int], ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit:
+    max_coordinate: int
+    base_row_count: int
+    final_row_count: int
+    final_rows: tuple[GlobalRootChoiceSignatureTemplate, ...]
+    iteration_count: int
+    closed: bool
+    layers: tuple[
+        DivisorObligationGlobalRootChoiceSignatureTemplateClosureLayer,
+        ...,
+    ]
+    final_coverage_audit: DivisorObligationGlobalRootChoiceSignatureTemplateCoverageAudit
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainLedgerRow:
+    max_coordinate: int
+    input_row_count: int
+    output_row_count: int
+    global_row_count: int
+    covered_count: int
+    final_missing_count: int
+    mismatch_count: int
+    iteration_count: int
+    initial_missing_count: int
+    new_row_count: int
+    new_row_modulus_counts: tuple[tuple[int, int], ...]
+    new_signature_count: int
+    novel_signature_count: int
+    new_signature_modulus_counts: tuple[tuple[int, int], ...]
+    novel_signature_modulus_counts: tuple[tuple[int, int], ...]
+    new_template_count: int
+    novel_template_count: int
+    new_normalized_template_shape_count: int
+    novel_normalized_template_shape_count: int
+    new_normalized_template_root_shape_counts: tuple[tuple[Point, int], ...]
+    novel_normalized_template_root_shape_counts: tuple[tuple[Point, int], ...]
+    new_normalized_signature_template_shape_count: int
+    novel_normalized_signature_template_shape_count: int
+    new_normalized_signature_template_root_shape_counts: tuple[
+        tuple[Point, int],
+        ...,
+    ]
+    novel_normalized_signature_template_root_shape_counts: tuple[
+        tuple[Point, int],
+        ...,
+    ]
+    new_normalized_signature_template_modulus_root_shape_counts: tuple[
+        GlobalRootChoiceSignatureModulusRootShapeCount,
+        ...,
+    ]
+    novel_normalized_signature_template_modulus_root_shape_counts: tuple[
+        GlobalRootChoiceSignatureModulusRootShapeCount,
+        ...,
+    ]
+    reused_normalized_template_shape_count: int
+    reused_normalized_signature_template_shape_count: int
+    reused_normalized_template_root_shape_counts: tuple[tuple[Point, int], ...]
+    reused_normalized_signature_template_root_shape_counts: tuple[
+        tuple[Point, int],
+        ...,
+    ]
+    reused_normalized_signature_template_modulus_root_shape_counts: tuple[
+        GlobalRootChoiceSignatureModulusRootShapeCount,
+        ...,
+    ]
+    missing_root_shape_counts: tuple[tuple[Point, int], ...]
+    missing_obligation_counts: tuple[tuple[DivisorObligationKey, int], ...]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainAudit:
+    max_coordinates: tuple[int, ...]
+    base_row_count: int
+    final_row_count: int
+    final_rows: tuple[GlobalRootChoiceSignatureTemplate, ...]
+    closed: bool
+    stages: tuple[
+        DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit,
+        ...,
+    ]
+    ledger_rows: tuple[
+        DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainLedgerRow,
+        ...,
+    ]
+
+
+@dataclass(frozen=True)
+class DivisorObligationGlobalRootChoiceSignatureTemplateShapeAudit:
+    row_count: int
+    signature_count: int
+    template_count: int
+    normalized_template_shape_count: int
+    normalized_signature_template_shape_count: int
+    root_shape_counts: tuple[tuple[Point, int], ...]
+    normalized_template_shape_counts: tuple[
+        tuple[Point, int, tuple[int, int], int, int],
+        ...,
+    ]
+
+
+@dataclass(frozen=True)
+class PinnedGlobalRootChoiceAlternateLineStripSummary:
+    row_count: int
+    distinct_alternate_line_row_count: int
+    distinct_failed_strip_intersection_row_count: int
+    obligation_counts: tuple[tuple[DivisorObligationKey, int], ...]
+    strip_direction_counts: tuple[tuple[Point, int], ...]
+    coefficient_modulus_counts: tuple[tuple[int, int], ...]
+    row_table_valid: bool
+
+
+@dataclass(frozen=True)
 class PythagoreanLatticePairWitness:
     target: Point
     first_direction: Point
@@ -3276,6 +3650,1464 @@ def parallel_direction_squareclass_line_residue_certificate(
     if certificate is None or certificate.target != target:
         return None
     return certificate
+
+
+def parallel_direction_squareclass_line_strip_intersection_congruence(
+    strip_direction: Point,
+    strip_modulus: int,
+    strip_residue: int,
+    direction: Point,
+    squareclass: int,
+    split_factor: int,
+    signed_paired_split_factor: int,
+) -> SquareclassLineStripIntersectionCongruence | None:
+    """First-coefficient congruence for one squareclass line on a strip.
+
+    If ``T = r*direction + W`` is the squareclass line determined by
+    ``(direction, squareclass, split_factor, signed_paired_split_factor)``,
+    then the strip ``det(strip_direction, T) == strip_residue mod strip_modulus``
+    becomes a one-variable congruence
+    ``step*r == residue mod modulus``.  The returned row is
+    ``(step, residue, modulus, gcd, r_residue, r_modulus)``.
+    """
+
+    if not edge_delta(*strip_direction):
+        raise ValueError("strip direction must be a legal Pythagorean edge vector")
+    if strip_modulus <= 1:
+        raise ValueError("strip modulus must be greater than 1")
+
+    second_step = parallel_direction_squareclass_line_second_step(
+        direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if second_step is None:
+        return None
+
+    step = determinant(strip_direction, direction) % strip_modulus
+    residue = (strip_residue - determinant(strip_direction, second_step)) % strip_modulus
+    linear_gcd = gcd(step, strip_modulus)
+    if residue % linear_gcd != 0:
+        return None
+
+    coefficient_modulus = strip_modulus // linear_gcd
+    if coefficient_modulus == 1:
+        coefficient_residue = 0
+    else:
+        coefficient_residue = (
+            (residue // linear_gcd)
+            * pow((step // linear_gcd) % coefficient_modulus, -1, coefficient_modulus)
+        ) % coefficient_modulus
+
+    return (
+        step,
+        residue,
+        strip_modulus,
+        linear_gcd,
+        coefficient_residue,
+        coefficient_modulus,
+    )
+
+
+def pinned_global_root_choice_alternate_line_strip_row_certificate(
+    row: GlobalRootChoiceAlternateLineStripRow,
+) -> Certificate | None:
+    """Representative certificate for one pinned alternate line/strip row."""
+
+    (
+        _obligation,
+        _strip_direction,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        _paired_period,
+        _paired_residue,
+        coefficient_residue,
+        coefficient_modulus,
+    ) = row
+    first_coefficient = coefficient_residue or coefficient_modulus
+    return parallel_direction_squareclass_line_certificate(
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        first_coefficient,
+    )
+
+
+def pinned_global_root_choice_alternate_line_strip_row_witness(
+    row: GlobalRootChoiceAlternateLineStripRow,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Representative conjugate-ideal witness for one finite row-table entry."""
+
+    (
+        _obligation,
+        _strip_direction,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        _paired_period,
+        _paired_residue,
+        coefficient_residue,
+        coefficient_modulus,
+    ) = row
+    first_coefficient = coefficient_residue or coefficient_modulus
+    beta = parallel_direction_squareclass_line_split_quotient(
+        alternate_direction,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if beta is None:
+        return None
+    certificate = parallel_direction_squareclass_line_certificate(
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        first_coefficient,
+    )
+    if certificate is None:
+        return None
+    witness = ParallelDirectionConjugateIdealWitness(
+        target=certificate.target,
+        direction=alternate_direction,
+        squareclass=squareclass,
+        split_factor=split_factor,
+        signed_paired_split_factor=signed_paired_split_factor,
+        beta=beta,
+        first_coefficient=first_coefficient,
+    )
+    if not witness.valid():
+        return None
+    return witness
+
+
+def pinned_global_root_choice_alternate_line_strip_row_valid(
+    row: GlobalRootChoiceAlternateLineStripRow,
+) -> bool:
+    """Validate one explicit finite alternate-root line/strip row."""
+
+    (
+        obligation,
+        strip_direction,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        paired_period,
+        paired_residue,
+        coefficient_residue,
+        coefficient_modulus,
+    ) = row
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        obligation
+    )
+    strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+        obligation
+    )
+
+    period, residues = parallel_direction_squareclass_line_residue_classes(
+        alternate_direction,
+        squareclass,
+        split_factor,
+    )
+    if period != paired_period or paired_residue not in residues:
+        return False
+    if signed_paired_split_factor % paired_period != paired_residue:
+        return False
+
+    intersection = parallel_direction_squareclass_line_strip_intersection_congruence(
+        strip_direction,
+        strip_modulus,
+        strip_residue,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if intersection is None:
+        return False
+    if intersection[4:] != (coefficient_residue, coefficient_modulus):
+        return False
+
+    certificate = pinned_global_root_choice_alternate_line_strip_row_certificate(row)
+    if certificate is None or not certificate.valid():
+        return False
+    if determinant(strip_direction, certificate.target) % strip_modulus != strip_residue:
+        return False
+
+    witness = pinned_global_root_choice_alternate_line_strip_row_witness(row)
+    if witness is None or witness.certificate != certificate:
+        return False
+    return promoted_root_spine_line_certificate_from_witness(witness) == certificate
+
+
+def global_root_choice_branch_row_alternate_line_strip_row(
+    row: DivisorObligationGlobalRootChoiceBranchAuditRow,
+) -> GlobalRootChoiceAlternateLineStripRow | None:
+    """Convert one global branch audit row into a portable line/strip row."""
+
+    if row.structural_row is None:
+        return None
+    (
+        alternate_direction,
+        _alternate_root_shape,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        _beta,
+        _first_coefficient,
+    ) = row.structural_row
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        row.obligation
+    )
+    strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+        row.obligation
+    )
+    period, _residues = parallel_direction_squareclass_line_residue_classes(
+        alternate_direction,
+        squareclass,
+        split_factor,
+    )
+    intersection = parallel_direction_squareclass_line_strip_intersection_congruence(
+        row.direction,
+        strip_modulus,
+        strip_residue,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if intersection is None:
+        return None
+    return (
+        row.obligation,
+        row.direction,
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        period,
+        signed_paired_split_factor % period,
+        intersection[4],
+        intersection[5],
+    )
+
+
+def global_root_choice_line_template_strip_rows(
+    template: GlobalRootChoiceLineTemplate,
+    obligations: tuple[DivisorObligationKey, ...] | None = None,
+) -> tuple[GlobalRootChoiceAlternateLineStripRow, ...]:
+    """Expand one alternate squareclass line template across pinned strips."""
+
+    if obligations is None:
+        obligations = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS
+
+    (
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        paired_period,
+        paired_residue,
+    ) = template
+    period, residues = parallel_direction_squareclass_line_residue_classes(
+        alternate_direction,
+        squareclass,
+        split_factor,
+    )
+    if period != paired_period or paired_residue not in residues:
+        return ()
+    if signed_paired_split_factor % paired_period != paired_residue:
+        return ()
+
+    rows: list[GlobalRootChoiceAlternateLineStripRow] = []
+    for obligation in obligations:
+        strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+            obligation
+        )
+        strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+            obligation
+        )
+        for strip_direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+            obligation
+        ):
+            intersection = parallel_direction_squareclass_line_strip_intersection_congruence(
+                strip_direction,
+                strip_modulus,
+                strip_residue,
+                alternate_direction,
+                squareclass,
+                split_factor,
+                signed_paired_split_factor,
+            )
+            if intersection is None:
+                continue
+            rows.append(
+                (
+                    obligation,
+                    strip_direction,
+                    alternate_direction,
+                    squareclass,
+                    split_factor,
+                    signed_paired_split_factor,
+                    paired_period,
+                    paired_residue,
+                    intersection[4],
+                    intersection[5],
+                )
+            )
+    return tuple(rows)
+
+
+def global_root_choice_line_template_table_rows(
+    templates: tuple[GlobalRootChoiceLineTemplate, ...],
+    obligations: tuple[DivisorObligationKey, ...] | None = None,
+) -> tuple[GlobalRootChoiceAlternateLineStripRow, ...]:
+    """Union of portable row expansions from alternate line templates."""
+
+    rows = {
+        row
+        for template in templates
+        for row in global_root_choice_line_template_strip_rows(template, obligations)
+    }
+    return tuple(sorted(rows))
+
+
+def pinned_global_root_choice_table_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[
+        GlobalRootChoiceAlternateLineStripRow,
+        ...,
+    ] | None = None,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Target-facing discharge through the finite alternate-root row table."""
+
+    if rows is None:
+        rows = PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    for row in rows:
+        (
+            row_obligation,
+            row_direction,
+            alternate_direction,
+            squareclass,
+            split_factor,
+            _signed_paired_split_factor,
+            paired_period,
+            paired_residue,
+            _coefficient_residue,
+            _coefficient_modulus,
+        ) = row
+        if row_obligation != obligation or row_direction != direction:
+            continue
+
+        det_value = determinant(alternate_direction, target)
+        determinant_divisor = squareclass * split_factor
+        if det_value == 0 or det_value % determinant_divisor != 0:
+            continue
+
+        signed_paired_split_factor = det_value // determinant_divisor
+        if signed_paired_split_factor % paired_period != paired_residue:
+            continue
+
+        certificate = parallel_direction_squareclass_line_residue_certificate(
+            target,
+            alternate_direction,
+            squareclass,
+            split_factor,
+        )
+        if certificate is None:
+            continue
+
+        beta = parallel_direction_squareclass_line_split_quotient(
+            alternate_direction,
+            split_factor,
+            signed_paired_split_factor,
+        )
+        first_coefficient = ray_multiplier(certificate.midpoint, alternate_direction)
+        if beta is None or first_coefficient is None:
+            continue
+
+        witness = ParallelDirectionConjugateIdealWitness(
+            target=target,
+            direction=alternate_direction,
+            squareclass=squareclass,
+            split_factor=split_factor,
+            signed_paired_split_factor=signed_paired_split_factor,
+            beta=beta,
+            first_coefficient=first_coefficient,
+        )
+        if not witness.valid() or witness.certificate != certificate:
+            continue
+        if promoted_root_spine_line_certificate_from_witness(witness) != certificate:
+            continue
+        return witness
+
+    return None
+
+
+def pinned_global_root_choice_table_certificate(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[
+        GlobalRootChoiceAlternateLineStripRow,
+        ...,
+    ] | None = None,
+) -> Certificate | None:
+    """Return the finite alternate-root row-table certificate, when present."""
+
+    witness = pinned_global_root_choice_table_witness(target, direction, obligation, rows)
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+def parallel_direction_squareclass_line_template_witness(
+    target: Point,
+    template: GlobalRootChoiceLineTemplate,
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Target-facing witness from one alternate squareclass line template."""
+
+    (
+        alternate_direction,
+        squareclass,
+        split_factor,
+        _signed_paired_split_factor,
+        paired_period,
+        paired_residue,
+    ) = template
+    determinant_divisor = squareclass * split_factor
+    det_value = determinant(alternate_direction, target)
+    if det_value == 0 or det_value % determinant_divisor != 0:
+        return None
+
+    signed_paired_split_factor = det_value // determinant_divisor
+    if signed_paired_split_factor % paired_period != paired_residue:
+        return None
+
+    u, v = alternate_direction
+    direction_norm = u * u + v * v
+    factor_difference = squareclass * (
+        signed_paired_split_factor * signed_paired_split_factor
+        - split_factor * split_factor
+    )
+    if factor_difference % 2 != 0:
+        return None
+    other_leg = factor_difference // 2
+    dot_product = target[0] * u + target[1] * v
+    first_coefficient_numerator = dot_product + other_leg
+    if first_coefficient_numerator % direction_norm != 0:
+        return None
+    first_coefficient = first_coefficient_numerator // direction_norm
+
+    certificate = parallel_direction_squareclass_line_certificate(
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        first_coefficient,
+    )
+    if certificate is None or certificate.target != target:
+        return None
+
+    beta = parallel_direction_squareclass_line_split_quotient(
+        alternate_direction,
+        split_factor,
+        signed_paired_split_factor,
+    )
+    if beta is None:
+        return None
+
+    witness = ParallelDirectionConjugateIdealWitness(
+        target=target,
+        direction=alternate_direction,
+        squareclass=squareclass,
+        split_factor=split_factor,
+        signed_paired_split_factor=signed_paired_split_factor,
+        beta=beta,
+        first_coefficient=first_coefficient,
+    )
+    if not witness.valid() or witness.certificate != certificate:
+        return None
+    if promoted_root_spine_line_certificate_from_witness(witness) != certificate:
+        return None
+    return witness
+
+
+def global_root_choice_signature_template_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Target-facing discharge through short-signature alternate line templates."""
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+    profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+        target,
+        direction,
+        obligation,
+    )
+    if profile is None:
+        return None
+    signature = global_root_choice_short_exponent_signature(profile)
+    if signature is None:
+        return None
+
+    for row in rows:
+        if row[:5] != signature:
+            continue
+        template = row[5:]
+        witness = parallel_direction_squareclass_line_template_witness(
+            target,
+            template,
+        )
+        if witness is not None:
+            return witness
+    return None
+
+
+def global_root_choice_signature_template_certificate(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> Certificate | None:
+    """Return a signature-template alternate-root certificate, when present."""
+
+    witness = global_root_choice_signature_template_witness(
+        target,
+        direction,
+        obligation,
+        rows,
+    )
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+def global_root_choice_branch_row_signature_template(
+    row: DivisorObligationGlobalRootChoiceBranchAuditRow,
+) -> GlobalRootChoiceSignatureTemplate | None:
+    """Convert one global branch row into a short-signature/template row."""
+
+    profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+        row.target,
+        row.direction,
+        row.obligation,
+    )
+    if profile is None:
+        return None
+    template = _global_root_choice_branch_row_line_template(row)
+    if template is None:
+        return None
+    signature = global_root_choice_short_exponent_signature(profile)
+    if signature is None:
+        return None
+    return (*signature, *template)
+
+
+def global_root_choice_normalized_line_template(
+    template: GlobalRootChoiceLineTemplate,
+) -> GlobalRootChoiceNormalizedLineTemplate:
+    """Coarse template shape modulo sign and split-factor order."""
+
+    direction, squareclass, split_factor, signed_paired_split_factor, period, _residue = (
+        template
+    )
+    root_shape = gaussian_root_shape(
+        primitive_pythagorean_direction_gaussian_root(direction)[0]
+    )
+    split_pair = tuple(sorted((abs(split_factor), abs(signed_paired_split_factor))))
+    return (root_shape, squareclass, split_pair, period)
+
+
+def global_root_choice_normalized_signature_template(
+    row: GlobalRootChoiceSignatureTemplate,
+) -> GlobalRootChoiceNormalizedSignatureTemplate:
+    """Short signature plus coarse normalized template shape."""
+
+    signature = row[:5]
+    normalized_template = global_root_choice_normalized_line_template(row[5:])
+    return (*signature, *normalized_template)
+
+
+GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES: tuple[
+    GlobalRootChoiceProvedNormalizedLineFamily,
+    ...,
+] = (
+    (
+        ((1, 4), 2, (5, 241), 17),
+        "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+    ),
+    (
+        ((1, 4), 17, (1, 1033), 34),
+        "certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip",
+    ),
+    (
+        ((1, 6), 1, (89, 349), 74),
+        "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+    ),
+    (
+        ((1, 6), 10, (1, 3583), 37),
+        "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip",
+    ),
+    (
+        ((1, 6), 10, (1, 3583), 2738),
+        "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip",
+    ),
+    (
+        ((1, 6), 10, (1, 475), 37),
+        "certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueOneLineStrip",
+    ),
+    (
+        ((1, 6), 10, (1, 475), 2738),
+        "certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueTwentySevenThirtySevenLineStrip",
+    ),
+    (
+        ((1, 6), 7, (1, 2917), 74),
+        "certificateValid_oneSixSplitTwentyNineSeventeenLineStrip",
+    ),
+    (
+        ((1, 2), 535, (1, 947), 50),
+        "certificateValid_oneTwoSquareclassFiveThirtyFiveSplitNineFortySevenResidueThreeLineStrip",
+    ),
+    (
+        ((2, 3), 1, (11, 881), 338),
+        "certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip",
+    ),
+    (
+        ((2, 3), 1, (11, 881), 26),
+        "certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip",
+    ),
+    (
+        ((2, 3), 1, (11, 257), 338),
+        "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueEightyOneLineStrip",
+    ),
+    (
+        ((2, 3), 1, (11, 257), 26),
+        "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueTwentyThreeLineStrip",
+    ),
+    (
+        ((2, 3), 1, (23, 535), 338),
+        "certificateValid_twoThreeOddSplitTwentyThreeFiveThirtyFiveResidueOneFortyOneLineStrip",
+    ),
+    (
+        ((2, 3), 1, (67, 257), 26),
+        "certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenLineStrip",
+    ),
+    (
+        ((2, 3), 1, (107, 115), 338),
+        "certificateValid_twoThreeOddSplitOneHundredSevenOneFifteenResidueTwoThirtyOneLineStrip",
+    ),
+    (
+        ((2, 3), 13, (1, 473), 26),
+        "certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip",
+    ),
+    (
+        ((2, 3), 13, (1, 905), 338),
+        "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueOneOhNineLineStrip",
+    ),
+    (
+        ((2, 3), 13, (1, 905), 26),
+        "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip",
+    ),
+    (
+        ((2, 3), 2, (71, 121), 13),
+        "certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip",
+    ),
+    (
+        ((2, 3), 2, (19, 641), 13),
+        "certificateValid_twoThreeEvenSplitNineteenSixFortyOneLineStrip",
+    ),
+    (
+        ((2, 3), 5, (19, 173), 26),
+        "certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip",
+    ),
+    (
+        ((2, 3), 46, (1, 317), 13),
+        "certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip",
+    ),
+    (
+        ((2, 5), 10, (1, 1583), 29),
+        "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+    ),
+    (
+        ((2, 5), 23, (1, 1549), 58),
+        "certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip",
+    ),
+    (
+        ((2, 7), 1, (179, 229), 106),
+        "certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip",
+    ),
+    (
+        ((2, 7), 2, (19, 1153), 53),
+        "certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip",
+    ),
+    (
+        ((4, 5), 2, (19, 239), 3362),
+        "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueThirtyOneTwentyThreeLineStrip",
+    ),
+    (
+        ((4, 5), 2, (19, 239), 41),
+        "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip",
+    ),
+    (
+        ((3, 8), 1, (19, 1531), 146),
+        "certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip",
+    ),
+)
+
+GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceNormalizedLineTemplate,
+    ...,
+] = tuple(row[0] for row in GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES)
+
+
+def global_root_choice_proved_normalized_line_family_theorem(
+    template: GlobalRootChoiceLineTemplate,
+) -> str | None:
+    """Lean theorem name for a proved normalized alternate family, if known."""
+
+    normalized_template = global_root_choice_normalized_line_template(template)
+    for candidate, theorem_name in GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES:
+        if normalized_template == candidate:
+            return theorem_name
+    return None
+
+
+def global_root_choice_proved_signature_template_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> ParallelDirectionConjugateIdealWitness | None:
+    """Target-facing witness restricted to theorem-backed normalized families."""
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+    profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+        target,
+        direction,
+        obligation,
+    )
+    if profile is None:
+        return None
+    signature = global_root_choice_short_exponent_signature(profile)
+    if signature is None:
+        return None
+
+    for row in rows:
+        if row[:5] != signature:
+            continue
+        template = row[5:]
+        if global_root_choice_proved_normalized_line_family_theorem(template) is None:
+            continue
+        witness = parallel_direction_squareclass_line_template_witness(
+            target,
+            template,
+        )
+        if witness is not None:
+            return witness
+    return None
+
+
+def global_root_choice_proved_signature_template_certificate(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> Certificate | None:
+    """Return a theorem-backed signature-template certificate, when present."""
+
+    witness = global_root_choice_proved_signature_template_witness(
+        target,
+        direction,
+        obligation,
+        rows,
+    )
+    if witness is None:
+        return None
+    return witness.certificate
+
+
+def global_root_choice_signature_template_shape_audit(
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> DivisorObligationGlobalRootChoiceSignatureTemplateShapeAudit:
+    """Summarize symmetry-coarse shapes in a signature-template table."""
+
+    signatures = {row[:5] for row in rows}
+    templates = {row[5:] for row in rows}
+    normalized_templates: dict[GlobalRootChoiceNormalizedLineTemplate, int] = {}
+    normalized_signature_templates: set[GlobalRootChoiceNormalizedSignatureTemplate] = set()
+    root_shape_counts: dict[Point, int] = {}
+    for row in rows:
+        normalized_template = global_root_choice_normalized_line_template(row[5:])
+        normalized_templates[normalized_template] = (
+            normalized_templates.get(normalized_template, 0) + 1
+        )
+        normalized_signature_templates.add(
+            global_root_choice_normalized_signature_template(row)
+        )
+        root_shape = normalized_template[0]
+        root_shape_counts[root_shape] = root_shape_counts.get(root_shape, 0) + 1
+
+    return DivisorObligationGlobalRootChoiceSignatureTemplateShapeAudit(
+        row_count=len(rows),
+        signature_count=len(signatures),
+        template_count=len(templates),
+        normalized_template_shape_count=len(normalized_templates),
+        normalized_signature_template_shape_count=len(normalized_signature_templates),
+        root_shape_counts=_sorted_count_items(root_shape_counts),
+        normalized_template_shape_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                normalized_templates.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+    )
+
+
+def _signature_modulus_root_shape_counts(
+    rows: Iterable[GlobalRootChoiceNormalizedSignatureTemplate],
+) -> tuple[GlobalRootChoiceSignatureModulusRootShapeCount, ...]:
+    """Count normalized signature-template shapes by divisor modulus and root shape."""
+
+    counts: dict[tuple[int, Point], int] = {}
+    for row in rows:
+        key = (row[0], row[5])
+        counts[key] = counts.get(key, 0) + 1
+    return tuple(
+        (modulus, root_shape, count)
+        for (modulus, root_shape), count in sorted(
+            counts.items(),
+            key=lambda item: (-item[1], item[0][0], item[0][1]),
+        )
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+    max_coordinate: int,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+    obligations: tuple[DivisorObligationKey, ...] | None = None,
+    max_root_coordinate: int | None = None,
+    branch_audit: DivisorObligationGlobalRootChoiceBranchAudit | None = None,
+) -> DivisorObligationGlobalRootChoiceSignatureTemplateCoverageAudit:
+    """Measure which global rows are covered by a signature-template table."""
+
+    if obligations is None:
+        obligations = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS
+    if max_root_coordinate is None:
+        max_root_coordinate = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE
+
+    if branch_audit is None:
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            max_coordinate,
+            obligations,
+            max_root_coordinate,
+        )
+    elif branch_audit.max_coordinate != max_coordinate:
+        raise ValueError("branch audit radius does not match max_coordinate")
+
+    covered_count = 0
+    mismatch_count = 0
+    missing_root_shape_counts: dict[Point, int] = {}
+    missing_signature_counts: dict[GlobalRootChoiceExponentSignature, int] = {}
+    missing_template_counts: dict[GlobalRootChoiceLineTemplate, int] = {}
+
+    for row in branch_audit.global_rows:
+        witness = global_root_choice_signature_template_witness(
+            row.target,
+            row.direction,
+            row.obligation,
+            rows,
+        )
+        if witness is None:
+            if row.structural_row is not None:
+                root_shape = row.structural_row[1]
+                if isinstance(root_shape, tuple):
+                    missing_root_shape_counts[root_shape] = (
+                        missing_root_shape_counts.get(root_shape, 0) + 1
+                    )
+                template = _global_root_choice_branch_row_line_template(row)
+                if template is not None:
+                    missing_template_counts[template] = (
+                        missing_template_counts.get(template, 0) + 1
+                    )
+            profile = (
+                parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                )
+            )
+            if profile is not None:
+                signature = global_root_choice_short_exponent_signature(profile)
+                if signature is not None:
+                    missing_signature_counts[signature] = (
+                        missing_signature_counts.get(signature, 0) + 1
+                    )
+            continue
+
+        covered_count += 1
+        if row.structural_row is None or (
+            witness.direction,
+            witness.squareclass,
+            witness.split_factor,
+            witness.signed_paired_split_factor,
+            witness.beta,
+            witness.first_coefficient,
+        ) != (
+            row.structural_row[0],
+            row.structural_row[2],
+            row.structural_row[3],
+            row.structural_row[4],
+            row.structural_row[5],
+            row.structural_row[6],
+        ):
+            mismatch_count += 1
+
+    missing_count = len(branch_audit.global_rows) - covered_count
+    return DivisorObligationGlobalRootChoiceSignatureTemplateCoverageAudit(
+        max_coordinate=max_coordinate,
+        signature_template_row_count=len(rows),
+        global_row_count=len(branch_audit.global_rows),
+        covered_count=covered_count,
+        missing_count=missing_count,
+        mismatch_count=mismatch_count,
+        missing_root_shape_counts=_sorted_count_items(missing_root_shape_counts),
+        missing_signature_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                missing_signature_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        missing_template_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                missing_template_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+    )
+
+
+def _global_root_choice_signature_template_count_ordered_rows(
+    rows: Iterable[GlobalRootChoiceSignatureTemplate],
+    branch_audit: DivisorObligationGlobalRootChoiceBranchAudit,
+) -> tuple[GlobalRootChoiceSignatureTemplate, ...]:
+    """Rows ordered like the branch-derived signature-template audit."""
+
+    row_counts = {row: 0 for row in rows}
+    for branch_row in branch_audit.global_rows:
+        signature_template = global_root_choice_branch_row_signature_template(branch_row)
+        if signature_template in row_counts:
+            row_counts[signature_template] += 1
+    return tuple(
+        row
+        for row, _count in sorted(
+            row_counts.items(),
+            key=lambda item: (-item[1], item[0]),
+        )
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+    max_coordinate: int,
+    base_rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+    max_iterations: int = 8,
+    obligations: tuple[DivisorObligationKey, ...] | None = None,
+    max_root_coordinate: int | None = None,
+    branch_audit: DivisorObligationGlobalRootChoiceBranchAudit | None = None,
+) -> DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit:
+    """Iteratively add observed short-signature/template rows until a box closes."""
+
+    if max_iterations < 0:
+        raise ValueError("max_iterations must be nonnegative")
+    if obligations is None:
+        obligations = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS
+    if max_root_coordinate is None:
+        max_root_coordinate = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE
+    if branch_audit is None:
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            max_coordinate,
+            obligations,
+            max_root_coordinate,
+        )
+    elif branch_audit.max_coordinate != max_coordinate:
+        raise ValueError("branch audit radius does not match max_coordinate")
+
+    current_rows = set(base_rows)
+    layers: list[DivisorObligationGlobalRootChoiceSignatureTemplateClosureLayer] = []
+    final_coverage = (
+        parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+            max_coordinate,
+            tuple(sorted(current_rows)),
+            obligations,
+            max_root_coordinate,
+            branch_audit,
+        )
+    )
+    if final_coverage.missing_count == 0:
+        return DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit(
+            max_coordinate=max_coordinate,
+            base_row_count=len(base_rows),
+            final_row_count=len(current_rows),
+            final_rows=_global_root_choice_signature_template_count_ordered_rows(
+                current_rows,
+                branch_audit,
+            ),
+            iteration_count=0,
+            closed=True,
+            layers=(),
+            final_coverage_audit=final_coverage,
+        )
+
+    for iteration in range(1, max_iterations + 1):
+        missing_rows: set[GlobalRootChoiceSignatureTemplate] = set()
+        missing_obligation_counts: dict[DivisorObligationKey, int] = {}
+        for row in branch_audit.global_rows:
+            witness = global_root_choice_signature_template_witness(
+                row.target,
+                row.direction,
+                row.obligation,
+                tuple(sorted(current_rows)),
+            )
+            if witness is not None:
+                continue
+            missing_obligation_counts[row.obligation] = (
+                missing_obligation_counts.get(row.obligation, 0) + 1
+            )
+            signature_template = global_root_choice_branch_row_signature_template(row)
+            if signature_template is not None:
+                missing_rows.add(signature_template)
+
+        new_rows = missing_rows.difference(current_rows)
+        next_rows = current_rows.union(new_rows)
+        current_signatures = {row[:5] for row in current_rows}
+        new_signatures = {row[:5] for row in new_rows}
+        current_templates = {row[5:] for row in current_rows}
+        new_templates = {row[5:] for row in new_rows}
+        current_normalized_templates = {
+            global_root_choice_normalized_line_template(row[5:])
+            for row in current_rows
+        }
+        new_normalized_templates = {
+            global_root_choice_normalized_line_template(row[5:])
+            for row in new_rows
+        }
+        current_normalized_signature_templates = {
+            global_root_choice_normalized_signature_template(row)
+            for row in current_rows
+        }
+        new_normalized_signature_templates = {
+            global_root_choice_normalized_signature_template(row)
+            for row in new_rows
+        }
+        reused_normalized_templates = new_normalized_templates.intersection(
+            current_normalized_templates
+        )
+        reused_normalized_signature_templates = (
+            new_normalized_signature_templates.intersection(
+                current_normalized_signature_templates
+            )
+        )
+        layers.append(
+            DivisorObligationGlobalRootChoiceSignatureTemplateClosureLayer(
+                iteration=iteration,
+                input_row_count=len(current_rows),
+                missing_count=final_coverage.missing_count,
+                new_row_count=len(new_rows),
+                output_row_count=len(next_rows),
+                new_rows=tuple(sorted(new_rows)),
+                new_signature_count=len(new_signatures),
+                novel_signature_count=len(new_signatures.difference(current_signatures)),
+                new_template_count=len(new_templates),
+                novel_template_count=len(new_templates.difference(current_templates)),
+                new_normalized_template_shape_count=len(new_normalized_templates),
+                novel_normalized_template_shape_count=len(
+                    new_normalized_templates.difference(current_normalized_templates)
+                ),
+                reused_normalized_template_shapes=tuple(
+                    sorted(reused_normalized_templates)
+                ),
+                new_normalized_signature_template_shape_count=len(
+                    new_normalized_signature_templates
+                ),
+                novel_normalized_signature_template_shape_count=len(
+                    new_normalized_signature_templates.difference(
+                        current_normalized_signature_templates
+                    )
+                ),
+                reused_normalized_signature_template_shapes=tuple(
+                    sorted(reused_normalized_signature_templates)
+                ),
+                missing_root_shape_counts=final_coverage.missing_root_shape_counts,
+                missing_obligation_counts=tuple(
+                    (key, count)
+                    for key, count in sorted(
+                        missing_obligation_counts.items(),
+                        key=lambda item: (-item[1], item[0]),
+                    )
+                ),
+                missing_signature_counts=final_coverage.missing_signature_counts,
+                missing_template_counts=final_coverage.missing_template_counts,
+            )
+        )
+        if len(next_rows) == len(current_rows):
+            break
+
+        current_rows = next_rows
+        final_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                max_coordinate,
+                tuple(sorted(current_rows)),
+                obligations,
+                max_root_coordinate,
+                branch_audit,
+            )
+        )
+        if final_coverage.missing_count == 0:
+            break
+
+    return DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit(
+        max_coordinate=max_coordinate,
+        base_row_count=len(base_rows),
+        final_row_count=len(current_rows),
+        final_rows=_global_root_choice_signature_template_count_ordered_rows(
+            current_rows,
+            branch_audit,
+        ),
+        iteration_count=len(layers),
+        closed=final_coverage.missing_count == 0,
+        layers=tuple(layers),
+        final_coverage_audit=final_coverage,
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_signature_template_closure_chain_audit(
+    max_coordinates: tuple[int, ...],
+    base_rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+    max_iterations_per_radius: int = 8,
+    obligations: tuple[DivisorObligationKey, ...] | None = None,
+    max_root_coordinate: int | None = None,
+) -> DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainAudit:
+    """Thread generated signature-template rows through increasing finite boxes."""
+
+    if not max_coordinates:
+        raise ValueError("max_coordinates must be nonempty")
+    if any(max_coordinate < 1 for max_coordinate in max_coordinates):
+        raise ValueError("max_coordinates must be positive")
+    if tuple(sorted(max_coordinates)) != max_coordinates:
+        raise ValueError("max_coordinates must be sorted")
+    if max_iterations_per_radius < 0:
+        raise ValueError("max_iterations_per_radius must be nonnegative")
+    if obligations is None:
+        obligations = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS
+    if max_root_coordinate is None:
+        max_root_coordinate = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE
+
+    current_rows = tuple(sorted(set(base_rows)))
+    stages: list[
+        DivisorObligationGlobalRootChoiceIteratedSignatureTemplateClosureAudit
+    ] = []
+    ledger_rows: list[
+        DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainLedgerRow
+    ] = []
+    for max_coordinate in max_coordinates:
+        input_rows = current_rows
+        stage = parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+            max_coordinate,
+            input_rows,
+            max_iterations=max_iterations_per_radius,
+            obligations=obligations,
+            max_root_coordinate=max_root_coordinate,
+        )
+        stages.append(stage)
+        current_rows = stage.final_rows
+        input_row_set = set(input_rows)
+        new_rows = set(stage.final_rows).difference(input_row_set)
+        input_signatures = {row[:5] for row in input_rows}
+        new_signatures = {row[:5] for row in new_rows}
+        novel_signatures = new_signatures.difference(input_signatures)
+        new_row_modulus_counts: dict[int, int] = {}
+        for row in new_rows:
+            modulus = row[0]
+            new_row_modulus_counts[modulus] = (
+                new_row_modulus_counts.get(modulus, 0) + 1
+            )
+        new_signature_modulus_counts: dict[int, int] = {}
+        for signature in new_signatures:
+            modulus = signature[0]
+            new_signature_modulus_counts[modulus] = (
+                new_signature_modulus_counts.get(modulus, 0) + 1
+            )
+        novel_signature_modulus_counts: dict[int, int] = {}
+        for signature in novel_signatures:
+            modulus = signature[0]
+            novel_signature_modulus_counts[modulus] = (
+                novel_signature_modulus_counts.get(modulus, 0) + 1
+            )
+        input_templates = {row[5:] for row in input_rows}
+        new_templates = {row[5:] for row in new_rows}
+        input_normalized_templates = {
+            global_root_choice_normalized_line_template(row[5:])
+            for row in input_rows
+        }
+        new_normalized_templates = {
+            global_root_choice_normalized_line_template(row[5:])
+            for row in new_rows
+        }
+        input_normalized_signature_templates = {
+            global_root_choice_normalized_signature_template(row)
+            for row in input_rows
+        }
+        new_normalized_signature_templates = {
+            global_root_choice_normalized_signature_template(row)
+            for row in new_rows
+        }
+        novel_normalized_templates = new_normalized_templates.difference(
+            input_normalized_templates
+        )
+        reused_normalized_templates = new_normalized_templates.intersection(
+            input_normalized_templates
+        )
+        novel_normalized_signature_templates = (
+            new_normalized_signature_templates.difference(
+                input_normalized_signature_templates
+            )
+        )
+        reused_normalized_signature_templates = (
+            new_normalized_signature_templates.intersection(
+                input_normalized_signature_templates
+            )
+        )
+        new_normalized_template_root_shape_counts: dict[Point, int] = {}
+        for row in new_normalized_templates:
+            root_shape = row[0]
+            new_normalized_template_root_shape_counts[root_shape] = (
+                new_normalized_template_root_shape_counts.get(root_shape, 0) + 1
+            )
+        novel_normalized_template_root_shape_counts: dict[Point, int] = {}
+        for row in novel_normalized_templates:
+            root_shape = row[0]
+            novel_normalized_template_root_shape_counts[root_shape] = (
+                novel_normalized_template_root_shape_counts.get(root_shape, 0) + 1
+            )
+        reused_normalized_template_root_shape_counts: dict[Point, int] = {}
+        for row in reused_normalized_templates:
+            root_shape = row[0]
+            reused_normalized_template_root_shape_counts[root_shape] = (
+                reused_normalized_template_root_shape_counts.get(root_shape, 0) + 1
+            )
+        new_normalized_signature_template_root_shape_counts: dict[Point, int] = {}
+        for row in new_normalized_signature_templates:
+            root_shape = row[5]
+            new_normalized_signature_template_root_shape_counts[root_shape] = (
+                new_normalized_signature_template_root_shape_counts.get(root_shape, 0)
+                + 1
+            )
+        novel_normalized_signature_template_root_shape_counts: dict[Point, int] = {}
+        for row in novel_normalized_signature_templates:
+            root_shape = row[5]
+            novel_normalized_signature_template_root_shape_counts[root_shape] = (
+                novel_normalized_signature_template_root_shape_counts.get(root_shape, 0)
+                + 1
+            )
+        reused_normalized_signature_template_root_shape_counts: dict[Point, int] = {}
+        for row in reused_normalized_signature_templates:
+            root_shape = row[5]
+            reused_normalized_signature_template_root_shape_counts[root_shape] = (
+                reused_normalized_signature_template_root_shape_counts.get(
+                    root_shape,
+                    0,
+                )
+                + 1
+            )
+        ledger_rows.append(
+            DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainLedgerRow(
+                max_coordinate=stage.max_coordinate,
+                input_row_count=len(input_rows),
+                output_row_count=stage.final_row_count,
+                global_row_count=stage.final_coverage_audit.global_row_count,
+                covered_count=stage.final_coverage_audit.covered_count,
+                final_missing_count=stage.final_coverage_audit.missing_count,
+                mismatch_count=stage.final_coverage_audit.mismatch_count,
+                iteration_count=stage.iteration_count,
+                initial_missing_count=stage.layers[0].missing_count
+                if stage.layers
+                else 0,
+                new_row_count=len(new_rows),
+                new_row_modulus_counts=_sorted_count_items(new_row_modulus_counts),
+                new_signature_count=len(new_signatures),
+                novel_signature_count=len(novel_signatures),
+                new_signature_modulus_counts=_sorted_count_items(
+                    new_signature_modulus_counts
+                ),
+                novel_signature_modulus_counts=_sorted_count_items(
+                    novel_signature_modulus_counts
+                ),
+                new_template_count=len(new_templates),
+                novel_template_count=len(new_templates.difference(input_templates)),
+                new_normalized_template_shape_count=len(new_normalized_templates),
+                novel_normalized_template_shape_count=len(
+                    novel_normalized_templates
+                ),
+                new_normalized_template_root_shape_counts=_sorted_count_items(
+                    new_normalized_template_root_shape_counts
+                ),
+                novel_normalized_template_root_shape_counts=_sorted_count_items(
+                    novel_normalized_template_root_shape_counts
+                ),
+                new_normalized_signature_template_shape_count=len(
+                    new_normalized_signature_templates
+                ),
+                novel_normalized_signature_template_shape_count=len(
+                    novel_normalized_signature_templates
+                ),
+                new_normalized_signature_template_root_shape_counts=_sorted_count_items(
+                    new_normalized_signature_template_root_shape_counts
+                ),
+                novel_normalized_signature_template_root_shape_counts=_sorted_count_items(
+                    novel_normalized_signature_template_root_shape_counts
+                ),
+                new_normalized_signature_template_modulus_root_shape_counts=_signature_modulus_root_shape_counts(
+                    new_normalized_signature_templates
+                ),
+                novel_normalized_signature_template_modulus_root_shape_counts=_signature_modulus_root_shape_counts(
+                    novel_normalized_signature_templates
+                ),
+                reused_normalized_template_shape_count=len(
+                    reused_normalized_templates
+                ),
+                reused_normalized_signature_template_shape_count=len(
+                    reused_normalized_signature_templates
+                ),
+                reused_normalized_template_root_shape_counts=_sorted_count_items(
+                    reused_normalized_template_root_shape_counts
+                ),
+                reused_normalized_signature_template_root_shape_counts=_sorted_count_items(
+                    reused_normalized_signature_template_root_shape_counts
+                ),
+                reused_normalized_signature_template_modulus_root_shape_counts=_signature_modulus_root_shape_counts(
+                    reused_normalized_signature_templates
+                ),
+                missing_root_shape_counts=stage.layers[0].missing_root_shape_counts
+                if stage.layers
+                else (),
+                missing_obligation_counts=stage.layers[0].missing_obligation_counts
+                if stage.layers
+                else (),
+            )
+        )
+
+    return DivisorObligationGlobalRootChoiceSignatureTemplateClosureChainAudit(
+        max_coordinates=max_coordinates,
+        base_row_count=len(base_rows),
+        final_row_count=len(current_rows),
+        final_rows=current_rows,
+        closed=all(stage.closed for stage in stages),
+        stages=tuple(stages),
+        ledger_rows=tuple(ledger_rows),
+    )
+
+
+def pinned_global_root_choice_alternate_line_strip_rows_valid() -> bool:
+    """Validate the finite alternate-root row table used by the pinned audit."""
+
+    return all(
+        pinned_global_root_choice_alternate_line_strip_row_valid(row)
+        for row in PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+    )
+
+
+def pinned_global_root_choice_alternate_line_strip_summary() -> (
+    PinnedGlobalRootChoiceAlternateLineStripSummary
+):
+    """Compact summary of the portable finite alternate-root row table."""
+
+    alternate_line_rows = {
+        (
+            alternate_direction,
+            squareclass,
+            split_factor,
+            paired_period,
+            paired_residue,
+        )
+        for (
+            _obligation,
+            _strip_direction,
+            alternate_direction,
+            squareclass,
+            split_factor,
+            _signed_paired_split_factor,
+            paired_period,
+            paired_residue,
+            _coefficient_residue,
+            _coefficient_modulus,
+        ) in PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+    }
+    failed_strip_intersection_rows = set(PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS)
+    obligation_counts: dict[DivisorObligationKey, int] = {}
+    strip_direction_counts: dict[Point, int] = {}
+    coefficient_modulus_counts: dict[int, int] = {}
+    for row in PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS:
+        obligation = row[0]
+        strip_direction = row[1]
+        coefficient_modulus = row[-1]
+        obligation_counts[obligation] = obligation_counts.get(obligation, 0) + 1
+        strip_direction_counts[strip_direction] = (
+            strip_direction_counts.get(strip_direction, 0) + 1
+        )
+        coefficient_modulus_counts[coefficient_modulus] = (
+            coefficient_modulus_counts.get(coefficient_modulus, 0) + 1
+        )
+
+    return PinnedGlobalRootChoiceAlternateLineStripSummary(
+        row_count=len(PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS),
+        distinct_alternate_line_row_count=len(alternate_line_rows),
+        distinct_failed_strip_intersection_row_count=len(
+            failed_strip_intersection_rows
+        ),
+        obligation_counts=tuple(
+            (obligation, count)
+            for obligation, count in sorted(
+                obligation_counts.items(),
+                key=lambda item: (
+                    item[0][0][0] * item[0][0][0] + item[0][0][1] * item[0][0][1],
+                    item[0],
+                ),
+            )
+        ),
+        strip_direction_counts=_sorted_count_items(strip_direction_counts),
+        coefficient_modulus_counts=_sorted_count_items(coefficient_modulus_counts),
+        row_table_valid=pinned_global_root_choice_alternate_line_strip_rows_valid(),
+    )
 
 
 def parallel_direction_witness(
@@ -7060,6 +8892,337 @@ PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE: tuple[
 )
 
 
+PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS: tuple[
+    GlobalRootChoiceAlternateLineStripRow,
+    ...,
+] = (
+    (((2, 3), 1, 13, 5, 7, 4, 11), (-12, -5), (-48, 55), 1, 19, -1531, 146, 75, 10, 13),
+    (((2, 3), 1, 13, 5, 7, 4, 11), (5, -12), (-20, 21), 10, 1583, -1, 29, 28, 1, 13),
+    (((2, 3), 1, 13, 5, 7, 4, 11), (12, 5), (-8, -15), 2, 241, 5, 17, 5, 7, 13),
+    (((2, 3), 1, 13, 5, 7, 4, 11), (12, 5), (-21, 20), 10, 1, -1583, 29, 12, 12, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (-12, 5), (-21, 20), 10, 1, -1583, 29, 12, 12, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (-5, -12), (-55, 48), 1, 1531, -19, 146, 127, 3, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (5, 12), (-15, -8), 2, 241, -5, 17, 12, 7, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (5, 12), (-20, 21), 10, 1583, -1, 29, 28, 1, 13),
+    (((4, 5), 2, 41, 9, 10, 33, 19), (9, -40), (-12, -5), 1, 11, -257, 338, 81, 2, 82),
+    (((4, 5), 2, 41, 32, 10, 8, 34), (40, -9), (-5, -12), 1, 11, 257, 26, 23, 2, 82),
+    (((3, 8), 1, 73, 27, 38, 69, 19), (-48, 55), (-15, -8), 2, 241, -5, 17, 12, 65, 73),
+    (((3, 8), 1, 73, 27, 38, 69, 19), (55, 48), (-40, 9), 2, 239, -19, 41, 22, 32, 73),
+    (((3, 8), 1, 73, 46, 38, 4, 71), (-55, 48), (-8, -15), 2, 241, 5, 17, 5, 65, 73),
+    (((3, 8), 1, 73, 46, 38, 4, 71), (-48, -55), (-9, 40), 2, 19, -239, 3362, 3123, 41, 73),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS: tuple[
+    GlobalRootChoiceAlternateLineStripRow,
+    ...,
+] = (
+    (((2, 3), 1, 13, 5, 7, 4, 11), (-5, 12), (-28, 45), 2, 1153, -19, 53, 34, 1, 13),
+    (((2, 3), 1, 13, 5, 7, 4, 11), (5, -12), (-12, 5), 13, 1, -473, 26, 21, 3, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (-12, 5), (-5, 12), 13, 473, -1, 26, 25, 10, 13),
+    (((2, 3), 1, 13, 8, 6, 4, 11), (12, -5), (-45, 28), 2, 19, -1153, 53, 13, 12, 13),
+    (((1, 4), 2, 17, 4, 2, 9, 3), (-15, -8), (-28, 45), 1, 229, -179, 106, 33, 32, 34),
+    (((1, 4), 2, 17, 13, 15, 9, 3), (-8, -15), (-45, 28), 1, 179, -229, 106, 89, 2, 34),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceLineTemplate,
+    ...,
+] = (
+    ((-35, 12), 1, 89, -349, 74, 21),
+    ((-35, 12), 10, 3583, -1, 37, 36),
+    ((-12, 35), 1, 349, -89, 74, 59),
+    ((-12, 35), 10, 1, -3583, 2738, 1893),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceLineTemplate,
+    ...,
+] = (
+    ((-12, -5), 1, 11, -881, 338, 133),
+    ((-5, -12), 1, 11, 881, 26, 23),
+    ((-35, -12), 7, 1, -2917, 74, 43),
+    ((-21, 20), 23, 1549, -1, 58, 57),
+    ((-20, 21), 23, 1, -1549, 58, 17),
+    ((-12, -35), 7, 1, 2917, 74, 31),
+    ((-12, 5), 1, 115, -107, 338, 231),
+    ((-5, 12), 1, 23, -535, 338, 141),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceLineTemplate,
+    ...,
+] = (
+    ((-15, 8), 17, 1033, -1, 34, 33),
+    ((-12, -5), 13, 1, -905, 338, 109),
+    ((-8, 15), 17, 1, -1033, 34, 21),
+    ((-5, -12), 13, 1, 905, 26, 21),
+    ((-35, -12), 10, 475, 1, 37, 1),
+    ((-12, -35), 10, 475, -1, 2738, 2737),
+    ((-12, 5), 2, 71, -121, 13, 9),
+    ((-12, 5), 5, 19, -173, 26, 9),
+    ((-12, 5), 46, 1, -317, 13, 8),
+    ((-5, 12), 2, 121, -71, 13, 7),
+    ((-5, 12), 5, 173, -19, 26, 7),
+    ((-5, 12), 46, 317, -1, 13, 12),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceLineTemplate,
+    ...,
+] = (
+    ((-12, 5), 1, 67, -257, 26, 3),
+    ((-12, 5), 2, 19, -641, 13, 9),
+    ((-12, 5), 82, 229, -1, 13, 12),
+    ((-5, 12), 1, 257, -67, 26, 11),
+    ((-5, 12), 2, 641, -19, 13, 7),
+    ((-5, 12), 82, 1, -229, 338, 109),
+    ((-40, -9), 1, 2257, -23, 82, 59),
+    ((-40, 9), 149, 401, -1, 82, 81),
+    ((-21, 20), 2, 43, -557, 29, 23),
+    ((-20, 21), 2, 557, -43, 29, 15),
+    ((-12, 5), 5, 1919, -1, 26, 25),
+    ((-9, -40), 1, 2257, 23, 82, 23),
+    ((-9, 40), 149, 1, -401, 3362, 2961),
+    ((-5, 12), 5, 1, -1919, 338, 109),
+    ((-40, -9), 5, 1849, -5, 82, 77),
+    ((-35, 12), 1, 869, -71, 74, 3),
+    ((-21, -20), 5, 5, 607, 58, 27),
+    ((-20, -21), 5, 5, -607, 58, 31),
+    ((-15, -8), 11, 1, -761, 34, 21),
+    ((-15, 8), 1, 43, -563, 34, 15),
+    ((-12, -5), 22, 499, -1, 13, 12),
+    ((-12, 5), 10, 1867, -1, 13, 12),
+    ((-12, 5), 26, 1, -811, 13, 8),
+    ((-12, 5), 43, 281, -1, 26, 25),
+    ((-12, 35), 1, 71, -869, 74, 19),
+    ((-9, -40), 5, 1849, 5, 82, 5),
+    ((-8, -15), 11, 1, 761, 34, 13),
+    ((-8, 15), 1, 563, -43, 34, 25),
+    ((-5, -12), 22, 499, 1, 13, 1),
+    ((-5, 12), 26, 811, -1, 13, 12),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES: tuple[
+    GlobalRootChoiceLineTemplate,
+    ...,
+] = (
+    ((-40, 9), 22, 1, -3125, 41, 32),
+    ((-15, 8), 199, 1, -191, 34, 13),
+    ((-9, 40), 22, 3125, -1, 3362, 3361),
+    ((-8, 15), 199, 191, -1, 34, 33),
+    ((-21, 20), 1, 109, -461, 58, 3),
+    ((-21, 20), 7, 11, -593, 58, 45),
+    ((-20, 21), 1, 461, -109, 58, 7),
+    ((-20, 21), 7, 593, -11, 58, 47),
+    ((-12, -5), 10, 1, -1139, 338, 213),
+    ((-12, -5), 17, 499, -1, 26, 25),
+    ((-12, -5), 58, 1, -281, 338, 57),
+    ((-12, 5), 2, 59, -191, 13, 4),
+    ((-12, 5), 17, 1, -1097, 26, 21),
+    ((-5, 12), 2, 191, -59, 13, 6),
+    ((-12, 5), 1, 41, -361, 26, 3),
+    ((-12, 5), 10, 89, -29, 13, 10),
+    ((-12, 5), 74, 307, -1, 13, 12),
+    ((-5, 12), 10, 29, -89, 338, 249),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS: tuple[
+    GlobalRootChoiceSignatureTemplate,
+    ...,
+] = (
+    (13, 7, False, 1, ((0, 11),), (-55, 48), 1, 1531, -19, 146, 127),
+    (13, 7, False, 1, ((0, 11),), (-48, 55), 1, 19, -1531, 146, 75),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-15, -8), 2, 241, -5, 17, 12),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-8, -15), 2, 241, 5, 17, 5),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-20, 21), 10, 1583, -1, 29, 28),
+    (41, 9, False, 1, ((0, 8),), (-12, -5), 1, 11, -257, 338, 81),
+    (41, 19, False, 1, ((0, 8),), (-5, -12), 1, 11, 257, 26, 23),
+    (73, 44, False, 1, ((0, 34),), (-9, 40), 2, 19, -239, 3362, 3123),
+    (73, 44, False, 2, ((0, 4), (0, 30)), (-8, -15), 2, 241, 5, 17, 5),
+    (73, 62, False, 1, ((0, 34),), (-40, 9), 2, 239, -19, 41, 22),
+    (73, 62, False, 2, ((0, 4), (0, 30)), (-15, -8), 2, 241, -5, 17, 12),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS: tuple[
+    GlobalRootChoiceSignatureTemplate,
+    ...,
+] = (
+    (13, 7, False, 1, ((0, 11),), (-55, 48), 1, 1531, -19, 146, 127),
+    (13, 7, False, 1, ((0, 11),), (-48, 55), 1, 19, -1531, 146, 75),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-12, 5), 13, 1, -473, 26, 21),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-5, 12), 13, 473, -1, 26, 25),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-15, -8), 2, 241, -5, 17, 12),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-8, -15), 2, 241, 5, 17, 5),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-45, 28), 2, 19, -1153, 53, 13),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-28, 45), 2, 1153, -19, 53, 34),
+    (17, 1, False, 1, ((0, 6),), (-45, 28), 1, 179, -229, 106, 89),
+    (17, 1, False, 1, ((0, 6),), (-28, 45), 1, 229, -179, 106, 33),
+    (41, 9, False, 1, ((0, 8),), (-12, -5), 1, 11, -257, 338, 81),
+    (41, 19, False, 1, ((0, 8),), (-5, -12), 1, 11, 257, 26, 23),
+    (73, 44, False, 1, ((0, 34),), (-9, 40), 2, 19, -239, 3362, 3123),
+    (73, 44, False, 2, ((0, 4), (0, 30)), (-8, -15), 2, 241, 5, 17, 5),
+    (73, 62, False, 1, ((0, 34),), (-40, 9), 2, 239, -19, 41, 22),
+    (73, 62, False, 2, ((0, 4), (0, 30)), (-15, -8), 2, 241, -5, 17, 12),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS: tuple[
+    GlobalRootChoiceSignatureTemplate,
+    ...,
+] = (
+    (13, 7, False, 1, ((0, 11),), (-35, 12), 10, 3583, -1, 37, 36),
+    (13, 7, False, 1, ((0, 11),), (-12, 35), 10, 1, -3583, 2738, 1893),
+    (13, 7, False, 1, ((0, 5), (0,)), (-12, -5), 1, 11, -881, 338, 133),
+    (13, 7, False, 1, ((0, 5), (0,)), (-5, -12), 1, 11, 881, 26, 23),
+    (13, 7, False, 1, ((0, 11),), (-55, 48), 1, 1531, -19, 146, 127),
+    (13, 7, False, 1, ((0, 11),), (-48, 55), 1, 19, -1531, 146, 75),
+    (13, 7, False, 1, ((0, 11),), (-35, -12), 7, 1, -2917, 74, 43),
+    (13, 7, False, 1, ((0, 11),), (-35, 12), 1, 89, -349, 74, 21),
+    (13, 7, False, 1, ((0, 11),), (-12, -35), 7, 1, 2917, 74, 31),
+    (13, 7, False, 1, ((0, 11),), (-12, 35), 1, 349, -89, 74, 59),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-12, 5), 13, 1, -473, 26, 21),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-5, 12), 13, 473, -1, 26, 25),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-21, 20), 23, 1549, -1, 58, 57),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-20, 21), 23, 1, -1549, 58, 17),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-15, -8), 2, 241, -5, 17, 12),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-8, -15), 2, 241, 5, 17, 5),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-45, 28), 2, 19, -1153, 53, 13),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-28, 45), 2, 1153, -19, 53, 34),
+    (17, 1, False, 1, ((0, 6),), (-45, 28), 1, 179, -229, 106, 89),
+    (17, 1, False, 1, ((0, 6),), (-28, 45), 1, 229, -179, 106, 33),
+    (17, 1, False, 1, ((0, 14),), (-35, 12), 1, 89, -349, 74, 21),
+    (17, 1, False, 1, ((0, 14),), (-12, 5), 1, 115, -107, 338, 231),
+    (17, 1, False, 1, ((0, 14),), (-12, 35), 1, 349, -89, 74, 59),
+    (17, 1, False, 1, ((0, 14),), (-5, 12), 1, 23, -535, 338, 141),
+    (17, 1, False, 1, ((0, 14), (0,)), (-12, -5), 1, 11, -881, 338, 133),
+    (17, 1, False, 1, ((0, 14), (0,)), (-5, -12), 1, 11, 881, 26, 23),
+    (41, 9, False, 1, ((0, 8),), (-12, -5), 1, 11, -257, 338, 81),
+    (41, 9, False, 2, ((0, 39), (0, 29)), (-35, 12), 10, 3583, -1, 37, 36),
+    (41, 19, False, 1, ((0, 8),), (-5, -12), 1, 11, 257, 26, 23),
+    (41, 19, False, 2, ((0, 39), (0, 29)), (-12, 35), 10, 1, -3583, 2738, 1893),
+    (73, 44, False, 1, ((0, 34),), (-9, 40), 2, 19, -239, 3362, 3123),
+    (73, 44, False, 2, ((0, 4), (0, 30)), (-8, -15), 2, 241, 5, 17, 5),
+    (73, 44, False, 2, ((0, 31), (0, 39)), (-35, 12), 1, 89, -349, 74, 21),
+    (73, 62, False, 1, ((0, 34),), (-40, 9), 2, 239, -19, 41, 22),
+    (73, 62, False, 2, ((0, 4), (0, 30)), (-15, -8), 2, 241, -5, 17, 12),
+    (73, 62, False, 2, ((0, 31), (0, 39)), (-12, 35), 1, 349, -89, 74, 59),
+)
+
+GLOBAL_ROOT_CHOICE_PROVED_SIGNATURE_TEMPLATE_ROWS: tuple[
+    GlobalRootChoiceSignatureTemplate,
+    ...,
+] = (
+    *PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+    (41, 9, False, 2, ((0, 32), (0, 16)), (-3, 4), 535, 1, -947, 50, 3),
+    (13, 7, False, 1, ((0, 11),), (-15, 8), 17, 1033, -1, 34, 33),
+    (13, 7, False, 1, ((0, 11),), (-8, 15), 17, 1, -1033, 34, 21),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-15, 8), 17, 1033, -1, 34, 33),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-8, 15), 17, 1, -1033, 34, 21),
+    (41, 9, False, 1, ((0, 8),), (-15, 8), 17, 1033, -1, 34, 33),
+    (41, 19, False, 1, ((0, 8),), (-8, 15), 17, 1, -1033, 34, 21),
+    (17, 1, False, 1, ((0, 14),), (-12, -5), 13, 1, -905, 338, 109),
+    (17, 1, False, 1, ((0, 14),), (-5, -12), 13, 1, 905, 26, 21),
+    (41, 9, False, 2, ((0, 22), (0, 6)), (-12, -5), 13, 1, -905, 338, 109),
+    (41, 19, False, 2, ((0, 22), (0, 6)), (-5, -12), 13, 1, 905, 26, 21),
+    (73, 44, False, 2, ((0, 1), (0, 69)), (-12, -5), 13, 1, -905, 338, 109),
+    (73, 62, False, 2, ((0, 1), (0, 69)), (-5, -12), 13, 1, 905, 26, 21),
+    (13, 7, False, 1, ((0, 11), (0,)), (-35, -12), 10, 475, 1, 37, 1),
+    (13, 7, False, 1, ((0, 11), (0,)), (-12, -35), 10, 475, -1, 2738, 2737),
+    (13, 7, False, 1, ((0, 11),), (-12, 5), 2, 71, -121, 13, 9),
+    (13, 7, False, 1, ((0, 11),), (-5, 12), 2, 121, -71, 13, 7),
+    (13, 7, False, 1, ((0, 5),), (-12, 5), 2, 19, -641, 13, 9),
+    (13, 7, False, 1, ((0, 5),), (-5, 12), 2, 641, -19, 13, 7),
+    (13, 7, False, 2, ((0, 1), (0, 4)), (-12, 5), 2, 19, -641, 13, 9),
+    (13, 7, False, 2, ((0, 1), (0, 4)), (-5, 12), 2, 641, -19, 13, 7),
+    (73, 44, False, 2, ((0, 9), (0, 25)), (-5, 12), 2, 641, -19, 13, 7),
+    (73, 62, False, 2, ((0, 9), (0, 25)), (-12, 5), 2, 19, -641, 13, 9),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-12, 5), 1, 67, -257, 26, 3),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-5, 12), 1, 257, -67, 26, 11),
+    (17, 1, False, 2, ((0, 6, 11),), (-12, 5), 1, 67, -257, 26, 3),
+    (17, 1, False, 2, ((0, 6, 11),), (-5, 12), 1, 257, -67, 26, 11),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-12, 5), 5, 19, -173, 26, 9),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-5, 12), 5, 173, -19, 26, 7),
+    (13, 7, False, 1, ((0, 5),), (-12, 5), 46, 1, -317, 13, 8),
+    (13, 7, False, 1, ((0, 5),), (-5, 12), 46, 317, -1, 13, 12),
+)
+
+PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS: tuple[
+    GlobalRootChoiceSignatureTemplate,
+    ...,
+] = (
+    (13, 7, False, 1, ((0, 11),), (-35, 12), 10, 3583, -1, 37, 36),
+    (13, 7, False, 1, ((0, 11),), (-12, 35), 10, 1, -3583, 2738, 1893),
+    (13, 7, False, 1, ((0, 5),), (-12, 5), 46, 1, -317, 13, 8),
+    (13, 7, False, 1, ((0, 5),), (-5, 12), 46, 317, -1, 13, 12),
+    (13, 7, False, 1, ((0, 5), (0,)), (-12, -5), 1, 11, -881, 338, 133),
+    (13, 7, False, 1, ((0, 5), (0,)), (-5, -12), 1, 11, 881, 26, 23),
+    (13, 7, False, 1, ((0, 11),), (-55, 48), 1, 1531, -19, 146, 127),
+    (13, 7, False, 1, ((0, 11),), (-48, 55), 1, 19, -1531, 146, 75),
+    (13, 7, False, 1, ((0, 11),), (-35, -12), 7, 1, -2917, 74, 43),
+    (13, 7, False, 1, ((0, 11),), (-35, 12), 1, 89, -349, 74, 21),
+    (13, 7, False, 1, ((0, 11),), (-15, 8), 17, 1033, -1, 34, 33),
+    (13, 7, False, 1, ((0, 11),), (-12, -35), 7, 1, 2917, 74, 31),
+    (13, 7, False, 1, ((0, 11),), (-12, 5), 2, 71, -121, 13, 9),
+    (13, 7, False, 1, ((0, 11),), (-12, 35), 1, 349, -89, 74, 59),
+    (13, 7, False, 1, ((0, 11),), (-8, 15), 17, 1, -1033, 34, 21),
+    (13, 7, False, 1, ((0, 11),), (-5, 12), 2, 121, -71, 13, 7),
+    (13, 7, False, 1, ((0, 11), (0,)), (-35, -12), 10, 475, 1, 37, 1),
+    (13, 7, False, 1, ((0, 11), (0,)), (-12, -35), 10, 475, -1, 2738, 2737),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-15, 8), 17, 1033, -1, 34, 33),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-12, 5), 13, 1, -473, 26, 21),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-8, 15), 17, 1, -1033, 34, 21),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-5, 12), 13, 473, -1, 26, 25),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 2, ((0, 9), (0, 2)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-21, 20), 23, 1549, -1, 58, 57),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-20, 21), 23, 1, -1549, 58, 17),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-12, 5), 5, 19, -173, 26, 9),
+    (13, 7, False, 2, ((0, 9), (0, 8)), (-5, 12), 5, 173, -19, 26, 7),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-15, -8), 2, 241, -5, 17, 12),
+    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), (-8, -15), 2, 241, 5, 17, 5),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-21, 20), 10, 1, -1583, 29, 12),
+    (13, 7, False, 3, ((0, 6, 9), (0, 5)), (-20, 21), 10, 1583, -1, 29, 28),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-45, 28), 2, 19, -1153, 53, 13),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-28, 45), 2, 1153, -19, 53, 34),
+    (17, 1, False, 1, ((0, 6),), (-45, 28), 1, 179, -229, 106, 89),
+    (17, 1, False, 1, ((0, 6),), (-28, 45), 1, 229, -179, 106, 33),
+    (17, 1, False, 1, ((0, 14),), (-35, 12), 1, 89, -349, 74, 21),
+    (17, 1, False, 1, ((0, 14),), (-12, -5), 13, 1, -905, 338, 109),
+    (17, 1, False, 1, ((0, 14),), (-12, 5), 1, 115, -107, 338, 231),
+    (17, 1, False, 1, ((0, 14),), (-12, 35), 1, 349, -89, 74, 59),
+    (17, 1, False, 1, ((0, 14),), (-5, -12), 13, 1, 905, 26, 21),
+    (17, 1, False, 1, ((0, 14),), (-5, 12), 1, 23, -535, 338, 141),
+    (17, 1, False, 1, ((0, 14), (0,)), (-12, -5), 1, 11, -881, 338, 133),
+    (17, 1, False, 1, ((0, 14), (0,)), (-5, -12), 1, 11, 881, 26, 23),
+    (41, 9, False, 1, ((0, 8),), (-15, 8), 17, 1033, -1, 34, 33),
+    (41, 9, False, 1, ((0, 8),), (-12, -5), 1, 11, -257, 338, 81),
+    (41, 9, False, 2, ((0, 22), (0, 6)), (-12, -5), 13, 1, -905, 338, 109),
+    (41, 9, False, 2, ((0, 39), (0, 29)), (-35, 12), 10, 3583, -1, 37, 36),
+    (41, 19, False, 1, ((0, 8),), (-8, 15), 17, 1, -1033, 34, 21),
+    (41, 19, False, 1, ((0, 8),), (-5, -12), 1, 11, 257, 26, 23),
+    (41, 19, False, 2, ((0, 22), (0, 6)), (-5, -12), 13, 1, 905, 26, 21),
+    (41, 19, False, 2, ((0, 39), (0, 29)), (-12, 35), 10, 1, -3583, 2738, 1893),
+    (73, 44, False, 1, ((0, 34),), (-9, 40), 2, 19, -239, 3362, 3123),
+    (73, 44, False, 2, ((0, 1), (0, 69)), (-12, -5), 13, 1, -905, 338, 109),
+    (73, 44, False, 2, ((0, 4), (0, 30)), (-8, -15), 2, 241, 5, 17, 5),
+    (73, 44, False, 2, ((0, 31), (0, 39)), (-35, 12), 1, 89, -349, 74, 21),
+    (73, 62, False, 1, ((0, 34),), (-40, 9), 2, 239, -19, 41, 22),
+    (73, 62, False, 2, ((0, 1), (0, 69)), (-5, -12), 13, 1, 905, 26, 21),
+    (73, 62, False, 2, ((0, 4), (0, 30)), (-15, -8), 2, 241, -5, 17, 12),
+    (73, 62, False, 2, ((0, 31), (0, 39)), (-12, 35), 1, 349, -89, 74, 59),
+)
+
+
 @cache
 def parallel_direction_promoted_345_factor_witness(
     target: Point,
@@ -8313,10 +10476,18 @@ def parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witne
     if determinant_leg % squareclass != 0:
         raise AssertionError("strip target lost its squareclass")
 
-    alternate_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+    alternate_witness = pinned_global_root_choice_table_witness(
         target,
-        max_root_coordinate,
+        direction,
+        obligation,
     )
+    branch = "alternate_root_spine_table"
+    if alternate_witness is None:
+        alternate_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+            target,
+            max_root_coordinate,
+        )
+        branch = "alternate_root_spine"
     if alternate_witness is None:
         return None
 
@@ -8328,7 +10499,7 @@ def parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witne
         target=target,
         direction=direction,
         obligation=obligation,
-        branch="alternate_root_spine",
+        branch=branch,
         determinant_leg=determinant_leg,
         quotient=abs(determinant_leg // squareclass),
         exponent_profile=parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
@@ -8345,6 +10516,1133 @@ def parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witne
             alternate_witness.beta,
             alternate_witness.first_coefficient,
         ),
+    )
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_signature_template_discharge_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> DivisorObligationDischargeWitness | None:
+    """Discharge a pinned strip target through a signature-template table.
+
+    Unlike the generic global discharge helper, this branch does not call the
+    root-spine cover search.  Once a short-signature/template row is available,
+    it reconstructs the alternate promoted-line witness directly.
+    """
+
+    local_witness = parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+        target,
+        direction,
+        obligation,
+    )
+    if local_witness is not None:
+        return local_witness
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    _shape, squareclass, _modulus, _rho, _quotient, _square, _split = obligation
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        raise AssertionError("strip target lost its squareclass")
+
+    alternate_witness = global_root_choice_signature_template_witness(
+        target,
+        direction,
+        obligation,
+        rows,
+    )
+    if alternate_witness is None:
+        return None
+
+    certificate = alternate_witness.certificate
+    if not certificate.valid():
+        raise AssertionError("signature-template witness produced an invalid certificate")
+
+    return DivisorObligationDischargeWitness(
+        target=target,
+        direction=direction,
+        obligation=obligation,
+        branch="alternate_signature_template",
+        determinant_leg=determinant_leg,
+        quotient=abs(determinant_leg // squareclass),
+        exponent_profile=parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            target,
+            direction,
+            obligation,
+        ),
+        structural_row=(
+            alternate_witness.direction,
+            alternate_witness.root_shape,
+            alternate_witness.squareclass,
+            alternate_witness.split_factor,
+            alternate_witness.signed_paired_split_factor,
+            alternate_witness.beta,
+            alternate_witness.first_coefficient,
+        ),
+    )
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_proved_signature_template_discharge_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+) -> DivisorObligationDischargeWitness | None:
+    """Discharge a pinned strip target through proved normalized families only."""
+
+    local_witness = parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+        target,
+        direction,
+        obligation,
+    )
+    if local_witness is not None:
+        return local_witness
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    _shape, squareclass, _modulus, _rho, _quotient, _square, _split = obligation
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        raise AssertionError("strip target lost its squareclass")
+
+    alternate_witness = global_root_choice_proved_signature_template_witness(
+        target,
+        direction,
+        obligation,
+        rows,
+    )
+    if alternate_witness is None:
+        return None
+
+    certificate = alternate_witness.certificate
+    if not certificate.valid():
+        raise AssertionError("proved signature-template witness produced an invalid certificate")
+
+    return DivisorObligationDischargeWitness(
+        target=target,
+        direction=direction,
+        obligation=obligation,
+        branch="alternate_proved_signature_template",
+        determinant_leg=determinant_leg,
+        quotient=abs(determinant_leg // squareclass),
+        exponent_profile=parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            target,
+            direction,
+            obligation,
+        ),
+        structural_row=(
+            alternate_witness.direction,
+            alternate_witness.root_shape,
+            alternate_witness.squareclass,
+            alternate_witness.split_factor,
+            alternate_witness.signed_paired_split_factor,
+            alternate_witness.beta,
+            alternate_witness.first_coefficient,
+        ),
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+    max_coordinate: int,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationGlobalRootChoiceBranchAudit:
+    """Audit which proof branch discharges each pinned divisor-obligation failure."""
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+
+    checked_strip_failures = 0
+    local_discharge_count = 0
+    global_discharge_count = 0
+    local_branch_counts: dict[str, int] = {}
+    global_branch_counts: dict[str, int] = {}
+    global_root_shape_counts: dict[Point, int] = {}
+    global_direction_counts: dict[Point, int] = {}
+    global_rows: list[DivisorObligationGlobalRootChoiceBranchAuditRow] = []
+    unreconstructed_rows: list[DivisorObligationGlobalRootChoiceBranchAuditRow] = []
+    missing_rows: list[tuple[Point, Point, DivisorObligationKey]] = []
+
+    for obligation in obligations:
+        strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+            obligation
+        )
+        strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+            obligation
+        )
+        for direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+            obligation
+        ):
+            direction_x, direction_y = direction
+            common_divisor = gcd(direction_x, strip_modulus)
+            reduced_modulus = strip_modulus // common_divisor
+            direction_inverse = pow(
+                (direction_x // common_divisor) % reduced_modulus,
+                -1,
+                reduced_modulus,
+            )
+
+            for target_x in range(1, max_coordinate + 1):
+                rhs = (strip_residue + direction_y * target_x) % strip_modulus
+                if rhs % common_divisor != 0:
+                    continue
+                target_y_residue = (
+                    (rhs // common_divisor) * direction_inverse
+                ) % reduced_modulus
+                first_target_y = target_y_residue or reduced_modulus
+                for target_y in range(
+                    first_target_y,
+                    max_coordinate + 1,
+                    reduced_modulus,
+                ):
+                    target = (target_x, target_y)
+                    if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                        continue
+                    if gcd(target_x, target_y) != 1:
+                        continue
+                    if parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                        target,
+                        direction,
+                        obligation,
+                    ):
+                        continue
+
+                    checked_strip_failures += 1
+                    local_witness = (
+                        parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                    )
+                    if local_witness is not None:
+                        local_discharge_count += 1
+                        local_branch_counts[local_witness.branch] = (
+                            local_branch_counts.get(local_witness.branch, 0) + 1
+                        )
+                        continue
+
+                    global_witness = (
+                        parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness(
+                            target,
+                            direction,
+                            obligation,
+                            max_root_coordinate,
+                        )
+                    )
+                    if global_witness is None:
+                        missing_rows.append((target, direction, obligation))
+                        continue
+
+                    global_discharge_count += 1
+                    global_branch_counts[global_witness.branch] = (
+                        global_branch_counts.get(global_witness.branch, 0) + 1
+                    )
+                    if global_witness.structural_row is not None:
+                        alternate_direction = global_witness.structural_row[0]
+                        alternate_root_shape = global_witness.structural_row[1]
+                        if isinstance(alternate_direction, tuple) and isinstance(
+                            alternate_root_shape,
+                            tuple,
+                        ):
+                            global_direction_counts[alternate_direction] = (
+                                global_direction_counts.get(alternate_direction, 0) + 1
+                            )
+                            global_root_shape_counts[alternate_root_shape] = (
+                                global_root_shape_counts.get(alternate_root_shape, 0)
+                                + 1
+                            )
+                    audit_row = DivisorObligationGlobalRootChoiceBranchAuditRow(
+                        target=target,
+                        direction=direction,
+                        obligation=obligation,
+                        branch=global_witness.branch,
+                        structural_row=global_witness.structural_row,
+                    )
+                    global_rows.append(audit_row)
+                    if global_witness.structural_row is not None:
+                        (
+                            alternate_direction,
+                            _alternate_root_shape,
+                            alternate_squareclass,
+                            alternate_split_factor,
+                            alternate_signed_paired_split_factor,
+                            alternate_beta,
+                            alternate_first_coefficient,
+                        ) = global_witness.structural_row
+                        alternate_witness = ParallelDirectionConjugateIdealWitness(
+                            target=target,
+                            direction=alternate_direction,
+                            squareclass=alternate_squareclass,
+                            split_factor=alternate_split_factor,
+                            signed_paired_split_factor=alternate_signed_paired_split_factor,
+                            beta=alternate_beta,
+                            first_coefficient=alternate_first_coefficient,
+                        )
+                        if (
+                            promoted_root_spine_line_certificate_from_witness(
+                                alternate_witness
+                            )
+                            != alternate_witness.certificate
+                        ):
+                            unreconstructed_rows.append(audit_row)
+
+    return DivisorObligationGlobalRootChoiceBranchAudit(
+        max_coordinate=max_coordinate,
+        max_root_coordinate=max_root_coordinate,
+        checked_strip_failures=checked_strip_failures,
+        local_discharge_count=local_discharge_count,
+        global_discharge_count=global_discharge_count,
+        local_branch_counts=_sorted_count_items(local_branch_counts),
+        global_branch_counts=_sorted_count_items(global_branch_counts),
+        global_root_shape_counts=_sorted_count_items(global_root_shape_counts),
+        global_direction_counts=_sorted_count_items(global_direction_counts),
+        global_rows=tuple(global_rows),
+        unreconstructed_rows=tuple(unreconstructed_rows),
+        missing_rows=tuple(missing_rows),
+    )
+
+
+def parallel_direction_conjugate_ideal_signature_template_branch_audit(
+    max_coordinate: int,
+    rows: tuple[GlobalRootChoiceSignatureTemplate, ...],
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+) -> DivisorObligationGlobalRootChoiceBranchAudit:
+    """Audit pinned failures using only local branches and signature templates."""
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+
+    checked_strip_failures = 0
+    local_discharge_count = 0
+    global_discharge_count = 0
+    local_branch_counts: dict[str, int] = {}
+    global_branch_counts: dict[str, int] = {}
+    global_root_shape_counts: dict[Point, int] = {}
+    global_direction_counts: dict[Point, int] = {}
+    global_rows: list[DivisorObligationGlobalRootChoiceBranchAuditRow] = []
+    unreconstructed_rows: list[DivisorObligationGlobalRootChoiceBranchAuditRow] = []
+    missing_rows: list[tuple[Point, Point, DivisorObligationKey]] = []
+
+    for obligation in obligations:
+        strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+            obligation
+        )
+        strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+            obligation
+        )
+        for direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+            obligation
+        ):
+            direction_x, direction_y = direction
+            common_divisor = gcd(direction_x, strip_modulus)
+            reduced_modulus = strip_modulus // common_divisor
+            direction_inverse = pow(
+                (direction_x // common_divisor) % reduced_modulus,
+                -1,
+                reduced_modulus,
+            )
+
+            for target_x in range(1, max_coordinate + 1):
+                rhs = (strip_residue + direction_y * target_x) % strip_modulus
+                if rhs % common_divisor != 0:
+                    continue
+                target_y_residue = (
+                    (rhs // common_divisor) * direction_inverse
+                ) % reduced_modulus
+                first_target_y = target_y_residue or reduced_modulus
+                for target_y in range(
+                    first_target_y,
+                    max_coordinate + 1,
+                    reduced_modulus,
+                ):
+                    target = (target_x, target_y)
+                    if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                        continue
+                    if gcd(target_x, target_y) != 1:
+                        continue
+                    if parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                        target,
+                        direction,
+                        obligation,
+                    ):
+                        continue
+
+                    checked_strip_failures += 1
+                    local_witness = (
+                        parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                    )
+                    if local_witness is not None:
+                        local_discharge_count += 1
+                        local_branch_counts[local_witness.branch] = (
+                            local_branch_counts.get(local_witness.branch, 0) + 1
+                        )
+                        continue
+
+                    global_witness = parallel_direction_conjugate_ideal_divisor_obligation_signature_template_discharge_witness(
+                        target,
+                        direction,
+                        obligation,
+                        rows,
+                    )
+                    if global_witness is None:
+                        missing_rows.append((target, direction, obligation))
+                        continue
+
+                    global_discharge_count += 1
+                    global_branch_counts[global_witness.branch] = (
+                        global_branch_counts.get(global_witness.branch, 0) + 1
+                    )
+                    if global_witness.structural_row is not None:
+                        alternate_direction = global_witness.structural_row[0]
+                        alternate_root_shape = global_witness.structural_row[1]
+                        if isinstance(alternate_direction, tuple) and isinstance(
+                            alternate_root_shape,
+                            tuple,
+                        ):
+                            global_direction_counts[alternate_direction] = (
+                                global_direction_counts.get(alternate_direction, 0) + 1
+                            )
+                            global_root_shape_counts[alternate_root_shape] = (
+                                global_root_shape_counts.get(alternate_root_shape, 0)
+                                + 1
+                            )
+                    audit_row = DivisorObligationGlobalRootChoiceBranchAuditRow(
+                        target=target,
+                        direction=direction,
+                        obligation=obligation,
+                        branch=global_witness.branch,
+                        structural_row=global_witness.structural_row,
+                    )
+                    global_rows.append(audit_row)
+                    if global_witness.structural_row is not None:
+                        (
+                            alternate_direction,
+                            _alternate_root_shape,
+                            alternate_squareclass,
+                            alternate_split_factor,
+                            alternate_signed_paired_split_factor,
+                            alternate_beta,
+                            alternate_first_coefficient,
+                        ) = global_witness.structural_row
+                        alternate_witness = ParallelDirectionConjugateIdealWitness(
+                            target=target,
+                            direction=alternate_direction,
+                            squareclass=alternate_squareclass,
+                            split_factor=alternate_split_factor,
+                            signed_paired_split_factor=alternate_signed_paired_split_factor,
+                            beta=alternate_beta,
+                            first_coefficient=alternate_first_coefficient,
+                        )
+                        if (
+                            promoted_root_spine_line_certificate_from_witness(
+                                alternate_witness
+                            )
+                            != alternate_witness.certificate
+                        ):
+                            unreconstructed_rows.append(audit_row)
+
+    return DivisorObligationGlobalRootChoiceBranchAudit(
+        max_coordinate=max_coordinate,
+        max_root_coordinate=0,
+        checked_strip_failures=checked_strip_failures,
+        local_discharge_count=local_discharge_count,
+        global_discharge_count=global_discharge_count,
+        local_branch_counts=_sorted_count_items(local_branch_counts),
+        global_branch_counts=_sorted_count_items(global_branch_counts),
+        global_root_shape_counts=_sorted_count_items(global_root_shape_counts),
+        global_direction_counts=_sorted_count_items(global_direction_counts),
+        global_rows=tuple(global_rows),
+        unreconstructed_rows=tuple(unreconstructed_rows),
+        missing_rows=tuple(missing_rows),
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+    max_coordinate: int,
+    base_rows: tuple[
+        GlobalRootChoiceAlternateLineStripRow,
+        ...,
+    ] = PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationGlobalRootChoicePortableRowAudit:
+    """Audit distinct portable line/strip rows needed by global discharges."""
+
+    branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+        max_coordinate,
+        obligations,
+        max_root_coordinate,
+    )
+    rows = tuple(
+        row
+        for row in (
+            global_root_choice_branch_row_alternate_line_strip_row(branch_row)
+            for branch_row in branch_audit.global_rows
+        )
+        if row is not None
+    )
+    distinct_rows = tuple(sorted(set(rows)))
+    base_row_set = set(base_rows)
+    new_rows = tuple(row for row in distinct_rows if row not in base_row_set)
+    new_root_shape_counts: dict[Point, int] = {}
+    new_alternate_direction_counts: dict[Point, int] = {}
+    new_obligation_counts: dict[DivisorObligationKey, int] = {}
+    new_line_template_counts: dict[tuple[Point, int, int, int, int, int], int] = {}
+    for row in new_rows:
+        (
+            obligation,
+            _strip_direction,
+            alternate_direction,
+            _squareclass,
+            _split_factor,
+            _signed_paired_split_factor,
+            _paired_period,
+            _paired_residue,
+            _coefficient_residue,
+            _coefficient_modulus,
+        ) = row
+        alternate_root = primitive_pythagorean_direction_gaussian_root(
+            alternate_direction
+        )[0]
+        alternate_root_shape = gaussian_root_shape(alternate_root)
+        new_root_shape_counts[alternate_root_shape] = (
+            new_root_shape_counts.get(alternate_root_shape, 0) + 1
+        )
+        new_alternate_direction_counts[alternate_direction] = (
+            new_alternate_direction_counts.get(alternate_direction, 0) + 1
+        )
+        new_obligation_counts[obligation] = new_obligation_counts.get(obligation, 0) + 1
+        line_template = (
+            alternate_direction,
+            _squareclass,
+            _split_factor,
+            _signed_paired_split_factor,
+            _paired_period,
+            _paired_residue,
+        )
+        new_line_template_counts[line_template] = (
+            new_line_template_counts.get(line_template, 0) + 1
+        )
+    invalid_rows = tuple(
+        row
+        for row in distinct_rows
+        if not pinned_global_root_choice_alternate_line_strip_row_valid(row)
+    )
+    return DivisorObligationGlobalRootChoicePortableRowAudit(
+        max_coordinate=max_coordinate,
+        global_row_count=len(rows),
+        distinct_row_count=len(distinct_rows),
+        base_table_row_count=len(base_rows),
+        new_row_count=len(new_rows),
+        new_root_shape_counts=_sorted_count_items(new_root_shape_counts),
+        new_alternate_direction_counts=_sorted_count_items(
+            new_alternate_direction_counts
+        ),
+        new_obligation_counts=_sorted_count_items(new_obligation_counts),
+        new_line_template_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                new_line_template_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        new_rows=new_rows,
+        invalid_rows=invalid_rows,
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit(
+    max_coordinate: int,
+    base_rows: tuple[
+        GlobalRootChoiceAlternateLineStripRow,
+        ...,
+    ],
+    templates: tuple[GlobalRootChoiceLineTemplate, ...],
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationGlobalRootChoiceTemplateClosureAudit:
+    """Audit a base portable table after adding template strip expansions."""
+
+    template_rows = global_root_choice_line_template_table_rows(templates, obligations)
+    combined_rows = tuple(sorted(set(base_rows).union(template_rows)))
+    portable_row_audit = (
+        parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+            max_coordinate,
+            combined_rows,
+            obligations,
+            max_root_coordinate,
+        )
+    )
+    return DivisorObligationGlobalRootChoiceTemplateClosureAudit(
+        max_coordinate=max_coordinate,
+        base_row_count=len(base_rows),
+        template_count=len(templates),
+        template_expanded_row_count=len(template_rows),
+        combined_row_count=len(combined_rows),
+        portable_row_audit=portable_row_audit,
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_iterated_template_closure_audit(
+    max_coordinate: int,
+    base_rows: tuple[
+        GlobalRootChoiceAlternateLineStripRow,
+        ...,
+    ],
+    initial_templates: tuple[GlobalRootChoiceLineTemplate, ...] = (),
+    max_iterations: int = 8,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationGlobalRootChoiceIteratedTemplateClosureAudit:
+    """Iteratively close a finite box under observed global line templates."""
+
+    if max_iterations < 0:
+        raise ValueError("max_iterations must be nonnegative")
+
+    current_rows = set(base_rows).union(
+        global_root_choice_line_template_table_rows(initial_templates, obligations)
+    )
+    layers: list[DivisorObligationGlobalRootChoiceTemplateClosureLayer] = []
+
+    final_audit = parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+        max_coordinate,
+        tuple(sorted(current_rows)),
+        obligations,
+        max_root_coordinate,
+    )
+    if final_audit.new_row_count == 0:
+        return DivisorObligationGlobalRootChoiceIteratedTemplateClosureAudit(
+            max_coordinate=max_coordinate,
+            base_row_count=len(base_rows),
+            final_row_count=len(current_rows),
+            iteration_count=0,
+            closed=True,
+            layers=(),
+            final_portable_row_audit=final_audit,
+        )
+
+    for iteration in range(1, max_iterations + 1):
+        new_templates = tuple(row[:6] for row in final_audit.new_line_template_counts)
+        template_rows = global_root_choice_line_template_table_rows(
+            new_templates,
+            obligations,
+        )
+        next_rows = current_rows.union(template_rows)
+        layers.append(
+            DivisorObligationGlobalRootChoiceTemplateClosureLayer(
+                iteration=iteration,
+                input_row_count=len(current_rows),
+                new_row_count=final_audit.new_row_count,
+                new_template_count=len(new_templates),
+                template_expanded_row_count=len(template_rows),
+                output_row_count=len(next_rows),
+                new_root_shape_counts=final_audit.new_root_shape_counts,
+                new_line_template_counts=final_audit.new_line_template_counts,
+            )
+        )
+        if len(next_rows) == len(current_rows):
+            break
+
+        current_rows = next_rows
+        final_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                max_coordinate,
+                tuple(sorted(current_rows)),
+                obligations,
+                max_root_coordinate,
+            )
+        )
+        if final_audit.new_row_count == 0:
+            break
+
+    return DivisorObligationGlobalRootChoiceIteratedTemplateClosureAudit(
+        max_coordinate=max_coordinate,
+        base_row_count=len(base_rows),
+        final_row_count=len(current_rows),
+        iteration_count=len(layers),
+        closed=final_audit.new_row_count == 0,
+        layers=tuple(layers),
+        final_portable_row_audit=final_audit,
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_exponent_signature_audit(
+    max_coordinate: int,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+    branch_audit: DivisorObligationGlobalRootChoiceBranchAudit | None = None,
+) -> DivisorObligationGlobalRootChoiceExponentSignatureAudit:
+    """Summarize exponent-sum profiles for non-local global root-choice rows."""
+
+    if branch_audit is None:
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            max_coordinate,
+            obligations,
+            max_root_coordinate,
+        )
+    elif branch_audit.max_coordinate != max_coordinate:
+        raise ValueError("branch audit radius does not match max_coordinate")
+
+    saturation_branch_counts: dict[str, int] = {}
+    modulus_counts: dict[int, int] = {}
+    effective_length_counts: dict[int, int] = {}
+    summand_count_counts: dict[int, int] = {}
+    signature_counts: dict[
+        tuple[int, int, bool, int, tuple[tuple[int, ...], ...]],
+        int,
+    ] = {}
+
+    for row in branch_audit.global_rows:
+        profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            row.target,
+            row.direction,
+            row.obligation,
+        )
+        if profile is None:
+            raise AssertionError("global root-choice row lost its exponent profile")
+        saturation_branch_counts[profile.saturation_branch] = (
+            saturation_branch_counts.get(profile.saturation_branch, 0) + 1
+        )
+        modulus_counts[profile.modulus] = modulus_counts.get(profile.modulus, 0) + 1
+        effective_length_counts[profile.effective_length] = (
+            effective_length_counts.get(profile.effective_length, 0) + 1
+        )
+        summand_count = len(profile.summands)
+        summand_count_counts[summand_count] = (
+            summand_count_counts.get(summand_count, 0) + 1
+        )
+        signature = global_root_choice_short_exponent_signature(profile)
+        if signature is not None:
+            signature_counts[signature] = signature_counts.get(signature, 0) + 1
+
+    return DivisorObligationGlobalRootChoiceExponentSignatureAudit(
+        max_coordinate=max_coordinate,
+        global_row_count=len(branch_audit.global_rows),
+        missing_row_count=len(branch_audit.missing_rows),
+        saturation_branch_counts=_sorted_count_items(saturation_branch_counts),
+        modulus_counts=_sorted_count_items(modulus_counts),
+        effective_length_counts=_sorted_count_items(effective_length_counts),
+        summand_count_counts=_sorted_count_items(summand_count_counts),
+        signature_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                signature_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+    )
+
+
+def global_root_choice_short_exponent_signature(
+    profile: DivisorObligationExponentProfile,
+) -> GlobalRootChoiceExponentSignature | None:
+    """Radius-independent signature of a short divisor-exponent obstruction.
+
+    The signature keeps only the arithmetic data used by the alternate
+    signature-template discharge: divisor modulus, required exponent, whether a
+    zero residue was possible, the effective sumset length, and the normalized
+    exponent choices contributed by each prime-power summand.  Profiles that
+    discharged by any non-short saturation branch have no short signature.
+    """
+
+    if profile.saturation_branch != "short_failure":
+        return None
+    return (
+        profile.modulus,
+        profile.required_exponent,
+        profile.zero_residue_possible,
+        profile.effective_length,
+        tuple(summand[3] for summand in profile.summands),
+    )
+
+
+def _global_root_choice_exponent_signature(
+    profile: DivisorObligationExponentProfile,
+) -> GlobalRootChoiceExponentSignature:
+    signature = global_root_choice_short_exponent_signature(profile)
+    if signature is None:
+        raise ValueError("profile is not a short_failure obstruction")
+    return signature
+
+
+def _global_root_choice_branch_row_line_template(
+    row: DivisorObligationGlobalRootChoiceBranchAuditRow,
+) -> GlobalRootChoiceLineTemplate | None:
+    if row.structural_row is None:
+        return None
+    (
+        alternate_direction,
+        _alternate_root_shape,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        _beta,
+        _first_coefficient,
+    ) = row.structural_row
+    period, _residues = parallel_direction_squareclass_line_residue_classes(
+        alternate_direction,
+        squareclass,
+        split_factor,
+    )
+    return (
+        alternate_direction,
+        squareclass,
+        split_factor,
+        signed_paired_split_factor,
+        period,
+        signed_paired_split_factor % period,
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit(
+    max_coordinate: int,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+    branch_audit: DivisorObligationGlobalRootChoiceBranchAudit | None = None,
+) -> DivisorObligationGlobalRootChoiceSignatureTemplateAudit:
+    """Correlate short divisor-exponent signatures with alternate line templates."""
+
+    if branch_audit is None:
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            max_coordinate,
+            obligations,
+            max_root_coordinate,
+        )
+    elif branch_audit.max_coordinate != max_coordinate:
+        raise ValueError("branch audit radius does not match max_coordinate")
+
+    signature_templates: dict[
+        GlobalRootChoiceExponentSignature,
+        set[GlobalRootChoiceLineTemplate],
+    ] = {}
+    template_counts: dict[GlobalRootChoiceLineTemplate, int] = {}
+    signature_template_counts: dict[GlobalRootChoiceSignatureTemplate, int] = {}
+
+    for row in branch_audit.global_rows:
+        profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            row.target,
+            row.direction,
+            row.obligation,
+        )
+        if profile is None:
+            raise AssertionError("global root-choice row lost its exponent profile")
+        template = _global_root_choice_branch_row_line_template(row)
+        if template is None:
+            raise AssertionError("global root-choice row lost its alternate template")
+        signature = global_root_choice_short_exponent_signature(profile)
+        if signature is None:
+            continue
+        signature_templates.setdefault(signature, set()).add(template)
+        template_counts[template] = template_counts.get(template, 0) + 1
+        signature_template_row = (*signature, *template)
+        signature_template_counts[signature_template_row] = (
+            signature_template_counts.get(signature_template_row, 0) + 1
+        )
+
+    signatures_with_multiple_templates = {
+        signature: len(templates)
+        for signature, templates in signature_templates.items()
+        if len(templates) > 1
+    }
+    return DivisorObligationGlobalRootChoiceSignatureTemplateAudit(
+        max_coordinate=max_coordinate,
+        global_row_count=len(branch_audit.global_rows),
+        missing_row_count=len(branch_audit.missing_rows),
+        signature_count=len(signature_templates),
+        template_count=len(template_counts),
+        signature_template_count=len(signature_template_counts),
+        signatures_with_multiple_templates=tuple(
+            (*key, count)
+            for key, count in sorted(
+                signatures_with_multiple_templates.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        template_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                template_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        signature_template_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                signature_template_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+    )
+
+
+def parallel_direction_conjugate_ideal_global_root_choice_audit(
+    max_coordinate: int,
+    obligations: tuple[DivisorObligationKey, ...] = PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationGlobalRootChoiceAudit:
+    """Audit non-local pinned strip failures through promoted root-spine rows.
+
+    This iterates each determinant strip by its congruence class instead of
+    scanning the full box for every signed direction.  The returned rows are
+    exactly the cases where the direct divisor class and local structural stack
+    both fail, so every row should be discharged by an alternate root-spine
+    witness that reconstructs through a named promoted line family.
+    """
+
+    if max_coordinate < 1:
+        raise ValueError("max_coordinate must be positive")
+
+    checked_strip_failures = 0
+    local_discharge_count = 0
+    rows: list[DivisorObligationGlobalRootChoiceAuditRow] = []
+    row_family_certificate_miss_rows: list[DivisorObligationGlobalRootChoiceAuditRow] = []
+    strip_intersection_miss_rows: list[DivisorObligationGlobalRootChoiceAuditRow] = []
+    residue_line_miss_rows: list[DivisorObligationGlobalRootChoiceAuditRow] = []
+    unreconstructed_rows: list[DivisorObligationGlobalRootChoiceAuditRow] = []
+    missing_rows: list[tuple[Point, Point, DivisorObligationKey]] = []
+    root_shape_counts: dict[Point, int] = {}
+    direction_counts: dict[Point, int] = {}
+    residue_period_counts: dict[int, int] = {}
+    coefficient_modulus_counts: dict[int, int] = {}
+    alternate_line_row_counts: dict[tuple[Point, int, int, int, int], int] = {}
+    alternate_line_strip_rows: set[
+        tuple[DivisorObligationKey, Point, Point, int, int, int, int, int, int]
+    ] = set()
+
+    for obligation in obligations:
+        strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+            obligation
+        )
+        strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+            obligation
+        )
+        for direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+            obligation
+        ):
+            direction_x, direction_y = direction
+            common_divisor = gcd(direction_x, strip_modulus)
+            reduced_modulus = strip_modulus // common_divisor
+            direction_inverse = pow(
+                (direction_x // common_divisor) % reduced_modulus,
+                -1,
+                reduced_modulus,
+            )
+
+            for target_x in range(1, max_coordinate + 1):
+                rhs = (strip_residue + direction_y * target_x) % strip_modulus
+                if rhs % common_divisor != 0:
+                    continue
+                target_y_residue = (
+                    (rhs // common_divisor) * direction_inverse
+                ) % reduced_modulus
+                first_target_y = target_y_residue or reduced_modulus
+                for target_y in range(
+                    first_target_y,
+                    max_coordinate + 1,
+                    reduced_modulus,
+                ):
+                    target = (target_x, target_y)
+                    if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                        continue
+                    if gcd(target_x, target_y) != 1:
+                        continue
+                    if parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                        target,
+                        direction,
+                        obligation,
+                    ):
+                        continue
+
+                    checked_strip_failures += 1
+                    local_witness = (
+                        parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                    )
+                    if local_witness is not None:
+                        local_discharge_count += 1
+                        continue
+
+                    alternate_witness = (
+                        parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                            target,
+                            max_root_coordinate,
+                        )
+                    )
+                    if alternate_witness is None:
+                        missing_rows.append((target, direction, obligation))
+                        continue
+
+                    residue_period, _residues = (
+                        parallel_direction_squareclass_line_residue_classes(
+                            alternate_witness.direction,
+                            alternate_witness.squareclass,
+                            alternate_witness.split_factor,
+                        )
+                    )
+                    strip_intersection = (
+                        parallel_direction_squareclass_line_strip_intersection_congruence(
+                            direction,
+                            strip_modulus,
+                            strip_residue,
+                            alternate_witness.direction,
+                            alternate_witness.squareclass,
+                            alternate_witness.split_factor,
+                            alternate_witness.signed_paired_split_factor,
+                        )
+                    )
+                    strip_intersection_missing = strip_intersection is None
+                    if strip_intersection is None:
+                        strip_intersection = (0, 0, strip_modulus, 0, 0, 0)
+                    audit_row = DivisorObligationGlobalRootChoiceAuditRow(
+                        target=target,
+                        direction=direction,
+                        obligation=obligation,
+                        alternate_direction=alternate_witness.direction,
+                        alternate_root_shape=alternate_witness.root_shape,
+                        alternate_squareclass=alternate_witness.squareclass,
+                        alternate_split_factor=alternate_witness.split_factor,
+                        alternate_signed_paired_split_factor=alternate_witness.signed_paired_split_factor,
+                        alternate_residue_period=residue_period,
+                        alternate_paired_residue=alternate_witness.signed_paired_split_factor
+                        % residue_period,
+                        alternate_strip_step=strip_intersection[0],
+                        alternate_strip_residue=strip_intersection[1],
+                        alternate_strip_modulus=strip_intersection[2],
+                        alternate_strip_gcd=strip_intersection[3],
+                        alternate_coefficient_residue=strip_intersection[4],
+                        alternate_coefficient_modulus=strip_intersection[5],
+                        alternate_beta=alternate_witness.beta,
+                        alternate_first_coefficient=alternate_witness.first_coefficient,
+                    )
+                    rows.append(audit_row)
+                    root_shape_counts[audit_row.alternate_root_shape] = (
+                        root_shape_counts.get(audit_row.alternate_root_shape, 0) + 1
+                    )
+                    direction_counts[audit_row.alternate_direction] = (
+                        direction_counts.get(audit_row.alternate_direction, 0) + 1
+                    )
+                    residue_period_counts[audit_row.alternate_residue_period] = (
+                        residue_period_counts.get(audit_row.alternate_residue_period, 0)
+                        + 1
+                    )
+                    coefficient_modulus_counts[
+                        audit_row.alternate_coefficient_modulus
+                    ] = (
+                        coefficient_modulus_counts.get(
+                            audit_row.alternate_coefficient_modulus,
+                            0,
+                        )
+                        + 1
+                    )
+                    alternate_line_key = (
+                        audit_row.alternate_direction,
+                        audit_row.alternate_squareclass,
+                        audit_row.alternate_split_factor,
+                        audit_row.alternate_residue_period,
+                        audit_row.alternate_paired_residue,
+                    )
+                    alternate_line_row_counts[alternate_line_key] = (
+                        alternate_line_row_counts.get(alternate_line_key, 0) + 1
+                    )
+                    alternate_line_strip_key = (
+                        audit_row.obligation,
+                        audit_row.direction,
+                        audit_row.alternate_direction,
+                        audit_row.alternate_squareclass,
+                        audit_row.alternate_split_factor,
+                        audit_row.alternate_residue_period,
+                        audit_row.alternate_paired_residue,
+                        audit_row.alternate_coefficient_residue,
+                        audit_row.alternate_coefficient_modulus,
+                    )
+                    if alternate_line_strip_key not in alternate_line_strip_rows:
+                        row_certificate = parallel_direction_squareclass_line_certificate(
+                            audit_row.alternate_direction,
+                            audit_row.alternate_squareclass,
+                            audit_row.alternate_split_factor,
+                            audit_row.alternate_signed_paired_split_factor,
+                            audit_row.alternate_coefficient_residue,
+                        )
+                        if (
+                            row_certificate is None
+                            or not row_certificate.valid()
+                            or determinant(audit_row.direction, row_certificate.target)
+                            % audit_row.alternate_strip_modulus
+                            != parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+                                audit_row.obligation
+                            )
+                        ):
+                            row_family_certificate_miss_rows.append(audit_row)
+                        alternate_line_strip_rows.add(alternate_line_strip_key)
+                    if (
+                        strip_intersection_missing
+                        or alternate_witness.first_coefficient
+                        % audit_row.alternate_coefficient_modulus
+                        != audit_row.alternate_coefficient_residue
+                    ):
+                        strip_intersection_miss_rows.append(audit_row)
+                    if (
+                        parallel_direction_squareclass_line_residue_certificate(
+                            target,
+                            alternate_witness.direction,
+                            alternate_witness.squareclass,
+                            alternate_witness.split_factor,
+                        )
+                        != alternate_witness.certificate
+                    ):
+                        residue_line_miss_rows.append(audit_row)
+                    if (
+                        promoted_root_spine_line_certificate_from_witness(
+                            alternate_witness
+                        )
+                        != alternate_witness.certificate
+                    ):
+                        unreconstructed_rows.append(audit_row)
+
+    return DivisorObligationGlobalRootChoiceAudit(
+        max_coordinate=max_coordinate,
+        max_root_coordinate=max_root_coordinate,
+        checked_strip_failures=checked_strip_failures,
+        local_discharge_count=local_discharge_count,
+        alternate_root_spine_count=len(rows),
+        alternate_root_shape_counts=_sorted_count_items(root_shape_counts),
+        alternate_direction_counts=_sorted_count_items(direction_counts),
+        alternate_residue_period_counts=_sorted_count_items(residue_period_counts),
+        alternate_coefficient_modulus_counts=_sorted_count_items(
+            coefficient_modulus_counts
+        ),
+        distinct_alternate_line_row_counts=tuple(
+            (*key, count)
+            for key, count in sorted(
+                alternate_line_row_counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        ),
+        distinct_alternate_line_strip_row_count=len(alternate_line_strip_rows),
+        row_family_certificate_miss_rows=tuple(row_family_certificate_miss_rows),
+        strip_intersection_miss_rows=tuple(strip_intersection_miss_rows),
+        residue_line_miss_rows=tuple(residue_line_miss_rows),
+        unreconstructed_rows=tuple(unreconstructed_rows),
+        missing_rows=tuple(missing_rows),
+        rows=tuple(rows),
     )
 
 
@@ -8858,6 +12156,73 @@ def _sign_swap_match_certificate(
     return transported
 
 
+def _one_even_root_spine_orbit_certificate_from_witness(
+    witness: ParallelDirectionConjugateIdealWitness,
+    spine_parameter_k: int,
+) -> Certificate | None:
+    """Reconstruct a ``(1,2k)`` primary spine certificate through its orbit."""
+
+    beta_x, beta_y = witness.beta
+    for candidate_beta_x, candidate_beta_y in (
+        (beta_x, beta_y),
+        (-beta_x, beta_y),
+        (beta_x, -beta_y),
+        (-beta_x, -beta_y),
+    ):
+        t_numerator = candidate_beta_x - (2 * spine_parameter_k - 1)
+        t_denominator = 4 * spine_parameter_k
+        if t_numerator % t_denominator != 0:
+            continue
+        t = t_numerator // t_denominator
+        if candidate_beta_y != -(2 * t + 1):
+            continue
+        for r in (witness.first_coefficient, -witness.first_coefficient):
+            certificate = one_even_root_spine_line_orbit_certificate(
+                spine_parameter_k,
+                witness.squareclass,
+                t,
+                r,
+                witness.target,
+            )
+            if certificate == witness.certificate:
+                return certificate
+    return None
+
+
+def _two_odd_root_spine_orbit_certificate_from_witness(
+    witness: ParallelDirectionConjugateIdealWitness,
+    spine_parameter_k: int,
+) -> Certificate | None:
+    """Reconstruct a ``(2,2k+1)`` primary spine certificate through its orbit."""
+
+    beta_x, beta_y = witness.beta
+    odd_coordinate = 2 * spine_parameter_k + 1
+    for candidate_beta_x, candidate_beta_y in (
+        (beta_x, beta_y),
+        (-beta_x, beta_y),
+        (beta_x, -beta_y),
+        (-beta_x, -beta_y),
+    ):
+        if (1 - candidate_beta_x) % (2 * odd_coordinate) != 0:
+            continue
+        t = (1 - candidate_beta_x) // (2 * odd_coordinate)
+        if candidate_beta_y != 4 * t - 1:
+            continue
+        for r in (witness.first_coefficient, -witness.first_coefficient):
+            for swap_coordinates in (False, True):
+                certificate = two_odd_root_spine_line_orbit_certificate(
+                    spine_parameter_k,
+                    witness.squareclass,
+                    t,
+                    r,
+                    witness.target,
+                    swap_coordinates=swap_coordinates,
+                )
+                if certificate == witness.certificate:
+                    return certificate
+    return None
+
+
 def promoted_root_spine_line_certificate_from_witness(
     witness: ParallelDirectionConjugateIdealWitness,
 ) -> Certificate | None:
@@ -8871,10 +12236,20 @@ def promoted_root_spine_line_certificate_from_witness(
 
     certificate: Certificate | None = None
     if root_shape == (1, 2) and direction == (-3, 4):
-        if beta_y % 2 == 0:
-            return None
-        t = (-beta_y - 1) // 2
-        certificate = one_even_root_spine_line_certificate(1, squareclass, t, r)
+        if beta_y % 2 != 0:
+            t = (-beta_y - 1) // 2
+            certificate = one_even_root_spine_line_certificate(1, squareclass, t, r)
+    elif root_shape[0] == 1 and root_shape[1] % 2 == 0 and root_shape[1] >= 6:
+        spine_parameter_k = root_shape[1] // 2
+        base_direction = (
+            1 - 4 * spine_parameter_k * spine_parameter_k,
+            4 * spine_parameter_k,
+        )
+        if direction in sign_swap_orbit(base_direction):
+            certificate = _one_even_root_spine_orbit_certificate_from_witness(
+                witness,
+                spine_parameter_k,
+            )
     elif root_shape == (1, 4) and squareclass % 2 == 0:
         m = squareclass // 2
         if direction == (-8, -15):
@@ -8888,24 +12263,36 @@ def promoted_root_spine_line_certificate_from_witness(
                 swap_coordinates=True,
             )
     elif root_shape == (2, 3) and squareclass % 2 == 1:
-        if beta_x % 2 == 0 or beta_y % 2 == 0:
-            return None
-        beta_x_half = (beta_x - 1) // 2
-        beta_y_half = (beta_y - 1) // 2
-        if direction == (-12, -5):
-            certificate = two_three_odd_general_root_spine_line_certificate(
-                squareclass,
-                beta_x_half,
-                beta_y_half,
-                r,
-            )
-        elif direction == (-5, -12):
-            certificate = two_three_odd_general_root_spine_line_certificate(
-                squareclass,
-                beta_x_half,
-                beta_y_half,
-                r,
-                swap_coordinates=True,
+        if beta_x % 2 != 0 and beta_y % 2 != 0:
+            beta_x_half = (beta_x - 1) // 2
+            beta_y_half = (beta_y - 1) // 2
+            if direction == (-12, -5):
+                certificate = two_three_odd_general_root_spine_line_certificate(
+                    squareclass,
+                    beta_x_half,
+                    beta_y_half,
+                    r,
+                )
+            elif direction == (-5, -12):
+                certificate = two_three_odd_general_root_spine_line_certificate(
+                    squareclass,
+                    beta_x_half,
+                    beta_y_half,
+                    r,
+                    swap_coordinates=True,
+                )
+    elif (
+        root_shape[0] == 2
+        and root_shape[1] % 2 == 1
+        and root_shape[1] >= 7
+    ):
+        spine_parameter_k = (root_shape[1] - 1) // 2
+        odd_coordinate = root_shape[1]
+        base_direction = (-4 * odd_coordinate, 4 - odd_coordinate * odd_coordinate)
+        if direction in sign_swap_orbit(base_direction):
+            certificate = _two_odd_root_spine_orbit_certificate_from_witness(
+                witness,
+                spine_parameter_k,
             )
     elif root_shape == (2, 5) and squareclass % 2 == 0:
         m = squareclass // 2
@@ -8982,9 +12369,7 @@ def promoted_root_spine_line_certificate_from_witness(
                 if certificate is not None:
                     break
     elif root_shape == (3, 4) and squareclass % 2 == 1:
-        if beta_x % 2 == 0 or beta_y % 2 == 0:
-            return None
-        if direction in sign_swap_orbit((-7, 24)):
+        if beta_x % 2 != 0 and beta_y % 2 != 0 and direction in sign_swap_orbit((-7, 24)):
             for candidate_beta_x, candidate_beta_y in (
                 (beta_x, beta_y),
                 (-beta_x, beta_y),
@@ -9016,9 +12401,7 @@ def promoted_root_spine_line_certificate_from_witness(
                 if certificate is not None:
                     break
     elif root_shape == (3, 8) and squareclass % 2 == 1:
-        if beta_x % 2 == 0 or beta_y % 2 == 0:
-            return None
-        if direction in sign_swap_orbit((-55, 48)):
+        if beta_x % 2 != 0 and beta_y % 2 != 0 and direction in sign_swap_orbit((-55, 48)):
             for candidate_beta_x, candidate_beta_y in (
                 (beta_x, beta_y),
                 (-beta_x, beta_y),
@@ -9049,6 +12432,14 @@ def promoted_root_spine_line_certificate_from_witness(
                     )
                 if certificate is not None:
                     break
+
+    if certificate is None:
+        certificate = parallel_direction_squareclass_beta_line_certificate(
+            witness.direction,
+            witness.squareclass,
+            witness.beta,
+            witness.first_coefficient,
+        )
 
     if certificate is None or certificate != witness.certificate:
         return None

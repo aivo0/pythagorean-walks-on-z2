@@ -60,3 +60,34 @@ Definition Of Progress
   an executable certificate constructor or finite-discharge checker, targeted
   tests, minimal Lean support, and a progress-report update explaining exactly
   which part of the conjecture moved from search toward theorem-level proof.
+
+
+
+Grand Goal
+
+  Prove the full Pythagorean-walks conjecture: every lattice point except the known distance-three orbit has a valid two-step Pythagorean-walk certificate.
+
+  Target Goal
+
+  Eliminate the remaining global-root-choice fallback as an obstruction to that grand goal.
+
+  Concretely: prove that whenever a pinned divisor obligation reaches the short_failure branch after the local divisor/structural stack, its exponent signature forces membership in
+  one of the normalized alternate squareclass line-template families, and that this template produces a valid two-step certificate satisfying the original pinned strip congruence.
+
+  Success criteria:
+
+  - Define the short exponent signature and normalized alternate template data independently of any search radius.
+  - Prove a general line/strip lemma: paired-factor residue + line/strip coefficient congruence implies certificateValid and the required determinant strip condition.
+  - Prove at least one recurrent normalized family parametrically, instead of pinning more representatives.
+  - Use finite tables only as regression evidence and base-frontier documentation, not as the proof mechanism.
+  - End with the root-spine search removed from the target-facing global discharge path, replaced by a finite parametric case split over signature-template families.
+
+  Completed milestone: the general line/strip row-validity bridge is now in Lean,
+  and the theorem-backed normalized-family registry covers the full radius-1000
+  global root-choice branch scan, all radius-1250 signature-template rows, the
+  original large counterexample row, and the first two normalized families from
+  the radius-1500 frontier.
+
+  Next milestone: turn one recurring short-signature pattern into a genuine
+  parametric case theorem. The proof should explain why the signature selects a
+  normalized alternate family, not merely add another finite template row.

@@ -164,6 +164,7 @@ from experiments.pythagorean_walks import (
     diagonal_pythagorean_multiplier_certificate,
     determinant,
     divisor_residue_classes,
+    DivisorObligationGlobalRootChoiceBranchAuditRow,
     discrete_log_table_mod_prime,
     determinant_seven_lattice_certificate,
     determinant_seventeen_lattice_certificate,
@@ -239,8 +240,38 @@ from experiments.pythagorean_walks import (
     three_four_root_spine_line_certificate,
     three_eight_odd_root_spine_line_certificate,
     path_is_valid,
+    PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
     PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
     PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE,
+    GLOBAL_ROOT_CHOICE_PROVED_SIGNATURE_TEMPLATE_ROWS,
+    GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES,
+    GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_TEMPLATES,
+    global_root_choice_branch_row_signature_template,
+    global_root_choice_branch_row_alternate_line_strip_row,
+    global_root_choice_line_template_table_rows,
+    global_root_choice_line_template_strip_rows,
+    global_root_choice_normalized_line_template,
+    global_root_choice_proved_normalized_line_family_theorem,
+    global_root_choice_proved_signature_template_witness,
+    global_root_choice_short_exponent_signature,
+    global_root_choice_signature_template_witness,
+    global_root_choice_signature_template_shape_audit,
+    pinned_global_root_choice_alternate_line_strip_row_valid,
+    pinned_global_root_choice_alternate_line_strip_row_witness,
+    pinned_global_root_choice_alternate_line_strip_rows_valid,
+    pinned_global_root_choice_alternate_line_strip_summary,
+    pinned_global_root_choice_table_certificate,
+    pinned_global_root_choice_table_witness,
     parallel_direction_certificate,
     beta_square_is_axis_degenerate,
     parallel_direction_bounded_factor_cover_certificate,
@@ -248,9 +279,22 @@ from experiments.pythagorean_walks import (
     parallel_direction_conjugate_ideal_certificate,
     parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness,
     parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness,
+    parallel_direction_conjugate_ideal_divisor_obligation_proved_signature_template_discharge_witness,
+    parallel_direction_conjugate_ideal_divisor_obligation_signature_template_discharge_witness,
     parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds,
     parallel_direction_conjugate_ideal_divisor_obligation_directions,
     parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile,
+    parallel_direction_conjugate_ideal_global_root_choice_branch_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_exponent_signature_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_signature_template_closure_chain_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_iterated_template_closure_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit,
+    parallel_direction_conjugate_ideal_global_root_choice_audit,
+    parallel_direction_conjugate_ideal_signature_template_branch_audit,
     parallel_direction_conjugate_ideal_divisor_obligation_key,
     parallel_direction_conjugate_ideal_divisor_obligation_strip_census,
     parallel_direction_conjugate_ideal_divisor_obligation_strip_holds,
@@ -8110,6 +8154,10 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(profile.kneser_lower_bound, 4)
         self.assertEqual(profile.saturation_gap, 8)
         self.assertEqual(profile.saturation_branch, "short_failure")
+        self.assertEqual(
+            global_root_choice_short_exponent_signature(profile),
+            (13, 7, False, 3, ((0, 1), (0, 9), (0, 1))),
+        )
 
     def test_pinned_strip_local_discharge_counterexample(self):
         target, direction, obligation = PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE
@@ -8172,6 +8220,36 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(
             global_discharge.structural_row,
             ((-3, 4), (1, 2), 535, 1, -947, (-379, 189), 9586654),
+        )
+        proved_discharge = (
+            parallel_direction_conjugate_ideal_divisor_obligation_proved_signature_template_discharge_witness(
+                target,
+                direction,
+                obligation,
+                GLOBAL_ROOT_CHOICE_PROVED_SIGNATURE_TEMPLATE_ROWS,
+            )
+        )
+        self.assertIsNotNone(proved_discharge)
+        self.assertEqual(proved_discharge.branch, "alternate_proved_signature_template")
+        self.assertEqual(proved_discharge.structural_row, global_discharge.structural_row)
+        self.assertEqual(proved_discharge.determinant_leg, global_discharge.determinant_leg)
+        self.assertEqual(proved_discharge.quotient, global_discharge.quotient)
+        counterexample_signature_template = global_root_choice_branch_row_signature_template(
+            DivisorObligationGlobalRootChoiceBranchAuditRow(
+                target=target,
+                direction=direction,
+                obligation=obligation,
+                branch=proved_discharge.branch,
+                structural_row=proved_discharge.structural_row,
+            )
+        )
+        self.assertEqual(
+            counterexample_signature_template,
+            (41, 9, False, 2, ((0, 32), (0, 16)), (-3, 4), 535, 1, -947, 50, 3),
+        )
+        self.assertIn(
+            counterexample_signature_template,
+            GLOBAL_ROOT_CHOICE_PROVED_SIGNATURE_TEMPLATE_ROWS,
         )
         self.assertEqual(
             parallel_direction_conjugate_ideal_divisor_obligation_key(
@@ -8247,10 +8325,20 @@ class CertificateTests(unittest.TestCase):
                             global_witness,
                             msg=f"no global branch for {target} with U={direction} on {obligation}",
                         )
+                        table_witness = pinned_global_root_choice_table_witness(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                        expected_branch = (
+                            "alternate_root_spine_table"
+                            if table_witness is not None
+                            else "alternate_root_spine"
+                        )
                         self.assertEqual(
                             global_witness.branch,
-                            "alternate_root_spine",
-                            msg=f"non-local discharge not through root spine for {target} with U={direction} on {obligation}",
+                            expected_branch,
+                            msg=f"non-local discharge used wrong root-spine branch for {target} with U={direction} on {obligation}",
                         )
                         self.assertIsNotNone(
                             global_witness.structural_row,
@@ -8290,6 +8378,2294 @@ class CertificateTests(unittest.TestCase):
                                 f"U={direction} on {obligation}"
                             ),
                         )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_audit_rows(self):
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            500
+        )
+        self.assertEqual(branch_audit.checked_strip_failures, 105337)
+        self.assertEqual(branch_audit.local_discharge_count, 105323)
+        self.assertEqual(branch_audit.global_discharge_count, 14)
+        self.assertEqual(
+            branch_audit.local_branch_counts,
+            (
+                ("promoted_345", 100191),
+                ("lattice_pair", 4968),
+                ("standard_completion", 111),
+                ("orthogonal", 53),
+            ),
+        )
+        self.assertEqual(
+            branch_audit.global_branch_counts,
+            (("alternate_root_spine_table", 14),),
+        )
+        self.assertEqual(
+            branch_audit.global_root_shape_counts,
+            (((1, 4), 4), ((2, 5), 4), ((2, 3), 2), ((3, 8), 2), ((4, 5), 2)),
+        )
+        self.assertEqual(
+            branch_audit.global_direction_counts,
+            (
+                ((-21, 20), 2),
+                ((-20, 21), 2),
+                ((-15, -8), 2),
+                ((-8, -15), 2),
+                ((-55, 48), 1),
+                ((-48, 55), 1),
+                ((-40, 9), 1),
+                ((-12, -5), 1),
+                ((-9, 40), 1),
+                ((-5, -12), 1),
+            ),
+        )
+        self.assertEqual(branch_audit.missing_rows, ())
+        self.assertEqual(branch_audit.unreconstructed_rows, ())
+        exponent_signature_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_exponent_signature_audit(
+                500,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(exponent_signature_audit.global_row_count, 14)
+        self.assertEqual(exponent_signature_audit.missing_row_count, 0)
+        self.assertEqual(
+            exponent_signature_audit.saturation_branch_counts,
+            (("short_failure", 14),),
+        )
+        self.assertEqual(
+            exponent_signature_audit.modulus_counts,
+            ((13, 8), (73, 4), (41, 2)),
+        )
+        self.assertEqual(
+            exponent_signature_audit.effective_length_counts,
+            ((1, 6), (2, 4), (3, 4)),
+        )
+        self.assertEqual(
+            exponent_signature_audit.summand_count_counts,
+            ((1, 6), (2, 6), (3, 2)),
+        )
+        self.assertEqual(len(exponent_signature_audit.signature_counts), 10)
+        self.assertEqual(
+            exponent_signature_audit.signature_counts[:4],
+            (
+                (13, 7, False, 1, ((0, 11),), 2),
+                (13, 7, False, 2, ((0, 9), (0, 2)), 2),
+                (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), 2),
+                (13, 7, False, 3, ((0, 6, 9), (0, 5)), 2),
+            ),
+        )
+        signature_template_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit(
+                500,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_audit.global_row_count, 14)
+        self.assertEqual(signature_template_audit.missing_row_count, 0)
+        self.assertEqual(signature_template_audit.signature_count, 10)
+        self.assertEqual(signature_template_audit.template_count, 10)
+        self.assertEqual(signature_template_audit.signature_template_count, 14)
+        self.assertEqual(
+            signature_template_audit.signatures_with_multiple_templates,
+            (
+                (13, 7, False, 1, ((0, 11),), 2),
+                (13, 7, False, 2, ((0, 9), (0, 2)), 2),
+                (13, 7, False, 3, ((0, 1), (0, 9), (0, 1)), 2),
+                (13, 7, False, 3, ((0, 6, 9), (0, 5)), 2),
+            ),
+        )
+        self.assertEqual(
+            signature_template_audit.template_counts[:4],
+            (
+                ((-21, 20), 10, 1, -1583, 29, 12, 2),
+                ((-20, 21), 10, 1583, -1, 29, 28, 2),
+                ((-15, -8), 2, 241, -5, 17, 12, 2),
+                ((-8, -15), 2, 241, 5, 17, 5, 2),
+            ),
+        )
+        signature_template_rows = tuple(
+            row[:-1] for row in signature_template_audit.signature_template_counts
+        )
+        self.assertEqual(
+            signature_template_rows,
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS,
+        )
+        signature_template_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                500,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_coverage.global_row_count, 14)
+        self.assertEqual(signature_template_coverage.covered_count, 14)
+        self.assertEqual(signature_template_coverage.missing_count, 0)
+        self.assertEqual(signature_template_coverage.mismatch_count, 0)
+        self.assertEqual(signature_template_coverage.missing_root_shape_counts, ())
+        self.assertEqual(signature_template_coverage.missing_signature_counts, ())
+        self.assertEqual(signature_template_coverage.missing_template_counts, ())
+        signature_template_branch_audit = (
+            parallel_direction_conjugate_ideal_signature_template_branch_audit(
+                500,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS,
+            )
+        )
+        self.assertEqual(signature_template_branch_audit.checked_strip_failures, 105337)
+        self.assertEqual(signature_template_branch_audit.local_discharge_count, 105323)
+        self.assertEqual(signature_template_branch_audit.global_discharge_count, 14)
+        self.assertEqual(
+            signature_template_branch_audit.global_branch_counts,
+            (("alternate_signature_template", 14),),
+        )
+        self.assertEqual(signature_template_branch_audit.missing_rows, ())
+        self.assertEqual(signature_template_branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in signature_template_branch_audit.global_rows
+            ),
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in branch_audit.global_rows
+            ),
+        )
+        for row in branch_audit.global_rows:
+            witness = global_root_choice_signature_template_witness(
+                row.target,
+                row.direction,
+                row.obligation,
+                signature_template_rows,
+            )
+            self.assertIsNotNone(witness)
+            self.assertEqual(
+                (
+                    witness.direction,
+                    witness.squareclass,
+                    witness.split_factor,
+                    witness.signed_paired_split_factor,
+                    witness.beta,
+                    witness.first_coefficient,
+                ),
+                (
+                    row.structural_row[0],
+                    row.structural_row[2],
+                    row.structural_row[3],
+                    row.structural_row[4],
+                    row.structural_row[5],
+                    row.structural_row[6],
+                ),
+            )
+
+        audit = parallel_direction_conjugate_ideal_global_root_choice_audit(500)
+        self.assertEqual(audit.checked_strip_failures, 105337)
+        self.assertEqual(audit.local_discharge_count, 105323)
+        self.assertEqual(audit.alternate_root_spine_count, 14)
+        self.assertEqual(audit.missing_rows, ())
+        self.assertEqual(audit.row_family_certificate_miss_rows, ())
+        self.assertEqual(audit.strip_intersection_miss_rows, ())
+        self.assertEqual(audit.residue_line_miss_rows, ())
+        self.assertEqual(audit.unreconstructed_rows, ())
+        self.assertEqual(
+            audit.alternate_root_shape_counts,
+            (((1, 4), 4), ((2, 5), 4), ((2, 3), 2), ((3, 8), 2), ((4, 5), 2)),
+        )
+        self.assertEqual(
+            audit.alternate_direction_counts,
+            (
+                ((-21, 20), 2),
+                ((-20, 21), 2),
+                ((-15, -8), 2),
+                ((-8, -15), 2),
+                ((-55, 48), 1),
+                ((-48, 55), 1),
+                ((-40, 9), 1),
+                ((-12, -5), 1),
+                ((-9, 40), 1),
+                ((-5, -12), 1),
+            ),
+        )
+        self.assertEqual(
+            audit.alternate_residue_period_counts,
+            (
+                (17, 4),
+                (29, 4),
+                (146, 2),
+                (26, 1),
+                (41, 1),
+                (338, 1),
+                (3362, 1),
+            ),
+        )
+        self.assertEqual(
+            audit.alternate_coefficient_modulus_counts,
+            ((13, 8), (73, 4), (82, 2)),
+        )
+        self.assertEqual(audit.distinct_alternate_line_strip_row_count, 14)
+        summary = pinned_global_root_choice_alternate_line_strip_summary()
+        self.assertEqual(summary.row_count, 14)
+        self.assertEqual(summary.distinct_alternate_line_row_count, 10)
+        self.assertEqual(summary.distinct_failed_strip_intersection_row_count, 14)
+        self.assertEqual(
+            summary.obligation_counts,
+            (
+                (((2, 3), 1, 13, 5, 7, 4, 11), 4),
+                (((2, 3), 1, 13, 8, 6, 4, 11), 4),
+                (((4, 5), 2, 41, 9, 10, 33, 19), 1),
+                (((4, 5), 2, 41, 32, 10, 8, 34), 1),
+                (((3, 8), 1, 73, 27, 38, 69, 19), 2),
+                (((3, 8), 1, 73, 46, 38, 4, 71), 2),
+            ),
+        )
+        self.assertEqual(
+            summary.strip_direction_counts,
+            (
+                ((5, 12), 2),
+                ((12, 5), 2),
+                ((-55, 48), 1),
+                ((-48, -55), 1),
+                ((-48, 55), 1),
+                ((-12, -5), 1),
+                ((-12, 5), 1),
+                ((-5, -12), 1),
+                ((5, -12), 1),
+                ((9, -40), 1),
+                ((40, -9), 1),
+                ((55, 48), 1),
+            ),
+        )
+        self.assertEqual(summary.coefficient_modulus_counts, ((13, 8), (73, 4), (82, 2)))
+        self.assertTrue(summary.row_table_valid)
+        self.assertEqual(
+            audit.distinct_alternate_line_row_counts,
+            (
+                ((-21, 20), 10, 1, 29, 12, 2),
+                ((-20, 21), 10, 1583, 29, 28, 2),
+                ((-15, -8), 2, 241, 17, 12, 2),
+                ((-8, -15), 2, 241, 17, 5, 2),
+                ((-55, 48), 1, 1531, 146, 127, 1),
+                ((-48, 55), 1, 19, 146, 75, 1),
+                ((-40, 9), 2, 239, 41, 22, 1),
+                ((-12, -5), 1, 11, 338, 81, 1),
+                ((-9, 40), 2, 19, 3362, 3123, 1),
+                ((-5, -12), 1, 11, 26, 23, 1),
+            ),
+        )
+        self.assertTrue(pinned_global_root_choice_alternate_line_strip_rows_valid())
+        for row in PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS:
+            witness = pinned_global_root_choice_alternate_line_strip_row_witness(row)
+            self.assertIsNotNone(witness)
+            self.assertEqual(
+                promoted_root_spine_line_certificate_from_witness(witness),
+                witness.certificate,
+            )
+        self.assertEqual(
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS,
+            tuple(
+                (
+                    row.obligation,
+                    row.direction,
+                    row.alternate_direction,
+                    row.alternate_squareclass,
+                    row.alternate_split_factor,
+                    row.alternate_signed_paired_split_factor,
+                    row.alternate_residue_period,
+                    row.alternate_paired_residue,
+                    row.alternate_coefficient_residue,
+                    row.alternate_coefficient_modulus,
+                )
+                for row in audit.rows
+            ),
+        )
+        table_witnesses = tuple(
+            pinned_global_root_choice_table_witness(
+                row.target,
+                row.direction,
+                row.obligation,
+            )
+            for row in audit.rows
+        )
+        self.assertTrue(all(witness is not None for witness in table_witnesses))
+        self.assertEqual(
+            tuple(
+                (
+                    witness.certificate.target,
+                    witness.direction,
+                    witness.squareclass,
+                    witness.split_factor,
+                    witness.signed_paired_split_factor,
+                    witness.beta,
+                    witness.first_coefficient,
+                )
+                for witness in table_witnesses
+                if witness
+            ),
+            tuple(
+                (
+                    row.target,
+                    row.alternate_direction,
+                    row.alternate_squareclass,
+                    row.alternate_split_factor,
+                    row.alternate_signed_paired_split_factor,
+                    row.alternate_beta,
+                    row.alternate_first_coefficient,
+                )
+                for row in audit.rows
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                pinned_global_root_choice_table_certificate(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                )
+                for row in audit.rows
+            ),
+            tuple(witness.certificate for witness in table_witnesses if witness),
+        )
+        self.assertEqual(
+            tuple(
+                parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                    8,
+                ).branch
+                for row in audit.rows
+            ),
+            ("alternate_root_spine_table",) * 14,
+        )
+        self.assertEqual(
+            tuple(row.target for row in audit.rows),
+            (
+                (391, 158),
+                (370, 403),
+                (334, 325),
+                (403, 370),
+                (403, 370),
+                (158, 391),
+                (325, 334),
+                (370, 403),
+                (265, 346),
+                (346, 265),
+                (325, 334),
+                (338, 151),
+                (334, 325),
+                (151, 338),
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    row.target,
+                    row.alternate_direction,
+                    row.alternate_squareclass,
+                    row.alternate_split_factor,
+                    row.alternate_signed_paired_split_factor,
+                    row.alternate_residue_period,
+                    row.alternate_paired_residue,
+                    row.alternate_beta,
+                    row.alternate_first_coefficient,
+                )
+                for row in audit.rows
+            ),
+            (
+                ((391, 158), (-48, 55), 1, 19, -1531, 146, 75, (167, 65), 218),
+                ((370, 403), (-20, 21), 10, 1583, -1, 29, 28, (-109, 273), -14897),
+                ((334, 325), (-8, -15), 2, 241, 5, 17, 5, (-13, -57), -227),
+                ((403, 370), (-21, 20), 10, 1, -1583, 29, 12, (-273, 109), 14897),
+                ((403, 370), (-21, 20), 10, 1, -1583, 29, 12, (-273, 109), 14897),
+                ((158, 391), (-55, 48), 1, 1531, -19, 146, 127, (-65, -167), -218),
+                ((325, 334), (-15, -8), 2, 241, -5, 17, 12, (-13, 57), -227),
+                ((370, 403), (-20, 21), 10, 1583, -1, 29, 28, (-109, 273), -14897),
+                ((265, 346), (-12, -5), 1, 11, -257, 338, 81, (-61, 37), 166),
+                ((346, 265), (-5, -12), 1, 11, 257, 26, 23, (-61, -37), 166),
+                ((325, 334), (-15, -8), 2, 241, -5, 17, 12, (-13, 57), -227),
+                ((338, 151), (-40, 9), 2, 239, -19, 41, 22, (-21, 31), -41),
+                ((334, 325), (-8, -15), 2, 241, 5, 17, 5, (-13, -57), -227),
+                ((151, 338), (-9, 40), 2, 19, -239, 3362, 3123, (-31, 21), 41),
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    row.target,
+                    row.alternate_strip_step,
+                    row.alternate_strip_residue,
+                    row.alternate_strip_modulus,
+                    row.alternate_strip_gcd,
+                    row.alternate_coefficient_residue,
+                    row.alternate_coefficient_modulus,
+                    row.alternate_first_coefficient,
+                )
+                for row in audit.rows
+            ),
+            (
+                ((391, 158), 10, 9, 13, 1, 10, 13, 218),
+                ((370, 403), 8, 8, 13, 1, 1, 13, -14897),
+                ((334, 325), 3, 8, 13, 1, 7, 13, -227),
+                ((403, 370), 7, 6, 13, 1, 12, 13, 14897),
+                ((403, 370), 8, 5, 13, 1, 12, 13, 14897),
+                ((158, 391), 10, 4, 13, 1, 3, 13, -218),
+                ((325, 334), 10, 5, 13, 1, 7, 13, -227),
+                ((370, 403), 7, 7, 13, 1, 1, 13, -14897),
+                ((265, 346), 49, 16, 82, 1, 2, 82, 166),
+                ((346, 265), 49, 16, 82, 1, 2, 82, 166),
+                ((325, 334), 41, 37, 73, 1, 65, 73, -227),
+                ((338, 151), 6, 46, 73, 1, 32, 73, -41),
+                ((334, 325), 41, 37, 73, 1, 65, 73, -227),
+                ((151, 338), 67, 46, 73, 1, 41, 73, 41),
+            ),
+        )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_branch_audit_750(self):
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            750
+        )
+        self.assertEqual(branch_audit.checked_strip_failures, 233598)
+        self.assertEqual(branch_audit.local_discharge_count, 233578)
+        self.assertEqual(branch_audit.global_discharge_count, 20)
+        self.assertEqual(
+            branch_audit.global_branch_counts,
+            (("alternate_root_spine_table", 14), ("alternate_root_spine", 6)),
+        )
+        self.assertEqual(branch_audit.missing_rows, ())
+        self.assertEqual(branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            branch_audit.global_root_shape_counts,
+            (
+                ((1, 4), 4),
+                ((2, 3), 4),
+                ((2, 5), 4),
+                ((2, 7), 4),
+                ((3, 8), 2),
+                ((4, 5), 2),
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                (row.target, row.branch, row.structural_row[1])
+                for row in branch_audit.global_rows
+                if row.branch == "alternate_root_spine"
+            ),
+            (
+                ((530, 713), "alternate_root_spine", (2, 7)),
+                ((601, 262), "alternate_root_spine", (2, 3)),
+                ((262, 601), "alternate_root_spine", (2, 3)),
+                ((713, 530), "alternate_root_spine", (2, 7)),
+                ((611, 482), "alternate_root_spine", (2, 7)),
+                ((482, 611), "alternate_root_spine", (2, 7)),
+            ),
+        )
+        signature_template_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                750,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_500_SIGNATURE_TEMPLATE_ROWS,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_coverage.global_row_count, 20)
+        self.assertEqual(signature_template_coverage.covered_count, 14)
+        self.assertEqual(signature_template_coverage.missing_count, 6)
+        self.assertEqual(signature_template_coverage.mismatch_count, 0)
+        self.assertEqual(
+            signature_template_coverage.missing_root_shape_counts,
+            (((2, 7), 4), ((2, 3), 2)),
+        )
+        self.assertEqual(
+            signature_template_coverage.missing_signature_counts,
+            (
+                (13, 7, False, 2, ((0, 1), (0, 10)), 2),
+                (13, 7, False, 3, ((0, 6, 9), (0, 11)), 2),
+                (17, 1, False, 1, ((0, 6),), 2),
+            ),
+        )
+        signature_template_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit(
+                750,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_audit.global_row_count, 20)
+        self.assertEqual(signature_template_audit.signature_count, 13)
+        self.assertEqual(signature_template_audit.template_count, 16)
+        self.assertEqual(signature_template_audit.signature_template_count, 20)
+        self.assertEqual(
+            tuple(row[:-1] for row in signature_template_audit.signature_template_counts),
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS,
+        )
+        extended_signature_template_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                750,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(extended_signature_template_coverage.covered_count, 20)
+        self.assertEqual(extended_signature_template_coverage.missing_count, 0)
+        self.assertEqual(extended_signature_template_coverage.mismatch_count, 0)
+        signature_template_branch_audit = (
+            parallel_direction_conjugate_ideal_signature_template_branch_audit(
+                750,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS,
+            )
+        )
+        self.assertEqual(signature_template_branch_audit.checked_strip_failures, 233598)
+        self.assertEqual(signature_template_branch_audit.local_discharge_count, 233578)
+        self.assertEqual(signature_template_branch_audit.global_discharge_count, 20)
+        self.assertEqual(
+            signature_template_branch_audit.global_branch_counts,
+            (("alternate_signature_template", 20),),
+        )
+        self.assertEqual(signature_template_branch_audit.missing_rows, ())
+        self.assertEqual(signature_template_branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in signature_template_branch_audit.global_rows
+            ),
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in branch_audit.global_rows
+            ),
+        )
+        generic_rows = tuple(
+            global_root_choice_branch_row_alternate_line_strip_row(row)
+            for row in branch_audit.global_rows
+            if row.branch == "alternate_root_spine"
+        )
+        self.assertEqual(
+            generic_rows,
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS,
+        )
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+            )
+        )
+        extended_rows = (
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+        )
+        self.assertEqual(
+            tuple(
+                pinned_global_root_choice_table_witness(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                    extended_rows,
+                ).certificate
+                for row in branch_audit.global_rows
+                if row.branch == "alternate_root_spine"
+            ),
+            tuple(
+                ParallelDirectionConjugateIdealWitness(
+                    target=row.target,
+                    direction=row.structural_row[0],
+                    squareclass=row.structural_row[2],
+                    split_factor=row.structural_row[3],
+                    signed_paired_split_factor=row.structural_row[4],
+                    beta=row.structural_row[5],
+                    first_coefficient=row.structural_row[6],
+                ).certificate
+                for row in branch_audit.global_rows
+                if row.branch == "alternate_root_spine"
+            ),
+        )
+        original_row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                750
+            )
+        )
+        self.assertEqual(original_row_audit.global_row_count, 20)
+        self.assertEqual(original_row_audit.distinct_row_count, 20)
+        self.assertEqual(original_row_audit.base_table_row_count, 14)
+        self.assertEqual(original_row_audit.new_row_count, 6)
+        self.assertEqual(
+            original_row_audit.new_root_shape_counts,
+            (((2, 7), 4), ((2, 3), 2)),
+        )
+        self.assertEqual(
+            original_row_audit.new_alternate_direction_counts,
+            (((-45, 28), 2), ((-28, 45), 2), ((-12, 5), 1), ((-5, 12), 1)),
+        )
+        self.assertEqual(
+            original_row_audit.new_rows,
+            tuple(sorted(PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS)),
+        )
+        self.assertEqual(original_row_audit.invalid_rows, ())
+
+        extended_row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                750,
+                extended_rows,
+            )
+        )
+        self.assertEqual(extended_row_audit.global_row_count, 20)
+        self.assertEqual(extended_row_audit.distinct_row_count, 20)
+        self.assertEqual(extended_row_audit.base_table_row_count, 20)
+        self.assertEqual(extended_row_audit.new_row_count, 0)
+        self.assertEqual(extended_row_audit.new_root_shape_counts, ())
+        self.assertEqual(extended_row_audit.new_alternate_direction_counts, ())
+        self.assertEqual(extended_row_audit.new_obligation_counts, ())
+        self.assertEqual(extended_row_audit.new_line_template_counts, ())
+        self.assertEqual(extended_row_audit.new_rows, ())
+        self.assertEqual(extended_row_audit.invalid_rows, ())
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_portable_row_audit_1000(self):
+        extended_rows = (
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+        )
+        row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1000,
+                extended_rows,
+            )
+        )
+        self.assertEqual(row_audit.global_row_count, 42)
+        self.assertEqual(row_audit.distinct_row_count, 42)
+        self.assertEqual(row_audit.base_table_row_count, 20)
+        self.assertEqual(row_audit.new_row_count, 22)
+        self.assertEqual(
+            row_audit.new_root_shape_counts,
+            (((1, 6), 14), ((2, 3), 6), ((2, 5), 2)),
+        )
+        self.assertEqual(
+            row_audit.new_alternate_direction_counts,
+            (
+                ((-35, 12), 6),
+                ((-12, 35), 6),
+                ((-12, -5), 2),
+                ((-5, -12), 2),
+                ((-35, -12), 1),
+                ((-21, 20), 1),
+                ((-20, 21), 1),
+                ((-12, -35), 1),
+                ((-12, 5), 1),
+                ((-5, 12), 1),
+            ),
+        )
+        self.assertEqual(
+            row_audit.new_line_template_counts,
+            (
+                ((-35, 12), 1, 89, -349, 74, 21, 3),
+                ((-35, 12), 10, 3583, -1, 37, 36, 3),
+                ((-12, 35), 1, 349, -89, 74, 59, 3),
+                ((-12, 35), 10, 1, -3583, 2738, 1893, 3),
+                ((-12, -5), 1, 11, -881, 338, 133, 2),
+                ((-5, -12), 1, 11, 881, 26, 23, 2),
+                ((-35, -12), 7, 1, -2917, 74, 43, 1),
+                ((-21, 20), 23, 1549, -1, 58, 57, 1),
+                ((-20, 21), 23, 1, -1549, 58, 17, 1),
+                ((-12, -35), 7, 1, 2917, 74, 31, 1),
+                ((-12, 5), 1, 115, -107, 338, 231, 1),
+                ((-5, 12), 1, 23, -535, 338, 141, 1),
+            ),
+        )
+        self.assertEqual(row_audit.invalid_rows, ())
+        dominant_templates = tuple(
+            row[:6]
+            for row in row_audit.new_line_template_counts
+            if row[-1] == 3
+        )
+        self.assertEqual(
+            dominant_templates,
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES,
+        )
+        self.assertEqual(
+            tuple(
+                len(global_root_choice_line_template_strip_rows(template))
+                for template in dominant_templates
+            ),
+            (24, 40, 24, 40),
+        )
+        dominant_template_rows = global_root_choice_line_template_table_rows(
+            dominant_templates
+        )
+        self.assertEqual(len(dominant_template_rows), 128)
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in dominant_template_rows
+            )
+        )
+        template_extended_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1000,
+                extended_rows + dominant_template_rows,
+            )
+        )
+        self.assertEqual(template_extended_audit.global_row_count, 42)
+        self.assertEqual(template_extended_audit.distinct_row_count, 42)
+        self.assertEqual(template_extended_audit.new_row_count, 10)
+        self.assertEqual(
+            template_extended_audit.new_root_shape_counts,
+            (((2, 3), 6), ((1, 6), 2), ((2, 5), 2)),
+        )
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            1000
+        )
+        signature_template_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit(
+                1000,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_audit.global_row_count, 42)
+        self.assertEqual(signature_template_audit.signature_count, 21)
+        self.assertEqual(signature_template_audit.template_count, 28)
+        self.assertEqual(signature_template_audit.signature_template_count, 40)
+        self.assertEqual(
+            tuple(row[:-1] for row in signature_template_audit.signature_template_counts),
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+        )
+        self.assertEqual(
+            GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_TEMPLATES,
+            (
+                ((1, 4), 2, (5, 241), 17),
+                ((1, 4), 17, (1, 1033), 34),
+                ((1, 6), 1, (89, 349), 74),
+                ((1, 6), 10, (1, 3583), 37),
+                ((1, 6), 10, (1, 3583), 2738),
+                ((1, 6), 10, (1, 475), 37),
+                ((1, 6), 10, (1, 475), 2738),
+                ((1, 6), 7, (1, 2917), 74),
+                ((1, 2), 535, (1, 947), 50),
+                ((2, 3), 1, (11, 881), 338),
+                ((2, 3), 1, (11, 881), 26),
+                ((2, 3), 1, (11, 257), 338),
+                ((2, 3), 1, (11, 257), 26),
+                ((2, 3), 1, (23, 535), 338),
+                ((2, 3), 1, (67, 257), 26),
+                ((2, 3), 1, (107, 115), 338),
+                ((2, 3), 13, (1, 473), 26),
+                ((2, 3), 13, (1, 905), 338),
+                ((2, 3), 13, (1, 905), 26),
+                ((2, 3), 2, (71, 121), 13),
+                ((2, 3), 2, (19, 641), 13),
+                ((2, 3), 5, (19, 173), 26),
+                ((2, 3), 46, (1, 317), 13),
+                ((2, 5), 10, (1, 1583), 29),
+                ((2, 5), 23, (1, 1549), 58),
+                ((2, 7), 1, (179, 229), 106),
+                ((2, 7), 2, (19, 1153), 53),
+                ((4, 5), 2, (19, 239), 3362),
+                ((4, 5), 2, (19, 239), 41),
+                ((3, 8), 1, (19, 1531), 146),
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                (template, theorem_name)
+                for template, theorem_name in GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES
+            ),
+            (
+                (
+                    ((1, 4), 2, (5, 241), 17),
+                    "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+                ),
+                (
+                    ((1, 4), 17, (1, 1033), 34),
+                    "certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip",
+                ),
+                (
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    ((1, 6), 10, (1, 3583), 37),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip",
+                ),
+                (
+                    ((1, 6), 10, (1, 3583), 2738),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip",
+                ),
+                (
+                    ((1, 6), 10, (1, 475), 37),
+                    "certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueOneLineStrip",
+                ),
+                (
+                    ((1, 6), 10, (1, 475), 2738),
+                    "certificateValid_oneSixSquareclassTenSplitFourSeventyFiveResidueTwentySevenThirtySevenLineStrip",
+                ),
+                (
+                    ((1, 6), 7, (1, 2917), 74),
+                    "certificateValid_oneSixSplitTwentyNineSeventeenLineStrip",
+                ),
+                (
+                    ((1, 2), 535, (1, 947), 50),
+                    "certificateValid_oneTwoSquareclassFiveThirtyFiveSplitNineFortySevenResidueThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (11, 881), 338),
+                    "certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (11, 881), 26),
+                    "certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (11, 257), 338),
+                    "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueEightyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (11, 257), 26),
+                    "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueTwentyThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (23, 535), 338),
+                    "certificateValid_twoThreeOddSplitTwentyThreeFiveThirtyFiveResidueOneFortyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (67, 257), 26),
+                    "certificateValid_twoThreeOddSplitSixtySevenTwoFiftySevenLineStrip",
+                ),
+                (
+                    ((2, 3), 1, (107, 115), 338),
+                    "certificateValid_twoThreeOddSplitOneHundredSevenOneFifteenResidueTwoThirtyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 13, (1, 473), 26),
+                    "certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 13, (1, 905), 338),
+                    "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueOneOhNineLineStrip",
+                ),
+                (
+                    ((2, 3), 13, (1, 905), 26),
+                    "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 2, (71, 121), 13),
+                    "certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 2, (19, 641), 13),
+                    "certificateValid_twoThreeEvenSplitNineteenSixFortyOneLineStrip",
+                ),
+                (
+                    ((2, 3), 5, (19, 173), 26),
+                    "certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip",
+                ),
+                (
+                    ((2, 3), 46, (1, 317), 13),
+                    "certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip",
+                ),
+                (
+                    ((2, 5), 10, (1, 1583), 29),
+                    "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    ((2, 5), 23, (1, 1549), 58),
+                    "certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip",
+                ),
+                (
+                    ((2, 7), 1, (179, 229), 106),
+                    "certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip",
+                ),
+                (
+                    ((2, 7), 2, (19, 1153), 53),
+                    "certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip",
+                ),
+                (
+                    ((4, 5), 2, (19, 239), 3362),
+                    "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueThirtyOneTwentyThreeLineStrip",
+                ),
+                (
+                    ((4, 5), 2, (19, 239), 41),
+                    "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip",
+                ),
+                (
+                    ((3, 8), 1, (19, 1531), 146),
+                    "certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip",
+                ),
+            ),
+        )
+        proved_template_rows = tuple(
+            (
+                row[:5],
+                row[5:],
+                global_root_choice_normalized_line_template(row[5:]),
+                global_root_choice_proved_normalized_line_family_theorem(row[5:]),
+            )
+            for row in PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS
+            if (
+                global_root_choice_proved_normalized_line_family_theorem(row[5:])
+                is not None
+            )
+        )
+        self.assertEqual(
+            proved_template_rows,
+            (
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-35, 12), 10, 3583, -1, 37, 36),
+                    ((1, 6), 10, (1, 3583), 37),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-12, 35), 10, 1, -3583, 2738, 1893),
+                    ((1, 6), 10, (1, 3583), 2738),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 5), (0,))),
+                    ((-12, -5), 1, 11, -881, 338, 133),
+                    ((2, 3), 1, (11, 881), 338),
+                    "certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 5), (0,))),
+                    ((-5, -12), 1, 11, 881, 26, 23),
+                    ((2, 3), 1, (11, 881), 26),
+                    "certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-55, 48), 1, 1531, -19, 146, 127),
+                    ((3, 8), 1, (19, 1531), 146),
+                    "certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-48, 55), 1, 19, -1531, 146, 75),
+                    ((3, 8), 1, (19, 1531), 146),
+                    "certificateValid_threeEightOddSplitNineteenFifteenThirtyOneLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-35, -12), 7, 1, -2917, 74, 43),
+                    ((1, 6), 7, (1, 2917), 74),
+                    "certificateValid_oneSixSplitTwentyNineSeventeenLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-35, 12), 1, 89, -349, 74, 21),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-12, -35), 7, 1, 2917, 74, 31),
+                    ((1, 6), 7, (1, 2917), 74),
+                    "certificateValid_oneSixSplitTwentyNineSeventeenLineStrip",
+                ),
+                (
+                    (13, 7, False, 1, ((0, 11),)),
+                    ((-12, 35), 1, 349, -89, 74, 59),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 1), (0, 10))),
+                    ((-12, 5), 13, 1, -473, 26, 21),
+                    ((2, 3), 13, (1, 473), 26),
+                    "certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 1), (0, 10))),
+                    ((-5, 12), 13, 473, -1, 26, 25),
+                    ((2, 3), 13, (1, 473), 26),
+                    "certificateValid_twoThreeOddSquareclassThirteenSplitFourSeventyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 9), (0, 2))),
+                    ((-21, 20), 10, 1, -1583, 29, 12),
+                    ((2, 5), 10, (1, 1583), 29),
+                    "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 9), (0, 2))),
+                    ((-20, 21), 10, 1583, -1, 29, 28),
+                    ((2, 5), 10, (1, 1583), 29),
+                    "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 9), (0, 8))),
+                    ((-21, 20), 23, 1549, -1, 58, 57),
+                    ((2, 5), 23, (1, 1549), 58),
+                    "certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip",
+                ),
+                (
+                    (13, 7, False, 2, ((0, 9), (0, 8))),
+                    ((-20, 21), 23, 1, -1549, 58, 17),
+                    ((2, 5), 23, (1, 1549), 58),
+                    "certificateValid_twoFiveOddSquareclassTwentyThreeSplitFifteenFortyNineLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1))),
+                    ((-15, -8), 2, 241, -5, 17, 12),
+                    ((1, 4), 2, (5, 241), 17),
+                    "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 1), (0, 9), (0, 1))),
+                    ((-8, -15), 2, 241, 5, 17, 5),
+                    ((1, 4), 2, (5, 241), 17),
+                    "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 6, 9), (0, 5))),
+                    ((-21, 20), 10, 1, -1583, 29, 12),
+                    ((2, 5), 10, (1, 1583), 29),
+                    "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 6, 9), (0, 5))),
+                    ((-20, 21), 10, 1583, -1, 29, 28),
+                    ((2, 5), 10, (1, 1583), 29),
+                    "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 6, 9), (0, 11))),
+                    ((-45, 28), 2, 19, -1153, 53, 13),
+                    ((2, 7), 2, (19, 1153), 53),
+                    "certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip",
+                ),
+                (
+                    (13, 7, False, 3, ((0, 6, 9), (0, 11))),
+                    ((-28, 45), 2, 1153, -19, 53, 34),
+                    ((2, 7), 2, (19, 1153), 53),
+                    "certificateValid_twoSevenEvenSplitNineteenElevenFiftyThreeLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 6),)),
+                    ((-45, 28), 1, 179, -229, 106, 89),
+                    ((2, 7), 1, (179, 229), 106),
+                    "certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 6),)),
+                    ((-28, 45), 1, 229, -179, 106, 33),
+                    ((2, 7), 1, (179, 229), 106),
+                    "certificateValid_twoSevenOddSplitOneSeventyNineTwoTwentyNineLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14),)),
+                    ((-35, 12), 1, 89, -349, 74, 21),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14),)),
+                    ((-12, 5), 1, 115, -107, 338, 231),
+                    ((2, 3), 1, (107, 115), 338),
+                    "certificateValid_twoThreeOddSplitOneHundredSevenOneFifteenResidueTwoThirtyOneLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14),)),
+                    ((-12, 35), 1, 349, -89, 74, 59),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14),)),
+                    ((-5, 12), 1, 23, -535, 338, 141),
+                    ((2, 3), 1, (23, 535), 338),
+                    "certificateValid_twoThreeOddSplitTwentyThreeFiveThirtyFiveResidueOneFortyOneLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14), (0,))),
+                    ((-12, -5), 1, 11, -881, 338, 133),
+                    ((2, 3), 1, (11, 881), 338),
+                    "certificateValid_twoThreeOddSplitElevenResidueOneThirtyThreeLineStrip",
+                ),
+                (
+                    (17, 1, False, 1, ((0, 14), (0,))),
+                    ((-5, -12), 1, 11, 881, 26, 23),
+                    ((2, 3), 1, (11, 881), 26),
+                    "certificateValid_twoThreeOddSplitElevenResidueTwentyThreeLineStrip",
+                ),
+                (
+                    (41, 9, False, 1, ((0, 8),)),
+                    ((-12, -5), 1, 11, -257, 338, 81),
+                    ((2, 3), 1, (11, 257), 338),
+                    "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueEightyOneLineStrip",
+                ),
+                (
+                    (41, 9, False, 2, ((0, 39), (0, 29))),
+                    ((-35, 12), 10, 3583, -1, 37, 36),
+                    ((1, 6), 10, (1, 3583), 37),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueThirtySixLineStrip",
+                ),
+                (
+                    (41, 19, False, 1, ((0, 8),)),
+                    ((-5, -12), 1, 11, 257, 26, 23),
+                    ((2, 3), 1, (11, 257), 26),
+                    "certificateValid_twoThreeOddSplitElevenTwoFiftySevenResidueTwentyThreeLineStrip",
+                ),
+                (
+                    (41, 19, False, 2, ((0, 39), (0, 29))),
+                    ((-12, 35), 10, 1, -3583, 2738, 1893),
+                    ((1, 6), 10, (1, 3583), 2738),
+                    "certificateValid_oneSixSplitThirtyFiveEightyThreeResidueEighteenNinetyThreeLineStrip",
+                ),
+                (
+                    (73, 44, False, 1, ((0, 34),)),
+                    ((-9, 40), 2, 19, -239, 3362, 3123),
+                    ((4, 5), 2, (19, 239), 3362),
+                    "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueThirtyOneTwentyThreeLineStrip",
+                ),
+                (
+                    (73, 44, False, 2, ((0, 4), (0, 30))),
+                    ((-8, -15), 2, 241, 5, 17, 5),
+                    ((1, 4), 2, (5, 241), 17),
+                    "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+                ),
+                (
+                    (73, 44, False, 2, ((0, 31), (0, 39))),
+                    ((-35, 12), 1, 89, -349, 74, 21),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    (73, 62, False, 1, ((0, 34),)),
+                    ((-40, 9), 2, 239, -19, 41, 22),
+                    ((4, 5), 2, (19, 239), 41),
+                    "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip",
+                ),
+                (
+                    (73, 62, False, 2, ((0, 4), (0, 30))),
+                    ((-15, -8), 2, 241, -5, 17, 12),
+                    ((1, 4), 2, (5, 241), 17),
+                    "certificateValid_oneFourEvenSplitTwoFortyOneLineStrip",
+                ),
+                (
+                    (73, 62, False, 2, ((0, 31), (0, 39))),
+                    ((-12, 35), 1, 349, -89, 74, 59),
+                    ((1, 6), 1, (89, 349), 74),
+                    "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+            ),
+        )
+        proved_signature_template_rows = tuple(
+            row
+            for row in PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS
+            if (
+                global_root_choice_proved_normalized_line_family_theorem(row[5:])
+                is not None
+            )
+        )
+        proved_witness_signature_rows = []
+        for row in branch_audit.global_rows:
+            witness = global_root_choice_proved_signature_template_witness(
+                row.target,
+                row.direction,
+                row.obligation,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+            )
+            proved_discharge = (
+                parallel_direction_conjugate_ideal_divisor_obligation_proved_signature_template_discharge_witness(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+                )
+            )
+            if witness is None:
+                self.assertIsNone(proved_discharge)
+                continue
+            self.assertIsNotNone(proved_discharge)
+            self.assertEqual(proved_discharge.branch, "alternate_proved_signature_template")
+            self.assertEqual(proved_discharge.structural_row, row.structural_row)
+            self.assertEqual(witness.certificate.valid(), True)
+            self.assertEqual(
+                (
+                    witness.direction,
+                    witness.squareclass,
+                    witness.split_factor,
+                    witness.signed_paired_split_factor,
+                    witness.beta,
+                    witness.first_coefficient,
+                ),
+                (
+                    row.structural_row[0],
+                    row.structural_row[2],
+                    row.structural_row[3],
+                    row.structural_row[4],
+                    row.structural_row[5],
+                    row.structural_row[6],
+                ),
+            )
+            signature_template_row = global_root_choice_branch_row_signature_template(row)
+            self.assertIsNotNone(signature_template_row)
+            proved_witness_signature_rows.append(signature_template_row)
+        self.assertEqual(
+            set(proved_witness_signature_rows),
+            set(proved_signature_template_rows),
+        )
+        self.assertEqual(len(set(proved_witness_signature_rows)), 40)
+        self.assertEqual(len(proved_witness_signature_rows), 42)
+        signature_template_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                1000,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_coverage.covered_count, 42)
+        self.assertEqual(signature_template_coverage.missing_count, 0)
+        self.assertEqual(signature_template_coverage.mismatch_count, 0)
+        signature_template_branch_audit = (
+            parallel_direction_conjugate_ideal_signature_template_branch_audit(
+                1000,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+            )
+        )
+        self.assertEqual(
+            signature_template_branch_audit.checked_strip_failures,
+            branch_audit.checked_strip_failures,
+        )
+        self.assertEqual(
+            signature_template_branch_audit.local_discharge_count,
+            branch_audit.local_discharge_count,
+        )
+        self.assertEqual(signature_template_branch_audit.global_discharge_count, 42)
+        self.assertEqual(
+            signature_template_branch_audit.global_branch_counts,
+            (("alternate_signature_template", 42),),
+        )
+        self.assertEqual(signature_template_branch_audit.missing_rows, ())
+        self.assertEqual(signature_template_branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in signature_template_branch_audit.global_rows
+            ),
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in branch_audit.global_rows
+            ),
+        )
+        iterated_signature_template_closure = (
+            parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+                1000,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS,
+                max_iterations=2,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertTrue(iterated_signature_template_closure.closed)
+        self.assertEqual(iterated_signature_template_closure.base_row_count, 20)
+        self.assertEqual(iterated_signature_template_closure.final_row_count, 40)
+        self.assertEqual(
+            iterated_signature_template_closure.final_rows,
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_SIGNATURE_TEMPLATE_ROWS,
+        )
+        self.assertEqual(iterated_signature_template_closure.iteration_count, 1)
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.covered_count,
+            42,
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.missing_count,
+            0,
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    layer.iteration,
+                    layer.input_row_count,
+                    layer.missing_count,
+                    layer.new_row_count,
+                    layer.output_row_count,
+                )
+                for layer in iterated_signature_template_closure.layers
+            ),
+            ((1, 20, 22, 20, 40),),
+        )
+        self.assertEqual(len(iterated_signature_template_closure.layers[0].new_rows), 20)
+        self.assertTrue(
+            set(iterated_signature_template_closure.layers[0].new_rows).isdisjoint(
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_SIGNATURE_TEMPLATE_ROWS
+            )
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.layers[0].missing_root_shape_counts,
+            (((1, 6), 14), ((2, 3), 6), ((2, 5), 2)),
+        )
+        residual_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES
+        )
+        self.assertEqual(len(residual_template_rows), 192)
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in residual_template_rows
+            )
+        )
+        radius_1000_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES
+        )
+        self.assertEqual(len(radius_1000_template_rows), 320)
+        iterated_closure_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_iterated_template_closure_audit(
+                1000,
+                extended_rows,
+                max_iterations=2,
+            )
+        )
+        self.assertTrue(iterated_closure_audit.closed)
+        self.assertEqual(iterated_closure_audit.base_row_count, 20)
+        self.assertEqual(iterated_closure_audit.final_row_count, 340)
+        self.assertEqual(iterated_closure_audit.iteration_count, 1)
+        self.assertEqual(iterated_closure_audit.final_portable_row_audit.global_row_count, 42)
+        self.assertEqual(
+            iterated_closure_audit.final_portable_row_audit.distinct_row_count,
+            42,
+        )
+        self.assertEqual(iterated_closure_audit.final_portable_row_audit.new_row_count, 0)
+        self.assertEqual(
+            iterated_closure_audit.final_portable_row_audit.new_root_shape_counts,
+            (),
+        )
+        self.assertEqual(
+            iterated_closure_audit.final_portable_row_audit.new_line_template_counts,
+            (),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    layer.iteration,
+                    layer.input_row_count,
+                    layer.new_row_count,
+                    layer.new_template_count,
+                    layer.template_expanded_row_count,
+                    layer.output_row_count,
+                )
+                for layer in iterated_closure_audit.layers
+            ),
+            ((1, 20, 22, 12, 320, 340),),
+        )
+        self.assertEqual(
+            iterated_closure_audit.layers[0].new_root_shape_counts,
+            (((1, 6), 14), ((2, 3), 6), ((2, 5), 2)),
+        )
+        observed_new_rows = set(row_audit.new_rows)
+        for template in dominant_templates:
+            expanded_rows = global_root_choice_line_template_strip_rows(template)
+            self.assertEqual(
+                sum(
+                    1
+                    for row in observed_new_rows
+                    if (row[2], row[3], row[4], row[5], row[6], row[7])
+                    == template
+                ),
+                3,
+            )
+            self.assertTrue(observed_new_rows.intersection(expanded_rows))
+            self.assertTrue(
+                all(
+                    pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                    for row in expanded_rows
+                )
+            )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_portable_row_audit_1250(self):
+        extended_rows = (
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+        )
+        radius_1000_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES
+        )
+        row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1250,
+                extended_rows + radius_1000_template_rows,
+            )
+        )
+        self.assertEqual(row_audit.global_row_count, 62)
+        self.assertEqual(row_audit.distinct_row_count, 62)
+        self.assertEqual(row_audit.new_row_count, 20)
+        self.assertEqual(
+            row_audit.new_root_shape_counts,
+            (((2, 3), 12), ((1, 4), 6), ((1, 6), 2)),
+        )
+        self.assertEqual(
+            row_audit.new_line_template_counts,
+            (
+                ((-15, 8), 17, 1033, -1, 34, 33, 3),
+                ((-12, -5), 13, 1, -905, 338, 109, 3),
+                ((-8, 15), 17, 1, -1033, 34, 21, 3),
+                ((-5, -12), 13, 1, 905, 26, 21, 3),
+                ((-35, -12), 10, 475, 1, 37, 1, 1),
+                ((-12, -35), 10, 475, -1, 2738, 2737, 1),
+                ((-12, 5), 2, 71, -121, 13, 9, 1),
+                ((-12, 5), 5, 19, -173, 26, 9, 1),
+                ((-12, 5), 46, 1, -317, 13, 8, 1),
+                ((-5, 12), 2, 121, -71, 13, 7, 1),
+                ((-5, 12), 5, 173, -19, 26, 7, 1),
+                ((-5, 12), 46, 317, -1, 13, 12, 1),
+            ),
+        )
+        radius_1250_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES
+        )
+        self.assertEqual(len(radius_1250_template_rows), 352)
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in radius_1250_template_rows
+            )
+        )
+        closed_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1250,
+                extended_rows + radius_1000_template_rows + radius_1250_template_rows,
+            )
+        )
+        self.assertEqual(closed_audit.global_row_count, 62)
+        self.assertEqual(closed_audit.distinct_row_count, 62)
+        self.assertEqual(closed_audit.new_row_count, 0)
+        self.assertEqual(closed_audit.new_root_shape_counts, ())
+        self.assertEqual(closed_audit.new_line_template_counts, ())
+        closure_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit(
+                1250,
+                extended_rows + radius_1000_template_rows,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES,
+            )
+        )
+        self.assertEqual(closure_audit.template_count, 12)
+        self.assertEqual(closure_audit.template_expanded_row_count, 352)
+        self.assertEqual(closure_audit.portable_row_audit.new_row_count, 0)
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            1250
+        )
+        signature_template_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_audit(
+                1250,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_audit.global_row_count, 62)
+        self.assertEqual(signature_template_audit.signature_count, 27)
+        self.assertEqual(signature_template_audit.template_count, 40)
+        self.assertEqual(signature_template_audit.signature_template_count, 60)
+        self.assertEqual(
+            tuple(row[:-1] for row in signature_template_audit.signature_template_counts),
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+        )
+        signature_template_coverage = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_coverage_audit(
+                1250,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertEqual(signature_template_coverage.covered_count, 62)
+        self.assertEqual(signature_template_coverage.missing_count, 0)
+        self.assertEqual(signature_template_coverage.mismatch_count, 0)
+        for row in branch_audit.global_rows:
+            signature_discharge = (
+                parallel_direction_conjugate_ideal_divisor_obligation_signature_template_discharge_witness(
+                    row.target,
+                    row.direction,
+                    row.obligation,
+                    PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+                )
+            )
+            self.assertIsNotNone(signature_discharge)
+            self.assertEqual(signature_discharge.branch, "alternate_signature_template")
+            self.assertEqual(signature_discharge.structural_row, row.structural_row)
+        signature_template_branch_audit = (
+            parallel_direction_conjugate_ideal_signature_template_branch_audit(
+                1250,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+            )
+        )
+        self.assertEqual(
+            signature_template_branch_audit.checked_strip_failures,
+            branch_audit.checked_strip_failures,
+        )
+        self.assertEqual(
+            signature_template_branch_audit.local_discharge_count,
+            branch_audit.local_discharge_count,
+        )
+        self.assertEqual(signature_template_branch_audit.global_discharge_count, 62)
+        self.assertEqual(
+            signature_template_branch_audit.global_branch_counts,
+            (("alternate_signature_template", 62),),
+        )
+        self.assertEqual(signature_template_branch_audit.missing_rows, ())
+        self.assertEqual(signature_template_branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in signature_template_branch_audit.global_rows
+            ),
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in branch_audit.global_rows
+            ),
+        )
+        signature_template_shape_audit = global_root_choice_signature_template_shape_audit(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS
+        )
+        self.assertEqual(signature_template_shape_audit.row_count, 60)
+        self.assertEqual(signature_template_shape_audit.signature_count, 27)
+        self.assertEqual(signature_template_shape_audit.template_count, 40)
+        self.assertEqual(
+            signature_template_shape_audit.normalized_template_shape_count,
+            27,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.normalized_signature_template_shape_count,
+            44,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.root_shape_counts,
+            (
+                ((2, 3), 22),
+                ((1, 6), 14),
+                ((1, 4), 10),
+                ((2, 5), 6),
+                ((2, 7), 4),
+                ((3, 8), 2),
+                ((4, 5), 2),
+            ),
+        )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_portable_row_audit_1500(self):
+        extended_rows = (
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+        )
+        prior_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES
+        )
+        row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1500,
+                extended_rows + prior_template_rows,
+            )
+        )
+        self.assertEqual(row_audit.global_row_count, 112)
+        self.assertEqual(row_audit.distinct_row_count, 112)
+        self.assertEqual(row_audit.new_row_count, 50)
+        self.assertEqual(
+            row_audit.new_root_shape_counts,
+            (((2, 3), 28), ((4, 5), 10), ((2, 5), 6), ((1, 4), 4), ((1, 6), 2)),
+        )
+        self.assertEqual(
+            tuple(row[:6] for row in row_audit.new_line_template_counts),
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES,
+        )
+        radius_1500_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES
+        )
+        self.assertEqual(len(radius_1500_template_rows), 823)
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in radius_1500_template_rows
+            )
+        )
+        closure_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit(
+                1500,
+                extended_rows + prior_template_rows,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES,
+            )
+        )
+        self.assertEqual(closure_audit.template_count, 30)
+        self.assertEqual(closure_audit.template_expanded_row_count, 823)
+        self.assertEqual(closure_audit.portable_row_audit.global_row_count, 112)
+        self.assertEqual(closure_audit.portable_row_audit.distinct_row_count, 112)
+        self.assertEqual(closure_audit.portable_row_audit.new_row_count, 0)
+        self.assertEqual(closure_audit.portable_row_audit.new_root_shape_counts, ())
+        self.assertEqual(closure_audit.portable_row_audit.new_line_template_counts, ())
+        branch_audit = parallel_direction_conjugate_ideal_global_root_choice_branch_audit(
+            1500
+        )
+        iterated_signature_template_closure = (
+            parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+                1500,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+                max_iterations=2,
+                branch_audit=branch_audit,
+            )
+        )
+        self.assertTrue(iterated_signature_template_closure.closed)
+        self.assertEqual(iterated_signature_template_closure.base_row_count, 60)
+        self.assertEqual(iterated_signature_template_closure.final_row_count, 108)
+        self.assertEqual(len(iterated_signature_template_closure.final_rows), 108)
+        self.assertTrue(
+            set(PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS).issubset(
+                iterated_signature_template_closure.final_rows
+            )
+        )
+        self.assertEqual(iterated_signature_template_closure.iteration_count, 1)
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.global_row_count,
+            112,
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.covered_count,
+            112,
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.missing_count,
+            0,
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.final_coverage_audit.mismatch_count,
+            0,
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    layer.iteration,
+                    layer.input_row_count,
+                    layer.missing_count,
+                    layer.new_row_count,
+                    layer.output_row_count,
+                )
+                for layer in iterated_signature_template_closure.layers
+            ),
+            ((1, 60, 50, 48, 108),),
+        )
+        self.assertEqual(len(iterated_signature_template_closure.layers[0].new_rows), 48)
+        self.assertTrue(
+            set(iterated_signature_template_closure.layers[0].new_rows).isdisjoint(
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS
+            )
+        )
+        self.assertEqual(
+            iterated_signature_template_closure.layers[0].missing_root_shape_counts,
+            (((2, 3), 28), ((4, 5), 10), ((2, 5), 6), ((1, 4), 4), ((1, 6), 2)),
+        )
+        self.assertEqual(
+            (
+                iterated_signature_template_closure.layers[0].new_signature_count,
+                iterated_signature_template_closure.layers[0].novel_signature_count,
+                iterated_signature_template_closure.layers[0].new_template_count,
+                iterated_signature_template_closure.layers[0].novel_template_count,
+                iterated_signature_template_closure.layers[
+                    0
+                ].new_normalized_template_shape_count,
+                iterated_signature_template_closure.layers[
+                    0
+                ].novel_normalized_template_shape_count,
+                iterated_signature_template_closure.layers[
+                    0
+                ].new_normalized_signature_template_shape_count,
+                iterated_signature_template_closure.layers[
+                    0
+                ].novel_normalized_signature_template_shape_count,
+            ),
+            (18, 12, 30, 30, 19, 19, 33, 33),
+        )
+        signature_template_branch_audit = (
+            parallel_direction_conjugate_ideal_signature_template_branch_audit(
+                1500,
+                iterated_signature_template_closure.final_rows,
+            )
+        )
+        self.assertEqual(
+            signature_template_branch_audit.checked_strip_failures,
+            branch_audit.checked_strip_failures,
+        )
+        self.assertEqual(
+            signature_template_branch_audit.local_discharge_count,
+            branch_audit.local_discharge_count,
+        )
+        self.assertEqual(signature_template_branch_audit.global_discharge_count, 112)
+        self.assertEqual(
+            signature_template_branch_audit.global_branch_counts,
+            (("alternate_signature_template", 112),),
+        )
+        self.assertEqual(signature_template_branch_audit.missing_rows, ())
+        self.assertEqual(signature_template_branch_audit.unreconstructed_rows, ())
+        self.assertEqual(
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in signature_template_branch_audit.global_rows
+            ),
+            tuple(
+                (row.target, row.direction, row.obligation, row.structural_row)
+                for row in branch_audit.global_rows
+            ),
+        )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_portable_row_audit_1750(self):
+        extended_rows = (
+            PINNED_GLOBAL_ROOT_CHOICE_ALTERNATE_LINE_STRIP_ROWS
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_750_GENERIC_LINE_STRIP_ROWS
+        )
+        prior_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_DOMINANT_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1000_RESIDUAL_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_RESIDUAL_LINE_TEMPLATES
+            + PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1500_RESIDUAL_LINE_TEMPLATES
+        )
+        row_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_portable_row_audit(
+                1750,
+                extended_rows + prior_template_rows,
+            )
+        )
+        self.assertEqual(row_audit.global_row_count, 148)
+        self.assertEqual(row_audit.distinct_row_count, 148)
+        self.assertEqual(row_audit.new_row_count, 36)
+        self.assertEqual(
+            row_audit.new_root_shape_counts,
+            (((2, 3), 16), ((2, 5), 8), ((1, 4), 6), ((4, 5), 6)),
+        )
+        self.assertEqual(
+            tuple(row[:6] for row in row_audit.new_line_template_counts),
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES,
+        )
+        radius_1750_template_rows = global_root_choice_line_template_table_rows(
+            PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES
+        )
+        self.assertEqual(len(radius_1750_template_rows), 523)
+        self.assertTrue(
+            all(
+                pinned_global_root_choice_alternate_line_strip_row_valid(row)
+                for row in radius_1750_template_rows
+            )
+        )
+        closure_audit = (
+            parallel_direction_conjugate_ideal_global_root_choice_template_closure_audit(
+                1750,
+                extended_rows + prior_template_rows,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1750_RESIDUAL_LINE_TEMPLATES,
+            )
+        )
+        self.assertEqual(closure_audit.template_count, 18)
+        self.assertEqual(closure_audit.template_expanded_row_count, 523)
+        self.assertEqual(closure_audit.portable_row_audit.global_row_count, 148)
+        self.assertEqual(closure_audit.portable_row_audit.distinct_row_count, 148)
+        self.assertEqual(closure_audit.portable_row_audit.new_row_count, 0)
+        self.assertEqual(closure_audit.portable_row_audit.new_root_shape_counts, ())
+        self.assertEqual(closure_audit.portable_row_audit.new_line_template_counts, ())
+        branch_audit_1500 = (
+            parallel_direction_conjugate_ideal_global_root_choice_branch_audit(1500)
+        )
+        signature_template_closure_1500 = (
+            parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+                1500,
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+                max_iterations=2,
+                branch_audit=branch_audit_1500,
+            )
+        )
+        self.assertTrue(signature_template_closure_1500.closed)
+        self.assertEqual(signature_template_closure_1500.final_row_count, 108)
+        branch_audit_1750 = (
+            parallel_direction_conjugate_ideal_global_root_choice_branch_audit(1750)
+        )
+        signature_template_closure_1750 = (
+            parallel_direction_conjugate_ideal_global_root_choice_iterated_signature_template_closure_audit(
+                1750,
+                signature_template_closure_1500.final_rows,
+                max_iterations=2,
+                branch_audit=branch_audit_1750,
+            )
+        )
+        self.assertTrue(signature_template_closure_1750.closed)
+        self.assertEqual(signature_template_closure_1750.base_row_count, 108)
+        self.assertEqual(signature_template_closure_1750.final_row_count, 144)
+        self.assertEqual(signature_template_closure_1750.iteration_count, 1)
+        self.assertEqual(
+            signature_template_closure_1750.final_coverage_audit.global_row_count,
+            148,
+        )
+        self.assertEqual(
+            signature_template_closure_1750.final_coverage_audit.covered_count,
+            148,
+        )
+        self.assertEqual(
+            signature_template_closure_1750.final_coverage_audit.missing_count,
+            0,
+        )
+        self.assertEqual(
+            signature_template_closure_1750.final_coverage_audit.mismatch_count,
+            0,
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    layer.iteration,
+                    layer.input_row_count,
+                    layer.missing_count,
+                    layer.new_row_count,
+                    layer.output_row_count,
+                )
+                for layer in signature_template_closure_1750.layers
+            ),
+            ((1, 108, 36, 36, 144),),
+        )
+        self.assertEqual(
+            signature_template_closure_1750.layers[0].missing_root_shape_counts,
+            (((2, 3), 16), ((2, 5), 8), ((1, 4), 6), ((4, 5), 6)),
+        )
+        self.assertEqual(
+            (
+                signature_template_closure_1750.layers[0].new_signature_count,
+                signature_template_closure_1750.layers[0].novel_signature_count,
+                signature_template_closure_1750.layers[0].new_template_count,
+                signature_template_closure_1750.layers[0].novel_template_count,
+                signature_template_closure_1750.layers[
+                    0
+                ].new_normalized_template_shape_count,
+                signature_template_closure_1750.layers[
+                    0
+                ].novel_normalized_template_shape_count,
+                signature_template_closure_1750.layers[
+                    0
+                ].new_normalized_signature_template_shape_count,
+                signature_template_closure_1750.layers[
+                    0
+                ].novel_normalized_signature_template_shape_count,
+            ),
+            (20, 8, 18, 18, 14, 14, 28, 28),
+        )
+        signature_template_shape_audit = global_root_choice_signature_template_shape_audit(
+            signature_template_closure_1750.final_rows
+        )
+        self.assertEqual(signature_template_shape_audit.row_count, 144)
+        self.assertEqual(signature_template_shape_audit.signature_count, 47)
+        self.assertEqual(signature_template_shape_audit.template_count, 88)
+        self.assertEqual(
+            signature_template_shape_audit.normalized_template_shape_count,
+            60,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.normalized_signature_template_shape_count,
+            105,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.root_shape_counts,
+            (
+                ((2, 3), 64),
+                ((1, 4), 20),
+                ((2, 5), 20),
+                ((4, 5), 18),
+                ((1, 6), 16),
+                ((2, 7), 4),
+                ((3, 8), 2),
+            ),
+        )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_signature_template_closure_2000(self):
+        signature_template_closure_chain = (
+            parallel_direction_conjugate_ideal_global_root_choice_signature_template_closure_chain_audit(
+                (1500, 1750, 2000),
+                PINNED_GLOBAL_ROOT_CHOICE_RADIUS_1250_SIGNATURE_TEMPLATE_ROWS,
+                max_iterations_per_radius=2,
+            )
+        )
+        self.assertTrue(signature_template_closure_chain.closed)
+        self.assertEqual(signature_template_closure_chain.base_row_count, 60)
+        self.assertEqual(signature_template_closure_chain.final_row_count, 192)
+        self.assertEqual(len(signature_template_closure_chain.final_rows), 192)
+        self.assertEqual(
+            tuple(stage.max_coordinate for stage in signature_template_closure_chain.stages),
+            (1500, 1750, 2000),
+        )
+        self.assertEqual(
+            tuple(stage.final_row_count for stage in signature_template_closure_chain.stages),
+            (108, 144, 192),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    row.max_coordinate,
+                    row.input_row_count,
+                    row.output_row_count,
+                    row.global_row_count,
+                    row.covered_count,
+                    row.final_missing_count,
+                    row.mismatch_count,
+                    row.iteration_count,
+                    row.initial_missing_count,
+                    row.new_row_count,
+                    row.new_row_modulus_counts,
+                    row.new_signature_count,
+                    row.novel_signature_count,
+                    row.new_signature_modulus_counts,
+                    row.novel_signature_modulus_counts,
+                    row.new_template_count,
+                    row.novel_template_count,
+                    row.new_normalized_template_shape_count,
+                    row.novel_normalized_template_shape_count,
+                    row.new_normalized_template_root_shape_counts,
+                    row.novel_normalized_template_root_shape_counts,
+                    row.new_normalized_signature_template_shape_count,
+                    row.novel_normalized_signature_template_shape_count,
+                    row.new_normalized_signature_template_root_shape_counts,
+                    row.novel_normalized_signature_template_root_shape_counts,
+                    row.new_normalized_signature_template_modulus_root_shape_counts,
+                    row.novel_normalized_signature_template_modulus_root_shape_counts,
+                    row.reused_normalized_template_shape_count,
+                    row.reused_normalized_signature_template_shape_count,
+                    row.reused_normalized_template_root_shape_counts,
+                    row.reused_normalized_signature_template_root_shape_counts,
+                    row.reused_normalized_signature_template_modulus_root_shape_counts,
+                    row.missing_root_shape_counts,
+                    row.missing_obligation_counts,
+                )
+                for row in signature_template_closure_chain.ledger_rows
+            ),
+            (
+                (
+                    1500,
+                    60,
+                    108,
+                    112,
+                    112,
+                    0,
+                    0,
+                    1,
+                    50,
+                    48,
+                    ((13, 34), (17, 10), (73, 4)),
+                    18,
+                    12,
+                    ((13, 10), (17, 4), (73, 4)),
+                    ((13, 6), (73, 4), (17, 2)),
+                    30,
+                    30,
+                    19,
+                    19,
+                    (
+                        ((2, 3), 10),
+                        ((4, 5), 4),
+                        ((1, 4), 2),
+                        ((2, 5), 2),
+                        ((1, 6), 1),
+                    ),
+                    (
+                        ((2, 3), 10),
+                        ((4, 5), 4),
+                        ((1, 4), 2),
+                        ((2, 5), 2),
+                        ((1, 6), 1),
+                    ),
+                    33,
+                    33,
+                    (
+                        ((2, 3), 20),
+                        ((4, 5), 7),
+                        ((2, 5), 3),
+                        ((1, 4), 2),
+                        ((1, 6), 1),
+                    ),
+                    (
+                        ((2, 3), 20),
+                        ((4, 5), 7),
+                        ((2, 5), 3),
+                        ((1, 4), 2),
+                        ((1, 6), 1),
+                    ),
+                    (
+                        (13, (2, 3), 13),
+                        (13, (4, 5), 6),
+                        (73, (2, 3), 4),
+                        (17, (2, 3), 3),
+                        (13, (2, 5), 2),
+                        (13, (1, 4), 1),
+                        (13, (1, 6), 1),
+                        (17, (1, 4), 1),
+                        (17, (2, 5), 1),
+                        (17, (4, 5), 1),
+                    ),
+                    (
+                        (13, (2, 3), 13),
+                        (13, (4, 5), 6),
+                        (73, (2, 3), 4),
+                        (17, (2, 3), 3),
+                        (13, (2, 5), 2),
+                        (13, (1, 4), 1),
+                        (13, (1, 6), 1),
+                        (17, (1, 4), 1),
+                        (17, (2, 5), 1),
+                        (17, (4, 5), 1),
+                    ),
+                    0,
+                    0,
+                    (),
+                    (),
+                    (),
+                    (
+                        ((2, 3), 28),
+                        ((4, 5), 10),
+                        ((2, 5), 6),
+                        ((1, 4), 4),
+                        ((1, 6), 2),
+                    ),
+                    (
+                        (((2, 3), 1, 13, 5, 7, 4, 11), 18),
+                        (((2, 3), 1, 13, 8, 6, 4, 11), 18),
+                        (((1, 4), 2, 17, 4, 2, 9, 3), 5),
+                        (((1, 4), 2, 17, 13, 15, 9, 3), 5),
+                        (((3, 8), 1, 73, 27, 38, 69, 19), 2),
+                        (((3, 8), 1, 73, 46, 38, 4, 71), 2),
+                    ),
+                ),
+                (
+                    1750,
+                    108,
+                    144,
+                    148,
+                    148,
+                    0,
+                    0,
+                    1,
+                    36,
+                    36,
+                    ((13, 20), (17, 8), (41, 4), (73, 4)),
+                    20,
+                    8,
+                    ((13, 8), (17, 4), (41, 4), (73, 4)),
+                    ((13, 2), (17, 2), (41, 2), (73, 2)),
+                    18,
+                    18,
+                    14,
+                    14,
+                    (((2, 3), 9), ((2, 5), 2), ((4, 5), 2), ((1, 4), 1)),
+                    (((2, 3), 9), ((2, 5), 2), ((4, 5), 2), ((1, 4), 1)),
+                    28,
+                    28,
+                    (((2, 3), 14), ((4, 5), 6), ((1, 4), 4), ((2, 5), 4)),
+                    (((2, 3), 14), ((4, 5), 6), ((1, 4), 4), ((2, 5), 4)),
+                    (
+                        (13, (2, 3), 9),
+                        (13, (1, 4), 2),
+                        (13, (2, 5), 2),
+                        (13, (4, 5), 2),
+                        (17, (2, 5), 2),
+                        (17, (4, 5), 2),
+                        (41, (2, 3), 2),
+                        (41, (4, 5), 2),
+                        (73, (1, 4), 2),
+                        (73, (2, 3), 2),
+                        (17, (2, 3), 1),
+                    ),
+                    (
+                        (13, (2, 3), 9),
+                        (13, (1, 4), 2),
+                        (13, (2, 5), 2),
+                        (13, (4, 5), 2),
+                        (17, (2, 5), 2),
+                        (17, (4, 5), 2),
+                        (41, (2, 3), 2),
+                        (41, (4, 5), 2),
+                        (73, (1, 4), 2),
+                        (73, (2, 3), 2),
+                        (17, (2, 3), 1),
+                    ),
+                    0,
+                    0,
+                    (),
+                    (),
+                    (),
+                    (((2, 3), 16), ((2, 5), 8), ((1, 4), 6), ((4, 5), 6)),
+                    (
+                        (((2, 3), 1, 13, 5, 7, 4, 11), 10),
+                        (((2, 3), 1, 13, 8, 6, 4, 11), 10),
+                        (((1, 4), 2, 17, 4, 2, 9, 3), 4),
+                        (((1, 4), 2, 17, 13, 15, 9, 3), 4),
+                        (((3, 8), 1, 73, 27, 38, 69, 19), 2),
+                        (((3, 8), 1, 73, 46, 38, 4, 71), 2),
+                        (((4, 5), 2, 41, 9, 10, 33, 19), 2),
+                        (((4, 5), 2, 41, 32, 10, 8, 34), 2),
+                    ),
+                ),
+                (
+                    2000,
+                    144,
+                    192,
+                    198,
+                    198,
+                    0,
+                    0,
+                    1,
+                    50,
+                    48,
+                    ((13, 26), (41, 10), (17, 8), (73, 3), (29, 1)),
+                    22,
+                    12,
+                    ((13, 8), (41, 8), (73, 3), (17, 2), (29, 1)),
+                    ((41, 6), (73, 3), (13, 2), (29, 1)),
+                    36,
+                    36,
+                    26,
+                    25,
+                    (((2, 3), 14), ((1, 4), 10), ((3, 4), 2)),
+                    (((2, 3), 14), ((1, 4), 9), ((3, 4), 2)),
+                    39,
+                    38,
+                    (((2, 3), 22), ((1, 4), 15), ((3, 4), 2)),
+                    (((2, 3), 22), ((1, 4), 14), ((3, 4), 2)),
+                    (
+                        (13, (2, 3), 12),
+                        (13, (1, 4), 6),
+                        (17, (2, 3), 4),
+                        (41, (1, 4), 4),
+                        (41, (2, 3), 4),
+                        (17, (1, 4), 3),
+                        (41, (3, 4), 2),
+                        (73, (1, 4), 2),
+                        (29, (2, 3), 1),
+                        (73, (2, 3), 1),
+                    ),
+                    (
+                        (13, (2, 3), 12),
+                        (13, (1, 4), 5),
+                        (17, (2, 3), 4),
+                        (41, (1, 4), 4),
+                        (41, (2, 3), 4),
+                        (17, (1, 4), 3),
+                        (41, (3, 4), 2),
+                        (73, (1, 4), 2),
+                        (29, (2, 3), 1),
+                        (73, (2, 3), 1),
+                    ),
+                    1,
+                    1,
+                    (((1, 4), 1),),
+                    (((1, 4), 1),),
+                    ((13, (1, 4), 1),),
+                    (((2, 3), 26), ((1, 4), 22), ((3, 4), 2)),
+                    (
+                        (((2, 3), 1, 13, 5, 7, 4, 11), 14),
+                        (((2, 3), 1, 13, 8, 6, 4, 11), 14),
+                        (((4, 5), 2, 41, 9, 10, 33, 19), 5),
+                        (((4, 5), 2, 41, 32, 10, 8, 34), 5),
+                        (((1, 4), 2, 17, 4, 2, 9, 3), 4),
+                        (((1, 4), 2, 17, 13, 15, 9, 3), 4),
+                        (((3, 8), 1, 73, 27, 38, 69, 19), 2),
+                        (((2, 5), 10, 29, 17, 12, 28, 17), 1),
+                        (((3, 8), 1, 73, 46, 38, 4, 71), 1),
+                    ),
+                ),
+            ),
+        )
+        (
+            signature_template_closure_1500,
+            signature_template_closure_1750,
+            signature_template_closure_2000,
+        ) = signature_template_closure_chain.stages
+        self.assertTrue(signature_template_closure_1500.closed)
+        self.assertEqual(signature_template_closure_1500.final_row_count, 108)
+        self.assertTrue(signature_template_closure_1750.closed)
+        self.assertEqual(signature_template_closure_1750.final_row_count, 144)
+        self.assertTrue(signature_template_closure_2000.closed)
+        self.assertEqual(signature_template_closure_2000.base_row_count, 144)
+        self.assertEqual(signature_template_closure_2000.final_row_count, 192)
+        self.assertEqual(signature_template_closure_2000.iteration_count, 1)
+        self.assertEqual(
+            signature_template_closure_2000.final_coverage_audit.global_row_count,
+            198,
+        )
+        self.assertEqual(
+            signature_template_closure_2000.final_coverage_audit.covered_count,
+            198,
+        )
+        self.assertEqual(
+            signature_template_closure_2000.final_coverage_audit.missing_count,
+            0,
+        )
+        self.assertEqual(
+            signature_template_closure_2000.final_coverage_audit.mismatch_count,
+            0,
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    layer.iteration,
+                    layer.input_row_count,
+                    layer.missing_count,
+                    layer.new_row_count,
+                    layer.output_row_count,
+                )
+                for layer in signature_template_closure_2000.layers
+            ),
+            ((1, 144, 50, 48, 192),),
+        )
+        self.assertEqual(
+            signature_template_closure_2000.layers[0].missing_root_shape_counts,
+            (((2, 3), 26), ((1, 4), 22), ((3, 4), 2)),
+        )
+        self.assertEqual(
+            signature_template_closure_2000.layers[
+                0
+            ].reused_normalized_template_shapes,
+            (((1, 4), 17, (1, 1033), 34),),
+        )
+        self.assertEqual(
+            signature_template_closure_2000.layers[
+                0
+            ].reused_normalized_signature_template_shapes,
+            ((13, 7, False, 1, ((0, 11),), (1, 4), 17, (1, 1033), 34),),
+        )
+        self.assertEqual(
+            (
+                signature_template_closure_2000.layers[0].new_signature_count,
+                signature_template_closure_2000.layers[0].novel_signature_count,
+                signature_template_closure_2000.layers[0].new_template_count,
+                signature_template_closure_2000.layers[0].novel_template_count,
+                signature_template_closure_2000.layers[
+                    0
+                ].new_normalized_template_shape_count,
+                signature_template_closure_2000.layers[
+                    0
+                ].novel_normalized_template_shape_count,
+                signature_template_closure_2000.layers[
+                    0
+                ].new_normalized_signature_template_shape_count,
+                signature_template_closure_2000.layers[
+                    0
+                ].novel_normalized_signature_template_shape_count,
+            ),
+            (22, 12, 36, 36, 26, 25, 39, 38),
+        )
+        signature_template_shape_audit = global_root_choice_signature_template_shape_audit(
+            signature_template_closure_2000.final_rows
+        )
+        self.assertEqual(signature_template_shape_audit.row_count, 192)
+        self.assertEqual(signature_template_shape_audit.signature_count, 59)
+        self.assertEqual(signature_template_shape_audit.template_count, 124)
+        self.assertEqual(
+            signature_template_shape_audit.normalized_template_shape_count,
+            85,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.normalized_signature_template_shape_count,
+            143,
+        )
+        self.assertEqual(
+            signature_template_shape_audit.root_shape_counts,
+            (
+                ((2, 3), 90),
+                ((1, 4), 40),
+                ((2, 5), 20),
+                ((4, 5), 18),
+                ((1, 6), 16),
+                ((2, 7), 4),
+                ((3, 4), 2),
+                ((3, 8), 2),
+            ),
+        )
 
     def test_one_two_root_spine_line_certificate(self):
         counterexample_certificate = one_two_root_spine_line_certificate(
