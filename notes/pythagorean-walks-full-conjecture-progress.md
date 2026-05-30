@@ -3653,6 +3653,60 @@ The next four-incidence radius-$1500$ `(2,3)` family is also ported:
 squareclass `1`, split pair `(67,257)`, and period `26`.  Its orientations
 have paired residues `3` and `11`; the only axis-degenerate parameters are
 `t=-13` and `t=49`.
+The four-incidence `(2,5)` family
+`certificateValid_twoFiveEvenSplitFortyThreeFiveFiftySevenLineStrip` now covers
+squareclass `2`, split pair `(43,557)`, and period `29`.  It specializes the
+existing `(2,5)` root-spine line lemmas with beta lines `(5t+1,-2t-9)` and
+`(-5t-41,-2t+95)`, so no exceptional integer parameter is needed.
+The last four-incidence radius-$1500$ family is ported too:
+`certificateValid_fourFiveOddSplitTwentyThreeTwentyTwoFiftySevenLineStrip`
+covers root shape `(4,5)`, squareclass `1`, split pair `(23,2257)`, and
+period `82`, with orientations `(-40,-9)` and `(-9,-40)`.  Its only excluded
+axis-degenerate parameters are `t=247` and `t=-248`.
+The two three-incidence squareclass-$82$ `(2,3)` families are now split into
+their period-specific theorem rows:
+`certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueTwelveLineStrip`
+for direction `(-12,5)`, paired factor `13t+12`, and
+`certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueOneOhNineLineStrip`
+for direction `(-5,12)`, paired factor `338t+109`.  The first excludes only
+the axis-degenerate parameter `t=-89`; the second has no exceptional integer
+parameter.
+The two squareclass-$5$ split-$1919$ `(2,3)` period families are also
+theorem-backed by
+`certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueTwentyFiveLineStrip`
+and
+`certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueOneOhNineLineStrip`.
+They cover paired factors `26t+25` and `338t+109`; only the period-$26$
+orientation excludes an axis-degenerate parameter, `t=-370`.
+The remaining radius-$1500$ `(2,3)` families are now ported as well:
+`certificateValid_twoThreeSquareclassTwentyTwoSplitFourNinetyNineLineStrip`,
+`certificateValid_twoThreeSquareclassTwentySixSplitEightElevenLineStrip`,
+`certificateValid_twoThreeSquareclassTenSplitEighteenSixtySevenResidueTwelveLineStrip`,
+and
+`certificateValid_twoThreeSquareclassFortyThreeSplitTwoEightyOneResidueTwentyFiveLineStrip`.
+These remove the last six `(2,3)` radius-$1500$ incidences from the unproved
+normalized-template ledger.
+The two radius-$1500$ `(1,4)` families are now theorem-backed too:
+`certificateValid_oneFourOddSplitFortyThreeFiveSixtyThreeLineStrip` covers
+squareclass `1`, split pair `(43,563)`, and
+`certificateValid_oneFourOddSquareclassElevenSplitSevenSixtyOneLineStrip`
+covers squareclass `11`, split pair `(1,761)`.  Both have period `34` and no
+exceptional integer parameter.
+The remaining radius-$1500$ `(1,6)` family is also theorem-backed:
+`certificateValid_oneSixSplitSeventyOneEightSixtyNineLineStrip` covers
+squareclass `1`, split pair `(71,869)`, and period `74`, with no exceptional
+integer parameter.
+The remaining radius-$1500$ `(2,5)` family is now ported as
+`certificateValid_twoFiveSquareclassFiveSplitFiveSixOhSevenLineStrip`,
+covering squareclass `5`, split pair `(5,607)`, and period `58`, with no
+exceptional integer parameter.
+The remaining radius-$1500$ `(4,5)` families are now theorem-backed as well:
+`certificateValid_fourFiveSquareclassFiveSplitFiveEighteenFortyNineLineStrip`
+covers squareclass `5`, split pair `(5,1849)`, and period `82`;
+`certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueEightyOneLineStrip`
+covers squareclass `149`, split pair `(1,401)`, and period `82`; and
+`certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueTwentyNineSixtyOneLineStrip`
+covers the same squareclass and split pair at period `3362`.
 The large pre-existing local-discharge counterexample now has its own
 theorem-backed normalized family:
 `certificateValid_oneTwoSquareclassFiveThirtyFiveSplitNineFortySevenResidueThreeLineStrip`.
@@ -3673,12 +3727,15 @@ odd `(3,8)` root-spine line theorem and then applying `lineStripRowValid`.
 The executable side now has the matching radius-independent proved-family
 registry:
 `GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES`.  It records the
-thirty
+forty-seven
 normalized template shapes
 $$
 ((1,4),2,(5,241),17),\qquad
 ((1,4),17,(1,1033),34),\qquad
+((1,4),1,(43,563),34),\qquad
+((1,4),11,(1,761),34),\qquad
 ((1,6),1,(89,349),74),\qquad
+((1,6),1,(71,869),74),\qquad
 ((1,6),10,(1,3583),37),\qquad
 ((1,6),10,(1,3583),2738),\qquad
 ((1,6),10,(1,475),37),\qquad
@@ -3691,16 +3748,30 @@ $$
 ((2,3),1,(107,115),338),\qquad
 ((2,3),13,(1,473),26),\qquad
 ((2,3),13,(1,905),338),\qquad ((2,3),13,(1,905),26),\qquad
+((2,3),10,(1,1867),13),\qquad
 ((2,3),2,(71,121),13),\qquad
 ((2,3),2,(19,641),13),\qquad
 ((2,3),5,(19,173),26),\qquad
+((2,3),5,(1,1919),26),\qquad
+((2,3),5,(1,1919),338),\qquad
+((2,3),22,(1,499),13),\qquad
+((2,3),26,(1,811),13),\qquad
+((2,3),43,(1,281),26),\qquad
 ((2,3),46,(1,317),13),\qquad
+((2,3),82,(1,229),13),\qquad
+((2,3),82,(1,229),338),\qquad
 ((2,5),10,(1,1583),29),\qquad
+((2,5),2,(43,557),29),\qquad
+((2,5),5,(5,607),58),\qquad
 ((2,5),23,(1,1549),58),\qquad
 ((2,7),1,(179,229),106),\qquad
 ((2,7),2,(19,1153),53),\qquad
 ((4,5),2,(19,239),3362),\qquad
 ((4,5),2,(19,239),41),\qquad
+((4,5),1,(23,2257),82),\qquad
+((4,5),5,(5,1849),82),\qquad
+((4,5),149,(1,401),82),\qquad
+((4,5),149,(1,401),3362),\qquad
 ((3,8),1,(19,1531),146)
 $$
 together with the Lean theorem names above.  The radius-$1000$

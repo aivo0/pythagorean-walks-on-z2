@@ -9129,7 +9129,10 @@ class CertificateTests(unittest.TestCase):
             (
                 ((1, 4), 2, (5, 241), 17),
                 ((1, 4), 17, (1, 1033), 34),
+                ((1, 4), 1, (43, 563), 34),
+                ((1, 4), 11, (1, 761), 34),
                 ((1, 6), 1, (89, 349), 74),
+                ((1, 6), 1, (71, 869), 74),
                 ((1, 6), 10, (1, 3583), 37),
                 ((1, 6), 10, (1, 3583), 2738),
                 ((1, 6), 10, (1, 475), 37),
@@ -9146,16 +9149,30 @@ class CertificateTests(unittest.TestCase):
                 ((2, 3), 13, (1, 473), 26),
                 ((2, 3), 13, (1, 905), 338),
                 ((2, 3), 13, (1, 905), 26),
+                ((2, 3), 10, (1, 1867), 13),
                 ((2, 3), 2, (71, 121), 13),
                 ((2, 3), 2, (19, 641), 13),
                 ((2, 3), 5, (19, 173), 26),
+                ((2, 3), 5, (1, 1919), 26),
+                ((2, 3), 5, (1, 1919), 338),
+                ((2, 3), 22, (1, 499), 13),
+                ((2, 3), 26, (1, 811), 13),
+                ((2, 3), 43, (1, 281), 26),
                 ((2, 3), 46, (1, 317), 13),
+                ((2, 3), 82, (1, 229), 13),
+                ((2, 3), 82, (1, 229), 338),
                 ((2, 5), 10, (1, 1583), 29),
+                ((2, 5), 2, (43, 557), 29),
+                ((2, 5), 5, (5, 607), 58),
                 ((2, 5), 23, (1, 1549), 58),
                 ((2, 7), 1, (179, 229), 106),
                 ((2, 7), 2, (19, 1153), 53),
                 ((4, 5), 2, (19, 239), 3362),
                 ((4, 5), 2, (19, 239), 41),
+                ((4, 5), 1, (23, 2257), 82),
+                ((4, 5), 5, (5, 1849), 82),
+                ((4, 5), 149, (1, 401), 82),
+                ((4, 5), 149, (1, 401), 3362),
                 ((3, 8), 1, (19, 1531), 146),
             ),
         )
@@ -9174,8 +9191,20 @@ class CertificateTests(unittest.TestCase):
                     "certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip",
                 ),
                 (
+                    ((1, 4), 1, (43, 563), 34),
+                    "certificateValid_oneFourOddSplitFortyThreeFiveSixtyThreeLineStrip",
+                ),
+                (
+                    ((1, 4), 11, (1, 761), 34),
+                    "certificateValid_oneFourOddSquareclassElevenSplitSevenSixtyOneLineStrip",
+                ),
+                (
                     ((1, 6), 1, (89, 349), 74),
                     "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+                ),
+                (
+                    ((1, 6), 1, (71, 869), 74),
+                    "certificateValid_oneSixSplitSeventyOneEightSixtyNineLineStrip",
                 ),
                 (
                     ((1, 6), 10, (1, 3583), 37),
@@ -9242,6 +9271,10 @@ class CertificateTests(unittest.TestCase):
                     "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip",
                 ),
                 (
+                    ((2, 3), 10, (1, 1867), 13),
+                    "certificateValid_twoThreeSquareclassTenSplitEighteenSixtySevenResidueTwelveLineStrip",
+                ),
+                (
                     ((2, 3), 2, (71, 121), 13),
                     "certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip",
                 ),
@@ -9254,12 +9287,48 @@ class CertificateTests(unittest.TestCase):
                     "certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip",
                 ),
                 (
+                    ((2, 3), 5, (1, 1919), 26),
+                    "certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueTwentyFiveLineStrip",
+                ),
+                (
+                    ((2, 3), 5, (1, 1919), 338),
+                    "certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueOneOhNineLineStrip",
+                ),
+                (
+                    ((2, 3), 22, (1, 499), 13),
+                    "certificateValid_twoThreeSquareclassTwentyTwoSplitFourNinetyNineLineStrip",
+                ),
+                (
+                    ((2, 3), 26, (1, 811), 13),
+                    "certificateValid_twoThreeSquareclassTwentySixSplitEightElevenLineStrip",
+                ),
+                (
+                    ((2, 3), 43, (1, 281), 26),
+                    "certificateValid_twoThreeSquareclassFortyThreeSplitTwoEightyOneResidueTwentyFiveLineStrip",
+                ),
+                (
                     ((2, 3), 46, (1, 317), 13),
                     "certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip",
                 ),
                 (
+                    ((2, 3), 82, (1, 229), 13),
+                    "certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueTwelveLineStrip",
+                ),
+                (
+                    ((2, 3), 82, (1, 229), 338),
+                    "certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueOneOhNineLineStrip",
+                ),
+                (
                     ((2, 5), 10, (1, 1583), 29),
                     "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+                ),
+                (
+                    ((2, 5), 2, (43, 557), 29),
+                    "certificateValid_twoFiveEvenSplitFortyThreeFiveFiftySevenLineStrip",
+                ),
+                (
+                    ((2, 5), 5, (5, 607), 58),
+                    "certificateValid_twoFiveSquareclassFiveSplitFiveSixOhSevenLineStrip",
                 ),
                 (
                     ((2, 5), 23, (1, 1549), 58),
@@ -9280,6 +9349,22 @@ class CertificateTests(unittest.TestCase):
                 (
                     ((4, 5), 2, (19, 239), 41),
                     "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip",
+                ),
+                (
+                    ((4, 5), 1, (23, 2257), 82),
+                    "certificateValid_fourFiveOddSplitTwentyThreeTwentyTwoFiftySevenLineStrip",
+                ),
+                (
+                    ((4, 5), 5, (5, 1849), 82),
+                    "certificateValid_fourFiveSquareclassFiveSplitFiveEighteenFortyNineLineStrip",
+                ),
+                (
+                    ((4, 5), 149, (1, 401), 82),
+                    "certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueEightyOneLineStrip",
+                ),
+                (
+                    ((4, 5), 149, (1, 401), 3362),
+                    "certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueTwentyNineSixtyOneLineStrip",
                 ),
                 (
                     ((3, 8), 1, (19, 1531), 146),

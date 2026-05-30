@@ -4264,8 +4264,20 @@ GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES: tuple[
         "certificateValid_oneFourOddSquareclassSeventeenSplitTenThirtyThreeLineStrip",
     ),
     (
+        ((1, 4), 1, (43, 563), 34),
+        "certificateValid_oneFourOddSplitFortyThreeFiveSixtyThreeLineStrip",
+    ),
+    (
+        ((1, 4), 11, (1, 761), 34),
+        "certificateValid_oneFourOddSquareclassElevenSplitSevenSixtyOneLineStrip",
+    ),
+    (
         ((1, 6), 1, (89, 349), 74),
         "certificateValid_oneSixSplitEightyNineThreeFortyNineLineStrip",
+    ),
+    (
+        ((1, 6), 1, (71, 869), 74),
+        "certificateValid_oneSixSplitSeventyOneEightSixtyNineLineStrip",
     ),
     (
         ((1, 6), 10, (1, 3583), 37),
@@ -4332,6 +4344,10 @@ GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES: tuple[
         "certificateValid_twoThreeOddSquareclassThirteenSplitNineOhFiveResidueTwentyOneLineStrip",
     ),
     (
+        ((2, 3), 10, (1, 1867), 13),
+        "certificateValid_twoThreeSquareclassTenSplitEighteenSixtySevenResidueTwelveLineStrip",
+    ),
+    (
         ((2, 3), 2, (71, 121), 13),
         "certificateValid_twoThreeEvenSplitSeventyOneOneTwentyOneLineStrip",
     ),
@@ -4344,12 +4360,48 @@ GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES: tuple[
         "certificateValid_twoThreeSquareclassFiveSplitNineteenOneSeventyThreeLineStrip",
     ),
     (
+        ((2, 3), 5, (1, 1919), 26),
+        "certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueTwentyFiveLineStrip",
+    ),
+    (
+        ((2, 3), 5, (1, 1919), 338),
+        "certificateValid_twoThreeSquareclassFiveSplitNineteenNineteenResidueOneOhNineLineStrip",
+    ),
+    (
+        ((2, 3), 22, (1, 499), 13),
+        "certificateValid_twoThreeSquareclassTwentyTwoSplitFourNinetyNineLineStrip",
+    ),
+    (
+        ((2, 3), 26, (1, 811), 13),
+        "certificateValid_twoThreeSquareclassTwentySixSplitEightElevenLineStrip",
+    ),
+    (
+        ((2, 3), 43, (1, 281), 26),
+        "certificateValid_twoThreeSquareclassFortyThreeSplitTwoEightyOneResidueTwentyFiveLineStrip",
+    ),
+    (
         ((2, 3), 46, (1, 317), 13),
         "certificateValid_twoThreeSquareclassFortySixSplitThreeSeventeenLineStrip",
     ),
     (
+        ((2, 3), 82, (1, 229), 13),
+        "certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueTwelveLineStrip",
+    ),
+    (
+        ((2, 3), 82, (1, 229), 338),
+        "certificateValid_twoThreeSquareclassEightyTwoSplitTwoTwentyNineResidueOneOhNineLineStrip",
+    ),
+    (
         ((2, 5), 10, (1, 1583), 29),
         "certificateValid_twoFiveSplitOneFifteenEightyThreeLineStrip",
+    ),
+    (
+        ((2, 5), 2, (43, 557), 29),
+        "certificateValid_twoFiveEvenSplitFortyThreeFiveFiftySevenLineStrip",
+    ),
+    (
+        ((2, 5), 5, (5, 607), 58),
+        "certificateValid_twoFiveSquareclassFiveSplitFiveSixOhSevenLineStrip",
     ),
     (
         ((2, 5), 23, (1, 1549), 58),
@@ -4370,6 +4422,22 @@ GLOBAL_ROOT_CHOICE_PROVED_NORMALIZED_LINE_FAMILIES: tuple[
     (
         ((4, 5), 2, (19, 239), 41),
         "certificateValid_fourFiveEvenSplitNineteenTwoThirtyNineResidueTwentyTwoLineStrip",
+    ),
+    (
+        ((4, 5), 1, (23, 2257), 82),
+        "certificateValid_fourFiveOddSplitTwentyThreeTwentyTwoFiftySevenLineStrip",
+    ),
+    (
+        ((4, 5), 5, (5, 1849), 82),
+        "certificateValid_fourFiveSquareclassFiveSplitFiveEighteenFortyNineLineStrip",
+    ),
+    (
+        ((4, 5), 149, (1, 401), 82),
+        "certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueEightyOneLineStrip",
+    ),
+    (
+        ((4, 5), 149, (1, 401), 3362),
+        "certificateValid_fourFiveSquareclassOneFortyNineSplitFourOhOneResidueTwentyNineSixtyOneLineStrip",
     ),
     (
         ((3, 8), 1, (19, 1531), 146),
@@ -9150,6 +9218,44 @@ GLOBAL_ROOT_CHOICE_PROVED_SIGNATURE_TEMPLATE_ROWS: tuple[
     (13, 7, False, 2, ((0, 1), (0, 10)), (-5, 12), 1, 257, -67, 26, 11),
     (17, 1, False, 2, ((0, 6, 11),), (-12, 5), 1, 67, -257, 26, 3),
     (17, 1, False, 2, ((0, 6, 11),), (-5, 12), 1, 257, -67, 26, 11),
+    (13, 7, False, 1, ((0, 11),), (-21, 20), 2, 43, -557, 29, 23),
+    (13, 7, False, 1, ((0, 11),), (-20, 21), 2, 557, -43, 29, 15),
+    (17, 1, False, 1, ((0, 14),), (-21, 20), 2, 43, -557, 29, 23),
+    (17, 1, False, 1, ((0, 14),), (-20, 21), 2, 557, -43, 29, 15),
+    (13, 7, False, 1, ((0, 11),), (-40, -9), 1, 2257, -23, 82, 59),
+    (13, 7, False, 1, ((0, 11),), (-9, -40), 1, 2257, 23, 82, 23),
+    (17, 1, False, 1, ((0, 6),), (-40, -9), 1, 2257, -23, 82, 59),
+    (17, 1, False, 1, ((0, 6),), (-9, -40), 1, 2257, 23, 82, 23),
+    (13, 7, False, 1, ((0, 11),), (-40, -9), 5, 1849, -5, 82, 77),
+    (13, 7, False, 1, ((0, 11),), (-9, -40), 5, 1849, 5, 82, 5),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-40, 9), 149, 401, -1, 82, 81),
+    (13, 7, False, 2, ((0, 11), (0, 6)), (-40, 9), 149, 401, -1, 82, 81),
+    (13, 7, False, 2, ((0, 1), (0, 10)), (-9, 40), 149, 1, -401, 3362, 2961),
+    (13, 7, False, 2, ((0, 11), (0, 6)), (-9, 40), 149, 1, -401, 3362, 2961),
+    (17, 1, False, 2, ((0, 7, 14),), (-15, 8), 1, 43, -563, 34, 15),
+    (17, 1, False, 2, ((0, 7, 14),), (-8, 15), 1, 563, -43, 34, 25),
+    (13, 7, False, 1, ((0, 11),), (-15, -8), 11, 1, -761, 34, 21),
+    (13, 7, False, 1, ((0, 11),), (-8, -15), 11, 1, 761, 34, 13),
+    (13, 7, False, 1, ((0, 5),), (-35, 12), 1, 869, -71, 74, 3),
+    (13, 7, False, 1, ((0, 5),), (-12, 35), 1, 71, -869, 74, 19),
+    (13, 7, False, 1, ((0, 5),), (-21, -20), 5, 5, 607, 58, 27),
+    (13, 7, False, 1, ((0, 5),), (-20, -21), 5, 5, -607, 58, 31),
+    (13, 7, False, 3, ((0, 1), (0, 1), (0, 3)), (-12, 5), 82, 229, -1, 13, 12),
+    (13, 7, False, 3, ((0, 1), (0, 8), (0, 8)), (-12, 5), 82, 229, -1, 13, 12),
+    (73, 44, False, 1, ((0, 70),), (-12, 5), 82, 229, -1, 13, 12),
+    (13, 7, False, 3, ((0, 1), (0, 1), (0, 3)), (-5, 12), 82, 1, -229, 338, 109),
+    (13, 7, False, 3, ((0, 1), (0, 8), (0, 8)), (-5, 12), 82, 1, -229, 338, 109),
+    (73, 62, False, 1, ((0, 70),), (-5, 12), 82, 1, -229, 338, 109),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-12, 5), 5, 1919, -1, 26, 25),
+    (17, 1, False, 1, ((0, 14),), (-12, 5), 5, 1919, -1, 26, 25),
+    (13, 7, False, 3, ((0, 6, 9), (0, 11)), (-5, 12), 5, 1, -1919, 338, 109),
+    (17, 1, False, 1, ((0, 14),), (-5, 12), 5, 1, -1919, 338, 109),
+    (13, 7, False, 2, ((0, 2), (0, 3)), (-12, 5), 10, 1867, -1, 13, 12),
+    (13, 7, False, 3, ((0, 1), (0, 5), (0, 5)), (-12, -5), 22, 499, -1, 13, 12),
+    (13, 7, False, 3, ((0, 1), (0, 5), (0, 5)), (-5, -12), 22, 499, 1, 13, 1),
+    (13, 7, False, 3, ((0, 1), (0, 8), (0, 8)), (-12, 5), 26, 1, -811, 13, 8),
+    (13, 7, False, 3, ((0, 1), (0, 8), (0, 8)), (-5, 12), 26, 811, -1, 13, 12),
+    (13, 7, False, 2, ((0, 2), (0, 3)), (-12, 5), 43, 281, -1, 26, 25),
     (13, 7, False, 2, ((0, 9), (0, 8)), (-12, 5), 5, 19, -173, 26, 9),
     (13, 7, False, 2, ((0, 9), (0, 8)), (-5, 12), 5, 173, -19, 26, 7),
     (13, 7, False, 1, ((0, 5),), (-12, 5), 46, 1, -317, 13, 8),
