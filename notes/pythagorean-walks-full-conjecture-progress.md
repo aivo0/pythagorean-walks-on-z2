@@ -467,6 +467,14 @@ Equivalently, this is the fixed parallel-direction construction with
 $U=(4,3)$ and nonstandard factor $F=5$ applied to
 $D=\det(U,(1,h))=100t+65$. The sign/swap orbit of this family is also
 certified.
+The Lean row `certificateValid_unitCoordinateFactorFiveParallel` proves the
+closed parametric certificate directly: the first step has length $5r$, and the
+second step has length $5(40t^2+52t+17)$.  The nonzero coordinate checks reduce
+to the factorizations
+$$
+1-4r=-5(4t+3)(8t+5),\qquad
+25t+17-3r=-20(2t+1)(3t+2).
+$$
 
 More generally, fixing a direction $U$ and factor $F$ gives a finite list of
 residues for the unit-coordinate targets $(1,h)$ modulo $2|U|^2F$. The helper
@@ -483,6 +491,1467 @@ h\equiv12\pmod {20}.
 $$
 This turns many unit-coordinate residual rows into named congruence families
 rather than isolated midpoint entries.
+The latter row has the equally explicit parametrization
+$$
+h=20t+12,\qquad r=18t^2+16t+3,\qquad P=(-3r,-4r),
+$$
+proved in Lean as `certificateValid_unitCoordinateFactorFourParallel`.  The
+second step has length $90t^2+96t+26$, and its nonzero coordinate checks reduce
+to
+$$
+1+3r=2(3t+1)(9t+5),\qquad
+20t+12+4r=12(2t+1)(3t+2).
+$$
+The factor-one row with $U=(4,-3)$ is larger: it closes a whole residue class
+modulo $5$.  For every integer $t$,
+$$
+h=5t+1,\qquad r=8t^2+5t+1,\qquad P=(4r,-3r)
+$$
+certifies $(1,h)$, and sign/swap transport certifies the full orbit.  Lean
+proves the parametric row as
+`certificateValid_unitCoordinateOneModFiveParallel`; the second step has length
+$40t^2+28t+5$, and the nonzero checks reduce to
+$$
+1-4r=-(4t+1)(8t+3),\qquad
+5t+1+3r=4(2t+1)(3t+1).
+$$
+The odd complement in the $h\equiv2,3\pmod5$ layer has another factor-one row.
+With $U=(3,4)$, for every integer $t$,
+$$
+h=10t+7,\qquad r=18t^2+22t+7,\qquad P=(3r,4r)
+$$
+certifies $(1,h)$, and sign/swap transport also covers the $h\equiv3\pmod
+{10}$ orbit.  Lean proves the row as
+`certificateValid_unitCoordinateSevenModTenParallel`; the second step has
+length $90t^2+102t+29$, and the nonzero coordinate checks reduce to
+$$
+1-3r=-2(3t+2)(9t+5),\qquad
+10t+7-4r=-3(2t+1)(12t+7).
+$$
+The next even residual row uses the same signed `3-4-5` layer but with a
+larger fixed factor.  With $U=(4,-3)$ and $F=25$, for every integer $t$,
+$$
+h=25t+18,\qquad r=8t^2+9t+2,\qquad P=(4r,-3r)
+$$
+certifies $(1,h)$.  Sign transport also covers $h\equiv7\pmod {25}$, so this
+row reaches new even targets in the remaining $h\equiv2,3\pmod5$ layer.  Lean
+proves it as `certificateValid_unitCoordinateFactorTwentyFiveParallel`; the
+second step has length $5(8t^2+12t+5)$, and the nonzero checks reduce to
+$$
+1-4r=-(4t+1)(8t+7),\qquad
+25t+18+3r=4(2t+3)(3t+2).
+$$
+The companion factor-five row with $U=(-4,-3)$ covers a broader congruence
+class with one harmless degenerate parameter.  For $t\ne-1$, set
+$$
+h=25t+22,\qquad r=40t^2+65t+26,\qquad P=(-4r,-3r).
+$$
+Then $P$ certifies $(1,h)$; the fixed-factor construction degenerates only at
+$t=-1$, where the target $(1,-3)$ is already covered by the seven-mod-ten row.
+The orbit wrapper therefore certifies every sign/swap image of $h\equiv22\pmod
+{25}$, and sign transport also covers $h\equiv3\pmod {25}$.  Lean proves the
+nondegenerate fixed row as
+`certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`; its second
+step has length $5(40t^2+68t+29)$, and the nonzero checks reduce to
+$$
+1+4r=5(4t+3)(8t+7),\qquad
+25t+22+3r=20(t+1)(6t+5).
+$$
+Together, these promoted unit-coordinate rows now give an infinite modular
+cover.  The dispatcher
+`unit_coordinate_promoted_mod_hundred_certificate` proves that every
+unit-coordinate target with nonzero other coordinate is covered unless that
+coordinate is congruent to
+$$
+2,\ 38,\ 62,\ \text{or }98\pmod {100}.
+$$
+Those four classes are exactly the remaining structural unit-coordinate
+residue classes for the current proof program; the known obstructions
+$(\pm1,0)$, $(0,\pm1)$, and the sign/swap orbit of $(2,1)$ are outside the
+claimed nonzero/nonresidual slice.
+The orthogonal lattice layer now pierces all four of those residual classes
+with explicit infinite seed rows from the single $(8,15,17)$ row
+$h\equiv 38\pmod {289}$.  The helper
+`unit_coordinate_residual_orthogonal_seed_certificate` certifies the following
+unit-coordinate subfamilies and their sign/swap orbits:
+$$
+\begin{array}{c|c|c}
+h\bmod 100 & h\equiv h_0\pmod M & (a,b,c)\\
+\hline
+2 & 22002\pmod {28900} & (8,15,17)\\
+38 & 38\pmod {28900} & (8,15,17)\\
+62 & 4662\pmod {28900} & (8,15,17)\\
+98 & 11598\pmod {28900} & (8,15,17).
+\end{array}
+$$
+Each row is an instance of the Lean-backed orthogonal lattice theorem: if
+$h\equiv b a^{-1}\pmod {c^2}$, then $(1,h)$ is certified by the Cramer
+coefficients in the orthogonal basis $(a,b),(-b,a)$.  The extra factor of
+$100$ in the displayed period keeps each seed inside its named mod-$100$
+residual class.
+
+The fixed-direction layer now gives a denser residual slice from the
+`(15,8,17)` direction.  For every integer $t$, set
+$$
+h=34t+26,\qquad r=225t^2+338t+127.
+$$
+Then the midpoint $(15r,8r)$ certifies $(1,h)$; equivalently this is the
+parallel-factor construction for direction $(15,8)$ with factor $2$.  The
+fixed congruence $h\equiv26\pmod {34}$ intersects the four residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {1700}\\
+\hline
+2 & 502\\
+38 & 638\\
+62 & 162\\
+98 & 298.
+\end{array}
+$$
+Sign and swap transport give the full orbit, including the companion
+unit-coordinate congruence $h\equiv8\pmod {34}$.  Lean proves the fixed row as
+`certificateValid_unitCoordinateFifteenEightFactorTwoParallel`, and the Python
+wrapper records these residual intersections as
+`UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS`.
+
+The `(12,35,37)` direction gives another fixed-direction residual slice with
+factor $1$.  For every integer $t$, set
+$$
+h=37t+25,\qquad r=72t^2+85t+25.
+$$
+Then the midpoint $(-12r,-35r)$ certifies $(1,h)$.  The second-step
+nonzero factors are
+$$
+1+12r=(12t+7)(72t+43),\qquad
+h+35r=12(5t+3)(42t+25),
+$$
+so there is no integer exceptional parameter.  The congruence
+$h\equiv25\pmod {37}$ intersects the four remaining mod-$100$ residual
+classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {3700}\\
+\hline
+2 & 802\\
+38 & 1838\\
+62 & 62\\
+98 & 1098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwelveThirtyFiveFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(40,9,41)` direction gives a second factor-$1$ coprime-period slice.  For
+every integer $t$, set
+$$
+h=41t+23,\qquad r=800t^2+889t+247.
+$$
+Then the midpoint $(40r,9r)$ certifies $(1,h)$.  The nonzero factors are
+$$
+1-40r=-(160t+89)(200t+111),\qquad
+h-9r=-40(9t+5)(20t+11),
+$$
+and the coefficient $r$ is always nonzero because
+$$
+3200r=(1600t+889)^2+79.
+$$
+The congruence $h\equiv23\pmod {41}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {4100}\\
+\hline
+2 & 802\\
+38 & 638\\
+62 & 3262\\
+98 & 3098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFortyNineFactorOneParallel`, and the Python
+wrapper records these intersections as
+`UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(28,45,53)` direction gives a third factor-$1$ coprime-period slice.  For
+every integer $t$, set
+$$
+h=53t+10,\qquad r=392t^2+125t+10.
+$$
+Then the midpoint $(28r,45r)$ certifies $(1,h)$.  Here
+$$
+1568r=(784t+125)^2+55,
+$$
+and the second-step nonzero factors are
+$$
+1-28r=-(56t+9)(196t+31),\qquad
+h-45r=-4(63t+10)(70t+11).
+$$
+The congruence $h\equiv10\pmod {53}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {5300}\\
+\hline
+2 & 3402\\
+38 & 4038\\
+62 & 4462\\
+98 & 5098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwentyEightFortyFiveFactorOneParallel`, and
+the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(60,11,61)` direction gives the next primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=61t+39,\qquad r=1800t^2+2291t+729.
+$$
+Then the midpoint $(60r,11r)$ certifies $(1,h)$.  The coefficient is always
+nonzero by
+$$
+7200r=(3600t+2291)^2+119,
+$$
+and the second-step nonzero factors are
+$$
+1-60r=-(300t+191)(360t+229),\qquad
+h-11r=-60(11t+7)(30t+19).
+$$
+The congruence $h\equiv39\pmod {61}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {6100}\\
+\hline
+2 & 5102\\
+38 & 3638\\
+62 & 2662\\
+98 & 1198.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateSixtyElevenFactorOneParallel`, and the Python
+wrapper records these intersections as
+`UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(48,55,73)` direction gives another primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=73t+31,\qquad r=1152t^2+943t+193.
+$$
+Then the midpoint $(48r,55r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+4608r=(2304t+943)^2+95,
+$$
+and the second-step nonzero factors are
+$$
+1-48r=-(144t+59)(384t+157),\qquad
+h-55r=-24(22t+9)(120t+49).
+$$
+The congruence $h\equiv31\pmod {73}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {7300}\\
+\hline
+2 & 2002\\
+38 & 4338\\
+62 & 3462\\
+98 & 5798.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFortyEightFiftyFiveFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(80,39,89)` direction gives the next primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=89t+71,\qquad r=3200t^2+5071t+2009.
+$$
+Then the midpoint $(80r,39r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+12800r=(6400t+5071)^2+159,
+$$
+and the second-step nonzero factors are
+$$
+1-80r=-(400t+317)(640t+507),\qquad
+h-39r=-40(24t+19)(130t+103).
+$$
+The congruence $h\equiv71\pmod {89}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {8900}\\
+\hline
+2 & 7102\\
+38 & 338\\
+62 & 1762\\
+98 & 3898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateEightyThirtyNineFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(72,65,97)` direction gives the next primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=97t+78,\qquad r=2592t^2+4121t+1638.
+$$
+Then the midpoint $(72r,65r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+10368r=(5184t+4121)^2+143,
+$$
+and the second-step nonzero factors are
+$$
+1-72r=-(288t+229)(648t+515),\qquad
+h-65r=-24(39t+31)(180t+143).
+$$
+The congruence $h\equiv78\pmod {97}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {9700}\\
+\hline
+2 & 9002\\
+38 & 7838\\
+62 & 7062\\
+98 & 5898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateSeventyTwoSixtyFiveFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(20,99,101)` direction gives another primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=101t+60,\qquad r=200t^2+219t+60.
+$$
+Then the midpoint $(20r,99r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+800r=(400t+219)^2+39,
+$$
+and the second-step nonzero factors are
+$$
+1-20r=-(20t+11)(200t+109),\qquad
+h-99r=-20(11t+6)(90t+49).
+$$
+The congruence $h\equiv60\pmod {101}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {10100}\\
+\hline
+2 & 4302\\
+38 & 7938\\
+62 & 262\\
+98 & 3898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwentyNinetyNineFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(60,91,109)` direction gives the next primitive factor-$1$ coprime-period
+slice.  For every integer $t$, set
+$$
+h=109t+82,\qquad r=1800t^2+2659t+982.
+$$
+Then the midpoint $(60r,91r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+7200r=(3600t+2659)^2+119,
+$$
+and the second-step nonzero factors are
+$$
+1-60r=-(180t+133)(600t+443),\qquad
+h-91r=-60(42t+31)(65t+48).
+$$
+The congruence $h\equiv82\pmod {109}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {10900}\\
+\hline
+2 & 8802\\
+38 & 9238\\
+62 & 2262\\
+98 & 2698.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateSixtyNinetyOneFactorOneParallel`, and the
+Python wrapper records these intersections as
+`UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(112,15,113)` direction gives another primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=113t+83,\qquad r=6272t^2+9199t+3373.
+$$
+Then the midpoint $(112r,15r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+25088r=(12544t+9199)^2+223,
+$$
+and the second-step nonzero factors are
+$$
+1-112r=-(784t+575)(896t+657),\qquad
+h-15r=-112(15t+11)(56t+41).
+$$
+The congruence $h\equiv83\pmod {113}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {11300}\\
+\hline
+2 & 7202\\
+38 & 4038\\
+62 & 9462\\
+98 & 6298.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredTwelveFifteenFactorOneParallel`, and
+the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(88,105,137)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=137t+7,\qquad r=3872t^2+329t+7.
+$$
+Then the midpoint $(88r,105r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+15488r=(7744t+329)^2+175,
+$$
+and the second-step nonzero factors are
+$$
+1-88r=-(352t+15)(968t+41),\qquad
+h-105r=-8(165t+7)(308t+13).
+$$
+The congruence $h\equiv7\pmod {137}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {13700}\\
+\hline
+2 & 4802\\
+38 & 8638\\
+62 & 2062\\
+98 & 5898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateEightyEightOneHundredFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(140,51,149)` direction gives another primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=149t+82,\qquad r=9800t^2+10739t+2942.
+$$
+Then the midpoint $(140r,51r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+39200r=(19600t+10739)^2+279,
+$$
+and the second-step nonzero factors are
+$$
+1-140r=-(980t+537)(1400t+767),\qquad
+h-51r=-20(42t+23)(595t+326).
+$$
+The congruence $h\equiv82\pmod {149}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {14900}\\
+\hline
+2 & 12002\\
+38 & 6638\\
+62 & 3062\\
+98 & 12598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredFortyFiftyOneFactorOneParallel`, and
+the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(132,85,157)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=157t+4,\qquad r=8712t^2+373t+4.
+$$
+Then the midpoint $(132r,85r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+34848r=(17424t+373)^2+263,
+$$
+and the second-step nonzero factors are
+$$
+1-132r=-(792t+17)(1452t+31),\qquad
+h-85r=-12(187t+4)(330t+7).
+$$
+The congruence $h\equiv4\pmod {157}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {15700}\\
+\hline
+2 & 2202\\
+38 & 9738\\
+62 & 14762\\
+98 & 6598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredThirtyTwoEightyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(120,119,169)` direction gives another primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=169t+168,\qquad r=7200t^2+14231t+7032.
+$$
+Then the midpoint $(120r,119r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+28800r=(14400t+14231)^2+239,
+$$
+and the second-step nonzero factors are
+$$
+1-120r=-(600t+593)(1440t+1423),\qquad
+h-119r=-120(84t+83)(85t+84).
+$$
+The congruence $h\equiv168\pmod {169}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {16900}\\
+\hline
+2 & 14702\\
+38 & 5238\\
+62 & 4562\\
+98 & 11998.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredTwentyOneHundredNineteenFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(52,165,173)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=173t+28,\qquad r=1352t^2+389t+28.
+$$
+Then the midpoint $(52r,165r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+5408r=(2704t+389)^2+103,
+$$
+and the second-step nonzero factors are
+$$
+1-52r=-(104t+15)(676t+97),\qquad
+h-165r=-4(195t+28)(286t+41).
+$$
+The congruence $h\equiv28\pmod {173}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {17300}\\
+\hline
+2 & 6602\\
+38 & 12138\\
+62 & 10062\\
+98 & 15598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFiftyTwoOneHundredSixtyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(180,19,181)` direction gives another primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=181t+143,\qquad r=16200t^2+25579t+10097.
+$$
+Then the midpoint $(180r,19r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+64800r=(32400t+25579)^2+359,
+$$
+and the second-step nonzero factors are
+$$
+1-180r=-(1620t+1279)(1800t+1421),\qquad
+h-19r=-180(19t+15)(90t+71).
+$$
+The congruence $h\equiv143\pmod {181}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {18100}\\
+\hline
+2 & 7202\\
+38 & 17338\\
+62 & 18062\\
+98 & 10098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredEightyNineteenFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(168,95,193)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=193t+47,\qquad r=14112t^2+6791t+817.
+$$
+Then the midpoint $(168r,95r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+56448r=(28224t+6791)^2+335,
+$$
+and the second-step nonzero factors are
+$$
+1-168r=-(1176t+283)(2016t+485),\qquad
+h-95r=-24(133t+32)(420t+101).
+$$
+The congruence $h\equiv47\pmod {193}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {19300}\\
+\hline
+2 & 6802\\
+38 & 16838\\
+62 & 10662\\
+98 & 1398.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredSixtyEightNinetyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(28,195,197)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=197t+112,\qquad r=392t^2+419t+112.
+$$
+Then the midpoint $(28r,195r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+1568r=(784t+419)^2+55,
+$$
+and the second-step nonzero factors are
+$$
+1-28r=-(28t+15)(392t+209),\qquad
+h-195r=-28(15t+8)(182t+97).
+$$
+The congruence $h\equiv112\pmod {197}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {19700}\\
+\hline
+2 & 13902\\
+38 & 11538\\
+62 & 9962\\
+98 & 7598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwentyEightOneHundredNinetyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(60,221,229)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=229t+36,\qquad r=1800t^2+509t+36.
+$$
+Then the midpoint $(60r,221r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+7200r=(3600t+509)^2+119,
+$$
+and the second-step nonzero factors are
+$$
+1-60r=-(120t+17)(900t+127),\qquad
+h-221r=-60(78t+11)(85t+12).
+$$
+The congruence $h\equiv36\pmod {229}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {22900}\\
+\hline
+2 & 12402\\
+38 & 8738\\
+62 & 21562\\
+98 & 17898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateSixtyTwoHundredTwentyOneFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(312,25,313)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=313t+263,\qquad r=48672t^2+81769t+34343.
+$$
+Then the midpoint $(312r,25r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+194688r=(97344t+81769)^2+623,
+$$
+and the second-step nonzero factors are
+$$
+1-312r=-(3744t+3145)(4056t+3407),\qquad
+h-25r=-312(25t+21)(156t+131).
+$$
+The congruence $h\equiv263\pmod {313}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {31300}\\
+\hline
+2 & 1202\\
+38 & 23738\\
+62 & 7462\\
+98 & 29998.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredTwelveTwentyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(308,75,317)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=317t+296,\qquad r=47432t^2+88507t+41288.
+$$
+Then the midpoint $(308r,75r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+189728r=(94864t+88507)^2+615,
+$$
+and the second-step nonzero factors are
+$$
+1-308r=-(3388t+3161)(4312t+4023),\qquad
+h-75r=-4(462t+431)(1925t+1796).
+$$
+The congruence $h\equiv296\pmod {317}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {31700}\\
+\hline
+2 & 6002\\
+38 & 8538\\
+62 & 31362\\
+98 & 2198.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredEightSeventyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(288,175,337)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=337t+241,\qquad r=41472t^2+59167t+21103.
+$$
+Then the midpoint $(288r,175r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+165888r=(82944t+59167)^2+575,
+$$
+and the second-step nonzero factors are
+$$
+1-288r=-(2592t+1849)(4608t+3287),\qquad
+h-175r=-48(150t+107)(1008t+719).
+$$
+The congruence $h\equiv241\pmod {337}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {33700}\\
+\hline
+2 & 18102\\
+38 & 27538\\
+62 & 11362\\
+98 & 20798.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredEightyEightOneHundredSeventyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(180,299,349)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=349t+206,\qquad r=16200t^2+18971t+5554.
+$$
+Then the midpoint $(180r,299r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+64800r=(32400t+18971)^2+359,
+$$
+and the second-step nonzero factors are
+$$
+1-180r=-(900t+527)(3240t+1897),\qquad
+h-299r=-60(234t+137)(345t+202).
+$$
+The congruence $h\equiv206\pmod {349}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {34900}\\
+\hline
+2 & 1602\\
+38 & 23938\\
+62 & 15562\\
+98 & 2998.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredEightyTwoHundredNinetyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(272,225,353)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=353t+49,\qquad r=36992t^2+10097t+689.
+$$
+Then the midpoint $(272r,225r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+147968r=(73984t+10097)^2+543,
+$$
+and the second-step nonzero factors are
+$$
+1-272r=-(2176t+297)(4624t+631),\qquad
+h-225r=-16(425t+58)(1224t+167).
+$$
+The congruence $h\equiv49\pmod {353}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {35300}\\
+\hline
+2 & 402\\
+38 & 4638\\
+62 & 7462\\
+98 & 11698.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredSeventyTwoTwoHundredTwentyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(252,275,373)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=373t+151,\qquad r=31752t^2+25523t+5129.
+$$
+Then the midpoint $(252r,275r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+127008r=(63504t+25523)^2+503,
+$$
+and the second-step nonzero factors are
+$$
+1-252r=-(1764t+709)(4536t+1823),\qquad
+h-275r=-12(525t+211)(1386t+557).
+$$
+The congruence $h\equiv151\pmod {373}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {37300}\\
+\hline
+2 & 32602\\
+38 & 7238\\
+62 & 2762\\
+98 & 14698.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredFiftyTwoTwoHundredSeventyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(352,135,377)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=377t+299,\qquad r=61952t^2+98143t+38869.
+$$
+Then the midpoint $(352r,135r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+247808r=(123904t+98143)^2+703,
+$$
+and the second-step nonzero factors are
+$$
+1-352r=-(3872t+3067)(5632t+4461),\qquad
+h-135r=-8(880t+697)(1188t+941).
+$$
+The congruence $h\equiv299\pmod {377}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {37700}\\
+\hline
+2 & 15002\\
+38 & 2938\\
+62 & 7462\\
+98 & 33098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredFiftyTwoOneHundredThirtyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(340,189,389)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=389t+97,\qquad r=57800t^2+28661t+3553.
+$$
+Then the midpoint $(340r,189r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+231200r=(115600t+28661)^2+679,
+$$
+and the second-step nonzero factors are
+$$
+1-340r=-(3400t+843)(5780t+1433),\qquad
+h-189r=-20(238t+59)(2295t+569).
+$$
+The congruence $h\equiv97\pmod {389}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {38900}\\
+\hline
+2 & 17602\\
+38 & 26938\\
+62 & 33162\\
+98 & 3598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredFortyOneHundredEightyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(228,325,397)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=397t+141,\qquad r=25992t^2+18277t+3213.
+$$
+Then the midpoint $(228r,325r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+103968r=(51984t+18277)^2+455,
+$$
+and the second-step nonzero factors are
+$$
+1-228r=-(1368t+481)(4332t+1523),\qquad
+h-325r=-12(475t+167)(1482t+521).
+$$
+The congruence $h\equiv141\pmod {397}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {39700}\\
+\hline
+2 & 5302\\
+38 & 538\\
+62 & 37062\\
+98 & 32298.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredTwentyEightThreeHundredTwentyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(40,399,401)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=401t+220,\qquad r=800t^2+839t+220.
+$$
+Then the midpoint $(40r,399r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+3200r=(1600t+839)^2+79,
+$$
+and the second-step nonzero factors are
+$$
+1-40r=-(40t+21)(800t+419),\qquad
+h-399r=-40(21t+11)(380t+199).
+$$
+The congruence $h\equiv220\pmod {401}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {40100}\\
+\hline
+2 & 33102\\
+38 & 7438\\
+62 & 17062\\
+98 & 31498.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFortyThreeHundredNinetyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(120,391,409)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=409t+302,\qquad r=7200t^2+10519t+3842.
+$$
+Then the midpoint $(120r,391r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+28800r=(14400t+10519)^2+239,
+$$
+and the second-step nonzero factors are
+$$
+1-120r=-(360t+263)(2400t+1753),\qquad
+h-391r=-120(115t+84)(204t+149).
+$$
+The congruence $h\equiv302\pmod {409}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {40900}\\
+\hline
+2 & 302\\
+38 & 1938\\
+62 & 16662\\
+98 & 18298.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredTwentyThreeHundredNinetyOneFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(420,29,421)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=421t+363,\qquad r=88200t^2+152069t+65547.
+$$
+Then the midpoint $(420r,29r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+352800r=(176400t+152069)^2+839,
+$$
+and the second-step nonzero factors are
+$$
+1-420r=-(5880t+5069)(6300t+5431),\qquad
+h-29r=-420(29t+25)(210t+181).
+$$
+The congruence $h\equiv363\pmod {421}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {42100}\\
+\hline
+2 & 25202\\
+38 & 31938\\
+62 & 8362\\
+98 & 15098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFourHundredTwentyTwentyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(408,145,433)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=433t+39,\qquad r=83232t^2+14857t+663.
+$$
+Then the midpoint $(408r,145r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+332928r=(166464t+14857)^2+815,
+$$
+and the second-step nonzero factors are
+$$
+1-408r=-(4896t+437)(6936t+619),\qquad
+h-145r=-24(493t+44)(1020t+91).
+$$
+The congruence $h\equiv39\pmod {433}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {43300}\\
+\hline
+2 & 4802\\
+38 & 1338\\
+62 & 13462\\
+98 & 9998.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFourHundredEightOneHundredFortyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(280,351,449)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=449t+264,\qquad r=39200t^2+45879t+13424.
+$$
+Then the midpoint $(280r,351r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+156800r=(78400t+45879)^2+559,
+$$
+and the second-step nonzero factors are
+$$
+1-280r=-(1960t+1147)(5600t+3277),\qquad
+h-351r=-280(135t+79)(364t+213).
+$$
+The congruence $h\equiv264\pmod {449}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {44900}\\
+\hline
+2 & 28102\\
+38 & 11938\\
+62 & 1162\\
+98 & 29898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredEightyThreeHundredFiftyOneFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(168,425,457)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=457t+248,\qquad r=14112t^2+15161t+4072.
+$$
+Then the midpoint $(168r,425r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+56448r=(28224t+15161)^2+335,
+$$
+and the second-step nonzero factors are
+$$
+1-168r=-(672t+361)(3528t+1895),\qquad
+h-425r=-24(175t+94)(1428t+767).
+$$
+The congruence $h\equiv248\pmod {457}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {45700}\\
+\hline
+2 & 10302\\
+38 & 32238\\
+62 & 1162\\
+98 & 23098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredSixtyEightFourHundredTwentyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(380,261,461)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=461t+373,\qquad r=72200t^2+116621t+47093.
+$$
+Then the midpoint $(380r,261r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+288800r=(144400t+116621)^2+759,
+$$
+and the second-step nonzero factors are
+$$
+1-380r=-(3800t+3069)(7220t+5831),\qquad
+h-261r=-20(551t+445)(1710t+1381).
+$$
+The congruence $h\equiv373\pmod {461}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {46100}\\
+\hline
+2 & 41402\\
+38 & 30338\\
+62 & 22962\\
+98 & 11898.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredEightyTwoHundredSixtyOneFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(360,319,481)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=481t+23,\qquad r=64800t^2+5959t+137.
+$$
+Then the midpoint $(360r,319r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+259200r=(129600t+5959)^2+719,
+$$
+and the second-step nonzero factors are
+$$
+1-360r=-(3240t+149)(7200t+331),\qquad
+h-319r=-120(87t+4)(1980t+91).
+$$
+The congruence $h\equiv23\pmod {481}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {48100}\\
+\hline
+2 & 28402\\
+38 & 7238\\
+62 & 9162\\
+98 & 36098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateThreeHundredSixtyThreeHundredNineteenFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(132,475,493)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=493t+199,\qquad r=8712t^2+6907t+1369.
+$$
+Then the midpoint $(132r,475r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+34848r=(17424t+6907)^2+263,
+$$
+and the second-step nonzero factors are
+$$
+1-132r=-(396t+157)(2904t+1151),\qquad
+h-475r=-12(275t+109)(1254t+497).
+$$
+The congruence $h\equiv199\pmod {493}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {49300}\\
+\hline
+2 & 35202\\
+38 & 11538\\
+62 & 45062\\
+98 & 21398.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateOneHundredThirtyTwoFourHundredSeventyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(220,459,509)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=509t+96,\qquad r=24200t^2+8931t+824.
+$$
+Then the midpoint $(220r,459r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+96800r=(48400t+8931)^2+439,
+$$
+and the second-step nonzero factors are
+$$
+1-220r=-(1100t+203)(4840t+893),\qquad
+h-459r=-20(374t+69)(1485t+274).
+$$
+The congruence $h\equiv96\pmod {509}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {50900}\\
+\hline
+2 & 17402\\
+38 & 19438\\
+62 & 37762\\
+98 & 39798.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateTwoHundredTwentyFourHundredFiftyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(440,279,521)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=521t+103,\qquad r=96800t^2+38039t+3737.
+$$
+Then the midpoint $(440r,279r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+387200r=(193600t+38039)^2+879,
+$$
+and the second-step nonzero factors are
+$$
+1-440r=-(4840t+951)(8800t+1729),\qquad
+h-279r=-40(341t+67)(1980t+389).
+$$
+The congruence $h\equiv103\pmod {521}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {52100}\\
+\hline
+2 & 10002\\
+38 & 18338\\
+62 & 41262\\
+98 & 49598.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFourHundredFortyTwoHundredSeventyNineFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(92,525,533)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=533t+78,\qquad r=4232t^2+1149t+78.
+$$
+Then the midpoint $(92r,525r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+16928r=(8464t+1149)^2+183,
+$$
+and the second-step nonzero factors are
+$$
+1-92r=-(184t+25)(2116t+287),\qquad
+h-525r=-4(575t+78)(966t+131).
+$$
+The congruence $h\equiv78\pmod {533}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {53300}\\
+\hline
+2 & 15002\\
+38 & 10738\\
+62 & 25662\\
+98 & 21398.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateNinetyTwoFiveHundredTwentyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(420,341,541)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=541t+113,\qquad r=88200t^2+36581t+3793.
+$$
+Then the midpoint $(420r,341r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+352800r=(176400t+36581)^2+839,
+$$
+and the second-step nonzero factors are
+$$
+1-420r=-(4200t+871)(8820t+1829),\qquad
+h-341r=-60(217t+45)(2310t+479).
+$$
+The congruence $h\equiv113\pmod {541}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {54100}\\
+\hline
+2 & 15802\\
+38 & 13638\\
+62 & 48262\\
+98 & 46098.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFourHundredTwentyThreeHundredFortyOneFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`.
+
+The `(532,165,557)` direction gives the next primitive factor-$1$
+coprime-period slice.  For every integer $t$, set
+$$
+h=557t+412,\qquad r=141512t^2+209189t+77308.
+$$
+Then the midpoint $(532r,165r)$ certifies $(1,h)$.  The coefficient is nonzero
+because
+$$
+566048r=(283024t+209189)^2+1063,
+$$
+and the second-step nonzero factors are
+$$
+1-532r=-(7448t+5505)(10108t+7471),\qquad
+h-165r=-4(1330t+983)(4389t+3244).
+$$
+The congruence $h\equiv412\pmod {557}$ intersects the four remaining mod-$100$
+residual classes as
+$$
+\begin{array}{c|c}
+h\bmod 100 & h\equiv h_0\pmod {55700}\\
+\hline
+2 & 39402\\
+38 & 10438\\
+62 & 28262\\
+98 & 54998.
+\end{array}
+$$
+Lean proves the row as
+`certificateValid_unitCoordinateFiveHundredThirtyTwoOneHundredSixtyFiveFactorOneParallel`,
+and the Python wrapper records these intersections as
+`UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`.
 
 The same idea works on any fixed rational ray. Write
 $$
@@ -1062,6 +2531,82 @@ $(q,a,b)=(1,449,-11)$, while the secondary residual $(151,338)$ is carried by
 shape $(4,5)$ with $(q,a,b)=(2,19,-239)$. These are no longer opaque search
 hits: they are named divisor-root congruence obligations.
 
+The first primary spine is now promoted from observed shape family to a uniform
+certificate theorem.  For any $k\ge1$ and nonzero integers $q,t,r$, let
+$$
+U=(1-4k^2,4k),\qquad
+\beta=(4kt+2k-1,\,-(2t+1)).
+$$
+Then $U$ is the Pythagorean direction generated by the root shape $(1,2k)$,
+and
+$$
+T=rU+\frac q2\beta^2
+$$
+has the two-step certificate with midpoint $rU$.  In coordinates, the second
+step is
+$$
+\left(
+2q((2k+1)t+k)((2k-1)t+k-1),\
+-q(4kt+2k-1)(2t+1)
+\right).
+$$
+The condition $t\ne0$ is only for the endpoint nondegeneracy of the $k=1$
+row.  The Lean theorem `certificateValid_oneEvenRootSpineLine` proves this
+whole primary spine, and the Python constructor
+`one_even_root_spine_line_certificate` exposes it executable-side.  The
+companion orbit constructor
+`one_even_root_spine_line_orbit_certificate` transports the certificate across
+all sign changes and coordinate swaps of the target.
+
+The companion primary spine is also uniform.  For $k\ge1$, put
+$n=2k+1$ and
+$$
+U=(-4n,4-n^2),\qquad \beta=(1-2nt,\ 4t-1).
+$$
+For every nonzero $q,t,r$, the target
+$$
+T=rU+\frac q2 i\beta^2
+$$
+has midpoint certificate $rU$.  In coordinates, the second step is
+$$
+\left(
+q(4t-1)(2nt-1),\
+2qt(n-2)(nt+2t-1)
+\right).
+$$
+The specialization $k=1$ recovers the existing odd-integral $(2,3)$ row.
+The Lean theorem `certificateValid_twoOddRootSpineLine` and Python constructor
+`two_odd_root_spine_line_certificate` therefore close the second primary spine
+$(2,2k+1)$.  The executable constructor
+`two_odd_root_spine_line_orbit_certificate` packages the same row with
+sign/swap transport, giving the full symmetry orbit of each primary
+$(2,2k+1)$ target.
+
+The secondary root shape $(3,4)$ now has the same explicit line-row treatment,
+including both even and odd beta branches.
+For nonzero $m,r$ and beta coordinates $a,b$ with $ab(a^2-b^2)\ne0$, the
+midpoint $r(-7,24)$ certifies
+$$
+r(-7,24)+m(a^2-b^2,\ 2ab).
+$$
+For odd beta coordinates $(2a+1,2b+1)$ and
+$m r (2a^2+2a-2b^2-2b)\ne0$, the same midpoint certifies
+$$
+r(-7,24)+m(2a^2+2a-2b^2-2b,\ (2a+1)(2b+1)).
+$$
+The coordinate-swapped row uses midpoint $r(24,7)$.  Lean proves these as
+`certificateValid_threeFourRootSpineLine` and
+`certificateValid_threeFourRootSpineLineSwap`, with odd-beta counterparts
+`certificateValid_threeFourOddRootSpineLine` and
+`certificateValid_threeFourOddRootSpineLineSwap`.  The executable constructors
+`three_four_root_spine_line_certificate` and
+`three_four_odd_root_spine_line_certificate` expose the rows beside the
+existing secondary $(3,8)$ and $(4,5)$ rows.  The promoted root-spine
+reconstructor now includes the signed beta images and sign/swap transports of
+all three observed secondary rows $(3,4)$, $(3,8)$, and $(4,5)$, so generated
+witnesses in their signed orientations reconstruct to their exact two-step
+certificates.
+
 The helper
 `parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census`
 compresses a residual sample to those obligations. In the $1\le g,h\le500$
@@ -1212,6 +2757,100 @@ range, except one $(3,8)$ strip with a single standard-completion fallback.
 Thus the current proof target has become a named dichotomy: on each obligation
 strip, either prove the recorded divisor class occurs, or prove the target
 falls into one of these structural families.
+
+The target-facing form of this dichotomy is now factored out of the census.
+`PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS` freezes the ten obligation rows from
+the generated-spine residual census, while
+`parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile`
+records the prime-modulus exponent sumset, required exponent, Kneser lower
+bound, and saturation/short branch for one strip target.
+`parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness` then
+returns the exact theorem branch for a target on a pinned strip: direct divisor
+success, promoted signed `3-4-5`, lattice-pair, orthogonal, or
+standard-completion. The new guardrail checks one direct divisor success and
+one example from every structural fallback family, including the explicit
+congruence row each fallback uses. This does not prove the infinite
+strip-discharge theorem, but it turns the missing theorem into a target-facing
+row classifier rather than logic embedded only inside a bounded census.
+
+A larger determinant-level falsification shows that the strip-local theorem is
+not true as stated. The target
+$$
+T=(108638,24031)
+$$
+lies on the pinned obligation strip
+$$
+((4,5),2,41,9,10,33,19)
+$$
+for direction $U=(-40,-9)$, but the requested divisor class is missing and the
+current structural stack returns no fallback. The target is still certified by
+a different generated root-spine row: direction $(-3,4)$, root shape $(1,2)$,
+squareclass $535$, split factor $1$, paired factor $-947$, and
+$\beta=(-379,189)$. The corrected executable branch
+`parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness`
+therefore first tries the local divisor/structural discharge and then allows an
+alternate generated root-spine witness. The missing theorem is consequently a
+global root-choice theorem, not a theorem that each pinned strip discharges in
+isolation.
+
+The observed alternate-root exits are now promoted to explicit infinite line
+rows. The `(1,2)` row uses direction $(-3,4)$ and
+$\beta=(4t+1,-(2t+1))$. The `(1,4)` row uses directions $(-8,-15)$ and its
+coordinate swap $(-15,-8)$; besides the one-parameter row with
+$\beta=(8t+3,-(2t+1))$, the even-squareclass row now allows arbitrary
+nondegenerate $\beta$. The odd-integral `(2,3)` row uses directions
+$(-12,-5)$ and $(-5,-12)$; besides the one-parameter row
+$\beta=(1-6t,4t-1)$, the odd-beta row now allows arbitrary odd beta
+coordinates. The even `(2,3)` row fixes direction $(-12,-5)$ and uses the
+second edge $m i\beta^2$. The `(2,5)` row uses
+directions $(-20,21)$ and $(-21,20)$ with even squareclass quotient. The
+secondary `(4,5)` and odd-beta `(3,8)` rows now cover the four finite-frontier
+non-primary examples. Python constructors check these line formulas against the
+alternate-root stress-test witnesses, and Lean proves the corresponding
+certificate rows
+`certificateValid_oneTwoRootSpineLine`,
+`certificateValid_oneFourRootSpineLine`,
+`certificateValid_oneFourRootSpineLineSwap`,
+`certificateValid_oneFourEvenRootSpineLine`,
+`certificateValid_oneFourEvenRootSpineLineSwap`,
+`certificateValid_twoThreeOddRootSpineLine`,
+`certificateValid_twoThreeOddRootSpineLineSwap`,
+`certificateValid_twoThreeOddGeneralRootSpineLine`,
+`certificateValid_twoThreeOddGeneralRootSpineLineSwap`,
+`certificateValid_twoThreeEvenRootSpineLine`,
+`certificateValid_twoFiveRootSpineLine`, and
+`certificateValid_twoFiveRootSpineLineSwap`, plus
+`certificateValid_threeFourRootSpineLine`,
+`certificateValid_threeFourRootSpineLineSwap`,
+`certificateValid_threeFourOddRootSpineLine`,
+`certificateValid_threeFourOddRootSpineLineSwap`,
+`certificateValid_fourFiveRootSpineLine`,
+`certificateValid_fourFiveRootSpineLineSwap`,
+`certificateValid_threeEightOddRootSpineLine`, and
+`certificateValid_threeEightOddRootSpineLineSwap`. The executable helper
+`promoted_root_spine_line_certificate_from_witness` now reconstructs these
+explicit certificates from a generic root-spine witness; the bounded global
+root-choice guardrail checks that every alternate root witness in
+`1 <= g,h <= 500` reconstructs this way. This does not close global root
+choice, but it replaces the observed alternate-root search output with named
+row-family proof obligations.
+
+The next concrete global-choice theorem target is therefore:
+
+> For any primitive target on a pinned divisor-obligation strip, if
+> `parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness` is `None`
+> then `parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness`
+> must still succeed, and any non-exceptional alternate branch must lie in one of
+> the explicit infinite line families listed above.
+>
+> The only observed non-primary exceptions (for `1 <= g,h <= 500`) are the four
+> targets
+> $(151,338)$, $(158,391)$, $(338,151)$, $(391,158)$; these now have explicit
+> secondary line rows from shapes `(3,8)` and `(4,5)`.
+
+A perf-scoped regression test in `tests/test_pythagorean_walks.py` currently
+checks this target claim on the same `1 <= g,h <= 500` range against all pinned
+obligations.
 
 The largest fallback bucket is no longer opaque. Since the promoted
 $3$-$4$-$5$ layer is itself a finite table of signed directions and determinant
@@ -1597,8 +3236,28 @@ Executable guardrail:
 - `parallel_direction_standard_completion_quadratic_row_witness`
 - `parallel_direction_standard_completion_strip_intersection_linear_rows`
 - `parallel_direction_standard_completion_strip_intersection_linear_row_witness`
+- `certificateValid_unitCoordinateFactorFiveParallel`
+- `certificateValid_unitCoordinateFactorFourParallel`
+- `certificateValid_unitCoordinateOneModFiveParallel`
+- `certificateValid_unitCoordinateSevenModTenParallel`
+- `certificateValid_unitCoordinateFactorTwentyFiveParallel`
+- `certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`
 - `unit_coordinate_factor_five_parallel_certificate`
 - `unit_coordinate_factor_five_parallel_orbit_certificate`
+- `unit_coordinate_factor_four_parallel_certificate`
+- `unit_coordinate_factor_four_parallel_orbit_certificate`
+- `unit_coordinate_factor_twenty_five_parallel_certificate`
+- `unit_coordinate_factor_twenty_five_parallel_orbit_certificate`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate`
+- `UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES`
+- `unit_coordinate_promoted_mod_hundred_certificate`
+- `UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS`
+- `unit_coordinate_residual_orthogonal_seed_certificate`
+- `unit_coordinate_one_mod_five_parallel_certificate`
+- `unit_coordinate_one_mod_five_parallel_orbit_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_orbit_certificate`
 - `unit_coordinate_parallel_factor_residues`
 - `unit_coordinate_parallel_factor_orbit_certificate`
 - `ray_multiplier`
@@ -1709,6 +3368,13 @@ Executable guardrail:
 - `test_parallel_direction_standard_completion_family`
 - `test_parallel_direction_standard_completion_cover_probe`
 - `test_unit_coordinate_factor_five_parallel_family`
+- `test_unit_coordinate_factor_four_parallel_family`
+- `test_unit_coordinate_one_mod_five_parallel_family`
+- `test_unit_coordinate_seven_mod_ten_parallel_family`
+- `test_unit_coordinate_factor_twenty_five_parallel_family`
+- `test_unit_coordinate_twenty_two_mod_twenty_five_parallel_family`
+- `test_unit_coordinate_promoted_mod_hundred_cover`
+- `test_unit_coordinate_residual_orthogonal_seed_rows`
 - `test_unit_coordinate_parallel_factor_residue_family`
 - `test_ray_parallel_factor_residue_family`
 - `test_four_three_factor_five_parallel_congruence_family`
@@ -4228,9 +5894,16 @@ $$
 t(u^2-v)+\frac{uv(1+2v-u^2)t^2}{4},\ 1
 \right),
 $$
-subject only to the standard strip nondegeneracy conditions. The coordinate
-swap and sign-change symmetries give the corresponding families with one
-coordinate $\pm1$.
+and when $v=4z$ the same target can be written without division by putting
+$$
+A=2zt,\qquad B=uA-1,\qquad R=ut-z(u^2-1)t^2.
+$$
+Then the midpoint is $(uR,4zR)$ and the second edge is $(2AB,B^2-A^2)$.
+The Lean row `certificateValid_halfLegUnitCoordinate` proves that the standard
+strip nondegeneracy conditions are automatic for odd $u$ and nonzero $z,t$:
+$R\ne0$ by parity, while $B$ and $B\pm A$ are odd. The coordinate swap and
+sign-change symmetries give the corresponding families with one coordinate
+$\pm1$.
 
 This family now also has a target-facing recognizer. For a requested
 unit-coordinate target $(g,1)$, set
@@ -4260,6 +5933,7 @@ $c=m^2+(m-1)^2$.
 
 Executable guardrail:
 
+- `certificateValid_halfLegUnitCoordinate`
 - `half_leg_unit_coordinate_certificate`
 - `half_leg_unit_coordinate_target_certificate`
 - `half_leg_unit_coordinate_orbit_certificate`
@@ -4576,6 +6250,32 @@ Executable guardrail:
 - `two_one_ray_even_certificate`
 - `two_one_ray_even_orbit_certificate`
 - `test_two_one_ray_even_family`
+
+## Two/Three-Mod-Five Parallel Slice On The Exceptional Ray
+
+The signed $3$-$4$-$5$ fixed-direction parallel-factor layer also closes a
+clean pair of residue classes on the exceptional ray.  For $n\equiv2\pmod5$
+and $n\ge7$, the direction $U=(4,3)$ with factor $F=2$ certifies
+$(2n,n)$.  For $n\equiv3\pmod5$ and $n\ge8$, the signed direction
+$U=(-4,-3)$ with the same factor certifies $(2n,n)$.  The first two
+representatives are the only pointwise degeneracies for these fixed-factor
+rows: $n=2$ is already covered by the even-ray theorem, and $n=3$ by the
+Theorem 3 multiple-of-three row.
+
+Thus every positive multiplier
+$$
+n\equiv2\text{ or }3\pmod5
+$$
+has a two-step certificate on the $(2,1)$ ray, and sign/swap transport gives
+the whole orbit.  The helper
+`two_one_ray_two_or_three_mod_five_parallel_certificate` exposes this slice
+directly instead of hiding it inside the larger mod-$20$ skeleton.
+
+Executable guardrail:
+
+- `two_one_ray_two_or_three_mod_five_parallel_certificate`
+- `two_one_ray_two_or_three_mod_five_parallel_orbit_certificate`
+- `test_two_one_ray_two_or_three_mod_five_parallel_family`
 
 ## Mod-20 Skeleton On The Exceptional Ray
 
@@ -5858,6 +7558,14 @@ Executable guardrail:
 The unit-coordinate family is the specialization $q=1$. It gives
 $(ct,1)$ for every nonzero $t$, and sign changes plus coordinate swap give the
 same conclusion for $(\pm ct,\pm1)$ and $(\pm1,\pm ct)$.
+In this specialization $L=0$ and the midpoint is
+$$
+\left((2m-1)R,\ 2m(m-1)R\right),\qquad
+R=(2m-1)t-2(m(m-1)t)^2.
+$$
+The Lean row `certificateValid_consecutiveHypotenuseUnitCoordinate` proves that
+the nondegeneracy conditions $R\ne0$, $B\ne0$, and $B^2-A^2\ne0$ are automatic
+for $m\ge2$ and $t\ne0$.
 
 The previous multiple-of-five strip is the first case $m=2$, where $c=5$.
 
@@ -5865,6 +7573,7 @@ Executable guardrail:
 
 - `affine_consecutive_hypotenuse_certificate`
 - `certificateValid_affineConsecutiveHypotenuseStrip`
+- `certificateValid_consecutiveHypotenuseUnitCoordinate`
 - `consecutive_hypotenuse_unit_coordinate_certificate`
 - `unit_coordinate_consecutive_hypotenuse_certificate`
 - `unit_coordinate_multiple_of_five_certificate`
@@ -6045,6 +7754,68 @@ parametric identities and nondegeneracy checks. The Python table constructor
 `five_twelve_thirteen_unit_divisor_ray_certificate` and orbit recognizer
 `five_twelve_thirteen_unit_divisor_ray_orbit_certificate` expose the theorem.
 
+The same signed unit-divisor computation now gives a new table from the
+$(8,15,17)$ triple.  Here
+$$
+L=(17+s_y15)q-(17-s_x8)p.
+$$
+Solving $L=1$ gives
+$$
+\begin{array}{c|c|c}
+R & (s_x,s_y) & \text{parameter range}\\
+\hline
+(2t+1,9t+5) & (1,-1) & t\ge0\\
+(2t+1,25t+13) & (-1,-1) & t\ge0\\
+(32t+7,9t+2) & (1,1) & t\ge0\\
+(32t+23,25t+18) & (-1,1) & t\ge0.
+\end{array}
+$$
+For every positive multiplier $n$, the target $nR$ has midpoint
+$$
+P=(8s_xpqn,\ 15s_ypqn).
+$$
+The existing Lean theorem `certificateValid_theorem3Divisor` is the formal
+kernel for these rows, and the Python constructor
+`eight_fifteen_seventeen_unit_divisor_ray_certificate` checks each row against
+the generic Theorem 3 divisor constructor.  The orbit recognizer
+`eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate` exposes the full
+sign/swap theorem slice.
+
+These explicit tables are now instances of a generic signed unit-divisor
+progression.  For any positive Pythagorean triple $(a,b,c)$ and signs
+$(s_x,s_y)$, set
+$$
+A=c-s_xa,\qquad B=c+s_yb.
+$$
+If a positive seed ray $(p_0,q_0)$ satisfies
+$$
+Bq_0-Ap_0=1,
+$$
+then every ray
+$$
+R_t=(p_0+Bt,\ q_0+At),\qquad t\ge0,
+$$
+has the same unit ray divisor.  Thus every positive multiplier $n$ has midpoint
+$$
+P=(s_xapqn,\ s_ybpqn),\qquad (p,q)=R_t,
+$$
+and sign/swap transport gives the full orbit for nonzero multipliers.  The Lean
+theorem `certificateValid_theorem3UnitDivisorProgression` packages this
+progression by reducing it to `certificateValid_theorem3Divisor`; the Python
+recognizer `theorem3_unit_divisor_progression_orbit_certificate` recovers the
+multiplier from $By-Ax$.
+
+For primitive triples the seed condition is automatic.  If $d$ divides both
+$A=c-s_xa$ and $B=c+s_yb$, then $c\equiv s_xa\pmod d$ and
+$c\equiv -s_yb\pmod d$.  The identity $a^2+b^2=c^2$ then gives
+$d\mid b^2$ and $d\mid a^2$, so primitivity forces $d=1$.  Hence
+$\gcd(A,B)=1$ for every primitive triple and sign choice.  The constructive
+seed used by `theorem3_coprime_unit_divisor_seed` is $(1,A+1)$ when $B=1$; when
+$B>1$ it takes $p_0\equiv -A^{-1}\pmod B$ with $1\le p_0<B$ and
+$q_0=(1+Ap_0)/B$.  This promotes the signed Theorem 3 unit-divisor layer from
+small tables to one infinite fan for every primitive Pythagorean triple/sign
+row.
+
 There is also a uniform first-row theorem for all consecutive Euclid triples.
 For $r\ge1$, set
 $$
@@ -6184,6 +7955,13 @@ Executable guardrail:
 - `three_four_five_unit_divisor_ray_orbit_certificate`
 - `five_twelve_thirteen_unit_divisor_ray_certificate`
 - `five_twelve_thirteen_unit_divisor_ray_orbit_certificate`
+- `eight_fifteen_seventeen_unit_divisor_ray_certificate`
+- `eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate`
+- `theorem3_unit_divisor_progression_certificate`
+- `theorem3_unit_divisor_progression_orbit_certificate`
+- `theorem3_coprime_unit_divisor_seed`
+- `theorem3_coprime_unit_divisor_progression_certificate`
+- `theorem3_coprime_unit_divisor_progression_orbit_certificate`
 - `consecutive_euclid_unit_divisor_ray_certificate`
 - `consecutive_euclid_unit_divisor_ray_orbit_certificate`
 - `consecutive_euclid_affine_strip_certificate`
@@ -6200,6 +7978,9 @@ Executable guardrail:
 - `test_one_three_ray_theorem3_family`
 - `test_three_four_five_unit_divisor_ray_table`
 - `test_five_twelve_thirteen_unit_divisor_ray_table`
+- `test_eight_fifteen_seventeen_unit_divisor_ray_table`
+- `test_theorem3_unit_divisor_progression_family`
+- `test_theorem3_coprime_unit_divisor_progression_family`
 - `test_consecutive_euclid_unit_divisor_ray_family`
 - `test_consecutive_euclid_affine_strip_family`
 - `test_three_four_five_odd_slope_ray_family`

@@ -3,13 +3,1380 @@
 This file records proof-search claims that affected the executable workspace.
 The goal is to keep false starts cheap to detect and hard to reintroduce.
 
+## 2026-05-30
+
+### Promoted: Five-Hundred-Thirty-Two One-Hundred-Sixty-Five Factor-One Unit-Coordinate Row
+
+The signed `(532,165,557)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=557t+412`, `r=141512t^2+209189t+77308`.
+
+Then `(1,h)` is certified by midpoint `(532r,165r)`. The row is exactly the
+direction `(532,165)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 412 mod 557`. Since `gcd(557,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 39402 mod 55700`.
+- `38 mod 100`: `h ≡ 10438 mod 55700`.
+- `62 mod 100`: `h ≡ 28262 mod 55700`.
+- `98 mod 100`: `h ≡ 54998 mod 55700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFiveHundredThirtyTwoOneHundredSixtyFiveFactorOneParallel`
+- `UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_certificate`
+- `unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_family`
+
+### Promoted: Four-Hundred-Twenty Three-Hundred-Forty-One Factor-One Unit-Coordinate Row
+
+The signed `(420,341,541)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=541t+113`, `r=88200t^2+36581t+3793`.
+
+Then `(1,h)` is certified by midpoint `(420r,341r)`. The row is exactly the
+direction `(420,341)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 113 mod 541`. Since `gcd(541,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 15802 mod 54100`.
+- `38 mod 100`: `h ≡ 13638 mod 54100`.
+- `62 mod 100`: `h ≡ 48262 mod 54100`.
+- `98 mod 100`: `h ≡ 46098 mod 54100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFourHundredTwentyThreeHundredFortyOneFactorOneParallel`
+- `UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_certificate`
+- `unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_family`
+
+### Promoted: Ninety-Two Five-Hundred-Twenty-Five Factor-One Unit-Coordinate Row
+
+The signed `(92,525,533)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=533t+78`, `r=4232t^2+1149t+78`.
+
+Then `(1,h)` is certified by midpoint `(92r,525r)`. The row is exactly the
+direction `(92,525)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 78 mod 533`. Since `gcd(533,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 15002 mod 53300`.
+- `38 mod 100`: `h ≡ 10738 mod 53300`.
+- `62 mod 100`: `h ≡ 25662 mod 53300`.
+- `98 mod 100`: `h ≡ 21398 mod 53300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateNinetyTwoFiveHundredTwentyFiveFactorOneParallel`
+- `UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_certificate`
+- `unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_family`
+
+### Promoted: Four-Hundred-Forty Two-Hundred-Seventy-Nine Factor-One Unit-Coordinate Row
+
+The signed `(440,279,521)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=521t+103`, `r=96800t^2+38039t+3737`.
+
+Then `(1,h)` is certified by midpoint `(440r,279r)`. The row is exactly the
+direction `(440,279)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 103 mod 521`. Since `gcd(521,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 10002 mod 52100`.
+- `38 mod 100`: `h ≡ 18338 mod 52100`.
+- `62 mod 100`: `h ≡ 41262 mod 52100`.
+- `98 mod 100`: `h ≡ 49598 mod 52100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFourHundredFortyTwoHundredSeventyNineFactorOneParallel`
+- `UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_certificate`
+- `unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Twenty Four-Hundred-Fifty-Nine Factor-One Unit-Coordinate Row
+
+The signed `(220,459,509)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=509t+96`, `r=24200t^2+8931t+824`.
+
+Then `(1,h)` is certified by midpoint `(220r,459r)`. The row is exactly the
+direction `(220,459)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 96 mod 509`. Since `gcd(509,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 17402 mod 50900`.
+- `38 mod 100`: `h ≡ 19438 mod 50900`.
+- `62 mod 100`: `h ≡ 37762 mod 50900`.
+- `98 mod 100`: `h ≡ 39798 mod 50900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredTwentyFourHundredFiftyNineFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Thirty-Two Four-Hundred-Seventy-Five Factor-One Unit-Coordinate Row
+
+The signed `(132,475,493)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=493t+199`, `r=8712t^2+6907t+1369`.
+
+Then `(1,h)` is certified by midpoint `(132r,475r)`. The row is exactly the
+direction `(132,475)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 199 mod 493`. Since `gcd(493,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 35202 mod 49300`.
+- `38 mod 100`: `h ≡ 11538 mod 49300`.
+- `62 mod 100`: `h ≡ 45062 mod 49300`.
+- `98 mod 100`: `h ≡ 21398 mod 49300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredThirtyTwoFourHundredSeventyFiveFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Sixty Three-Hundred-Nineteen Factor-One Unit-Coordinate Row
+
+The signed `(360,319,481)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=481t+23`, `r=64800t^2+5959t+137`.
+
+Then `(1,h)` is certified by midpoint `(360r,319r)`. The row is exactly the
+direction `(360,319)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 23 mod 481`. Since `gcd(481,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 28402 mod 48100`.
+- `38 mod 100`: `h ≡ 7238 mod 48100`.
+- `62 mod 100`: `h ≡ 9162 mod 48100`.
+- `98 mod 100`: `h ≡ 36098 mod 48100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredSixtyThreeHundredNineteenFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Eighty Two-Hundred-Sixty-One Factor-One Unit-Coordinate Row
+
+The signed `(380,261,461)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=461t+373`, `r=72200t^2+116621t+47093`.
+
+Then `(1,h)` is certified by midpoint `(380r,261r)`. The row is exactly the
+direction `(380,261)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 373 mod 461`. Since `gcd(461,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 41402 mod 46100`.
+- `38 mod 100`: `h ≡ 30338 mod 46100`.
+- `62 mod 100`: `h ≡ 22962 mod 46100`.
+- `98 mod 100`: `h ≡ 11898 mod 46100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredEightyTwoHundredSixtyOneFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Sixty-Eight Four-Hundred-Twenty-Five Factor-One Unit-Coordinate Row
+
+The signed `(168,425,457)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=457t+248`, `r=14112t^2+15161t+4072`.
+
+Then `(1,h)` is certified by midpoint `(168r,425r)`. The row is exactly the
+direction `(168,425)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 248 mod 457`. Since `gcd(457,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 10302 mod 45700`.
+- `38 mod 100`: `h ≡ 32238 mod 45700`.
+- `62 mod 100`: `h ≡ 1162 mod 45700`.
+- `98 mod 100`: `h ≡ 23098 mod 45700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredSixtyEightFourHundredTwentyFiveFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Eighty Three-Hundred-Fifty-One Factor-One Unit-Coordinate Row
+
+The signed `(280,351,449)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=449t+264`, `r=39200t^2+45879t+13424`.
+
+Then `(1,h)` is certified by midpoint `(280r,351r)`. The row is exactly the
+direction `(280,351)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 264 mod 449`. Since `gcd(449,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 28102 mod 44900`.
+- `38 mod 100`: `h ≡ 11938 mod 44900`.
+- `62 mod 100`: `h ≡ 1162 mod 44900`.
+- `98 mod 100`: `h ≡ 29898 mod 44900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredEightyThreeHundredFiftyOneFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_family`
+
+### Promoted: Four-Hundred-Eight One-Hundred-Forty-Five Factor-One Unit-Coordinate Row
+
+The signed `(408,145,433)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=433t+39`, `r=83232t^2+14857t+663`.
+
+Then `(1,h)` is certified by midpoint `(408r,145r)`. The row is exactly the
+direction `(408,145)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 39 mod 433`. Since `gcd(433,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 4802 mod 43300`.
+- `38 mod 100`: `h ≡ 1338 mod 43300`.
+- `62 mod 100`: `h ≡ 13462 mod 43300`.
+- `98 mod 100`: `h ≡ 9998 mod 43300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFourHundredEightOneHundredFortyFiveFactorOneParallel`
+- `UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_certificate`
+- `unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_family`
+
+### Promoted: Four-Hundred-Twenty Twenty-Nine Factor-One Unit-Coordinate Row
+
+The signed `(420,29,421)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=421t+363`, `r=88200t^2+152069t+65547`.
+
+Then `(1,h)` is certified by midpoint `(420r,29r)`. The row is exactly the
+direction `(420,29)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 363 mod 421`. Since `gcd(421,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 25202 mod 42100`.
+- `38 mod 100`: `h ≡ 31938 mod 42100`.
+- `62 mod 100`: `h ≡ 8362 mod 42100`.
+- `98 mod 100`: `h ≡ 15098 mod 42100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFourHundredTwentyTwentyNineFactorOneParallel`
+- `UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_certificate`
+- `unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Twenty Three-Hundred-Ninety-One Factor-One Unit-Coordinate Row
+
+The signed `(120,391,409)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=409t+302`, `r=7200t^2+10519t+3842`.
+
+Then `(1,h)` is certified by midpoint `(120r,391r)`. The row is exactly the
+direction `(120,391)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 302 mod 409`. Since `gcd(409,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 302 mod 40900`.
+- `38 mod 100`: `h ≡ 1938 mod 40900`.
+- `62 mod 100`: `h ≡ 16662 mod 40900`.
+- `98 mod 100`: `h ≡ 18298 mod 40900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredTwentyThreeHundredNinetyOneFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_family`
+
+### Promoted: Forty Three-Hundred-Ninety-Nine Factor-One Unit-Coordinate Row
+
+The signed `(40,399,401)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=401t+220`, `r=800t^2+839t+220`.
+
+Then `(1,h)` is certified by midpoint `(40r,399r)`. The row is exactly the
+direction `(40,399)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 220 mod 401`. Since `gcd(401,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 33102 mod 40100`.
+- `38 mod 100`: `h ≡ 7438 mod 40100`.
+- `62 mod 100`: `h ≡ 17062 mod 40100`.
+- `98 mod 100`: `h ≡ 31498 mod 40100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFortyThreeHundredNinetyNineFactorOneParallel`
+- `UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_certificate`
+- `unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Twenty-Eight Three-Hundred-Twenty-Five Factor-One Unit-Coordinate Row
+
+The signed `(228,325,397)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=397t+141`, `r=25992t^2+18277t+3213`.
+
+Then `(1,h)` is certified by midpoint `(228r,325r)`. The row is exactly the
+direction `(228,325)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 141 mod 397`. Since `gcd(397,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 5302 mod 39700`.
+- `38 mod 100`: `h ≡ 538 mod 39700`.
+- `62 mod 100`: `h ≡ 37062 mod 39700`.
+- `98 mod 100`: `h ≡ 32298 mod 39700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredTwentyEightThreeHundredTwentyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Forty One-Hundred-Eighty-Nine Factor-One Unit-Coordinate Row
+
+The signed `(340,189,389)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=389t+97`, `r=57800t^2+28661t+3553`.
+
+Then `(1,h)` is certified by midpoint `(340r,189r)`. The row is exactly the
+direction `(340,189)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 97 mod 389`. Since `gcd(389,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 17602 mod 38900`.
+- `38 mod 100`: `h ≡ 26938 mod 38900`.
+- `62 mod 100`: `h ≡ 33162 mod 38900`.
+- `98 mod 100`: `h ≡ 3598 mod 38900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredFortyOneHundredEightyNineFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Fifty-Two One-Hundred-Thirty-Five Factor-One Unit-Coordinate Row
+
+The signed `(352,135,377)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=377t+299`, `r=61952t^2+98143t+38869`.
+
+Then `(1,h)` is certified by midpoint `(352r,135r)`. The row is exactly the
+direction `(352,135)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 299 mod 377`. Since `gcd(377,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 15002 mod 37700`.
+- `38 mod 100`: `h ≡ 2938 mod 37700`.
+- `62 mod 100`: `h ≡ 7462 mod 37700`.
+- `98 mod 100`: `h ≡ 33098 mod 37700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredFiftyTwoOneHundredThirtyFiveFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Fifty-Two Two-Hundred-Seventy-Five Factor-One Unit-Coordinate Row
+
+The signed `(252,275,373)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=373t+151`, `r=31752t^2+25523t+5129`.
+
+Then `(1,h)` is certified by midpoint `(252r,275r)`. The row is exactly the
+direction `(252,275)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 151 mod 373`. Since `gcd(373,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 32602 mod 37300`.
+- `38 mod 100`: `h ≡ 7238 mod 37300`.
+- `62 mod 100`: `h ≡ 2762 mod 37300`.
+- `98 mod 100`: `h ≡ 14698 mod 37300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredFiftyTwoTwoHundredSeventyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Seventy-Two Two-Hundred-Twenty-Five Factor-One Unit-Coordinate Row
+
+The signed `(272,225,353)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=353t+49`, `r=36992t^2+10097t+689`.
+
+Then `(1,h)` is certified by midpoint `(272r,225r)`. The row is exactly the
+direction `(272,225)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 49 mod 353`. Since `gcd(353,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 402 mod 35300`.
+- `38 mod 100`: `h ≡ 4638 mod 35300`.
+- `62 mod 100`: `h ≡ 7462 mod 35300`.
+- `98 mod 100`: `h ≡ 11698 mod 35300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredSeventyTwoTwoHundredTwentyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Eighty Two-Hundred-Ninety-Nine Factor-One Unit-Coordinate Row
+
+The signed `(180,299,349)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=349t+206`, `r=16200t^2+18971t+5554`.
+
+Then `(1,h)` is certified by midpoint `(180r,299r)`. The row is exactly the
+direction `(180,299)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 206 mod 349`. Since `gcd(349,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 1602 mod 34900`.
+- `38 mod 100`: `h ≡ 23938 mod 34900`.
+- `62 mod 100`: `h ≡ 15562 mod 34900`.
+- `98 mod 100`: `h ≡ 2998 mod 34900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredEightyTwoHundredNinetyNineFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_family`
+
+### Promoted: Two-Hundred-Eighty-Eight One-Hundred-Seventy-Five Factor-One Unit-Coordinate Row
+
+The signed `(288,175,337)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=337t+241`, `r=41472t^2+59167t+21103`.
+
+Then `(1,h)` is certified by midpoint `(288r,175r)`. The row is exactly the
+direction `(288,175)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 241 mod 337`. Since `gcd(337,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 18102 mod 33700`.
+- `38 mod 100`: `h ≡ 27538 mod 33700`.
+- `62 mod 100`: `h ≡ 11362 mod 33700`.
+- `98 mod 100`: `h ≡ 20798 mod 33700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwoHundredEightyEightOneHundredSeventyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_certificate`
+- `unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Eight Seventy-Five Factor-One Unit-Coordinate Row
+
+The signed `(308,75,317)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=317t+296`, `r=47432t^2+88507t+41288`.
+
+Then `(1,h)` is certified by midpoint `(308r,75r)`. The row is exactly the
+direction `(308,75)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 296 mod 317`. Since `gcd(317,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 6002 mod 31700`.
+- `38 mod 100`: `h ≡ 8538 mod 31700`.
+- `62 mod 100`: `h ≡ 31362 mod 31700`.
+- `98 mod 100`: `h ≡ 2198 mod 31700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredEightSeventyFiveFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_family`
+
+### Promoted: Three-Hundred-Twelve Twenty-Five Factor-One Unit-Coordinate Row
+
+The signed `(312,25,313)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=313t+263`, `r=48672t^2+81769t+34343`.
+
+Then `(1,h)` is certified by midpoint `(312r,25r)`. The row is exactly the
+direction `(312,25)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 263 mod 313`. Since `gcd(313,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 1202 mod 31300`.
+- `38 mod 100`: `h ≡ 23738 mod 31300`.
+- `62 mod 100`: `h ≡ 7462 mod 31300`.
+- `98 mod 100`: `h ≡ 29998 mod 31300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateThreeHundredTwelveTwentyFiveFactorOneParallel`
+- `UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_certificate`
+- `unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_family`
+
+### Promoted: Sixty Two-Hundred-Twenty-One Factor-One Unit-Coordinate Row
+
+The signed `(60,221,229)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=229t+36`, `r=1800t^2+509t+36`.
+
+Then `(1,h)` is certified by midpoint `(60r,221r)`. The row is exactly the
+direction `(60,221)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 36 mod 229`. Since `gcd(229,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 12402 mod 22900`.
+- `38 mod 100`: `h ≡ 8738 mod 22900`.
+- `62 mod 100`: `h ≡ 21562 mod 22900`.
+- `98 mod 100`: `h ≡ 17898 mod 22900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateSixtyTwoHundredTwentyOneFactorOneParallel`
+- `UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_certificate`
+- `unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_family`
+
+### Promoted: Twenty-Eight One-Hundred-Ninety-Five Factor-One Unit-Coordinate Row
+
+The signed `(28,195,197)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=197t+112`, `r=392t^2+419t+112`.
+
+Then `(1,h)` is certified by midpoint `(28r,195r)`. The row is exactly the
+direction `(28,195)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 112 mod 197`. Since `gcd(197,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 13902 mod 19700`.
+- `38 mod 100`: `h ≡ 11538 mod 19700`.
+- `62 mod 100`: `h ≡ 9962 mod 19700`.
+- `98 mod 100`: `h ≡ 7598 mod 19700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwentyEightOneHundredNinetyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_certificate`
+- `unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Sixty-Eight Ninety-Five Factor-One Unit-Coordinate Row
+
+The signed `(168,95,193)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=193t+47`, `r=14112t^2+6791t+817`.
+
+Then `(1,h)` is certified by midpoint `(168r,95r)`. The row is exactly the
+direction `(168,95)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 47 mod 193`. Since `gcd(193,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 6802 mod 19300`.
+- `38 mod 100`: `h ≡ 16838 mod 19300`.
+- `62 mod 100`: `h ≡ 10662 mod 19300`.
+- `98 mod 100`: `h ≡ 1398 mod 19300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredSixtyEightNinetyFiveFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Eighty Nineteen Factor-One Unit-Coordinate Row
+
+The signed `(180,19,181)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=181t+143`, `r=16200t^2+25579t+10097`.
+
+Then `(1,h)` is certified by midpoint `(180r,19r)`. The row is exactly the
+direction `(180,19)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 143 mod 181`. Since `gcd(181,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 7202 mod 18100`.
+- `38 mod 100`: `h ≡ 17338 mod 18100`.
+- `62 mod 100`: `h ≡ 18062 mod 18100`.
+- `98 mod 100`: `h ≡ 10098 mod 18100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredEightyNineteenFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_family`
+
+### Promoted: Fifty-Two One-Hundred-Sixty-Five Factor-One Unit-Coordinate Row
+
+The signed `(52,165,173)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=173t+28`, `r=1352t^2+389t+28`.
+
+Then `(1,h)` is certified by midpoint `(52r,165r)`. The row is exactly the
+direction `(52,165)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 28 mod 173`. Since `gcd(173,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 6602 mod 17300`.
+- `38 mod 100`: `h ≡ 12138 mod 17300`.
+- `62 mod 100`: `h ≡ 10062 mod 17300`.
+- `98 mod 100`: `h ≡ 15598 mod 17300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFiftyTwoOneHundredSixtyFiveFactorOneParallel`
+- `UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_certificate`
+- `unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Twenty One-Hundred-Nineteen Factor-One Unit-Coordinate Row
+
+The signed `(120,119,169)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=169t+168`, `r=7200t^2+14231t+7032`.
+
+Then `(1,h)` is certified by midpoint `(120r,119r)`. The row is exactly the
+direction `(120,119)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 168 mod 169`. Since `gcd(169,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 14702 mod 16900`.
+- `38 mod 100`: `h ≡ 5238 mod 16900`.
+- `62 mod 100`: `h ≡ 4562 mod 16900`.
+- `98 mod 100`: `h ≡ 11998 mod 16900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredTwentyOneHundredNineteenFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Thirty-Two Eighty-Five Factor-One Unit-Coordinate Row
+
+The signed `(132,85,157)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=157t+4`, `r=8712t^2+373t+4`.
+
+Then `(1,h)` is certified by midpoint `(132r,85r)`. The row is exactly the
+direction `(132,85)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 4 mod 157`. Since `gcd(157,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 2202 mod 15700`.
+- `38 mod 100`: `h ≡ 9738 mod 15700`.
+- `62 mod 100`: `h ≡ 14762 mod 15700`.
+- `98 mod 100`: `h ≡ 6598 mod 15700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredThirtyTwoEightyFiveFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Forty Fifty-One Factor-One Unit-Coordinate Row
+
+The signed `(140,51,149)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=149t+82`, `r=9800t^2+10739t+2942`.
+
+Then `(1,h)` is certified by midpoint `(140r,51r)`. The row is exactly the
+direction `(140,51)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 82 mod 149`. Since `gcd(149,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 12002 mod 14900`.
+- `38 mod 100`: `h ≡ 6638 mod 14900`.
+- `62 mod 100`: `h ≡ 3062 mod 14900`.
+- `98 mod 100`: `h ≡ 12598 mod 14900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredFortyFiftyOneFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_family`
+
+### Promoted: Eighty-Eight One-Hundred-Five Factor-One Unit-Coordinate Row
+
+The signed `(88,105,137)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=137t+7`, `r=3872t^2+329t+7`.
+
+Then `(1,h)` is certified by midpoint `(88r,105r)`. The row is exactly the
+direction `(88,105)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 7 mod 137`. Since `gcd(137,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 4802 mod 13700`.
+- `38 mod 100`: `h ≡ 8638 mod 13700`.
+- `62 mod 100`: `h ≡ 2062 mod 13700`.
+- `98 mod 100`: `h ≡ 5898 mod 13700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateEightyEightOneHundredFiveFactorOneParallel`
+- `UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_certificate`
+- `unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_family`
+
+### Promoted: One-Hundred-Twelve Fifteen Factor-One Unit-Coordinate Row
+
+The signed `(112,15,113)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=113t+83`, `r=6272t^2+9199t+3373`.
+
+Then `(1,h)` is certified by midpoint `(112r,15r)`. The row is exactly the
+direction `(112,15)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 83 mod 113`. Since `gcd(113,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 7202 mod 11300`.
+- `38 mod 100`: `h ≡ 4038 mod 11300`.
+- `62 mod 100`: `h ≡ 9462 mod 11300`.
+- `98 mod 100`: `h ≡ 6298 mod 11300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneHundredTwelveFifteenFactorOneParallel`
+- `UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_certificate`
+- `unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_family`
+
+### Promoted: Sixty-Ninety-One Factor-One Unit-Coordinate Row
+
+The signed `(60,91,109)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=109t+82`, `r=1800t^2+2659t+982`.
+
+Then `(1,h)` is certified by midpoint `(60r,91r)`. The row is exactly the
+direction `(60,91)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 82 mod 109`. Since `gcd(109,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 8802 mod 10900`.
+- `38 mod 100`: `h ≡ 9238 mod 10900`.
+- `62 mod 100`: `h ≡ 2262 mod 10900`.
+- `98 mod 100`: `h ≡ 2698 mod 10900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateSixtyNinetyOneFactorOneParallel`
+- `UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_sixty_ninety_one_factor_one_parallel_certificate`
+- `unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_sixty_ninety_one_factor_one_parallel_family`
+
+### Promoted: Twenty-Ninety-Nine Factor-One Unit-Coordinate Row
+
+The signed `(20,99,101)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=101t+60`, `r=200t^2+219t+60`.
+
+Then `(1,h)` is certified by midpoint `(20r,99r)`. The row is exactly the
+direction `(20,99)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 60 mod 101`. Since `gcd(101,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 4302 mod 10100`.
+- `38 mod 100`: `h ≡ 7938 mod 10100`.
+- `62 mod 100`: `h ≡ 262 mod 10100`.
+- `98 mod 100`: `h ≡ 3898 mod 10100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwentyNinetyNineFactorOneParallel`
+- `UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_twenty_ninety_nine_factor_one_parallel_certificate`
+- `unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_twenty_ninety_nine_factor_one_parallel_family`
+
+### Promoted: Seventy-Two Sixty-Five Factor-One Unit-Coordinate Row
+
+The signed `(72,65,97)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=97t+78`, `r=2592t^2+4121t+1638`.
+
+Then `(1,h)` is certified by midpoint `(72r,65r)`. The row is exactly the
+direction `(72,65)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 78 mod 97`. Since `gcd(97,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 9002 mod 9700`.
+- `38 mod 100`: `h ≡ 7838 mod 9700`.
+- `62 mod 100`: `h ≡ 7062 mod 9700`.
+- `98 mod 100`: `h ≡ 5898 mod 9700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateSeventyTwoSixtyFiveFactorOneParallel`
+- `UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_seventy_two_sixty_five_factor_one_parallel_certificate`
+- `unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_seventy_two_sixty_five_factor_one_parallel_family`
+
+### Promoted: Eighty-Thirty-Nine Factor-One Unit-Coordinate Row
+
+The signed `(80,39,89)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=89t+71`, `r=3200t^2+5071t+2009`.
+
+Then `(1,h)` is certified by midpoint `(80r,39r)`. The row is exactly the
+direction `(80,39)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 71 mod 89`. Since `gcd(89,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 7102 mod 8900`.
+- `38 mod 100`: `h ≡ 338 mod 8900`.
+- `62 mod 100`: `h ≡ 1762 mod 8900`.
+- `98 mod 100`: `h ≡ 3898 mod 8900`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateEightyThirtyNineFactorOneParallel`
+- `UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_eighty_thirty_nine_factor_one_parallel_certificate`
+- `unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_eighty_thirty_nine_factor_one_parallel_family`
+
+### Promoted: Forty-Eight Fifty-Five Factor-One Unit-Coordinate Row
+
+The signed `(48,55,73)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=73t+31`, `r=1152t^2+943t+193`.
+
+Then `(1,h)` is certified by midpoint `(48r,55r)`. The row is exactly the
+direction `(48,55)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 31 mod 73`. Since `gcd(73,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 2002 mod 7300`.
+- `38 mod 100`: `h ≡ 4338 mod 7300`.
+- `62 mod 100`: `h ≡ 3462 mod 7300`.
+- `98 mod 100`: `h ≡ 5798 mod 7300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFortyEightFiftyFiveFactorOneParallel`
+- `UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_forty_eight_fifty_five_factor_one_parallel_certificate`
+- `unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_forty_eight_fifty_five_factor_one_parallel_family`
+
+### Promoted: Sixty-Eleven Factor-One Unit-Coordinate Row
+
+The signed `(60,11,61)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=61t+39`, `r=1800t^2+2291t+729`.
+
+Then `(1,h)` is certified by midpoint `(60r,11r)`. The row is exactly the
+direction `(60,11)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 39 mod 61`. Since `gcd(61,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 5102 mod 6100`.
+- `38 mod 100`: `h ≡ 3638 mod 6100`.
+- `62 mod 100`: `h ≡ 2662 mod 6100`.
+- `98 mod 100`: `h ≡ 1198 mod 6100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateSixtyElevenFactorOneParallel`
+- `UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_sixty_eleven_factor_one_parallel_certificate`
+- `unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_sixty_eleven_factor_one_parallel_family`
+
+### Promoted: Twenty-Eight Forty-Five Factor-One Unit-Coordinate Row
+
+The signed `(28,45,53)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=53t+10`, `r=392t^2+125t+10`.
+
+Then `(1,h)` is certified by midpoint `(28r,45r)`. The row is exactly the
+direction `(28,45)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 10 mod 53`. Since `gcd(53,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 3402 mod 5300`.
+- `38 mod 100`: `h ≡ 4038 mod 5300`.
+- `62 mod 100`: `h ≡ 4462 mod 5300`.
+- `98 mod 100`: `h ≡ 5098 mod 5300`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwentyEightFortyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_twenty_eight_forty_five_factor_one_parallel_certificate`
+- `unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_twenty_eight_forty_five_factor_one_parallel_family`
+
+### Promoted: Forty-Nine Factor-One Unit-Coordinate Row
+
+The signed `(40,9,41)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=41t+23`, `r=800t^2+889t+247`.
+
+Then `(1,h)` is certified by midpoint `(40r,9r)`. The row is exactly the
+direction `(40,9)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 23 mod 41`. Since `gcd(41,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 802 mod 4100`.
+- `38 mod 100`: `h ≡ 638 mod 4100`.
+- `62 mod 100`: `h ≡ 3262 mod 4100`.
+- `98 mod 100`: `h ≡ 3098 mod 4100`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFortyNineFactorOneParallel`
+- `UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_forty_nine_factor_one_parallel_certificate`
+- `unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_forty_nine_factor_one_parallel_family`
+
+### Promoted: Twelve-Thirty-Five Factor-One Unit-Coordinate Row
+
+The signed `(12,35,37)` fixed-direction layer now has a factor-`1`
+unit-coordinate residual row. For every integer `t`, set
+
+`h=37t+25`, `r=72t^2+85t+25`.
+
+Then `(1,h)` is certified by midpoint `(-12r,-35r)`. The row is exactly the
+direction `(-12,-35)` parallel-factor construction with factor `1`; its
+congruence class is `h ≡ 25 mod 37`. Because `gcd(37,100)=1`, the fixed row
+intersects all four remaining mod-100 unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 802 mod 3700`.
+- `38 mod 100`: `h ≡ 1838 mod 3700`.
+- `62 mod 100`: `h ≡ 62 mod 3700`.
+- `98 mod 100`: `h ≡ 1098 mod 3700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwelveThirtyFiveFactorOneParallel`
+- `UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS`
+- `unit_coordinate_twelve_thirty_five_factor_one_parallel_certificate`
+- `unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate`
+- `test_unit_coordinate_twelve_thirty_five_factor_one_parallel_family`
+
+### Promoted: Primary Gaussian-Root Signed Orbits
+
+The two generic primary Gaussian-root spine rows now have explicit executable
+orbit constructors. For every valid `(1,2k)` or `(2,2k+1)` row target, every
+sign/swap image is certified by transporting the row certificate with
+`sign_swap_certificate`.
+
+This packages the already Lean-backed row proofs
+`certificateValid_oneEvenRootSpineLine` and
+`certificateValid_twoOddRootSpineLine` with the graph automorphism transport
+used elsewhere in the proof program, so the primary spine theorem is stated for
+the full symmetry orbit rather than only the canonical orientation.
+
+Executable guardrail:
+
+- `one_even_root_spine_line_orbit_certificate`
+- `two_odd_root_spine_line_orbit_certificate`
+- `test_one_even_root_spine_line_certificate`
+- `test_two_odd_root_spine_line_certificate`
+
+### Promoted: Secondary Three-Four Gaussian-Root Rows
+
+The listed secondary root shape `(3,4)` now has explicit infinite line rows.
+For nonzero `m,r` and beta coordinates `a,b` with
+`a*b*(a^2-b^2) != 0`, the midpoint `r*(-7,24)` certifies
+
+`r*(-7,24) + m*(a^2-b^2, 2ab)`.
+
+The odd-beta half-square branch is also closed: for beta coordinates
+`(2a+1,2b+1)` and nonzero
+`m*r*(2a^2+2a-2b^2-2b)`, the same midpoint certifies
+
+`r*(-7,24) + m*(2a^2+2a-2b^2-2b, (2a+1)(2b+1))`.
+
+The coordinate-swapped rows use midpoint `r*(24,7)`. This fills the missing
+named even and odd rows among the secondary root shapes `(3,4)`, `(3,8)`, and
+`(4,5)`.
+
+The root-spine promotion helper also recognizes the full signed orbit of the
+observed secondary rows `(3,4)`, `(3,8)`, and `(4,5)`. It tries the beta sign
+images, transports the canonical row by `sign_swap_certificate`, and accepts
+only an exact match with the witness certificate; this closes the signed
+secondary reconstruction gap for the even and odd parity branches already
+represented by those rows.
+
+Executable guardrail:
+
+- `certificateValid_threeFourRootSpineLine`
+- `certificateValid_threeFourRootSpineLineSwap`
+- `certificateValid_threeFourOddRootSpineLine`
+- `certificateValid_threeFourOddRootSpineLineSwap`
+- `three_four_root_spine_line_certificate`
+- `three_four_odd_root_spine_line_certificate`
+- `test_secondary_root_spine_line_certificates`
+
+### Promoted: Generic Two-Odd Gaussian-Root Primary Spine
+
+The companion primary Gaussian-root spine now has a uniform certificate row.
+For every `k >= 1` and nonzero `q,t,r`, set
+
+`n=2k+1`, `U=(-4n,4-n^2)`, `beta=(1-2nt,4t-1)`.
+
+Then the target
+
+`rU + q*i*beta^2/2`
+
+has a two-step certificate with midpoint `rU`. Written in integer coordinates,
+the second step is
+
+`(q(4t-1)(2nt-1), 2qt(n-2)(nt+2t-1))`.
+
+The `k=1` specialization is exactly the existing odd-integral `(2,3)` row.
+Together with the `(1,2k)` row, this closes the two primary Gaussian-root
+spines listed in the strategic spine program.
+
+Executable guardrail:
+
+- `certificateValid_twoOddRootSpineLine`
+- `two_odd_root_spine_line_certificate`
+- `test_two_odd_root_spine_line_certificate`
+
+### Promoted: Generic One-Even Gaussian-Root Primary Spine
+
+The first full primary Gaussian-root spine now has a uniform certificate row.
+For every `k >= 1` and nonzero `q,t,r`, set
+
+`U=(1-4k^2,4k)`, `beta=(4kt+2k-1,-(2t+1))`.
+
+Then the target
+
+`rU + q*beta^2/2`
+
+has a two-step certificate with midpoint `rU`. Written in integer coordinates,
+the second step is
+
+`(2q((2k+1)t+k)((2k-1)t+k-1), -q(4kt+2k-1)(2t+1))`.
+
+The hypothesis `t != 0` keeps the `k=1` endpoint nondegenerate. This promotes
+the explicit `(1,2)` and `(1,4)` root-spine examples into the first theorem
+covering an entire primary spine `(1,2k)`.
+
+Executable guardrail:
+
+- `certificateValid_oneEvenRootSpineLine`
+- `one_even_root_spine_line_certificate`
+- `test_one_even_root_spine_line_certificate`
+
 ## 2026-05-29
+
+### Promoted: Fifteen-Eight Factor-Two Unit-Coordinate Row
+
+The signed `(15,8,17)` fixed-direction layer now has a factor-`2`
+unit-coordinate row. For every integer `t`, set
+
+`h=34t+26`, `r=225t^2+338t+127`.
+
+Then `(1,h)` is certified by midpoint `(15r,8r)`. The row is exactly the
+direction `(15,8)` parallel-factor construction with factor `2`; the
+congruence class is `h ≡ 26 mod 34`, and sign transport also covers
+`h ≡ 8 mod 34`. Its fixed row intersects the four remaining mod-100
+unit-coordinate residual classes as
+
+- `2 mod 100`: `h ≡ 502 mod 1700`.
+- `38 mod 100`: `h ≡ 638 mod 1700`.
+- `62 mod 100`: `h ≡ 162 mod 1700`.
+- `98 mod 100`: `h ≡ 298 mod 1700`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFifteenEightFactorTwoParallel`
+- `UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS`
+- `unit_coordinate_fifteen_eight_factor_two_parallel_certificate`
+- `unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate`
+- `test_unit_coordinate_fifteen_eight_factor_two_parallel_family`
+
+### Promoted: Exceptional-Ray Two/Three-Mod-Five Parallel Slice
+
+The signed `3-4-5` fixed-direction parallel-factor layer now has a named
+exceptional-ray theorem slice. For positive multipliers `n ≡ 2 mod 5`, the
+tail `n >= 7` is certified by direction `(4,3)` with factor `2`; for
+`n ≡ 3 mod 5`, the tail `n >= 8` is certified by direction `(-4,-3)` with
+factor `2`. The boundary multipliers `n=2` and `n=3` are discharged by the
+existing even-ray and multiple-of-three Theorem 3 rows, respectively.
+
+Executable guardrail:
+
+- `two_one_ray_two_or_three_mod_five_parallel_certificate`
+- `two_one_ray_two_or_three_mod_five_parallel_orbit_certificate`
+- `test_two_one_ray_two_or_three_mod_five_parallel_family`
+
+### Promoted: Primitive Signed Theorem 3 Unit-Divisor Fan
+
+The generic signed unit-divisor progression is now constructive for every
+primitive Pythagorean triple and sign choice. With
+`A=c-sx*a` and `B=c+sy*b`, any common divisor of `A` and `B` divides both
+`a^2` and `b^2`; primitivity therefore forces `gcd(A,B)=1`.
+
+The helper `theorem3_coprime_unit_divisor_seed` builds the canonical positive
+seed ray satisfying `B*q0 - A*p0 = 1`: if `B=1`, the seed is `(1,A+1)`;
+otherwise `p0` is the least positive residue `-A^{-1} mod B` and
+`q0=(1+A*p0)/B`. The existing progression constructor then certifies every
+ray `(p0+B*t, q0+A*t)`, every positive multiplier, and the sign/swap orbit.
+
+Executable guardrail:
+
+- `theorem3_unit_divisor_step_coefficients`
+- `theorem3_coprime_unit_divisor_seed`
+- `theorem3_coprime_unit_divisor_progression_certificate`
+- `theorem3_coprime_unit_divisor_progression_orbit_certificate`
+- `test_theorem3_coprime_unit_divisor_progression_family`
+
+### Promoted: Generic Signed Theorem 3 Unit-Divisor Progression
+
+The signed Theorem 3 unit-divisor ray tables now have a generic progression
+theorem. For a positive Pythagorean triple `(a,b,c)` and signs `(sx,sy)`, set
+`A=c-sx*a` and `B=c+sy*b`. If a positive seed ray `(p0,q0)` satisfies
+`B*q0 - A*p0 = 1`, then every ray
+
+`(p0+B*t, q0+A*t)`, with `t >= 0`,
+
+has fixed ray divisor `1`; every positive multiplier is certified by midpoint
+`(sx*a*p*q*n, sy*b*p*q*n)`, and sign/swap transport gives the full orbit.
+The new Lean theorem `certificateValid_theorem3UnitDivisorProgression`
+packages this progression and delegates to `certificateValid_theorem3Divisor`.
+
+Executable guardrail:
+
+- `certificateValid_theorem3UnitDivisorProgression`
+- `theorem3_unit_divisor_progression_ray`
+- `theorem3_unit_divisor_progression_certificate`
+- `theorem3_unit_divisor_progression_orbit_certificate`
+- `test_theorem3_unit_divisor_progression_family`
+
+### Promoted: Signed 8-15-17 Unit-Divisor Ray-Fan Table
+
+The modulus-one ray-divisor condition for the signed `(8,15,17)` row now closes
+four additional infinite ray fans:
+
+- `(2t+1,9t+5)`, with signs `(1,-1)`;
+- `(2t+1,25t+13)`, with signs `(-1,-1)`;
+- `(32t+7,9t+2)`, with signs `(1,1)`;
+- `(32t+23,25t+18)`, with signs `(-1,1)`.
+
+Here `t >= 0`, and every positive multiplier `n` is certified by midpoint
+`(8*s_x*p*q*n, 15*s_y*p*q*n)` for ray `(p,q)`. Sign/swap transport gives the
+full orbit. The formal Lean support is the existing generic
+`certificateValid_theorem3Divisor` row; the executable table checks each
+parametric family against the generic Theorem 3 divisor constructor.
+
+Executable guardrail:
+
+- `eight_fifteen_seventeen_unit_divisor_ray_certificate`
+- `eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate`
+- `test_eight_fifteen_seventeen_unit_divisor_ray_table`
+
+### Added: Target-Facing Divisor-Strip Discharge Witness
+
+The Gaussian-root residual proof program now has a reusable target-facing
+classifier for the missing strip-discharge theorem. The constant
+`PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS` freezes the ten obligation rows from the
+generated-spine residual census. The helper
+`parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile`
+records the prime-modulus divisor exponent closure, required exponent, Kneser
+lower bound, and saturation/short branch for one strip target. The helper
+`parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness`
+returns either direct divisor success or the exact structural congruence row
+used by the promoted `3-4-5`, lattice-pair, orthogonal, or
+standard-completion fallback.
+
+This is not yet the infinite strip-discharge theorem. It removes the main
+implementation gap by making the branch witness reusable outside the bounded
+census and pinning examples for every fallback family.
+
+Executable guardrail:
+
+- `PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS`
+- `parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile`
+- `parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness`
+- `test_divisor_obligation_discharge_witnesses`
+
+### Falsified: Strip-Local Discharge For Pinned Obligations
+
+The proposed theorem "each pinned divisor-obligation strip discharges locally
+by divisor success or the structural fallback stack" is false. The guardrail
+`PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE` records
+
+`T=(108638,24031)`, `U=(-40,-9)`, obligation
+`((4,5),2,41,9,10,33,19)`.
+
+The target is primitive, positive, non-edge, and lies on the pinned strip. The
+requested divisor class is missing, and the local structural stack has no
+fallback. It is nevertheless certified by an alternate generated root-spine
+row: direction `(-3,4)`, root shape `(1,2)`, squareclass `535`, split factor
+`1`, paired factor `-947`, and `beta=(-379,189)`.
+
+This changes the missing theorem: the proof must allow global root choice, not
+independent discharge of each pinned strip. The helper
+`parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness`
+implements the corrected branch by falling back to an alternate root-spine
+witness after local discharge fails.
+
+Executable guardrail:
+
+- `PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE`
+- `parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness`
+- `test_pinned_strip_local_discharge_counterexample`
+
+### Promoted: Primary Gaussian Root-Spine Line Rows
+
+The alternate-root failures from the corrected global root-choice branch now
+have theorem-shaped infinite rows instead of isolated certificates. The
+existing `(1,2)` line row is joined by both `(1,4)` orientations, both
+odd-integral `(2,3)` orientations, and an even `(2,3)` beta-square branch. These
+rows certify the six known alternate-root witnesses from the pinned-strip stress
+test:
+
+- `(1,2)` direction `(-3,4)`;
+- `(1,4)` directions `(-8,-15)` and `(-15,-8)`;
+- odd `(2,3)` directions `(-12,-5)` and `(-5,-12)`;
+- even `(2,3)` direction `(-12,-5)`.
+
+This still does not prove the global root-choice theorem, but it turns every
+currently observed alternate-root escape from a finite example into a named
+parametric certificate row.
+
+Executable guardrail:
+
+- `one_two_root_spine_line_certificate`
+- `one_four_root_spine_line_certificate`
+- `two_three_odd_root_spine_line_certificate`
+- `two_three_even_root_spine_line_certificate`
+- `certificateValid_oneTwoRootSpineLine`
+- `certificateValid_oneFourRootSpineLine`
+- `certificateValid_oneFourRootSpineLineSwap`
+- `certificateValid_twoThreeOddRootSpineLine`
+- `certificateValid_twoThreeOddRootSpineLineSwap`
+- `certificateValid_twoThreeEvenRootSpineLine`
+- `test_one_two_root_spine_line_certificate`
+- `test_one_four_root_spine_line_certificate`
+- `test_two_three_root_spine_line_certificates`
+
+### Bounded Global Root-Choice Coverage
+
+A further regression (`test_pinned_strip_global_root_choice_coverage`, perf-scoped)
+checks that every pinned-strip non-local divisor-discharge failure in the range
+`1 <= g,h <= 500` is handled by the six explicit promoted primary line families
+plus the observed additional primary root-shape family `(2,5)`,
+with exactly four finite exceptions
+`(151,338),(158,391),(338,151),(391,158)` whose global alternates are secondary
+`(3,8)`/`(4,5)` rows.
 
 ### Verification Run: Promoted Infinite Theorem Slices
 
 The promoted `(1,3)` ray, signed `3-4-5` and `5-12-13` unit-divisor ray-fan
 tables, consecutive-Euclid unit-divisor fan, swapped-leg consecutive-Euclid
-affine strip, affine consecutive-hypotenuse strip, and `3 | n`
+affine strip, affine consecutive-hypotenuse strip, consecutive-hypotenuse
+unit-coordinate subline, half-leg unit-coordinate row, factor-five
+unit-coordinate parallel row, companion factor-four unit-coordinate parallel
+row, factor-one one-mod-five unit-coordinate parallel row, factor-one
+seven-mod-ten unit-coordinate parallel row, factor-twenty-five unit-coordinate
+parallel row, twenty-two-mod-twenty-five unit-coordinate parallel row, and
+`3 | n`
 exceptional-ray slices were checked against the full current stack after
 rebuilding the Rust extension. The run covered the
 theorem-specific Python constructors,
@@ -25,6 +1392,214 @@ Commands passed:
 - `pytest -q -m perf tests/test_pythagorean_walks.py --durations=10`
 - `pytest -q --durations=20`
 - `lake build`
+
+### Promoted: Unit-Coordinate Mod-100 Cover
+
+The promoted unit-coordinate rows now compose into an infinite mod-100 cover.
+For every unit-coordinate target whose other coordinate is nonzero and not
+congruent to one of
+
+`2, 38, 62, 98 mod 100`,
+
+the dispatcher `unit_coordinate_promoted_mod_hundred_certificate` returns a
+valid two-step certificate from the already promoted row package. The four
+listed residue classes are therefore the exact remaining unit-coordinate
+classes for the current proof program.
+
+Executable guardrail:
+
+- `UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES`
+- `unit_coordinate_promoted_mod_hundred_certificate`
+- `test_unit_coordinate_promoted_mod_hundred_cover`
+
+### Promoted: Residual Orthogonal Unit-Coordinate Seed Rows
+
+The orthogonal lattice construction now records one explicit infinite seed row
+inside each of the four remaining unit-coordinate mod-100 residual classes.
+All four rows come from the single `(8,15,17)` orthogonal row
+`h ≡ 38 mod 289`:
+
+- `2 mod 100`: `h ≡ 22002 mod 28900`, using `(8,15,17)`.
+- `38 mod 100`: `h ≡ 38 mod 28900`, using `(8,15,17)`.
+- `62 mod 100`: `h ≡ 4662 mod 28900`, using `(8,15,17)`.
+- `98 mod 100`: `h ≡ 11598 mod 28900`, using `(8,15,17)`.
+
+Each row is an instance of the Lean-backed Cramer/orthogonal lattice theorem,
+and the Python wrapper applies sign/swap transport.
+
+Executable guardrail:
+
+- `UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS`
+- `unit_coordinate_residual_orthogonal_seed_certificate`
+- `test_unit_coordinate_residual_orthogonal_seed_rows`
+
+### Promoted: Twenty-Two-Mod-Twenty-Five Unit-Coordinate Parallel Row
+
+The signed `3-4-5` fixed-direction layer now has a factor-`5` row for the
+class `h ≡ 22 mod 25`. For every integer `t != -1`, set
+
+`h=25t+22`, `r=40t^2+65t+26`.
+
+Then `(1,h)` is certified by midpoint `(-4r,-3r)`. This is the `(-4,-3)`
+fixed parallel-direction construction with factor `5`. The excluded parameter
+is exactly `(1,-3)`, already covered by the seven-mod-ten row, so the Python
+orbit wrapper certifies the full sign/swap orbit and also covers
+`h ≡ 3 mod 25`. Lean proves the nondegenerate row as
+`certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate`
+- `test_unit_coordinate_twenty_two_mod_twenty_five_parallel_family`
+
+### Promoted: Factor-Twenty-Five Unit-Coordinate Parallel Row
+
+The signed `3-4-5` fixed-direction layer now has a factor-`25`
+unit-coordinate row reaching the remaining even `h ≡ 2,3 mod 5` layer. For
+every integer `t`, set
+
+`h=25t+18`, `r=8t^2+9t+2`.
+
+Then `(1,h)` is certified by midpoint `(4r,-3r)`. This is the `(4,-3)` fixed
+parallel-direction construction with factor `25`, and the Python wrapper
+applies the full sign/swap orbit, also covering `h ≡ 7 mod 25`. Lean proves
+the row as `certificateValid_unitCoordinateFactorTwentyFiveParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFactorTwentyFiveParallel`
+- `unit_coordinate_factor_twenty_five_parallel_certificate`
+- `unit_coordinate_factor_twenty_five_parallel_orbit_certificate`
+- `test_unit_coordinate_factor_twenty_five_parallel_family`
+
+### Promoted: Seven-Mod-Ten Unit-Coordinate Parallel Row
+
+The factor-one fixed-direction row now closes the odd part of the
+`h ≡ 2,3 mod 5` unit-coordinate layer. For every integer `t`, set
+
+`h=10t+7`, `r=18t^2+22t+7`.
+
+Then `(1,h)` is certified by midpoint `(3r,4r)`. This is the `(3,4)` fixed
+parallel-direction construction with factor `1`, and the Python wrapper applies
+the full sign/swap orbit, covering the `h ≡ 7` and `h ≡ 3 mod 10` classes.
+Lean proves the row as `certificateValid_unitCoordinateSevenModTenParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateSevenModTenParallel`
+- `unit_coordinate_seven_mod_ten_parallel_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_orbit_certificate`
+- `test_unit_coordinate_seven_mod_ten_parallel_family`
+
+### Promoted: One-Mod-Five Unit-Coordinate Parallel Row
+
+The factor-one fixed-direction row now closes a full congruence class modulo
+`5`. For every integer `t`, set
+
+`h=5t+1`, `r=8t^2+5t+1`.
+
+Then `(1,h)` is certified by midpoint `(4r,-3r)`. This is the `(4,-3)` fixed
+parallel-direction construction with factor `1`, and the Python wrapper applies
+the full sign/swap orbit. Lean proves the row as
+`certificateValid_unitCoordinateOneModFiveParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateOneModFiveParallel`
+- `unit_coordinate_one_mod_five_parallel_certificate`
+- `unit_coordinate_one_mod_five_parallel_orbit_certificate`
+- `test_unit_coordinate_one_mod_five_parallel_family`
+
+### Promoted: Factor-Four Unit-Coordinate Parallel Row
+
+The factor-four companion to the factor-five unit-coordinate congruence row now
+has a direct Lean row. For every integer `t`, set
+
+`h=20t+12`, `r=18t^2+16t+3`.
+
+Then `(1,h)` is certified by midpoint `(-3r,-4r)`. This is the `(-3,-4)` fixed
+parallel-direction construction with factor `4`, and the Python wrapper applies
+the full sign/swap orbit. Lean proves the row as
+`certificateValid_unitCoordinateFactorFourParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFactorFourParallel`
+- `unit_coordinate_factor_four_parallel_certificate`
+- `unit_coordinate_factor_four_parallel_orbit_certificate`
+- `test_unit_coordinate_factor_four_parallel_family`
+
+### Promoted: Factor-Five Unit-Coordinate Parallel Row
+
+The nonstandard factor-five unit-coordinate congruence family now has a direct
+Lean row. For every integer `t`, set
+
+`h=25t+17`, `r=40t^2+55t+19`.
+
+Then `(1,h)` is certified by midpoint `(4r,3r)`.  This is the `(4,3)` fixed
+parallel-direction construction with factor `5`, and the Python wrapper applies
+the full sign/swap orbit. Lean proves the row as
+`certificateValid_unitCoordinateFactorFiveParallel`.
+
+Executable guardrail:
+
+- `certificateValid_unitCoordinateFactorFiveParallel`
+- `unit_coordinate_factor_five_parallel_certificate`
+- `unit_coordinate_factor_five_parallel_orbit_certificate`
+- `test_unit_coordinate_factor_five_parallel_family`
+
+### Promoted: Half-Leg Unit-Coordinate Row
+
+The half-leg unit-coordinate family now has a Lean-proved row with automatic
+nondegeneracy. For an odd Pythagorean direction `(u,4z)`, with `u,z != 0`, and
+every nonzero integer `t`, set
+
+`A=2zt`, `B=uA-1`, `R=ut-z(u^2-1)t^2`.
+
+Then the unit-coordinate target
+
+`(uR+2AB, 1)`
+
+is certified by midpoint `(uR,4zR)` and second edge `(2AB,B^2-A^2)`. The parity
+proof shows `R`, `B`, and `B^2-A^2` are nonzero automatically in this setting.
+The existing Python constructor and target-facing recognizer expose the same
+formula and its sign/swap orbit.
+
+Executable guardrail:
+
+- `certificateValid_halfLegUnitCoordinate`
+- `half_leg_unit_coordinate_certificate`
+- `half_leg_unit_coordinate_target_certificate`
+- `half_leg_unit_coordinate_orbit_certificate`
+- `test_half_leg_unit_coordinate_family`
+- `test_half_leg_unit_coordinate_target_solver`
+
+### Promoted: Consecutive-Hypotenuse Unit-Coordinate Subline
+
+The unit-coordinate specialization of the affine consecutive-hypotenuse strip is
+now a named infinite theorem. For `m >= 2`, set
+
+`c=m^2+(m-1)^2`, `u=2m-1`, `v=2m(m-1)`.
+
+Then every nonzero `t` certifies `(ct,1)` with midpoint
+
+`(uR, vR)`, where `R=ut-2(m(m-1)t)^2`.
+
+The Lean row `certificateValid_consecutiveHypotenuseUnitCoordinate` proves that
+the parent affine-strip nondegeneracy conditions are automatic when `q=1`.
+The Python wrapper provides the sign/swap orbit, and `m=2` recovers the
+multiple-of-five unit-coordinate family.
+
+Executable guardrail:
+
+- `certificateValid_consecutiveHypotenuseUnitCoordinate`
+- `consecutive_hypotenuse_unit_coordinate_certificate`
+- `unit_coordinate_consecutive_hypotenuse_certificate`
+- `unit_coordinate_multiple_of_five_certificate`
+- `test_unit_coordinate_consecutive_hypotenuse_family`
+- `test_unit_coordinate_multiple_of_five_family`
 
 ### Promoted: Affine Consecutive-Hypotenuse Strip Lean Row
 
@@ -540,7 +2115,9 @@ The signed Theorem 3 constructor now has a Lean proof kernel row.
 `(c - sx*a)g = (c + sy*b)h - q` certifies midpoint
 `(sx*a*k, sy*b*k)` whenever `q*k = g*h` and the second edge is non-axis.
 `certificateValid_theorem3Unit` packages the paper's unit-divisor case with
-`k = g*h`.
+`k = g*h`; the later
+`certificateValid_theorem3UnitDivisorProgression` specializes the same divisor
+kernel to arithmetic progressions of unit-divisor rays.
 
 The Rust extension now exposes `theorem3_certificate_midpoint` and
 `theorem3_divisor_certificate_midpoint`. Python dispatches the unit and
@@ -557,6 +2134,7 @@ Executable guardrail:
 
 - `certificateValid_theorem3Divisor`
 - `certificateValid_theorem3Unit`
+- `certificateValid_theorem3UnitDivisorProgression`
 - `theorem3_certificate_midpoint`
 - `theorem3_divisor_certificate_midpoint`
 - `theorem3_certificate`
@@ -1140,6 +2718,8 @@ That counterexample is now generalized: for every integer $t$, the target
 $(1,25t+17)$ is certified by direction $(4,3)$, factor $5$, and midpoint
 $(4r,3r)$ with $r=40t^2+55t+19$. The sign/swap orbit is handled by a
 target-facing constructor.
+The Lean row `certificateValid_unitCoordinateFactorFiveParallel` now proves the
+same formula directly.
 The next residual layer is now represented by a bounded-factor cover helper:
 after standard completions, the helper tries only nonstandard factors up to a
 fixed bound. The guardrail records that standard completions plus bounded
@@ -1149,7 +2729,29 @@ For the unit-coordinate slice, fixed direction/factor pairs now expose their
 accepted residue classes for $(1,h)$ directly. This promotes examples such as
 the factor-five family $h\equiv17\pmod {25}$ and the factor-four family
 $h\equiv12\pmod {20}$ into reusable congruence families with sign/swap
-transport.
+transport. The factor-one row now also closes the larger class
+$h\equiv1\pmod5$, and the seven-mod-ten row closes the odd
+$h\equiv2,3\pmod5$ layer via $h\equiv7\pmod {10}$ and sign transport.
+The factor-four row is now Lean-proved directly as
+`certificateValid_unitCoordinateFactorFourParallel`, matching the explicit
+constructor `unit_coordinate_factor_four_parallel_certificate`.
+The one-mod-five row is Lean-proved directly as
+`certificateValid_unitCoordinateOneModFiveParallel`, matching the explicit
+constructor `unit_coordinate_one_mod_five_parallel_certificate`.
+The seven-mod-ten row is Lean-proved directly as
+`certificateValid_unitCoordinateSevenModTenParallel`, matching the explicit
+constructor `unit_coordinate_seven_mod_ten_parallel_certificate`.
+The factor-twenty-five row is Lean-proved directly as
+`certificateValid_unitCoordinateFactorTwentyFiveParallel`, matching the
+explicit constructor `unit_coordinate_factor_twenty_five_parallel_certificate`.
+The twenty-two-mod-twenty-five row is Lean-proved directly away from its single
+degenerate parameter as
+`certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`, and the
+constructor `unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate`
+discharges that parameter through the seven-mod-ten row.
+The promoted row package is now composed by
+`unit_coordinate_promoted_mod_hundred_certificate`, which leaves only the four
+residual classes `2, 38, 62, 98 mod 100`.
 The same fixed direction/factor criterion is now ray-facing. For a ray
 $R=(p,q)$ and target $T=nR$, put
 $$
@@ -1197,8 +2799,28 @@ Executable guardrail:
 - `parallel_direction_factor_witness`
 - `parallel_direction_standard_completion_certificate`
 - `parallel_direction_standard_completion_cover_certificate`
+- `certificateValid_unitCoordinateFactorFiveParallel`
+- `certificateValid_unitCoordinateFactorFourParallel`
+- `certificateValid_unitCoordinateOneModFiveParallel`
+- `certificateValid_unitCoordinateSevenModTenParallel`
+- `certificateValid_unitCoordinateFactorTwentyFiveParallel`
+- `certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`
 - `unit_coordinate_factor_five_parallel_certificate`
 - `unit_coordinate_factor_five_parallel_orbit_certificate`
+- `unit_coordinate_factor_four_parallel_certificate`
+- `unit_coordinate_factor_four_parallel_orbit_certificate`
+- `unit_coordinate_factor_twenty_five_parallel_certificate`
+- `unit_coordinate_factor_twenty_five_parallel_orbit_certificate`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate`
+- `unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate`
+- `UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES`
+- `unit_coordinate_promoted_mod_hundred_certificate`
+- `UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS`
+- `unit_coordinate_residual_orthogonal_seed_certificate`
+- `unit_coordinate_one_mod_five_parallel_certificate`
+- `unit_coordinate_one_mod_five_parallel_orbit_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_certificate`
+- `unit_coordinate_seven_mod_ten_parallel_orbit_certificate`
 - `unit_coordinate_parallel_factor_residues`
 - `unit_coordinate_parallel_factor_orbit_certificate`
 - `ray_multiplier`
@@ -1218,6 +2840,13 @@ Executable guardrail:
 - `test_parallel_direction_standard_completion_family`
 - `test_parallel_direction_standard_completion_cover_probe`
 - `test_unit_coordinate_factor_five_parallel_family`
+- `test_unit_coordinate_factor_four_parallel_family`
+- `test_unit_coordinate_one_mod_five_parallel_family`
+- `test_unit_coordinate_seven_mod_ten_parallel_family`
+- `test_unit_coordinate_factor_twenty_five_parallel_family`
+- `test_unit_coordinate_twenty_two_mod_twenty_five_parallel_family`
+- `test_unit_coordinate_promoted_mod_hundred_cover`
+- `test_unit_coordinate_residual_orthogonal_seed_rows`
 - `test_unit_coordinate_parallel_factor_residue_family`
 - `test_ray_parallel_factor_residue_family`
 - `test_four_three_factor_five_parallel_congruence_family`
@@ -2226,9 +3855,13 @@ $$
 subject only to the standard nondegeneracy checks. The consecutive-hypotenuse
 unit-coordinate family is exactly the specialization where the quadratic
 coefficient is zero.
+The Lean row `certificateValid_halfLegUnitCoordinate` now proves the same
+unit-coordinate formula with automatic nondegeneracy for every odd direction
+written as `(u,4z)`.
 
 Executable guardrail:
 
+- `certificateValid_halfLegUnitCoordinate`
 - `half_leg_unit_coordinate_certificate`
 - `test_half_leg_unit_coordinate_family`
 
@@ -2701,11 +4334,14 @@ vectors are nondegenerate. The unit-coordinate family is the specialization
 $q=1$, and the earlier multiple-of-five strip is the first case $m=2$.
 The quotient-form Lean row
 `certificateValid_affineConsecutiveHypotenuseStrip` now proves the same
-certificate identity.
+certificate identity, and
+`certificateValid_consecutiveHypotenuseUnitCoordinate` proves the
+unit-coordinate specialization with automatic nondegeneracy.
 
 Executable guardrail:
 
 - `certificateValid_affineConsecutiveHypotenuseStrip`
+- `certificateValid_consecutiveHypotenuseUnitCoordinate`
 - `affine_consecutive_hypotenuse_certificate`
 - `consecutive_hypotenuse_unit_coordinate_certificate`
 - `unit_coordinate_consecutive_hypotenuse_certificate`

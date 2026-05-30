@@ -563,6 +563,41 @@ theorem certificateValid_theorem3Divisor
               ring_nf
               nlinarith [hkq]
 
+theorem certificateValid_theorem3UnitDivisorProgression
+    {a b c sx sy p0 q0 t m pRay qRay : Int}
+    (hsx : sx = 1 ∨ sx = -1) (hsy : sy = 1 ∨ sy = -1)
+    (ha : a ≠ 0) (hb : b ≠ 0) (hm : m ≠ 0)
+    (hpRay : pRay ≠ 0) (hqRay : qRay ≠ 0)
+    (hleg : sq a + sq b = c * c)
+    (hp : pRay = p0 + (c + sy * b) * t)
+    (hq : qRay = q0 + (c - sx * a) * t)
+    (hbase : (c + sy * b) * q0 - (c - sx * a) * p0 = 1)
+    (hsecond_x : pRay * m - sx * a * (pRay * qRay * m) ≠ 0)
+    (hsecond_y : qRay * m - sy * b * (pRay * qRay * m) ≠ 0) :
+    certificateValid
+      ({ x := pRay * m, y := qRay * m } : Point)
+      ({ x := sx * a * (pRay * qRay * m),
+          y := sy * b * (pRay * qRay * m) } : Point) := by
+  have hk : pRay * qRay * m ≠ 0 :=
+    mul_ne_zero (mul_ne_zero hpRay hqRay) hm
+  have hunit : (c + sy * b) * qRay - (c - sx * a) * pRay = 1 := by
+    rw [hp, hq]
+    calc
+      (c + sy * b) * (q0 + (c - sx * a) * t) -
+          (c - sx * a) * (p0 + (c + sy * b) * t)
+          = (c + sy * b) * q0 - (c - sx * a) * p0 := by ring
+      _ = 1 := hbase
+  have hdiv : m * (pRay * qRay * m) = (pRay * m) * (qRay * m) := by ring
+  have hrel :
+      (c - sx * a) * (pRay * m) =
+        (c + sy * b) * (qRay * m) - m := by
+    have hmul : ((c + sy * b) * qRay - (c - sx * a) * pRay) * m = 1 * m := by
+      rw [hunit]
+    ring_nf at hmul ⊢
+    linarith
+  exact certificateValid_theorem3Divisor hsx hsy ha hb hk hleg hdiv hrel
+    hsecond_x hsecond_y
+
 theorem certificateValid_theorem3Unit
     {g h a b c sx sy : Int}
     (hsx : sx = 1 ∨ sx = -1) (hsy : sy = 1 ∨ sy = -1)
@@ -1252,6 +1287,2786 @@ theorem certificateValid_affineConsecutiveHypotenuseStrip {m q t ell : Int}
         ({ x := 2 * A * B, y := B * B - A * A } : Point) by
           simpa [u, v, c, A, r, mul_comm, mul_left_comm, mul_assoc] using hsecond]
     exact hV
+
+theorem certificateValid_consecutiveHypotenuseUnitCoordinate {m t : Int}
+    (hm : 2 ≤ m) (ht : t ≠ 0) :
+    certificateValid
+      ({ x := (m * m + (m - 1) * (m - 1)) * t, y := 1 } : Point)
+      ({ x := (2 * m - 1) *
+            ((2 * m - 1) * t -
+              2 * (m * (m - 1) * t) * (m * (m - 1) * t)),
+          y := (2 * m * (m - 1)) *
+            ((2 * m - 1) * t -
+              2 * (m * (m - 1) * t) * (m * (m - 1) * t)) } : Point) := by
+  let K : Int := m * (m - 1)
+  have hK_ge : 2 ≤ K := by
+    dsimp [K]
+    nlinarith [sq_nonneg (m - 1)]
+  have hcoeff_ne : ∀ C : Int, 2 ≤ C → C * t - 1 ≠ 0 := by
+    intro C hC
+    rcases lt_or_gt_of_ne ht with ht_neg | ht_pos
+    · have hneg : C * t - 1 < 0 := by nlinarith [hC, ht_neg]
+      exact ne_of_lt hneg
+    · have hpos : 0 < C * t - 1 := by
+        have ht_ge : 1 ≤ t := by omega
+        nlinarith [hC, ht_ge]
+      exact ne_of_gt hpos
+  have hrcoef : (2 * m - 1) * 1 * t -
+        2 * (m * (m - 1) * t) * (m * (m - 1) * t) ≠ 0 := by
+    intro hzero
+    have hmul : t * ((2 * m - 1) - 2 * K * K * t) = 0 := by
+      calc
+        t * ((2 * m - 1) - 2 * K * K * t)
+            = (2 * m - 1) * 1 * t -
+                2 * (m * (m - 1) * t) * (m * (m - 1) * t) := by
+              simp [K]
+              ring
+        _ = 0 := hzero
+    rcases mul_eq_zero.mp hmul with ht0 | hfactor
+    · exact ht ht0
+    · have heven : 2 * m - 1 = 2 * (K * K * t) := by nlinarith
+      omega
+  have hB : (2 * m - 1) * (m * (m - 1) * t) - 1 ≠ 0 := by
+    have hu_ge : 3 ≤ 2 * m - 1 := by omega
+    have hC : 2 ≤ (2 * m - 1) * K := by nlinarith [hu_ge, hK_ge]
+    have hne := hcoeff_ne ((2 * m - 1) * K) hC
+    simpa [K, mul_comm, mul_left_comm, mul_assoc] using hne
+  have hdiff : ((2 * m - 1) * (m * (m - 1) * t) - 1) *
+          ((2 * m - 1) * (m * (m - 1) * t) - 1) -
+        (m * (m - 1) * t) * (m * (m - 1) * t) ≠ 0 := by
+    let B : Int := (2 * m - 1) * (m * (m - 1) * t) - 1
+    let A : Int := m * (m - 1) * t
+    have hminus : B - A ≠ 0 := by
+      have hcoef_ge : 2 ≤ (2 * m - 2) * K := by
+        have htwo_ge : 2 ≤ 2 * m - 2 := by omega
+        nlinarith [htwo_ge, hK_ge]
+      have hne := hcoeff_ne ((2 * m - 2) * K) hcoef_ge
+      have heq : B - A = ((2 * m - 2) * K) * t - 1 := by
+        dsimp [B, A, K]
+        ring
+      rw [heq]
+      exact hne
+    have hplus : B + A ≠ 0 := by
+      have hcoef_ge : 2 ≤ (2 * m) * K := by
+        have htwo_ge : 4 ≤ 2 * m := by omega
+        nlinarith [htwo_ge, hK_ge]
+      have hne := hcoeff_ne ((2 * m) * K) hcoef_ge
+      have heq : B + A = ((2 * m) * K) * t - 1 := by
+        dsimp [B, A, K]
+        ring
+      rw [heq]
+      exact hne
+    have hprod : (B - A) * (B + A) ≠ 0 := mul_ne_zero hminus hplus
+    intro hzero
+    apply hprod
+    calc
+      (B - A) * (B + A) = B * B - A * A := by ring
+      _ = 0 := by simpa [B, A] using hzero
+  have hcert := certificateValid_affineConsecutiveHypotenuseStrip
+    (m := m) (q := 1) (t := t) (ell := 0)
+    hm ht
+    (by ring)
+    (by simpa using hrcoef)
+    (by simpa using hB)
+    (by simpa using hdiff)
+  simpa [mul_comm, mul_left_comm, mul_assoc] using hcert
+
+theorem certificateValid_halfLegUnitCoordinate {u z c t : Int}
+    (hu : u ≠ 0) (hz : z ≠ 0) (ht : t ≠ 0)
+    (hu_odd : ∃ k : Int, u = 2 * k + 1)
+    (hleg : sq u + sq (4 * z) = c * c) :
+    certificateValid
+      ({ x := u * (u * t - z * (u * u - 1) * t * t) +
+            2 * (2 * z * t) * (u * (2 * z * t) - 1),
+          y := 1 } : Point)
+      ({ x := u * (u * t - z * (u * u - 1) * t * t),
+          y := (4 * z) * (u * t - z * (u * u - 1) * t * t) } : Point) := by
+  let A : Int := 2 * z * t
+  let B : Int := u * A - 1
+  let R : Int := u * t - z * (u * u - 1) * t * t
+  have hv_ne : 4 * z ≠ 0 := mul_ne_zero (by norm_num) hz
+  have hA_ne : A ≠ 0 := by
+    dsimp [A]
+    exact mul_ne_zero (mul_ne_zero (by norm_num) hz) ht
+  have hR_ne : R ≠ 0 := by
+    rcases hu_odd with ⟨k, hk⟩
+    subst u
+    intro hzero
+    have hmul : t * ((2 * k + 1) - z * (((2 * k + 1) * (2 * k + 1) - 1) * t)) = 0 := by
+      dsimp [R] at hzero
+      nlinarith
+    rcases mul_eq_zero.mp hmul with ht0 | hfactor
+    · exact ht ht0
+    · have heq : 2 * k + 1 = 2 * (2 * k * (k + 1) * z * t) := by
+        nlinarith
+      omega
+  have hB_ne : B ≠ 0 := by
+    rcases hu_odd with ⟨k, hk⟩
+    subst u
+    intro hzero
+    have heq : 1 = 2 * ((2 * k + 1) * z * t) := by
+      dsimp [B, A] at hzero
+      nlinarith
+    omega
+  have hminus : B - A ≠ 0 := by
+    rcases hu_odd with ⟨k, hk⟩
+    subst u
+    intro hzero
+    have heq : 1 = 2 * (2 * k * z * t) := by
+      dsimp [B, A] at hzero
+      nlinarith
+    omega
+  have hplus : B + A ≠ 0 := by
+    rcases hu_odd with ⟨k, hk⟩
+    subst u
+    intro hzero
+    have heq : 1 = 2 * (2 * (k + 1) * z * t) := by
+      dsimp [B, A] at hzero
+      nlinarith
+    omega
+  have hdiff_ne : B * B - A * A ≠ 0 := by
+    have hprod : (B - A) * (B + A) ≠ 0 := mul_ne_zero hminus hplus
+    intro hzero
+    apply hprod
+    calc
+      (B - A) * (B + A) = B * B - A * A := by ring
+      _ = 0 := hzero
+  have hU : legalStep ({ x := u, y := 4 * z } : Point) := by
+    constructor
+    · exact ⟨hu, hv_ne⟩
+    · exact ⟨c, by simpa [normSq] using hleg⟩
+  have hV : legalStep ({ x := 2 * A * B, y := B * B - A * A } : Point) := by
+    constructor
+    · constructor
+      · exact mul_ne_zero (mul_ne_zero (by norm_num) hA_ne) hB_ne
+      · exact hdiff_ne
+    · refine ⟨A * A + B * B, ?_⟩
+      simp [normSq, sq]
+      ring
+  have hmid : legalStep ({ x := u * R, y := (4 * z) * R } : Point) := by
+    simpa [smul, R, mul_comm, mul_left_comm, mul_assoc] using legalStep_smul hR_ne hU
+  have hsecond :
+      sub
+        ({ x := u * R + 2 * A * B, y := 1 } : Point)
+        ({ x := u * R, y := (4 * z) * R } : Point) =
+      ({ x := 2 * A * B, y := B * B - A * A } : Point) := by
+    ext
+    · simp [sub]
+    · simp [sub, A, B, R]
+      ring
+  constructor
+  · simpa [A, B, R, mul_comm, mul_left_comm, mul_assoc] using hmid
+  · rw [show sub
+        ({ x := u * (u * t - z * (u * u - 1) * t * t) +
+              2 * (2 * z * t) * (u * (2 * z * t) - 1),
+            y := 1 } : Point)
+        ({ x := u * (u * t - z * (u * u - 1) * t * t),
+            y := (4 * z) * (u * t - z * (u * u - 1) * t * t) } : Point) =
+        ({ x := 2 * A * B, y := B * B - A * A } : Point) by
+          simpa [A, B, R, mul_comm, mul_left_comm, mul_assoc] using hsecond]
+    exact hV
+
+theorem certificateValid_unitCoordinateFactorFiveParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 25 * t + 17 } : Point)
+      ({ x := 4 * (40 * t * t + 55 * t + 19),
+          y := 3 * (40 * t * t + 55 * t + 19) } : Point) := by
+  let R : Int := 40 * t * t + 55 * t + 19
+  have hR_pos : 0 < R := by
+    have hsquare : 0 ≤ (80 * t + 55) * (80 * t + 55) := by
+      nlinarith [sq_nonneg (80 * t + 55)]
+    have hidentity : 160 * R = (80 * t + 55) * (80 * t + 55) + 15 := by
+      dsimp [R]
+      ring
+    nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - 4 * R = -5 * (4 * t + 3) * (8 * t + 5) := by
+    dsimp [R]
+    ring
+  have hy_factor : 25 * t + 17 - 3 * R = -20 * (2 * t + 1) * (3 * t + 2) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 4 * R ≠ 0 := by
+    have hfirst : 4 * t + 3 ≠ 0 := by omega
+    have hsecond : 8 * t + 5 ≠ 0 := by omega
+    have hprod : -5 * (4 * t + 3) * (8 * t + 5) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 25 * t + 17 - 3 * R ≠ 0 := by
+    have hfirst : 2 * t + 1 ≠ 0 := by omega
+    have hsecond : 3 * t + 2 ≠ 0 := by omega
+    have hprod : -20 * (2 * t + 1) * (3 * t + 2) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨5 * (40 * t * t + 52 * t + 17), ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFactorFourParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 20 * t + 12 } : Point)
+      ({ x := -3 * (18 * t * t + 16 * t + 3),
+          y := -4 * (18 * t * t + 16 * t + 3) } : Point) := by
+  let R : Int := 18 * t * t + 16 * t + 3
+  have hR_pos : 0 < R := by
+    dsimp [R]
+    by_cases hnonneg : 0 ≤ t
+    · nlinarith [sq_nonneg t]
+    · have hle : t ≤ -1 := by omega
+      have haux : 0 ≤ (t + 1) * (t + 1) := by
+        nlinarith [sq_nonneg (t + 1)]
+      nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - (-3 * R) = 2 * (3 * t + 1) * (9 * t + 5) := by
+    dsimp [R]
+    ring
+  have hy_factor : 20 * t + 12 - (-4 * R) = 12 * (2 * t + 1) * (3 * t + 2) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - (-3 * R) ≠ 0 := by
+    have hfirst : 3 * t + 1 ≠ 0 := by omega
+    have hsecond : 9 * t + 5 ≠ 0 := by omega
+    have hprod : 2 * (3 * t + 1) * (9 * t + 5) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 20 * t + 12 - (-4 * R) ≠ 0 := by
+    have hfirst : 2 * t + 1 ≠ 0 := by omega
+    have hsecond : 3 * t + 2 ≠ 0 := by omega
+    have hprod : 12 * (2 * t + 1) * (3 * t + 2) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨90 * t * t + 96 * t + 26, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneModFiveParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 5 * t + 1 } : Point)
+      ({ x := 4 * (8 * t * t + 5 * t + 1),
+          y := -3 * (8 * t * t + 5 * t + 1) } : Point) := by
+  let R : Int := 8 * t * t + 5 * t + 1
+  have hR_pos : 0 < R := by
+    have hsquare : 0 ≤ (16 * t + 5) * (16 * t + 5) := by
+      nlinarith [sq_nonneg (16 * t + 5)]
+    have hidentity : 32 * R = (16 * t + 5) * (16 * t + 5) + 7 := by
+      dsimp [R]
+      ring
+    nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - 4 * R = -1 * (4 * t + 1) * (8 * t + 3) := by
+    dsimp [R]
+    ring
+  have hy_factor : 5 * t + 1 - (-3 * R) = 4 * (2 * t + 1) * (3 * t + 1) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 4 * R ≠ 0 := by
+    have hfirst : 4 * t + 1 ≠ 0 := by omega
+    have hsecond : 8 * t + 3 ≠ 0 := by omega
+    have hprod : -1 * (4 * t + 1) * (8 * t + 3) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 5 * t + 1 - (-3 * R) ≠ 0 := by
+    have hfirst : 2 * t + 1 ≠ 0 := by omega
+    have hsecond : 3 * t + 1 ≠ 0 := by omega
+    have hprod : 4 * (2 * t + 1) * (3 * t + 1) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨40 * t * t + 28 * t + 5, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateSevenModTenParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 10 * t + 7 } : Point)
+      ({ x := 3 * (18 * t * t + 22 * t + 7),
+          y := 4 * (18 * t * t + 22 * t + 7) } : Point) := by
+  let R : Int := 18 * t * t + 22 * t + 7
+  have hR_pos : 0 < R := by
+    have hsquare : 0 ≤ (36 * t + 22) * (36 * t + 22) := by
+      nlinarith [sq_nonneg (36 * t + 22)]
+    have hidentity : 72 * R = (36 * t + 22) * (36 * t + 22) + 20 := by
+      dsimp [R]
+      ring
+    nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - 3 * R = -2 * (3 * t + 2) * (9 * t + 5) := by
+    dsimp [R]
+    ring
+  have hy_factor : 10 * t + 7 - 4 * R = -3 * (2 * t + 1) * (12 * t + 7) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 3 * R ≠ 0 := by
+    have hfirst : 3 * t + 2 ≠ 0 := by omega
+    have hsecond : 9 * t + 5 ≠ 0 := by omega
+    have hprod : -2 * (3 * t + 2) * (9 * t + 5) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 10 * t + 7 - 4 * R ≠ 0 := by
+    have hfirst : 2 * t + 1 ≠ 0 := by omega
+    have hsecond : 12 * t + 7 ≠ 0 := by omega
+    have hprod : -3 * (2 * t + 1) * (12 * t + 7) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨90 * t * t + 102 * t + 29, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFactorTwentyFiveParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 25 * t + 18 } : Point)
+      ({ x := 4 * (8 * t * t + 9 * t + 2),
+          y := -3 * (8 * t * t + 9 * t + 2) } : Point) := by
+  let R : Int := 8 * t * t + 9 * t + 2
+  have hR_pos : 0 < R := by
+    dsimp [R]
+    by_cases hnonneg : 0 ≤ t
+    · nlinarith [sq_nonneg t]
+    · have hle : t ≤ -1 := by omega
+      have haux : 0 ≤ (t + 1) * (t + 1) := by
+        nlinarith [sq_nonneg (t + 1)]
+      nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - 4 * R = -1 * (4 * t + 1) * (8 * t + 7) := by
+    dsimp [R]
+    ring
+  have hy_factor : 25 * t + 18 - (-3 * R) = 4 * (2 * t + 3) * (3 * t + 2) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 4 * R ≠ 0 := by
+    have hfirst : 4 * t + 1 ≠ 0 := by omega
+    have hsecond : 8 * t + 7 ≠ 0 := by omega
+    have hprod : -1 * (4 * t + 1) * (8 * t + 7) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 25 * t + 18 - (-3 * R) ≠ 0 := by
+    have hfirst : 2 * t + 3 ≠ 0 := by omega
+    have hsecond : 3 * t + 2 ≠ 0 := by omega
+    have hprod : 4 * (2 * t + 3) * (3 * t + 2) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨5 * (8 * t * t + 12 * t + 5), ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel {t : Int}
+    (ht : t ≠ -1) :
+    certificateValid
+      ({ x := 1, y := 25 * t + 22 } : Point)
+      ({ x := -4 * (40 * t * t + 65 * t + 26),
+          y := -3 * (40 * t * t + 65 * t + 26) } : Point) := by
+  let R : Int := 40 * t * t + 65 * t + 26
+  have hR_pos : 0 < R := by
+    dsimp [R]
+    by_cases hnonneg : 0 ≤ t
+    · nlinarith [sq_nonneg t]
+    · have hle : t ≤ -1 := by omega
+      by_cases hdeg : t = -1
+      · omega
+      · have hle_strict : t ≤ -2 := by omega
+        nlinarith [sq_nonneg t]
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - (-4 * R) = 5 * (4 * t + 3) * (8 * t + 7) := by
+    dsimp [R]
+    ring
+  have hy_factor : 25 * t + 22 - (-3 * R) = 20 * (t + 1) * (6 * t + 5) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - (-4 * R) ≠ 0 := by
+    have hfirst : 4 * t + 3 ≠ 0 := by omega
+    have hsecond : 8 * t + 7 ≠ 0 := by omega
+    have hprod : 5 * (4 * t + 3) * (8 * t + 7) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 25 * t + 22 - (-3 * R) ≠ 0 := by
+    have hfirst : t + 1 ≠ 0 := by omega
+    have hsecond : 6 * t + 5 ≠ 0 := by omega
+    have hprod : 20 * (t + 1) * (6 * t + 5) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨5 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨5 * (40 * t * t + 68 * t + 29), ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwelveThirtyFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 37 * t + 25 } : Point)
+      ({ x := -12 * (72 * t * t + 85 * t + 25),
+          y := -35 * (72 * t * t + 85 * t + 25) } : Point) := by
+  let R : Int := 72 * t * t + 85 * t + 25
+  have hR_ne : R ≠ 0 := by
+    have hidentity : 288 * R = (144 * t + 80) * (144 * t + 90) := by
+      dsimp [R]
+      ring
+    have hfirst : 144 * t + 80 ≠ 0 := by omega
+    have hsecond : 144 * t + 90 ≠ 0 := by omega
+    have hprod : (144 * t + 80) * (144 * t + 90) ≠ 0 :=
+      mul_ne_zero hfirst hsecond
+    intro hR
+    apply hprod
+    rw [← hidentity, hR]
+    ring
+  have hx_factor : 1 - (-12 * R) = (12 * t + 7) * (72 * t + 43) := by
+    dsimp [R]
+    ring
+  have hy_factor : 37 * t + 25 - (-35 * R) = 12 * (5 * t + 3) * (42 * t + 25) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - (-12 * R) ≠ 0 := by
+    have hfirst : 12 * t + 7 ≠ 0 := by omega
+    have hsecond : 72 * t + 43 ≠ 0 := by omega
+    have hprod : (12 * t + 7) * (72 * t + 43) ≠ 0 :=
+      mul_ne_zero hfirst hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 37 * t + 25 - (-35 * R) ≠ 0 := by
+    have hfirst : 5 * t + 3 ≠ 0 := by omega
+    have hsecond : 42 * t + 25 ≠ 0 := by omega
+    have hprod : 12 * (5 * t + 3) * (42 * t + 25) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨37 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨2664 * t * t + 3180 * t + 949, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFortyNineFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 41 * t + 23 } : Point)
+      ({ x := 40 * (800 * t * t + 889 * t + 247),
+          y := 9 * (800 * t * t + 889 * t + 247) } : Point) := by
+  let R : Int := 800 * t * t + 889 * t + 247
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (1600 * t + 889) * (1600 * t + 889) := by
+      nlinarith [sq_nonneg (1600 * t + 889)]
+    have hidentity : 3200 * R = (1600 * t + 889) * (1600 * t + 889) + 79 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 3200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 40 * R = -((160 * t + 89) * (200 * t + 111)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 41 * t + 23 - 9 * R = -40 * (9 * t + 5) * (20 * t + 11) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 40 * R ≠ 0 := by
+    have hfirst : 160 * t + 89 ≠ 0 := by omega
+    have hsecond : 200 * t + 111 ≠ 0 := by omega
+    have hprod : -((160 * t + 89) * (200 * t + 111)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 41 * t + 23 - 9 * R ≠ 0 := by
+    have hfirst : 9 * t + 5 ≠ 0 := by omega
+    have hsecond : 20 * t + 11 ≠ 0 := by omega
+    have hprod : -40 * (9 * t + 5) * (20 * t + 11) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨41 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨32800 * t * t + 36440 * t + 10121, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwentyEightFortyFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 53 * t + 10 } : Point)
+      ({ x := 28 * (392 * t * t + 125 * t + 10),
+          y := 45 * (392 * t * t + 125 * t + 10) } : Point) := by
+  let R : Int := 392 * t * t + 125 * t + 10
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (784 * t + 125) * (784 * t + 125) := by
+      nlinarith [sq_nonneg (784 * t + 125)]
+    have hidentity : 1568 * R = (784 * t + 125) * (784 * t + 125) + 55 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 1568 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 28 * R = -((56 * t + 9) * (196 * t + 31)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 53 * t + 10 - 45 * R = -4 * (63 * t + 10) * (70 * t + 11) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 28 * R ≠ 0 := by
+    have hfirst : 56 * t + 9 ≠ 0 := by omega
+    have hsecond : 196 * t + 31 ≠ 0 := by omega
+    have hprod : -((56 * t + 9) * (196 * t + 31)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 53 * t + 10 - 45 * R ≠ 0 := by
+    have hfirst : 63 * t + 10 ≠ 0 := by omega
+    have hsecond : 70 * t + 11 ≠ 0 := by omega
+    have hprod : -4 * (63 * t + 10) * (70 * t + 11) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨53 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨20776 * t * t + 6580 * t + 521, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateSixtyElevenFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 61 * t + 39 } : Point)
+      ({ x := 60 * (1800 * t * t + 2291 * t + 729),
+          y := 11 * (1800 * t * t + 2291 * t + 729) } : Point) := by
+  let R : Int := 1800 * t * t + 2291 * t + 729
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (3600 * t + 2291) * (3600 * t + 2291) := by
+      nlinarith [sq_nonneg (3600 * t + 2291)]
+    have hidentity : 7200 * R = (3600 * t + 2291) * (3600 * t + 2291) + 119 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 7200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 60 * R = -((300 * t + 191) * (360 * t + 229)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 61 * t + 39 - 11 * R = -60 * (11 * t + 7) * (30 * t + 19) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 60 * R ≠ 0 := by
+    have hfirst : 300 * t + 191 ≠ 0 := by omega
+    have hsecond : 360 * t + 229 ≠ 0 := by omega
+    have hprod : -((300 * t + 191) * (360 * t + 229)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 61 * t + 39 - 11 * R ≠ 0 := by
+    have hfirst : 11 * t + 7 ≠ 0 := by omega
+    have hsecond : 30 * t + 19 ≠ 0 := by omega
+    have hprod : -60 * (11 * t + 7) * (30 * t + 19) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨61 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨109800 * t * t + 139740 * t + 44461, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFortyEightFiftyFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 73 * t + 31 } : Point)
+      ({ x := 48 * (1152 * t * t + 943 * t + 193),
+          y := 55 * (1152 * t * t + 943 * t + 193) } : Point) := by
+  let R : Int := 1152 * t * t + 943 * t + 193
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (2304 * t + 943) * (2304 * t + 943) := by
+      nlinarith [sq_nonneg (2304 * t + 943)]
+    have hidentity : 4608 * R = (2304 * t + 943) * (2304 * t + 943) + 95 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 4608 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 48 * R = -((144 * t + 59) * (384 * t + 157)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 73 * t + 31 - 55 * R = -24 * (22 * t + 9) * (120 * t + 49) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 48 * R ≠ 0 := by
+    have hfirst : 144 * t + 59 ≠ 0 := by omega
+    have hsecond : 384 * t + 157 ≠ 0 := by omega
+    have hprod : -((144 * t + 59) * (384 * t + 157)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 73 * t + 31 - 55 * R ≠ 0 := by
+    have hfirst : 22 * t + 9 ≠ 0 := by omega
+    have hsecond : 120 * t + 49 ≠ 0 := by omega
+    have hprod : -24 * (22 * t + 9) * (120 * t + 49) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨73 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨84096 * t * t + 68784 * t + 14065, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateEightyThirtyNineFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 89 * t + 71 } : Point)
+      ({ x := 80 * (3200 * t * t + 5071 * t + 2009),
+          y := 39 * (3200 * t * t + 5071 * t + 2009) } : Point) := by
+  let R : Int := 3200 * t * t + 5071 * t + 2009
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (6400 * t + 5071) * (6400 * t + 5071) := by
+      nlinarith [sq_nonneg (6400 * t + 5071)]
+    have hidentity : 12800 * R = (6400 * t + 5071) * (6400 * t + 5071) + 159 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 12800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 80 * R = -((400 * t + 317) * (640 * t + 507)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 89 * t + 71 - 39 * R = -40 * (24 * t + 19) * (130 * t + 103) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 80 * R ≠ 0 := by
+    have hfirst : 400 * t + 317 ≠ 0 := by omega
+    have hsecond : 640 * t + 507 ≠ 0 := by omega
+    have hprod : -((400 * t + 317) * (640 * t + 507)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 89 * t + 71 - 39 * R ≠ 0 := by
+    have hfirst : 24 * t + 19 ≠ 0 := by omega
+    have hsecond : 130 * t + 103 ≠ 0 := by omega
+    have hprod : -40 * (24 * t + 19) * (130 * t + 103) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨89 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨284800 * t * t + 451280 * t + 178769, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateSeventyTwoSixtyFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 97 * t + 78 } : Point)
+      ({ x := 72 * (2592 * t * t + 4121 * t + 1638),
+          y := 65 * (2592 * t * t + 4121 * t + 1638) } : Point) := by
+  let R : Int := 2592 * t * t + 4121 * t + 1638
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (5184 * t + 4121) * (5184 * t + 4121) := by
+      nlinarith [sq_nonneg (5184 * t + 4121)]
+    have hidentity : 10368 * R = (5184 * t + 4121) * (5184 * t + 4121) + 143 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 10368 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 72 * R = -((288 * t + 229) * (648 * t + 515)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 97 * t + 78 - 65 * R = -24 * (39 * t + 31) * (180 * t + 143) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 72 * R ≠ 0 := by
+    have hfirst : 288 * t + 229 ≠ 0 := by omega
+    have hsecond : 648 * t + 515 ≠ 0 := by omega
+    have hprod : -((288 * t + 229) * (648 * t + 515)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 97 * t + 78 - 65 * R ≠ 0 := by
+    have hfirst : 39 * t + 31 ≠ 0 := by omega
+    have hsecond : 180 * t + 143 ≠ 0 := by omega
+    have hprod : -24 * (39 * t + 31) * (180 * t + 143) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨97 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨251424 * t * t + 399672 * t + 158833, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwentyNinetyNineFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 101 * t + 60 } : Point)
+      ({ x := 20 * (200 * t * t + 219 * t + 60),
+          y := 99 * (200 * t * t + 219 * t + 60) } : Point) := by
+  let R : Int := 200 * t * t + 219 * t + 60
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (400 * t + 219) * (400 * t + 219) := by
+      nlinarith [sq_nonneg (400 * t + 219)]
+    have hidentity : 800 * R = (400 * t + 219) * (400 * t + 219) + 39 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 20 * R = -((20 * t + 11) * (200 * t + 109)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 101 * t + 60 - 99 * R = -20 * (11 * t + 6) * (90 * t + 49) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 20 * R ≠ 0 := by
+    have hfirst : 20 * t + 11 ≠ 0 := by omega
+    have hsecond : 200 * t + 109 ≠ 0 := by omega
+    have hprod : -((20 * t + 11) * (200 * t + 109)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 101 * t + 60 - 99 * R ≠ 0 := by
+    have hfirst : 11 * t + 6 ≠ 0 := by omega
+    have hsecond : 90 * t + 49 ≠ 0 := by omega
+    have hprod : -20 * (11 * t + 6) * (90 * t + 49) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨101 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨20200 * t * t + 22020 * t + 6001, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateSixtyNinetyOneFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 109 * t + 82 } : Point)
+      ({ x := 60 * (1800 * t * t + 2659 * t + 982),
+          y := 91 * (1800 * t * t + 2659 * t + 982) } : Point) := by
+  let R : Int := 1800 * t * t + 2659 * t + 982
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (3600 * t + 2659) * (3600 * t + 2659) := by
+      nlinarith [sq_nonneg (3600 * t + 2659)]
+    have hidentity : 7200 * R = (3600 * t + 2659) * (3600 * t + 2659) + 119 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 7200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 60 * R = -((180 * t + 133) * (600 * t + 443)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 109 * t + 82 - 91 * R = -60 * (42 * t + 31) * (65 * t + 48) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 60 * R ≠ 0 := by
+    have hfirst : 180 * t + 133 ≠ 0 := by omega
+    have hsecond : 600 * t + 443 ≠ 0 := by omega
+    have hprod : -((180 * t + 133) * (600 * t + 443)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 109 * t + 82 - 91 * R ≠ 0 := by
+    have hfirst : 42 * t + 31 ≠ 0 := by omega
+    have hsecond : 65 * t + 48 ≠ 0 := by omega
+    have hprod : -60 * (42 * t + 31) * (65 * t + 48) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨109 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨196200 * t * t + 289740 * t + 106969, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredTwelveFifteenFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 113 * t + 83 } : Point)
+      ({ x := 112 * (6272 * t * t + 9199 * t + 3373),
+          y := 15 * (6272 * t * t + 9199 * t + 3373) } : Point) := by
+  let R : Int := 6272 * t * t + 9199 * t + 3373
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (12544 * t + 9199) * (12544 * t + 9199) := by
+      nlinarith [sq_nonneg (12544 * t + 9199)]
+    have hidentity :
+        25088 * R = (12544 * t + 9199) * (12544 * t + 9199) + 223 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 25088 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 112 * R = -((784 * t + 575) * (896 * t + 657)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 113 * t + 83 - 15 * R = -112 * (15 * t + 11) * (56 * t + 41) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 112 * R ≠ 0 := by
+    have hfirst : 784 * t + 575 ≠ 0 := by omega
+    have hsecond : 896 * t + 657 ≠ 0 := by omega
+    have hprod : -((784 * t + 575) * (896 * t + 657)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 113 * t + 83 - 15 * R ≠ 0 := by
+    have hfirst : 15 * t + 11 ≠ 0 := by omega
+    have hsecond : 56 * t + 41 ≠ 0 := by omega
+    have hprod : -112 * (15 * t + 11) * (56 * t + 41) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨113 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨708736 * t * t + 1039472 * t + 381137, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateEightyEightOneHundredFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 137 * t + 7 } : Point)
+      ({ x := 88 * (3872 * t * t + 329 * t + 7),
+          y := 105 * (3872 * t * t + 329 * t + 7) } : Point) := by
+  let R : Int := 3872 * t * t + 329 * t + 7
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (7744 * t + 329) * (7744 * t + 329) := by
+      nlinarith [sq_nonneg (7744 * t + 329)]
+    have hidentity : 15488 * R = (7744 * t + 329) * (7744 * t + 329) + 175 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 15488 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 88 * R = -((352 * t + 15) * (968 * t + 41)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 137 * t + 7 - 105 * R = -8 * (165 * t + 7) * (308 * t + 13) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 88 * R ≠ 0 := by
+    have hfirst : 352 * t + 15 ≠ 0 := by omega
+    have hsecond : 968 * t + 41 ≠ 0 := by omega
+    have hprod : -((352 * t + 15) * (968 * t + 41)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 137 * t + 7 - 105 * R ≠ 0 := by
+    have hfirst : 165 * t + 7 ≠ 0 := by omega
+    have hsecond : 308 * t + 13 ≠ 0 := by omega
+    have hprod : -8 * (165 * t + 7) * (308 * t + 13) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨137 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨530464 * t * t + 44968 * t + 953, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredFortyFiftyOneFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 149 * t + 82 } : Point)
+      ({ x := 140 * (9800 * t * t + 10739 * t + 2942),
+          y := 51 * (9800 * t * t + 10739 * t + 2942) } : Point) := by
+  let R : Int := 9800 * t * t + 10739 * t + 2942
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (19600 * t + 10739) * (19600 * t + 10739) := by
+      nlinarith [sq_nonneg (19600 * t + 10739)]
+    have hidentity :
+        39200 * R = (19600 * t + 10739) * (19600 * t + 10739) + 279 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 39200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 140 * R = -((980 * t + 537) * (1400 * t + 767)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 149 * t + 82 - 51 * R = -20 * (42 * t + 23) * (595 * t + 326) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 140 * R ≠ 0 := by
+    have hfirst : 980 * t + 537 ≠ 0 := by omega
+    have hsecond : 1400 * t + 767 ≠ 0 := by omega
+    have hprod : -((980 * t + 537) * (1400 * t + 767)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 149 * t + 82 - 51 * R ≠ 0 := by
+    have hfirst : 42 * t + 23 ≠ 0 := by omega
+    have hsecond : 595 * t + 326 ≠ 0 := by omega
+    have hprod : -20 * (42 * t + 23) * (595 * t + 326) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨149 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨1460200 * t * t + 1600060 * t + 438329, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredThirtyTwoEightyFiveFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 157 * t + 4 } : Point)
+      ({ x := 132 * (8712 * t * t + 373 * t + 4),
+          y := 85 * (8712 * t * t + 373 * t + 4) } : Point) := by
+  let R : Int := 8712 * t * t + 373 * t + 4
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (17424 * t + 373) * (17424 * t + 373) := by
+      nlinarith [sq_nonneg (17424 * t + 373)]
+    have hidentity :
+        34848 * R = (17424 * t + 373) * (17424 * t + 373) + 263 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 34848 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 132 * R = -((792 * t + 17) * (1452 * t + 31)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 157 * t + 4 - 85 * R = -12 * (187 * t + 4) * (330 * t + 7) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 132 * R ≠ 0 := by
+    have hfirst : 792 * t + 17 ≠ 0 := by omega
+    have hsecond : 1452 * t + 31 ≠ 0 := by omega
+    have hprod : -((792 * t + 17) * (1452 * t + 31)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 157 * t + 4 - 85 * R ≠ 0 := by
+    have hfirst : 187 * t + 4 ≠ 0 := by omega
+    have hsecond : 330 * t + 7 ≠ 0 := by omega
+    have hprod : -12 * (187 * t + 4) * (330 * t + 7) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨157 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨1367784 * t * t + 58476 * t + 625, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredTwentyOneHundredNineteenFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 169 * t + 168 } : Point)
+      ({ x := 120 * (7200 * t * t + 14231 * t + 7032),
+          y := 119 * (7200 * t * t + 14231 * t + 7032) } : Point) := by
+  let R : Int := 7200 * t * t + 14231 * t + 7032
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (14400 * t + 14231) * (14400 * t + 14231) := by
+      nlinarith [sq_nonneg (14400 * t + 14231)]
+    have hidentity :
+        28800 * R = (14400 * t + 14231) * (14400 * t + 14231) + 239 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 28800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 120 * R = -((600 * t + 593) * (1440 * t + 1423)) := by
+    dsimp [R]
+    ring
+  have hy_factor :
+      169 * t + 168 - 119 * R = -120 * (84 * t + 83) * (85 * t + 84) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 120 * R ≠ 0 := by
+    have hfirst : 600 * t + 593 ≠ 0 := by omega
+    have hsecond : 1440 * t + 1423 ≠ 0 := by omega
+    have hprod : -((600 * t + 593) * (1440 * t + 1423)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 169 * t + 168 - 119 * R ≠ 0 := by
+    have hfirst : 84 * t + 83 ≠ 0 := by omega
+    have hsecond : 85 * t + 84 ≠ 0 := by omega
+    have hprod : -120 * (84 * t + 83) * (85 * t + 84) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨169 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨1216800 * t * t + 2404920 * t + 1188289, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFiftyTwoOneHundredSixtyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 173 * t + 28 } : Point)
+      ({ x := 52 * (1352 * t * t + 389 * t + 28),
+          y := 165 * (1352 * t * t + 389 * t + 28) } : Point) := by
+  let R : Int := 1352 * t * t + 389 * t + 28
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (2704 * t + 389) * (2704 * t + 389) := by
+      nlinarith [sq_nonneg (2704 * t + 389)]
+    have hidentity :
+        5408 * R = (2704 * t + 389) * (2704 * t + 389) + 103 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 5408 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 52 * R = -((104 * t + 15) * (676 * t + 97)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 173 * t + 28 - 165 * R = -4 * (195 * t + 28) * (286 * t + 41) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 52 * R ≠ 0 := by
+    have hfirst : 104 * t + 15 ≠ 0 := by omega
+    have hsecond : 676 * t + 97 ≠ 0 := by omega
+    have hprod : -((104 * t + 15) * (676 * t + 97)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 173 * t + 28 - 165 * R ≠ 0 := by
+    have hfirst : 195 * t + 28 ≠ 0 := by omega
+    have hsecond : 286 * t + 41 ≠ 0 := by omega
+    have hprod : -4 * (195 * t + 28) * (286 * t + 41) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨173 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨233896 * t * t + 67132 * t + 4817, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredEightyNineteenFactorOneParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 181 * t + 143 } : Point)
+      ({ x := 180 * (16200 * t * t + 25579 * t + 10097),
+          y := 19 * (16200 * t * t + 25579 * t + 10097) } : Point) := by
+  let R : Int := 16200 * t * t + 25579 * t + 10097
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (32400 * t + 25579) * (32400 * t + 25579) := by
+      nlinarith [sq_nonneg (32400 * t + 25579)]
+    have hidentity :
+        64800 * R = (32400 * t + 25579) * (32400 * t + 25579) + 359 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 64800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 180 * R = -((1620 * t + 1279) * (1800 * t + 1421)) := by
+    dsimp [R]
+    ring
+  have hy_factor :
+      181 * t + 143 - 19 * R = -180 * (19 * t + 15) * (90 * t + 71) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 180 * R ≠ 0 := by
+    have hfirst : 1620 * t + 1279 ≠ 0 := by omega
+    have hsecond : 1800 * t + 1421 ≠ 0 := by omega
+    have hprod : -((1620 * t + 1279) * (1800 * t + 1421)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 181 * t + 143 - 19 * R ≠ 0 := by
+    have hfirst : 19 * t + 15 ≠ 0 := by omega
+    have hsecond : 90 * t + 71 ≠ 0 := by omega
+    have hprod : -180 * (19 * t + 15) * (90 * t + 71) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨181 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨2932200 * t * t + 4629780 * t + 1827541, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredSixtyEightNinetyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 193 * t + 47 } : Point)
+      ({ x := 168 * (14112 * t * t + 6791 * t + 817),
+          y := 95 * (14112 * t * t + 6791 * t + 817) } : Point) := by
+  let R : Int := 14112 * t * t + 6791 * t + 817
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (28224 * t + 6791) * (28224 * t + 6791) := by
+      nlinarith [sq_nonneg (28224 * t + 6791)]
+    have hidentity :
+        56448 * R = (28224 * t + 6791) * (28224 * t + 6791) + 335 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 56448 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 168 * R = -((1176 * t + 283) * (2016 * t + 485)) := by
+    dsimp [R]
+    ring
+  have hy_factor :
+      193 * t + 47 - 95 * R = -24 * (133 * t + 32) * (420 * t + 101) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 168 * R ≠ 0 := by
+    have hfirst : 1176 * t + 283 ≠ 0 := by omega
+    have hsecond : 2016 * t + 485 ≠ 0 := by omega
+    have hprod : -((1176 * t + 283) * (2016 * t + 485)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 193 * t + 47 - 95 * R ≠ 0 := by
+    have hfirst : 133 * t + 32 ≠ 0 := by omega
+    have hsecond : 420 * t + 101 ≠ 0 := by omega
+    have hprod : -24 * (133 * t + 32) * (420 * t + 101) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨193 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨2723616 * t * t + 1310568 * t + 157657, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwentyEightOneHundredNinetyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 197 * t + 112 } : Point)
+      ({ x := 28 * (392 * t * t + 419 * t + 112),
+          y := 195 * (392 * t * t + 419 * t + 112) } : Point) := by
+  let R : Int := 392 * t * t + 419 * t + 112
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (784 * t + 419) * (784 * t + 419) := by
+      nlinarith [sq_nonneg (784 * t + 419)]
+    have hidentity : 1568 * R = (784 * t + 419) * (784 * t + 419) + 55 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 1568 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 28 * R = -((28 * t + 15) * (392 * t + 209)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 197 * t + 112 - 195 * R = -28 * (15 * t + 8) * (182 * t + 97) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 28 * R ≠ 0 := by
+    have hfirst : 28 * t + 15 ≠ 0 := by omega
+    have hsecond : 392 * t + 209 ≠ 0 := by omega
+    have hprod : -((28 * t + 15) * (392 * t + 209)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 197 * t + 112 - 195 * R ≠ 0 := by
+    have hfirst : 15 * t + 8 ≠ 0 := by omega
+    have hsecond : 182 * t + 97 ≠ 0 := by omega
+    have hprod : -28 * (15 * t + 8) * (182 * t + 97) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨197 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨77224 * t * t + 82348 * t + 21953, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateSixtyTwoHundredTwentyOneFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 229 * t + 36 } : Point)
+      ({ x := 60 * (1800 * t * t + 509 * t + 36),
+          y := 221 * (1800 * t * t + 509 * t + 36) } : Point) := by
+  let R : Int := 1800 * t * t + 509 * t + 36
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (3600 * t + 509) * (3600 * t + 509) := by
+      nlinarith [sq_nonneg (3600 * t + 509)]
+    have hidentity : 7200 * R = (3600 * t + 509) * (3600 * t + 509) + 119 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 7200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 60 * R = -((120 * t + 17) * (900 * t + 127)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 229 * t + 36 - 221 * R = -60 * (78 * t + 11) * (85 * t + 12) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 60 * R ≠ 0 := by
+    have hfirst : 120 * t + 17 ≠ 0 := by omega
+    have hsecond : 900 * t + 127 ≠ 0 := by omega
+    have hprod : -((120 * t + 17) * (900 * t + 127)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 229 * t + 36 - 221 * R ≠ 0 := by
+    have hfirst : 78 * t + 11 ≠ 0 := by omega
+    have hsecond : 85 * t + 12 ≠ 0 := by omega
+    have hprod : -60 * (78 * t + 11) * (85 * t + 12) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨229 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨412200 * t * t + 116340 * t + 8209, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredTwelveTwentyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 313 * t + 263 } : Point)
+      ({ x := 312 * (48672 * t * t + 81769 * t + 34343),
+          y := 25 * (48672 * t * t + 81769 * t + 34343) } : Point) := by
+  let R : Int := 48672 * t * t + 81769 * t + 34343
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (97344 * t + 81769) * (97344 * t + 81769) := by
+      nlinarith [sq_nonneg (97344 * t + 81769)]
+    have hidentity :
+        194688 * R = (97344 * t + 81769) * (97344 * t + 81769) + 623 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 194688 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 312 * R = -((3744 * t + 3145) * (4056 * t + 3407)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 313 * t + 263 - 25 * R = -312 * (25 * t + 21) * (156 * t + 131) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 312 * R ≠ 0 := by
+    have hfirst : 3744 * t + 3145 ≠ 0 := by omega
+    have hsecond : 4056 * t + 3407 ≠ 0 := by omega
+    have hprod : -((3744 * t + 3145) * (4056 * t + 3407)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 313 * t + 263 - 25 * R ≠ 0 := by
+    have hfirst : 25 * t + 21 ≠ 0 := by omega
+    have hsecond : 156 * t + 131 ≠ 0 := by omega
+    have hprod : -312 * (25 * t + 21) * (156 * t + 131) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨313 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨15234336 * t * t + 25593672 * t + 10749337, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredEightSeventyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 317 * t + 296 } : Point)
+      ({ x := 308 * (47432 * t * t + 88507 * t + 41288),
+          y := 75 * (47432 * t * t + 88507 * t + 41288) } : Point) := by
+  let R : Int := 47432 * t * t + 88507 * t + 41288
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (94864 * t + 88507) * (94864 * t + 88507) := by
+      nlinarith [sq_nonneg (94864 * t + 88507)]
+    have hidentity :
+        189728 * R = (94864 * t + 88507) * (94864 * t + 88507) + 615 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 189728 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 308 * R = -((3388 * t + 3161) * (4312 * t + 4023)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 317 * t + 296 - 75 * R = -4 * (462 * t + 431) * (1925 * t + 1796) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 308 * R ≠ 0 := by
+    have hfirst : 3388 * t + 3161 ≠ 0 := by omega
+    have hsecond : 4312 * t + 4023 ≠ 0 := by omega
+    have hprod : -((3388 * t + 3161) * (4312 * t + 4023)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 317 * t + 296 - 75 * R ≠ 0 := by
+    have hfirst : 462 * t + 431 ≠ 0 := by omega
+    have hsecond : 1925 * t + 1796 ≠ 0 := by omega
+    have hprod : -4 * (462 * t + 431) * (1925 * t + 1796) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨317 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨15035944 * t * t + 28056644 * t + 13088225, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredEightyEightOneHundredSeventyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 337 * t + 241 } : Point)
+      ({ x := 288 * (41472 * t * t + 59167 * t + 21103),
+          y := 175 * (41472 * t * t + 59167 * t + 21103) } : Point) := by
+  let R : Int := 41472 * t * t + 59167 * t + 21103
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (82944 * t + 59167) * (82944 * t + 59167) := by
+      nlinarith [sq_nonneg (82944 * t + 59167)]
+    have hidentity :
+        165888 * R = (82944 * t + 59167) * (82944 * t + 59167) + 575 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 165888 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 288 * R = -((2592 * t + 1849) * (4608 * t + 3287)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 337 * t + 241 - 175 * R = -48 * (150 * t + 107) * (1008 * t + 719) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 288 * R ≠ 0 := by
+    have hfirst : 2592 * t + 1849 ≠ 0 := by omega
+    have hsecond : 4608 * t + 3287 ≠ 0 := by omega
+    have hprod : -((2592 * t + 1849) * (4608 * t + 3287)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 337 * t + 241 - 175 * R ≠ 0 := by
+    have hfirst : 150 * t + 107 ≠ 0 := by omega
+    have hsecond : 1008 * t + 719 ≠ 0 := by omega
+    have hprod : -48 * (150 * t + 107) * (1008 * t + 719) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨337 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨13976064 * t * t + 19939104 * t + 7111585, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredEightyTwoHundredNinetyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 349 * t + 206 } : Point)
+      ({ x := 180 * (16200 * t * t + 18971 * t + 5554),
+          y := 299 * (16200 * t * t + 18971 * t + 5554) } : Point) := by
+  let R : Int := 16200 * t * t + 18971 * t + 5554
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (32400 * t + 18971) * (32400 * t + 18971) := by
+      nlinarith [sq_nonneg (32400 * t + 18971)]
+    have hidentity :
+        64800 * R = (32400 * t + 18971) * (32400 * t + 18971) + 359 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 64800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 180 * R = -((900 * t + 527) * (3240 * t + 1897)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 349 * t + 206 - 299 * R = -60 * (234 * t + 137) * (345 * t + 202) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 180 * R ≠ 0 := by
+    have hfirst : 900 * t + 527 ≠ 0 := by omega
+    have hsecond : 3240 * t + 1897 ≠ 0 := by omega
+    have hprod : -((900 * t + 527) * (3240 * t + 1897)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 349 * t + 206 - 299 * R ≠ 0 := by
+    have hfirst : 234 * t + 137 ≠ 0 := by omega
+    have hsecond : 345 * t + 202 ≠ 0 := by omega
+    have hprod : -60 * (234 * t + 137) * (345 * t + 202) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨349 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨5653800 * t * t + 6620580 * t + 1938169, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredSeventyTwoTwoHundredTwentyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 353 * t + 49 } : Point)
+      ({ x := 272 * (36992 * t * t + 10097 * t + 689),
+          y := 225 * (36992 * t * t + 10097 * t + 689) } : Point) := by
+  let R : Int := 36992 * t * t + 10097 * t + 689
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (73984 * t + 10097) * (73984 * t + 10097) := by
+      nlinarith [sq_nonneg (73984 * t + 10097)]
+    have hidentity :
+        147968 * R = (73984 * t + 10097) * (73984 * t + 10097) + 543 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 147968 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 272 * R = -((2176 * t + 297) * (4624 * t + 631)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 353 * t + 49 - 225 * R = -16 * (425 * t + 58) * (1224 * t + 167) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 272 * R ≠ 0 := by
+    have hfirst : 2176 * t + 297 ≠ 0 := by omega
+    have hsecond : 4624 * t + 631 ≠ 0 := by omega
+    have hprod : -((2176 * t + 297) * (4624 * t + 631)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 353 * t + 49 - 225 * R ≠ 0 := by
+    have hfirst : 425 * t + 58 ≠ 0 := by omega
+    have hsecond : 1224 * t + 167 ≠ 0 := by omega
+    have hprod : -16 * (425 * t + 58) * (1224 * t + 167) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨353 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨13058176 * t * t + 3564016 * t + 243185, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredFiftyTwoTwoHundredSeventyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 373 * t + 151 } : Point)
+      ({ x := 252 * (31752 * t * t + 25523 * t + 5129),
+          y := 275 * (31752 * t * t + 25523 * t + 5129) } : Point) := by
+  let R : Int := 31752 * t * t + 25523 * t + 5129
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (63504 * t + 25523) * (63504 * t + 25523) := by
+      nlinarith [sq_nonneg (63504 * t + 25523)]
+    have hidentity :
+        127008 * R = (63504 * t + 25523) * (63504 * t + 25523) + 503 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 127008 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 252 * R = -((1764 * t + 709) * (4536 * t + 1823)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 373 * t + 151 - 275 * R = -12 * (525 * t + 211) * (1386 * t + 557) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 252 * R ≠ 0 := by
+    have hfirst : 1764 * t + 709 ≠ 0 := by omega
+    have hsecond : 4536 * t + 1823 ≠ 0 := by omega
+    have hprod : -((1764 * t + 709) * (4536 * t + 1823)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 373 * t + 151 - 275 * R ≠ 0 := by
+    have hfirst : 525 * t + 211 ≠ 0 := by omega
+    have hsecond : 1386 * t + 557 ≠ 0 := by omega
+    have hprod : -12 * (525 * t + 211) * (1386 * t + 557) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨373 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨11843496 * t * t + 9519804 * t + 1913005, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredFiftyTwoOneHundredThirtyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 377 * t + 299 } : Point)
+      ({ x := 352 * (61952 * t * t + 98143 * t + 38869),
+          y := 135 * (61952 * t * t + 98143 * t + 38869) } : Point) := by
+  let R : Int := 61952 * t * t + 98143 * t + 38869
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (123904 * t + 98143) * (123904 * t + 98143) := by
+      nlinarith [sq_nonneg (123904 * t + 98143)]
+    have hidentity :
+        247808 * R = (123904 * t + 98143) * (123904 * t + 98143) + 703 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 247808 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 352 * R = -((3872 * t + 3067) * (5632 * t + 4461)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 377 * t + 299 - 135 * R = -8 * (880 * t + 697) * (1188 * t + 941) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 352 * R ≠ 0 := by
+    have hfirst : 3872 * t + 3067 ≠ 0 := by omega
+    have hsecond : 5632 * t + 4461 ≠ 0 := by omega
+    have hprod : -((3872 * t + 3067) * (5632 * t + 4461)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 377 * t + 299 - 135 * R ≠ 0 := by
+    have hfirst : 880 * t + 697 ≠ 0 := by omega
+    have hsecond : 1188 * t + 941 ≠ 0 := by omega
+    have hprod : -8 * (880 * t + 697) * (1188 * t + 941) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨377 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨23355904 * t * t + 36999776 * t + 14653505, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredFortyOneHundredEightyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 389 * t + 97 } : Point)
+      ({ x := 340 * (57800 * t * t + 28661 * t + 3553),
+          y := 189 * (57800 * t * t + 28661 * t + 3553) } : Point) := by
+  let R : Int := 57800 * t * t + 28661 * t + 3553
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (115600 * t + 28661) * (115600 * t + 28661) := by
+      nlinarith [sq_nonneg (115600 * t + 28661)]
+    have hidentity :
+        231200 * R = (115600 * t + 28661) * (115600 * t + 28661) + 679 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 231200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 340 * R = -((3400 * t + 843) * (5780 * t + 1433)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 389 * t + 97 - 189 * R = -20 * (238 * t + 59) * (2295 * t + 569) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 340 * R ≠ 0 := by
+    have hfirst : 3400 * t + 843 ≠ 0 := by omega
+    have hsecond : 5780 * t + 1433 ≠ 0 := by omega
+    have hprod : -((3400 * t + 843) * (5780 * t + 1433)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 389 * t + 97 - 189 * R ≠ 0 := by
+    have hfirst : 238 * t + 59 ≠ 0 := by omega
+    have hsecond : 2295 * t + 569 ≠ 0 := by omega
+    have hprod : -20 * (238 * t + 59) * (2295 * t + 569) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨389 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨22484200 * t * t + 11148940 * t + 1382069, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredTwentyEightThreeHundredTwentyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 397 * t + 141 } : Point)
+      ({ x := 228 * (25992 * t * t + 18277 * t + 3213),
+          y := 325 * (25992 * t * t + 18277 * t + 3213) } : Point) := by
+  let R : Int := 25992 * t * t + 18277 * t + 3213
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (51984 * t + 18277) * (51984 * t + 18277) := by
+      nlinarith [sq_nonneg (51984 * t + 18277)]
+    have hidentity :
+        103968 * R = (51984 * t + 18277) * (51984 * t + 18277) + 455 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 103968 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 228 * R = -((1368 * t + 481) * (4332 * t + 1523)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 397 * t + 141 - 325 * R = -12 * (475 * t + 167) * (1482 * t + 521) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 228 * R ≠ 0 := by
+    have hfirst : 1368 * t + 481 ≠ 0 := by omega
+    have hsecond : 4332 * t + 1523 ≠ 0 := by omega
+    have hprod : -((1368 * t + 481) * (4332 * t + 1523)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 397 * t + 141 - 325 * R ≠ 0 := by
+    have hfirst : 475 * t + 167 ≠ 0 := by omega
+    have hsecond : 1482 * t + 521 ≠ 0 := by omega
+    have hprod : -12 * (475 * t + 167) * (1482 * t + 521) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨397 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨10318824 * t * t + 7255644 * t + 1275445, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFortyThreeHundredNinetyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 401 * t + 220 } : Point)
+      ({ x := 40 * (800 * t * t + 839 * t + 220),
+          y := 399 * (800 * t * t + 839 * t + 220) } : Point) := by
+  let R : Int := 800 * t * t + 839 * t + 220
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (1600 * t + 839) * (1600 * t + 839) := by
+      nlinarith [sq_nonneg (1600 * t + 839)]
+    have hidentity :
+        3200 * R = (1600 * t + 839) * (1600 * t + 839) + 79 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 3200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 40 * R = -((40 * t + 21) * (800 * t + 419)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 401 * t + 220 - 399 * R = -40 * (21 * t + 11) * (380 * t + 199) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 40 * R ≠ 0 := by
+    have hfirst : 40 * t + 21 ≠ 0 := by omega
+    have hsecond : 800 * t + 419 ≠ 0 := by omega
+    have hprod : -((40 * t + 21) * (800 * t + 419)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 401 * t + 220 - 399 * R ≠ 0 := by
+    have hfirst : 21 * t + 11 ≠ 0 := by omega
+    have hsecond : 380 * t + 199 ≠ 0 := by omega
+    have hprod : -40 * (21 * t + 11) * (380 * t + 199) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨401 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨320800 * t * t + 336040 * t + 88001, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredTwentyThreeHundredNinetyOneFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 409 * t + 302 } : Point)
+      ({ x := 120 * (7200 * t * t + 10519 * t + 3842),
+          y := 391 * (7200 * t * t + 10519 * t + 3842) } : Point) := by
+  let R : Int := 7200 * t * t + 10519 * t + 3842
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (14400 * t + 10519) * (14400 * t + 10519) := by
+      nlinarith [sq_nonneg (14400 * t + 10519)]
+    have hidentity :
+        28800 * R = (14400 * t + 10519) * (14400 * t + 10519) + 239 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 28800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 120 * R = -((360 * t + 263) * (2400 * t + 1753)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 409 * t + 302 - 391 * R = -120 * (115 * t + 84) * (204 * t + 149) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 120 * R ≠ 0 := by
+    have hfirst : 360 * t + 263 ≠ 0 := by omega
+    have hsecond : 2400 * t + 1753 ≠ 0 := by omega
+    have hprod : -((360 * t + 263) * (2400 * t + 1753)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 409 * t + 302 - 391 * R ≠ 0 := by
+    have hfirst : 115 * t + 84 ≠ 0 := by omega
+    have hsecond : 204 * t + 149 ≠ 0 := by omega
+    have hprod : -120 * (115 * t + 84) * (204 * t + 149) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨409 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨2944800 * t * t + 4301880 * t + 1571089, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFourHundredTwentyTwentyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 421 * t + 363 } : Point)
+      ({ x := 420 * (88200 * t * t + 152069 * t + 65547),
+          y := 29 * (88200 * t * t + 152069 * t + 65547) } : Point) := by
+  let R : Int := 88200 * t * t + 152069 * t + 65547
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (176400 * t + 152069) * (176400 * t + 152069) := by
+      nlinarith [sq_nonneg (176400 * t + 152069)]
+    have hidentity :
+        352800 * R = (176400 * t + 152069) * (176400 * t + 152069) + 839 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 352800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 420 * R = -((5880 * t + 5069) * (6300 * t + 5431)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 421 * t + 363 - 29 * R = -420 * (29 * t + 25) * (210 * t + 181) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 420 * R ≠ 0 := by
+    have hfirst : 5880 * t + 5069 ≠ 0 := by omega
+    have hsecond : 6300 * t + 5431 ≠ 0 := by omega
+    have hprod : -((5880 * t + 5069) * (6300 * t + 5431)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 421 * t + 363 - 29 * R ≠ 0 := by
+    have hfirst : 29 * t + 25 ≠ 0 := by omega
+    have hsecond : 210 * t + 181 ≠ 0 := by omega
+    have hprod : -420 * (29 * t + 25) * (210 * t + 181) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨421 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨37132200 * t * t + 64021020 * t + 27595261, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFourHundredEightOneHundredFortyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 433 * t + 39 } : Point)
+      ({ x := 408 * (83232 * t * t + 14857 * t + 663),
+          y := 145 * (83232 * t * t + 14857 * t + 663) } : Point) := by
+  let R : Int := 83232 * t * t + 14857 * t + 663
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (166464 * t + 14857) * (166464 * t + 14857) := by
+      nlinarith [sq_nonneg (166464 * t + 14857)]
+    have hidentity :
+        332928 * R = (166464 * t + 14857) * (166464 * t + 14857) + 815 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 332928 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 408 * R = -((4896 * t + 437) * (6936 * t + 619)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 433 * t + 39 - 145 * R = -24 * (493 * t + 44) * (1020 * t + 91) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 408 * R ≠ 0 := by
+    have hfirst : 4896 * t + 437 ≠ 0 := by omega
+    have hsecond : 6936 * t + 619 ≠ 0 := by omega
+    have hprod : -((4896 * t + 437) * (6936 * t + 619)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 433 * t + 39 - 145 * R ≠ 0 := by
+    have hfirst : 493 * t + 44 ≠ 0 := by omega
+    have hsecond : 1020 * t + 91 ≠ 0 := by omega
+    have hprod : -24 * (493 * t + 44) * (1020 * t + 91) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨433 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨36039456 * t * t + 6432936 * t + 287065, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredEightyThreeHundredFiftyOneFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 449 * t + 264 } : Point)
+      ({ x := 280 * (39200 * t * t + 45879 * t + 13424),
+          y := 351 * (39200 * t * t + 45879 * t + 13424) } : Point) := by
+  let R : Int := 39200 * t * t + 45879 * t + 13424
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (78400 * t + 45879) * (78400 * t + 45879) := by
+      nlinarith [sq_nonneg (78400 * t + 45879)]
+    have hidentity :
+        156800 * R = (78400 * t + 45879) * (78400 * t + 45879) + 559 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 156800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 280 * R = -((1960 * t + 1147) * (5600 * t + 3277)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 449 * t + 264 - 351 * R = -280 * (135 * t + 79) * (364 * t + 213) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 280 * R ≠ 0 := by
+    have hfirst : 1960 * t + 1147 ≠ 0 := by omega
+    have hsecond : 5600 * t + 3277 ≠ 0 := by omega
+    have hprod : -((1960 * t + 1147) * (5600 * t + 3277)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 449 * t + 264 - 351 * R ≠ 0 := by
+    have hfirst : 135 * t + 79 ≠ 0 := by omega
+    have hsecond : 364 * t + 213 ≠ 0 := by omega
+    have hprod : -280 * (135 * t + 79) * (364 * t + 213) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨449 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨17600800 * t * t + 20599320 * t + 6027169, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredSixtyEightFourHundredTwentyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 457 * t + 248 } : Point)
+      ({ x := 168 * (14112 * t * t + 15161 * t + 4072),
+          y := 425 * (14112 * t * t + 15161 * t + 4072) } : Point) := by
+  let R : Int := 14112 * t * t + 15161 * t + 4072
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (28224 * t + 15161) * (28224 * t + 15161) := by
+      nlinarith [sq_nonneg (28224 * t + 15161)]
+    have hidentity :
+        56448 * R = (28224 * t + 15161) * (28224 * t + 15161) + 335 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 56448 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 168 * R = -((672 * t + 361) * (3528 * t + 1895)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 457 * t + 248 - 425 * R = -24 * (175 * t + 94) * (1428 * t + 767) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 168 * R ≠ 0 := by
+    have hfirst : 672 * t + 361 ≠ 0 := by omega
+    have hsecond : 3528 * t + 1895 ≠ 0 := by omega
+    have hprod : -((672 * t + 361) * (3528 * t + 1895)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 457 * t + 248 - 425 * R ≠ 0 := by
+    have hfirst : 175 * t + 94 ≠ 0 := by omega
+    have hsecond : 1428 * t + 767 ≠ 0 := by omega
+    have hprod : -24 * (175 * t + 94) * (1428 * t + 767) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨457 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨6449184 * t * t + 6928152 * t + 1860673, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredEightyTwoHundredSixtyOneFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 461 * t + 373 } : Point)
+      ({ x := 380 * (72200 * t * t + 116621 * t + 47093),
+          y := 261 * (72200 * t * t + 116621 * t + 47093) } : Point) := by
+  let R : Int := 72200 * t * t + 116621 * t + 47093
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (144400 * t + 116621) * (144400 * t + 116621) := by
+      nlinarith [sq_nonneg (144400 * t + 116621)]
+    have hidentity :
+        288800 * R = (144400 * t + 116621) * (144400 * t + 116621) + 759 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 288800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 380 * R = -((3800 * t + 3069) * (7220 * t + 5831)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 461 * t + 373 - 261 * R = -20 * (551 * t + 445) * (1710 * t + 1381) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 380 * R ≠ 0 := by
+    have hfirst : 3800 * t + 3069 ≠ 0 := by omega
+    have hsecond : 7220 * t + 5831 ≠ 0 := by omega
+    have hprod : -((3800 * t + 3069) * (7220 * t + 5831)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 461 * t + 373 - 261 * R ≠ 0 := by
+    have hfirst : 551 * t + 445 ≠ 0 := by omega
+    have hsecond : 1710 * t + 1381 ≠ 0 := by omega
+    have hprod : -20 * (551 * t + 445) * (1710 * t + 1381) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨461 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨33284200 * t * t + 53762020 * t + 21709661, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateThreeHundredSixtyThreeHundredNineteenFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 481 * t + 23 } : Point)
+      ({ x := 360 * (64800 * t * t + 5959 * t + 137),
+          y := 319 * (64800 * t * t + 5959 * t + 137) } : Point) := by
+  let R : Int := 64800 * t * t + 5959 * t + 137
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (129600 * t + 5959) * (129600 * t + 5959) := by
+      nlinarith [sq_nonneg (129600 * t + 5959)]
+    have hidentity :
+        259200 * R = (129600 * t + 5959) * (129600 * t + 5959) + 719 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 259200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 360 * R = -((3240 * t + 149) * (7200 * t + 331)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 481 * t + 23 - 319 * R = -120 * (87 * t + 4) * (1980 * t + 91) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 360 * R ≠ 0 := by
+    have hfirst : 3240 * t + 149 ≠ 0 := by omega
+    have hsecond : 7200 * t + 331 ≠ 0 := by omega
+    have hprod : -((3240 * t + 149) * (7200 * t + 331)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 481 * t + 23 - 319 * R ≠ 0 := by
+    have hfirst : 87 * t + 4 ≠ 0 := by omega
+    have hsecond : 1980 * t + 91 ≠ 0 := by omega
+    have hprod : -120 * (87 * t + 4) * (1980 * t + 91) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨481 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨31168800 * t * t + 2865960 * t + 65881, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateOneHundredThirtyTwoFourHundredSeventyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 493 * t + 199 } : Point)
+      ({ x := 132 * (8712 * t * t + 6907 * t + 1369),
+          y := 475 * (8712 * t * t + 6907 * t + 1369) } : Point) := by
+  let R : Int := 8712 * t * t + 6907 * t + 1369
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (17424 * t + 6907) * (17424 * t + 6907) := by
+      nlinarith [sq_nonneg (17424 * t + 6907)]
+    have hidentity :
+        34848 * R = (17424 * t + 6907) * (17424 * t + 6907) + 263 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 34848 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 132 * R = -((396 * t + 157) * (2904 * t + 1151)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 493 * t + 199 - 475 * R = -12 * (275 * t + 109) * (1254 * t + 497) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 132 * R ≠ 0 := by
+    have hfirst : 396 * t + 157 ≠ 0 := by omega
+    have hsecond : 2904 * t + 1151 ≠ 0 := by omega
+    have hprod : -((396 * t + 157) * (2904 * t + 1151)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 493 * t + 199 - 475 * R ≠ 0 := by
+    have hfirst : 275 * t + 109 ≠ 0 := by omega
+    have hsecond : 1254 * t + 497 ≠ 0 := by omega
+    have hprod : -12 * (275 * t + 109) * (1254 * t + 497) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨493 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨4295016 * t * t + 3404676 * t + 674725, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateTwoHundredTwentyFourHundredFiftyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 509 * t + 96 } : Point)
+      ({ x := 220 * (24200 * t * t + 8931 * t + 824),
+          y := 459 * (24200 * t * t + 8931 * t + 824) } : Point) := by
+  let R : Int := 24200 * t * t + 8931 * t + 824
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (48400 * t + 8931) * (48400 * t + 8931) := by
+      nlinarith [sq_nonneg (48400 * t + 8931)]
+    have hidentity :
+        96800 * R = (48400 * t + 8931) * (48400 * t + 8931) + 439 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 96800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 220 * R = -((1100 * t + 203) * (4840 * t + 893)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 509 * t + 96 - 459 * R = -20 * (374 * t + 69) * (1485 * t + 274) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 220 * R ≠ 0 := by
+    have hfirst : 1100 * t + 203 ≠ 0 := by omega
+    have hsecond : 4840 * t + 893 ≠ 0 := by omega
+    have hprod : -((1100 * t + 203) * (4840 * t + 893)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 509 * t + 96 - 459 * R ≠ 0 := by
+    have hfirst : 374 * t + 69 ≠ 0 := by omega
+    have hsecond : 1485 * t + 274 ≠ 0 := by omega
+    have hprod : -20 * (374 * t + 69) * (1485 * t + 274) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨509 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨12317800 * t * t + 4545420 * t + 419329, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFourHundredFortyTwoHundredSeventyNineFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 521 * t + 103 } : Point)
+      ({ x := 440 * (96800 * t * t + 38039 * t + 3737),
+          y := 279 * (96800 * t * t + 38039 * t + 3737) } : Point) := by
+  let R : Int := 96800 * t * t + 38039 * t + 3737
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (193600 * t + 38039) * (193600 * t + 38039) := by
+      nlinarith [sq_nonneg (193600 * t + 38039)]
+    have hidentity :
+        387200 * R = (193600 * t + 38039) * (193600 * t + 38039) + 879 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 387200 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 440 * R = -((4840 * t + 951) * (8800 * t + 1729)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 521 * t + 103 - 279 * R = -40 * (341 * t + 67) * (1980 * t + 389) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 440 * R ≠ 0 := by
+    have hfirst : 4840 * t + 951 ≠ 0 := by omega
+    have hsecond : 8800 * t + 1729 ≠ 0 := by omega
+    have hprod : -((4840 * t + 951) * (8800 * t + 1729)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 521 * t + 103 - 279 * R ≠ 0 := by
+    have hfirst : 341 * t + 67 ≠ 0 := by omega
+    have hsecond : 1980 * t + 389 ≠ 0 := by omega
+    have hprod : -40 * (341 * t + 67) * (1980 * t + 389) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨521 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨50432800 * t * t + 19818040 * t + 1946921, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateNinetyTwoFiveHundredTwentyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 533 * t + 78 } : Point)
+      ({ x := 92 * (4232 * t * t + 1149 * t + 78),
+          y := 525 * (4232 * t * t + 1149 * t + 78) } : Point) := by
+  let R : Int := 4232 * t * t + 1149 * t + 78
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (8464 * t + 1149) * (8464 * t + 1149) := by
+      nlinarith [sq_nonneg (8464 * t + 1149)]
+    have hidentity :
+        16928 * R = (8464 * t + 1149) * (8464 * t + 1149) + 183 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 16928 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 92 * R = -((184 * t + 25) * (2116 * t + 287)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 533 * t + 78 - 525 * R = -4 * (575 * t + 78) * (966 * t + 131) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 92 * R ≠ 0 := by
+    have hfirst : 184 * t + 25 ≠ 0 := by omega
+    have hsecond : 2116 * t + 287 ≠ 0 := by omega
+    have hprod : -((184 * t + 25) * (2116 * t + 287)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 533 * t + 78 - 525 * R ≠ 0 := by
+    have hfirst : 575 * t + 78 ≠ 0 := by omega
+    have hsecond : 966 * t + 131 ≠ 0 := by omega
+    have hprod : -4 * (575 * t + 78) * (966 * t + 131) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨533 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨2255656 * t * t + 611892 * t + 41497, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFourHundredTwentyThreeHundredFortyOneFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 541 * t + 113 } : Point)
+      ({ x := 420 * (88200 * t * t + 36581 * t + 3793),
+          y := 341 * (88200 * t * t + 36581 * t + 3793) } : Point) := by
+  let R : Int := 88200 * t * t + 36581 * t + 3793
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (176400 * t + 36581) * (176400 * t + 36581) := by
+      nlinarith [sq_nonneg (176400 * t + 36581)]
+    have hidentity :
+        352800 * R = (176400 * t + 36581) * (176400 * t + 36581) + 839 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 352800 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 420 * R = -((4200 * t + 871) * (8820 * t + 1829)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 541 * t + 113 - 341 * R = -60 * (217 * t + 45) * (2310 * t + 479) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 420 * R ≠ 0 := by
+    have hfirst : 4200 * t + 871 ≠ 0 := by omega
+    have hsecond : 8820 * t + 1829 ≠ 0 := by omega
+    have hprod : -((4200 * t + 871) * (8820 * t + 1829)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 541 * t + 113 - 341 * R ≠ 0 := by
+    have hfirst : 217 * t + 45 ≠ 0 := by omega
+    have hsecond : 2310 * t + 479 ≠ 0 := by omega
+    have hprod : -60 * (217 * t + 45) * (2310 * t + 479) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨541 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨47716200 * t * t + 19789980 * t + 2051941, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFiveHundredThirtyTwoOneHundredSixtyFiveFactorOneParallel
+    {t : Int} :
+    certificateValid
+      ({ x := 1, y := 557 * t + 412 } : Point)
+      ({ x := 532 * (141512 * t * t + 209189 * t + 77308),
+          y := 165 * (141512 * t * t + 209189 * t + 77308) } : Point) := by
+  let R : Int := 141512 * t * t + 209189 * t + 77308
+  have hR_ne : R ≠ 0 := by
+    have hsquare : 0 ≤ (283024 * t + 209189) * (283024 * t + 209189) := by
+      nlinarith [sq_nonneg (283024 * t + 209189)]
+    have hidentity :
+        566048 * R = (283024 * t + 209189) * (283024 * t + 209189) + 1063 := by
+      dsimp [R]
+      ring
+    intro hR
+    have hpositive : 0 < 566048 * R := by nlinarith
+    rw [hR] at hpositive
+    norm_num at hpositive
+  have hx_factor : 1 - 532 * R = -((7448 * t + 5505) * (10108 * t + 7471)) := by
+    dsimp [R]
+    ring
+  have hy_factor : 557 * t + 412 - 165 * R = -4 * (1330 * t + 983) * (4389 * t + 3244) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 532 * R ≠ 0 := by
+    have hfirst : 7448 * t + 5505 ≠ 0 := by omega
+    have hsecond : 10108 * t + 7471 ≠ 0 := by omega
+    have hprod : -((7448 * t + 5505) * (10108 * t + 7471)) ≠ 0 := by
+      exact neg_ne_zero.mpr (mul_ne_zero hfirst hsecond)
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 557 * t + 412 - 165 * R ≠ 0 := by
+    have hfirst : 1330 * t + 983 ≠ 0 := by omega
+    have hsecond : 4389 * t + 3244 ≠ 0 := by omega
+    have hprod : -4 * (1330 * t + 983) * (4389 * t + 3244) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨557 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨78822184 * t * t + 116518108 * t + 43060433, ?_⟩
+      simp [normSq, sub, sq]
+      ring
+
+theorem certificateValid_unitCoordinateFifteenEightFactorTwoParallel {t : Int} :
+    certificateValid
+      ({ x := 1, y := 34 * t + 26 } : Point)
+      ({ x := 15 * (225 * t * t + 338 * t + 127),
+          y := 8 * (225 * t * t + 338 * t + 127) } : Point) := by
+  let R : Int := 225 * t * t + 338 * t + 127
+  have hR_pos : 0 < R := by
+    have hsquare : 0 ≤ (450 * t + 338) * (450 * t + 338) := by
+      nlinarith [sq_nonneg (450 * t + 338)]
+    have hidentity : 900 * R = (450 * t + 338) * (450 * t + 338) + 56 := by
+      dsimp [R]
+      ring
+    nlinarith
+  have hR_ne : R ≠ 0 := ne_of_gt hR_pos
+  have hx_factor : 1 - 15 * R = -1 * (45 * t + 34) * (75 * t + 56) := by
+    dsimp [R]
+    ring
+  have hy_factor : 34 * t + 26 - 8 * R = -30 * (4 * t + 3) * (15 * t + 11) := by
+    dsimp [R]
+    ring
+  have hx_nonzero : 1 - 15 * R ≠ 0 := by
+    have hfirst : 45 * t + 34 ≠ 0 := by omega
+    have hsecond : 75 * t + 56 ≠ 0 := by omega
+    have hprod : -1 * (45 * t + 34) * (75 * t + 56) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hx
+    apply hprod
+    exact hx_factor.symm.trans hx
+  have hy_nonzero : 34 * t + 26 - 8 * R ≠ 0 := by
+    have hfirst : 4 * t + 3 ≠ 0 := by omega
+    have hsecond : 15 * t + 11 ≠ 0 := by omega
+    have hprod : -30 * (4 * t + 3) * (15 * t + 11) ≠ 0 :=
+      mul_ne_zero (mul_ne_zero (by norm_num) hfirst) hsecond
+    intro hy
+    apply hprod
+    exact hy_factor.symm.trans hy
+  constructor
+  · constructor
+    · exact ⟨mul_ne_zero (by norm_num) hR_ne, mul_ne_zero (by norm_num) hR_ne⟩
+    · refine ⟨17 * R, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hx_nonzero
+      · simpa [sub, R, mul_comm, mul_left_comm, mul_assoc] using hy_nonzero
+    · refine ⟨3825 * t * t + 5730 * t + 2146, ?_⟩
+      simp [normSq, sub, sq]
+      ring
 
 theorem sub_add_smul_smul (r s : Int) (u v : Point) :
     sub (add (smul r u) (smul s v)) (smul r u) = smul s v := by
@@ -1999,5 +4814,1069 @@ theorem gaussianRootResidue_sq_neg_one {a b c rho inv : Int}
           Int.ModEq.mul hinv_sq (Int.ModEq.refl (n := c) (rho * rho + 1))
       _ = rho * rho + 1 := by ring
   exact hleft.symm.trans hzero
+
+theorem certificateValid_oneTwoRootSpineLine {q t r : Int}
+    (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -3 * r + 2 * q * t * (3 * t + 1),
+          y := 4 * r - q * (4 * t + 1) * (2 * t + 1) } : Point)
+      ({ x := -3 * r, y := 4 * r } : Point) := by
+  let target : Point :=
+    { x := -3 * r + 2 * q * t * (3 * t + 1),
+      y := 4 * r - q * (4 * t + 1) * (2 * t + 1) }
+  let midpoint : Point := { x := -3 * r, y := 4 * r }
+  have hthree : 3 * t + 1 ≠ 0 := by omega
+  have hfour : 4 * t + 1 ≠ 0 := by omega
+  have htwo : 2 * t + 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-3 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨5 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : 2 * q * t * (3 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) ht) hthree
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor : -q * (4 * t + 1) * (2 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (neg_ne_zero.mpr hq) hfour) htwo
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (10 * t * t + 6 * t + 1), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (2 * q * t * (3 * t + 1)) +
+                sq (-q * (4 * t + 1) * (2 * t + 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+      _ = (q * (10 * t * t + 6 * t + 1)) *
+          (q * (10 * t * t + 6 * t + 1)) := by
+        simp [sq]
+        ring_nf
+
+theorem certificateValid_oneEvenRootSpineLine {k q t r : Int}
+    (hk : 1 ≤ k) (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := (1 - 4 * k * k) * r +
+            2 * q * ((2 * k + 1) * t + k) * ((2 * k - 1) * t + k - 1),
+          y := (4 * k) * r - q * (4 * k * t + 2 * k - 1) * (2 * t + 1) } :
+        Point)
+      ({ x := (1 - 4 * k * k) * r, y := (4 * k) * r } : Point) := by
+  let target : Point :=
+    { x := (1 - 4 * k * k) * r +
+          2 * q * ((2 * k + 1) * t + k) * ((2 * k - 1) * t + k - 1),
+      y := (4 * k) * r - q * (4 * k * t + 2 * k - 1) * (2 * t + 1) }
+  let midpoint : Point := { x := (1 - 4 * k * k) * r, y := (4 * k) * r }
+  have hfirst_x : 1 - 4 * k * k ≠ 0 := by
+    nlinarith [hk, sq_nonneg (2 * k)]
+  have hfirst_y : 4 * k ≠ 0 := by
+    exact mul_ne_zero (by norm_num) (ne_of_gt (lt_of_lt_of_le (by norm_num) hk))
+  have hA : (2 * k + 1) * t + k ≠ 0 := by
+    by_cases ht_nonneg : 0 ≤ t
+    · have ht_pos : 1 ≤ t := by omega
+      nlinarith [hk, ht_pos]
+    · have ht_le : t ≤ -1 := by omega
+      nlinarith [hk, ht_le]
+  have hB : (2 * k - 1) * t + k - 1 ≠ 0 := by
+    by_cases ht_nonneg : 0 ≤ t
+    · have ht_pos : 1 ≤ t := by omega
+      nlinarith [hk, ht_pos]
+    · have ht_le : t ≤ -1 := by omega
+      nlinarith [hk, ht_le]
+  have hX : 4 * k * t + 2 * k - 1 ≠ 0 := by
+    intro hzero
+    have hone : 2 * (2 * k * t + k) = 1 := by nlinarith
+    omega
+  have hY : 2 * t + 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero hfirst_x hr
+      · exact mul_ne_zero hfirst_y hr
+    · refine ⟨(4 * k * k + 1) * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor :
+            2 * q * ((2 * k + 1) * t + k) *
+                ((2 * k - 1) * t + k - 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) hA) hB
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor :
+            -q * (4 * k * t + 2 * k - 1) * (2 * t + 1) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero (neg_ne_zero.mpr hq) hX) hY
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (8 * k * k * t * t + 8 * k * k * t + 2 * k * k -
+          4 * k * t - 2 * k + 2 * t * t + 2 * t + 1), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (2 * q * ((2 * k + 1) * t + k) *
+                    ((2 * k - 1) * t + k - 1)) +
+                sq (-q * (4 * k * t + 2 * k - 1) * (2 * t + 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (q * (8 * k * k * t * t + 8 * k * k * t + 2 * k * k -
+              4 * k * t - 2 * k + 2 * t * t + 2 * t + 1)) *
+            (q * (8 * k * k * t * t + 8 * k * k * t + 2 * k * k -
+              4 * k * t - 2 * k + 2 * t * t + 2 * t + 1)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_oneFourRootSpineLine {q t r : Int}
+    (hq : q ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -8 * r + q * (2 * t + 1) * (8 * t + 3),
+          y := -15 * r + 2 * q * (5 * t + 2) * (3 * t + 1) } : Point)
+      ({ x := -8 * r, y := -15 * r } : Point) := by
+  let target : Point :=
+    { x := -8 * r + q * (2 * t + 1) * (8 * t + 3),
+      y := -15 * r + 2 * q * (5 * t + 2) * (3 * t + 1) }
+  let midpoint : Point := { x := -8 * r, y := -15 * r }
+  have htwo : 2 * t + 1 ≠ 0 := by omega
+  have height : 8 * t + 3 ≠ 0 := by omega
+  have hfive : 5 * t + 2 ≠ 0 := by omega
+  have hthree : 3 * t + 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-8 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num : (-15 : Int) ≠ 0) hr
+    · refine ⟨17 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : q * (2 * t + 1) * (8 * t + 3) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero hq htwo) height
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor : 2 * q * (5 * t + 2) * (3 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) hfive) hthree
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (34 * t * t + 26 * t + 5), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (q * (2 * t + 1) * (8 * t + 3)) +
+                sq (2 * q * (5 * t + 2) * (3 * t + 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (q * (34 * t * t + 26 * t + 5)) *
+            (q * (34 * t * t + 26 * t + 5)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_oneFourRootSpineLineSwap {q t r : Int}
+    (hq : q ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -15 * r + 2 * q * (5 * t + 2) * (3 * t + 1),
+          y := -8 * r + q * (2 * t + 1) * (8 * t + 3) } : Point)
+      ({ x := -15 * r, y := -8 * r } : Point) := by
+  let target : Point :=
+    { x := -15 * r + 2 * q * (5 * t + 2) * (3 * t + 1),
+      y := -8 * r + q * (2 * t + 1) * (8 * t + 3) }
+  let midpoint : Point := { x := -15 * r, y := -8 * r }
+  have htwo : 2 * t + 1 ≠ 0 := by omega
+  have height : 8 * t + 3 ≠ 0 := by omega
+  have hfive : 5 * t + 2 ≠ 0 := by omega
+  have hthree : 3 * t + 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-15 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num : (-8 : Int) ≠ 0) hr
+    · refine ⟨17 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : 2 * q * (5 * t + 2) * (3 * t + 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) hfive) hthree
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor : q * (2 * t + 1) * (8 * t + 3) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero hq htwo) height
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (34 * t * t + 26 * t + 5), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (2 * q * (5 * t + 2) * (3 * t + 1)) +
+                sq (q * (2 * t + 1) * (8 * t + 3)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (q * (34 * t * t + 26 * t + 5)) *
+            (q * (34 * t * t + 26 * t + 5)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_oneFourEvenRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -8 * r - 2 * m * a * b,
+          y := -15 * r + m * (a * a - b * b) } : Point)
+      ({ x := -8 * r, y := -15 * r } : Point) := by
+  let target : Point :=
+    { x := -8 * r - 2 * m * a * b,
+      y := -15 * r + m * (a * a - b * b) }
+  let midpoint : Point := { x := -8 * r, y := -15 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : -2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  have hstep_y_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨17 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          -2 * m * a * b = (-8 * r - 2 * m * a * b) - (-8 * r) := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (-2 * m * a * b) + sq (m * (a * a - b * b)) := by
+              simp [target, midpoint, normSq, sub, sq]
+              ring
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_oneFourEvenRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -15 * r + m * (a * a - b * b),
+          y := -8 * r + 2 * m * a * b } : Point)
+      ({ x := -15 * r, y := -8 * r } : Point) := by
+  let target : Point :=
+    { x := -15 * r + m * (a * a - b * b),
+      y := -8 * r + 2 * m * a * b }
+  let midpoint : Point := { x := -15 * r, y := -8 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  have hstep_y_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨17 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply hstep_y_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (m * (a * a - b * b)) + sq (2 * m * a * b) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_twoThreeOddRootSpineLine {q t r : Int}
+    (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -12 * r + q * (4 * t - 1) * (6 * t - 1),
+          y := -5 * r + 2 * q * t * (5 * t - 1) } : Point)
+      ({ x := -12 * r, y := -5 * r } : Point) := by
+  let target : Point :=
+    { x := -12 * r + q * (4 * t - 1) * (6 * t - 1),
+      y := -5 * r + 2 * q * t * (5 * t - 1) }
+  let midpoint : Point := { x := -12 * r, y := -5 * r }
+  have hfour : 4 * t - 1 ≠ 0 := by omega
+  have hsix : 6 * t - 1 ≠ 0 := by omega
+  have hfive : 5 * t - 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-12 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num : (-5 : Int) ≠ 0) hr
+    · refine ⟨13 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : q * (4 * t - 1) * (6 * t - 1) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero hq hfour) hsix
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor : 2 * q * t * (5 * t - 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) ht) hfive
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (26 * t * t - 10 * t + 1), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (q * (4 * t - 1) * (6 * t - 1)) +
+                sq (2 * q * t * (5 * t - 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (q * (26 * t * t - 10 * t + 1)) *
+            (q * (26 * t * t - 10 * t + 1)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_twoThreeOddRootSpineLineSwap {q t r : Int}
+    (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -5 * r + 2 * q * t * (5 * t - 1),
+          y := -12 * r + q * (4 * t - 1) * (6 * t - 1) } : Point)
+      ({ x := -5 * r, y := -12 * r } : Point) := by
+  let target : Point :=
+    { x := -5 * r + 2 * q * t * (5 * t - 1),
+      y := -12 * r + q * (4 * t - 1) * (6 * t - 1) }
+  let midpoint : Point := { x := -5 * r, y := -12 * r }
+  have hfour : 4 * t - 1 ≠ 0 := by omega
+  have hsix : 6 * t - 1 ≠ 0 := by omega
+  have hfive : 5 * t - 1 ≠ 0 := by omega
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-5 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num : (-12 : Int) ≠ 0) hr
+    · refine ⟨13 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : 2 * q * t * (5 * t - 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hq) ht) hfive
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor : q * (4 * t - 1) * (6 * t - 1) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero hq hfour) hsix
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (26 * t * t - 10 * t + 1), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (2 * q * t * (5 * t - 1)) +
+                sq (q * (4 * t - 1) * (6 * t - 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+      _ = (q * (26 * t * t - 10 * t + 1)) *
+          (q * (26 * t * t - 10 * t + 1)) := by
+        simp [sq]
+        ring_nf
+
+theorem certificateValid_twoOddRootSpineLine {k q t r : Int}
+    (hk : 1 ≤ k) (hq : q ≠ 0) (ht : t ≠ 0) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := (-4 * (2 * k + 1)) * r +
+            q * (4 * t - 1) * (2 * (2 * k + 1) * t - 1),
+          y := (4 - (2 * k + 1) * (2 * k + 1)) * r +
+            2 * q * t * (2 * k - 1) * ((2 * k + 1) * t + 2 * t - 1) } :
+        Point)
+      ({ x := (-4 * (2 * k + 1)) * r,
+          y := (4 - (2 * k + 1) * (2 * k + 1)) * r } : Point) := by
+  let target : Point :=
+    { x := (-4 * (2 * k + 1)) * r +
+          q * (4 * t - 1) * (2 * (2 * k + 1) * t - 1),
+      y := (4 - (2 * k + 1) * (2 * k + 1)) * r +
+          2 * q * t * (2 * k - 1) * ((2 * k + 1) * t + 2 * t - 1) }
+  let midpoint : Point :=
+    { x := (-4 * (2 * k + 1)) * r,
+      y := (4 - (2 * k + 1) * (2 * k + 1)) * r }
+  have hodd_pos : 0 < 2 * k + 1 := by omega
+  have hfirst_x : -4 * (2 * k + 1) ≠ 0 := by
+    exact mul_ne_zero (by norm_num) (ne_of_gt hodd_pos)
+  have hfirst_y : 4 - (2 * k + 1) * (2 * k + 1) ≠ 0 := by
+    nlinarith [hk, sq_nonneg (2 * k + 1)]
+  have hfour : 4 * t - 1 ≠ 0 := by omega
+  have hwide : 2 * (2 * k + 1) * t - 1 ≠ 0 := by
+    intro hzero
+    have hone : 2 * ((2 * k + 1) * t) = 1 := by nlinarith
+    omega
+  have hkfactor : 2 * k - 1 ≠ 0 := by omega
+  have hnarrow : (2 * k + 1) * t + 2 * t - 1 ≠ 0 := by
+    by_cases ht_nonneg : 0 ≤ t
+    · have ht_pos : 1 ≤ t := by omega
+      nlinarith [hk, ht_pos]
+    · have ht_le : t ≤ -1 := by omega
+      nlinarith [hk, ht_le]
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero hfirst_x hr
+      · exact mul_ne_zero hfirst_y hr
+    · refine ⟨((2 * k + 1) * (2 * k + 1) + 4) * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · have hx_factor : q * (4 * t - 1) *
+            (2 * (2 * k + 1) * t - 1) ≠ 0 := by
+          exact mul_ne_zero (mul_ne_zero hq hfour) hwide
+        intro hx
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · have hy_factor :
+            2 * q * t * (2 * k - 1) *
+                ((2 * k + 1) * t + 2 * t - 1) ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero
+              (mul_ne_zero (mul_ne_zero (by norm_num) hq) ht)
+              hkfactor)
+            hnarrow
+        intro hy
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨q * (8 * k * k * t * t + 8 * k * t * t -
+          4 * k * t + 10 * t * t - 6 * t + 1), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (q * (4 * t - 1) * (2 * (2 * k + 1) * t - 1)) +
+                sq (2 * q * t * (2 * k - 1) *
+                    ((2 * k + 1) * t + 2 * t - 1)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (q * (8 * k * k * t * t + 8 * k * t * t -
+              4 * k * t + 10 * t * t - 6 * t + 1)) *
+            (q * (8 * k * k * t * t + 8 * k * t * t -
+              4 * k * t + 10 * t * t - 6 * t + 1)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_twoThreeOddGeneralRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (hdelta : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -12 * r - m * ((2 * a + 1) * (2 * b + 1)),
+          y := -5 * r + m * (2 * a * a + 2 * a - 2 * b * b - 2 * b) } : Point)
+      ({ x := -12 * r, y := -5 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := -12 * r - m * paired,
+      y := -5 * r + m * delta }
+  let midpoint : Point := { x := -12 * r, y := -5 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  have hstep_y_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdelta)
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨13 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          m * paired = -((-12 * r - m * paired) - (-12 * r)) := by ring
+          _ = -((sub target midpoint).x) := by simp [target, midpoint, sub]
+          _ = 0 := by rw [hx]; ring
+      · intro hy
+        apply hstep_y_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * paired) + sq (m * delta) := by
+          simp [target, midpoint, normSq, sub, sq]
+          ring
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
+
+theorem certificateValid_twoThreeOddGeneralRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (hdelta : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -5 * r + m * (2 * a * a + 2 * a - 2 * b * b - 2 * b),
+          y := -12 * r + m * ((2 * a + 1) * (2 * b + 1)) } : Point)
+      ({ x := -5 * r, y := -12 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := -5 * r + m * delta,
+      y := -12 * r + m * paired }
+  let midpoint : Point := { x := -5 * r, y := -12 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdelta)
+  have hstep_y_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨13 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          m * delta = (-5 * r + m * delta) - (-5 * r) := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * paired = (-12 * r + m * paired) - (-12 * r) := by ring
+          _ = (sub target midpoint).y := by simp [target, midpoint, sub]
+          _ = 0 := hy
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * delta) + sq (m * paired) := by
+          simp [target, midpoint, normSq, sub, sq]
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
+
+theorem certificateValid_twoThreeEvenRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -12 * r - 2 * m * a * b,
+          y := -5 * r + m * (a * a - b * b) } : Point)
+      ({ x := -12 * r, y := -5 * r } : Point) := by
+  let target : Point :=
+    { x := -12 * r - 2 * m * a * b,
+      y := -5 * r + m * (a * a - b * b) }
+  let midpoint : Point := { x := -12 * r, y := -5 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num : (-12 : Int) ≠ 0) hr
+      · exact mul_ne_zero (by norm_num : (-5 : Int) ≠ 0) hr
+    · refine ⟨13 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        have hx_factor : -2 * m * a * b ≠ 0 := by
+          exact mul_ne_zero
+            (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+        apply hx_factor
+        have hx' := hx
+        simp [sub] at hx'
+        nlinarith
+      · intro hy
+        have hy' := hy
+        simp [sub] at hy'
+        rcases hy' with hm0 | hdiff0
+        · exact hm hm0
+        · exact hdiff hdiff0
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            =
+                sq (-2 * m * a * b) +
+                sq (m * (a * a - b * b)) := by
+              simp [target, midpoint, normSq, sub, sq]
+              ring
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_twoFiveRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -20 * r + 2 * m * a * b,
+          y := 21 * r - m * (a * a - b * b) } : Point)
+      ({ x := -20 * r, y := 21 * r } : Point) := by
+  let target : Point :=
+    { x := -20 * r + 2 * m * a * b,
+      y := 21 * r - m * (a * a - b * b) }
+  let midpoint : Point := { x := -20 * r, y := 21 * r }
+  have habfactor : m * (a * a - b * b) ≠ 0 := by
+    exact mul_ne_zero hm (sub_ne_zero.mpr hab)
+  have hstep_x_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨29 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        have hx_factor : 2 * m * a * b ≠ 0 := hstep_x_factor
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply habfactor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (2 * m * a * b) + sq (m * (a * a - b * b)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_twoFiveRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -21 * r + m * (a * a - b * b),
+          y := 20 * r + 2 * m * a * b } : Point)
+      ({ x := -21 * r, y := 20 * r } : Point) := by
+  let target : Point :=
+    { x := -21 * r + m * (a * a - b * b),
+      y := 20 * r + 2 * m * a * b }
+  let midpoint : Point := { x := -21 * r, y := 20 * r }
+  have habfactor : m * (a * a - b * b) ≠ 0 := by
+    exact mul_ne_zero hm (sub_ne_zero.mpr hab)
+  have hstep_x_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨29 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        have hx_factor : m * (a * a - b * b) ≠ 0 := habfactor
+        apply hx_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        have hy_factor : 2 * m * a * b ≠ 0 := hstep_x_factor
+        apply hy_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (m * (a * a - b * b)) + sq (2 * m * a * b) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_threeFourRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -7 * r + m * (a * a - b * b),
+          y := 24 * r + 2 * m * a * b } : Point)
+      ({ x := -7 * r, y := 24 * r } : Point) := by
+  let target : Point :=
+    { x := -7 * r + m * (a * a - b * b),
+      y := 24 * r + 2 * m * a * b }
+  let midpoint : Point := { x := -7 * r, y := 24 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  have hstep_y_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨25 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply hstep_y_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (m * (a * a - b * b)) + sq (2 * m * a * b) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_threeFourRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := 24 * r + 2 * m * a * b,
+          y := 7 * r - m * (a * a - b * b) } : Point)
+      ({ x := 24 * r, y := 7 * r } : Point) := by
+  let target : Point :=
+    { x := 24 * r + 2 * m * a * b,
+      y := 7 * r - m * (a * a - b * b) }
+  let midpoint : Point := { x := 24 * r, y := 7 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  have hstep_y_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨25 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          2 * m * a * b = (24 * r + 2 * m * a * b) - 24 * r := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * (a * a - b * b) = -((7 * r - m * (a * a - b * b)) - 7 * r) := by ring
+          _ = -((sub target midpoint).y) := by simp [target, midpoint, sub]
+          _ = 0 := by rw [hy]; ring
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (2 * m * a * b) + sq (m * (a * a - b * b)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_threeFourOddRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (hdiff : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -7 * r + m * (2 * a * a + 2 * a - 2 * b * b - 2 * b),
+          y := 24 * r + m * ((2 * a + 1) * (2 * b + 1)) } : Point)
+      ({ x := -7 * r, y := 24 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := -7 * r + m * delta,
+      y := 24 * r + m * paired }
+  let midpoint : Point := { x := -7 * r, y := 24 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdiff)
+  have hstep_y_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨25 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          m * delta = (-7 * r + m * delta) - (-7 * r) := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * paired = (24 * r + m * paired) - 24 * r := by ring
+          _ = (sub target midpoint).y := by simp [target, midpoint, sub]
+          _ = 0 := hy
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * delta) + sq (m * paired) := by
+          simp [target, midpoint, normSq, sub, sq]
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
+
+theorem certificateValid_threeFourOddRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (hdiff : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := 24 * r + m * ((2 * a + 1) * (2 * b + 1)),
+          y := 7 * r - m * (2 * a * a + 2 * a - 2 * b * b - 2 * b) } : Point)
+      ({ x := 24 * r, y := 7 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := 24 * r + m * paired,
+      y := 7 * r - m * delta }
+  let midpoint : Point := { x := 24 * r, y := 7 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  have hstep_y_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdiff)
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨25 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          m * paired = (24 * r + m * paired) - 24 * r := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * delta = -((7 * r - m * delta) - 7 * r) := by ring
+          _ = -((sub target midpoint).y) := by simp [target, midpoint, sub]
+          _ = 0 := by rw [hy]; ring
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * paired) + sq (m * delta) := by
+          simp [target, midpoint, normSq, sub, sq]
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
+
+theorem certificateValid_fourFiveRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -9 * r + m * (a * a - b * b),
+          y := 40 * r + 2 * m * a * b } : Point)
+      ({ x := -9 * r, y := 40 * r } : Point) := by
+  let target : Point :=
+    { x := -9 * r + m * (a * a - b * b),
+      y := 40 * r + 2 * m * a * b }
+  let midpoint : Point := { x := -9 * r, y := 40 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  have hstep_y_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨41 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply hstep_y_factor
+        simpa [target, midpoint, sub] using hy
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (m * (a * a - b * b)) + sq (2 * m * a * b) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_fourFiveRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (ha : a ≠ 0) (hb : b ≠ 0)
+    (hab : a * a ≠ b * b) (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -40 * r + 2 * m * a * b,
+          y := 9 * r - m * (a * a - b * b) } : Point)
+      ({ x := -40 * r, y := 9 * r } : Point) := by
+  let target : Point :=
+    { x := -40 * r + 2 * m * a * b,
+      y := 9 * r - m * (a * a - b * b) }
+  let midpoint : Point := { x := -40 * r, y := 9 * r }
+  have hdiff : a * a - b * b ≠ 0 := sub_ne_zero.mpr hab
+  have hstep_x_factor : 2 * m * a * b ≠ 0 := by
+    exact mul_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) hm) ha) hb
+  have hstep_y_factor : m * (a * a - b * b) ≠ 0 := mul_ne_zero hm hdiff
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨41 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * (a * a - b * b) = -((9 * r - m * (a * a - b * b)) - 9 * r) := by ring
+          _ = -((sub target midpoint).y) := by simp [target, midpoint, sub]
+          _ = 0 := by rw [hy]; ring
+    · refine ⟨m * (a * a + b * b), ?_⟩
+      calc
+        normSq (sub target midpoint)
+            = sq (2 * m * a * b) + sq (m * (a * a - b * b)) := by
+              simp [target, midpoint, normSq, sub, sq]
+        _ = (m * (a * a + b * b)) * (m * (a * a + b * b)) := by
+          simp [sq]
+          ring_nf
+
+theorem certificateValid_threeEightOddRootSpineLine {m a b r : Int}
+    (hm : m ≠ 0) (hdiff : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -55 * r + m * (2 * a * a + 2 * a - 2 * b * b - 2 * b),
+          y := 48 * r + m * ((2 * a + 1) * (2 * b + 1)) } : Point)
+      ({ x := -55 * r, y := 48 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := -55 * r + m * delta,
+      y := 48 * r + m * paired }
+  let midpoint : Point := { x := -55 * r, y := 48 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdiff)
+  have hstep_y_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨73 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        simpa [target, midpoint, sub] using hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * paired = (48 * r + m * paired) - 48 * r := by ring
+          _ = (sub target midpoint).y := by simp [target, midpoint, sub]
+          _ = 0 := hy
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * delta) + sq (m * paired) := by
+          simp [target, midpoint, normSq, sub, sq]
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
+
+theorem certificateValid_threeEightOddRootSpineLineSwap {m a b r : Int}
+    (hm : m ≠ 0) (hdiff : 2 * a * a + 2 * a - 2 * b * b - 2 * b ≠ 0)
+    (hr : r ≠ 0) :
+    certificateValid
+      ({ x := -48 * r + m * ((2 * a + 1) * (2 * b + 1)),
+          y := 55 * r - m * (2 * a * a + 2 * a - 2 * b * b - 2 * b) } : Point)
+      ({ x := -48 * r, y := 55 * r } : Point) := by
+  let delta : Int := 2 * a * a + 2 * a - 2 * b * b - 2 * b
+  let paired : Int := (2 * a + 1) * (2 * b + 1)
+  let hyp : Int := 2 * a * a + 2 * a + 2 * b * b + 2 * b + 1
+  let target : Point :=
+    { x := -48 * r + m * paired,
+      y := 55 * r - m * delta }
+  let midpoint : Point := { x := -48 * r, y := 55 * r }
+  have hodd_a : 2 * a + 1 ≠ 0 := by omega
+  have hodd_b : 2 * b + 1 ≠ 0 := by omega
+  have hpaired : paired ≠ 0 := mul_ne_zero hodd_a hodd_b
+  have hstep_x_factor : m * paired ≠ 0 := mul_ne_zero hm hpaired
+  have hstep_y_factor : m * delta ≠ 0 := by
+    exact mul_ne_zero hm (by simpa [delta] using hdiff)
+  constructor
+  · constructor
+    · constructor
+      · exact mul_ne_zero (by norm_num) hr
+      · exact mul_ne_zero (by norm_num) hr
+    · refine ⟨73 * r, ?_⟩
+      simp [normSq, sq]
+      ring
+  · constructor
+    · constructor
+      · intro hx
+        apply hstep_x_factor
+        calc
+          m * paired = (-48 * r + m * paired) - (-48 * r) := by ring
+          _ = (sub target midpoint).x := by simp [target, midpoint, sub]
+          _ = 0 := hx
+      · intro hy
+        apply hstep_y_factor
+        calc
+          m * delta = -((55 * r - m * delta) - 55 * r) := by ring
+          _ = -((sub target midpoint).y) := by simp [target, midpoint, sub]
+          _ = 0 := by rw [hy]; ring
+    · refine ⟨m * hyp, ?_⟩
+      calc
+        normSq (sub target midpoint) = sq (m * paired) + sq (m * delta) := by
+          simp [target, midpoint, normSq, sub, sq]
+        _ = (m * hyp) * (m * hyp) := by
+          simp [delta, paired, hyp, sq]
+          ring_nf
 
 end PythagoreanWalks

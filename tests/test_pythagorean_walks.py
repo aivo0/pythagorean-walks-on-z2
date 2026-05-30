@@ -170,6 +170,9 @@ from experiments.pythagorean_walks import (
     determinant_thirteen_lattice_certificate,
     delta_slice_certificate,
     edge,
+    eight_fifteen_seventeen_unit_divisor_ray_certificate,
+    eight_fifteen_seventeen_unit_divisor_ray_data,
+    eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate,
     euclid_sqrt_minus_one_residues,
     euclid_strip_certificate,
     euclid_parameter_difference_certificate,
@@ -180,6 +183,7 @@ from experiments.pythagorean_walks import (
     five_twelve_thirteen_unit_divisor_ray_data,
     five_twelve_thirteen_unit_divisor_ray_orbit_certificate,
     four_three_factor_five_parallel_certificate,
+    four_five_root_spine_line_certificate,
     gaussian_root_conjugate_divisibility_residue,
     gaussian_divisor_certificate,
     gaussian_multiply,
@@ -223,13 +227,30 @@ from experiments.pythagorean_walks import (
     odd_residues,
     one_three_ray_theorem3_certificate,
     one_three_ray_theorem3_orbit_certificate,
+    one_four_even_root_spine_line_certificate,
+    one_four_root_spine_line_certificate,
+    one_even_root_spine_line_certificate,
+    one_even_root_spine_line_orbit_certificate,
+    one_two_root_spine_line_certificate,
+    two_five_root_spine_line_certificate,
+    two_odd_root_spine_line_orbit_certificate,
+    two_three_odd_general_root_spine_line_certificate,
+    three_four_odd_root_spine_line_certificate,
+    three_four_root_spine_line_certificate,
+    three_eight_odd_root_spine_line_certificate,
     path_is_valid,
+    PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS,
+    PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE,
     parallel_direction_certificate,
     beta_square_is_axis_degenerate,
     parallel_direction_bounded_factor_cover_certificate,
+    gaussian_root_shape,
     parallel_direction_conjugate_ideal_certificate,
+    parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness,
+    parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness,
     parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds,
     parallel_direction_conjugate_ideal_divisor_obligation_directions,
+    parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile,
     parallel_direction_conjugate_ideal_divisor_obligation_key,
     parallel_direction_conjugate_ideal_divisor_obligation_strip_census,
     parallel_direction_conjugate_ideal_divisor_obligation_strip_holds,
@@ -301,6 +322,7 @@ from experiments.pythagorean_walks import (
     parallel_direction_cover_witness_census,
     parallel_direction_promoted_345_factor_certificate,
     parallel_direction_promoted_345_factor_witness,
+    promoted_root_spine_line_certificate_from_witness,
     parallel_direction_primitive_ray_certificate,
     parallel_direction_primitive_ray_witness,
     parallel_direction_standard_completion_cover_certificate,
@@ -379,6 +401,15 @@ from experiments.pythagorean_walks import (
     theorem3_ray_divisor_certificate,
     theorem3_ray_divisor_modulus,
     theorem3_ray_pell_divisor_certificate,
+    theorem3_coprime_unit_divisor_progression_certificate,
+    theorem3_coprime_unit_divisor_progression_orbit_certificate,
+    theorem3_coprime_unit_divisor_progression_ray,
+    theorem3_coprime_unit_divisor_seed,
+    theorem3_unit_divisor_step_coefficients,
+    theorem3_unit_divisor_progression_certificate,
+    theorem3_unit_divisor_progression_orbit_certificate,
+    theorem3_unit_divisor_progression_parameters_for_base,
+    theorem3_unit_divisor_progression_ray,
     three_four_five_unit_divisor_ray_certificate,
     three_four_five_unit_divisor_ray_data,
     three_four_five_unit_divisor_ray_orbit_certificate,
@@ -452,6 +483,8 @@ from experiments.pythagorean_walks import (
     two_one_ray_mod_130_divisor_residues,
     two_one_ray_mod_ten_divisor_certificate,
     two_one_ray_mod_ten_divisor_orbit_certificate,
+    two_one_ray_two_or_three_mod_five_parallel_certificate,
+    two_one_ray_two_or_three_mod_five_parallel_orbit_certificate,
     two_one_ray_mod_eighty_two_divisor_certificate,
     two_one_ray_mod_eighty_two_divisor_orbit_certificate,
     two_one_ray_mod_thirty_four_divisor_certificate,
@@ -484,13 +517,159 @@ from experiments.pythagorean_walks import (
     two_one_ray_multiple_of_three_theorem3_orbit_certificate,
     two_one_ray_three_mod_four_certificate,
     two_one_ray_three_mod_four_orbit_certificate,
+    two_three_even_root_spine_line_certificate,
+    two_odd_root_spine_line_certificate,
+    two_three_odd_root_spine_line_certificate,
     unit_coordinate_500_audit_certificate,
     unit_coordinate_500_residual_certificate,
     unit_coordinate_consecutive_hypotenuse_certificate,
+    unit_coordinate_factor_four_parallel_certificate,
+    unit_coordinate_factor_four_parallel_orbit_certificate,
     unit_coordinate_factor_five_parallel_certificate,
     unit_coordinate_factor_five_parallel_orbit_certificate,
+    unit_coordinate_fifteen_eight_factor_two_parallel_certificate,
+    unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate,
+    UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS,
+    unit_coordinate_twelve_thirty_five_factor_one_parallel_certificate,
+    unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_forty_nine_factor_one_parallel_certificate,
+    unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_twenty_eight_forty_five_factor_one_parallel_certificate,
+    unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_sixty_eleven_factor_one_parallel_certificate,
+    unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_forty_eight_fifty_five_factor_one_parallel_certificate,
+    unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_eighty_thirty_nine_factor_one_parallel_certificate,
+    unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_seventy_two_sixty_five_factor_one_parallel_certificate,
+    unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_twenty_ninety_nine_factor_one_parallel_certificate,
+    unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_sixty_ninety_one_factor_one_parallel_certificate,
+    unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_certificate,
+    unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_certificate,
+    unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_certificate,
+    unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_certificate,
+    unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_certificate,
+    unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_certificate,
+    unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_certificate,
+    unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_certificate,
+    unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_certificate,
+    unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_certificate,
+    unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_certificate,
+    unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_certificate,
+    unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_certificate,
+    unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_certificate,
+    unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate,
+    UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+    unit_coordinate_factor_twenty_five_parallel_certificate,
+    unit_coordinate_factor_twenty_five_parallel_orbit_certificate,
+    unit_coordinate_one_mod_five_parallel_certificate,
+    unit_coordinate_one_mod_five_parallel_orbit_certificate,
+    unit_coordinate_promoted_mod_hundred_certificate,
+    UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES,
     unit_coordinate_parallel_factor_orbit_certificate,
     unit_coordinate_parallel_factor_residues,
+    unit_coordinate_residual_orthogonal_seed_certificate,
+    UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS,
+    unit_coordinate_seven_mod_ten_parallel_certificate,
+    unit_coordinate_seven_mod_ten_parallel_orbit_certificate,
+    unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate,
+    unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate,
     unit_coordinate_multiple_of_five_certificate,
     known_distance_three_obstruction_cases,
     y_squared_minus_y_plus_one_is_square,
@@ -2212,6 +2391,3966 @@ class CertificateTests(unittest.TestCase):
 
         self.assertIsNone(unit_coordinate_factor_five_parallel_orbit_certificate((1, 16)))
 
+    def test_unit_coordinate_factor_four_parallel_family(self):
+        for parameter_t in range(-20, 21):
+            target = (1, 20 * parameter_t + 12)
+            first_coefficient = 18 * parameter_t * parameter_t + 16 * parameter_t + 3
+            certificate = unit_coordinate_factor_four_parallel_certificate(parameter_t)
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (-3 * first_coefficient, -4 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (-3, -4), 4),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = unit_coordinate_factor_four_parallel_orbit_certificate(
+                    orbit_target
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        self.assertIsNone(unit_coordinate_factor_four_parallel_orbit_certificate((1, 11)))
+
+    def test_unit_coordinate_one_mod_five_parallel_family(self):
+        for parameter_t in range(-30, 31):
+            target = (1, 5 * parameter_t + 1)
+            first_coefficient = 8 * parameter_t * parameter_t + 5 * parameter_t + 1
+            certificate = unit_coordinate_one_mod_five_parallel_certificate(parameter_t)
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (4 * first_coefficient, -3 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (4, -3), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_mod_five_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        self.assertIsNone(
+            unit_coordinate_one_mod_five_parallel_orbit_certificate((1, 2))
+        )
+
+    def test_unit_coordinate_seven_mod_ten_parallel_family(self):
+        for parameter_t in range(-30, 31):
+            target = (1, 10 * parameter_t + 7)
+            first_coefficient = 18 * parameter_t * parameter_t + 22 * parameter_t + 7
+            certificate = unit_coordinate_seven_mod_ten_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (3 * first_coefficient, 4 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (3, 4), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_seven_mod_ten_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        self.assertIsNone(
+            unit_coordinate_seven_mod_ten_parallel_orbit_certificate((1, 2))
+        )
+
+    def test_unit_coordinate_factor_twenty_five_parallel_family(self):
+        for parameter_t in range(-30, 31):
+            target = (1, 25 * parameter_t + 18)
+            first_coefficient = 8 * parameter_t * parameter_t + 9 * parameter_t + 2
+            certificate = unit_coordinate_factor_twenty_five_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (4 * first_coefficient, -3 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (4, -3), 25),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_factor_twenty_five_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        self.assertIsNone(
+            unit_coordinate_factor_twenty_five_parallel_orbit_certificate((1, 2))
+        )
+
+    def test_unit_coordinate_twenty_two_mod_twenty_five_parallel_family(self):
+        for parameter_t in range(-20, 21):
+            target = (1, 25 * parameter_t + 22)
+            certificate = (
+                unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate(
+                    parameter_t
+                )
+            )
+            if parameter_t == -1:
+                self.assertIsNone(certificate)
+                self.assertIsNone(
+                    parallel_direction_factor_certificate(target, (-4, -3), 5)
+                )
+                orbit_certificate = (
+                    unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, target)
+                self.assertTrue(orbit_certificate.valid())
+                for orbit_target in sign_swap_orbit(target):
+                    orbit_certificate = (
+                        unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate(
+                            orbit_target
+                        )
+                    )
+                    self.assertIsNotNone(orbit_certificate)
+                    self.assertEqual(orbit_certificate.target, orbit_target)
+                    self.assertTrue(orbit_certificate.valid())
+                continue
+
+            first_coefficient = (
+                40 * parameter_t * parameter_t + 65 * parameter_t + 26
+            )
+            self.assertIsNotNone(certificate)
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (-4 * first_coefficient, -3 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (-4, -3), 5),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        self.assertIsNone(
+            unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate(
+                (1, 18)
+            )
+        )
+
+    def test_unit_coordinate_promoted_mod_hundred_cover(self):
+        self.assertEqual(
+            UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES,
+            frozenset({2, 38, 62, 98}),
+        )
+
+        for other_coordinate in range(-300, 301):
+            target = (1, other_coordinate)
+            certificate = unit_coordinate_promoted_mod_hundred_certificate(target)
+            if (
+                other_coordinate == 0
+                or other_coordinate % 100
+                in UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES
+            ):
+                self.assertIsNone(certificate, target)
+                continue
+
+            self.assertIsNotNone(certificate, target)
+            self.assertEqual(certificate.target, target)
+            self.assertTrue(certificate.valid())
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = unit_coordinate_promoted_mod_hundred_certificate(
+                    orbit_target
+                )
+                self.assertIsNotNone(orbit_certificate, orbit_target)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue in range(100):
+            if residue == 0:
+                target = (1, 100)
+            else:
+                target = (1, residue)
+            certificate = unit_coordinate_promoted_mod_hundred_certificate(target)
+            if residue in UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES:
+                self.assertIsNone(certificate, residue)
+            else:
+                self.assertIsNotNone(certificate, residue)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(unit_coordinate_promoted_mod_hundred_certificate((2, 3)))
+
+    def test_unit_coordinate_residual_orthogonal_seed_rows(self):
+        self.assertEqual(
+            UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS,
+            (
+                (2, 22_002, 28_900, (8, 15, 17)),
+                (38, 38, 28_900, (8, 15, 17)),
+                (62, 4_662, 28_900, (8, 15, 17)),
+                (98, 11_598, 28_900, (8, 15, 17)),
+            ),
+        )
+        self.assertEqual(
+            {residue for residue, _base, _period, _triple in (
+                UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS
+            )},
+            UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES,
+        )
+
+        for residue, base, period, triple_data in (
+            UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS
+        ):
+            triple = PythagoreanTriple(*triple_data)
+            self.assertTrue(triple.valid())
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 100 * triple.hypotenuse * triple.hypotenuse)
+
+            for parameter_t in range(-2, 3):
+                target = (1, base + period * parameter_t)
+                self.assertIsNone(unit_coordinate_promoted_mod_hundred_certificate(target))
+                certificate = unit_coordinate_residual_orthogonal_seed_certificate(target)
+                explicit = pythagorean_triple_orthogonal_lattice_certificate(
+                    target,
+                    triple,
+                )
+                self.assertEqual(certificate, explicit)
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+                for orbit_target in sign_swap_orbit(target):
+                    orbit_certificate = unit_coordinate_residual_orthogonal_seed_certificate(
+                        orbit_target
+                    )
+                    self.assertIsNotNone(orbit_certificate)
+                    self.assertEqual(orbit_certificate.target, orbit_target)
+                    self.assertTrue(orbit_certificate.valid())
+
+        self.assertEqual(
+            unit_coordinate_residual_orthogonal_seed_certificate((1, 38)).midpoint,
+            (16, 30),
+        )
+        self.assertIsNone(
+            unit_coordinate_residual_orthogonal_seed_certificate((1, 138))
+        )
+        self.assertIsNone(
+            unit_coordinate_residual_orthogonal_seed_certificate((2, 3))
+        )
+
+    def test_unit_coordinate_twelve_thirty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((-12, -35), 1),
+            tuple(range(25, 2_738, 37)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 802, 3_700),
+                (38, 1_838, 3_700),
+                (62, 62, 3_700),
+                (98, 1_098, 3_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 37 * parameter_t + 25
+            first_coefficient = (
+                72 * parameter_t * parameter_t + 85 * parameter_t + 25
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_twelve_thirty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (-12 * first_coefficient, -35 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (-12, -35), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 3_700)
+            self.assertEqual((base - 25) % 37, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+                (1, -12)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+                (1, 24)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_forty_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((40, 9), 1),
+            tuple(range(23, 3_362, 41)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 802, 4_100),
+                (38, 638, 4_100),
+                (62, 3_262, 4_100),
+                (98, 3_098, 4_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 41 * parameter_t + 23
+            first_coefficient = (
+                800 * parameter_t * parameter_t + 889 * parameter_t + 247
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_forty_nine_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (40 * first_coefficient, 9 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (40, 9), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 4_100)
+            self.assertEqual((base - 23) % 41, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate(
+                (1, -18)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate(
+                (1, 22)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate((2, 3))
+        )
+
+    def test_unit_coordinate_twenty_eight_forty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((28, 45), 1),
+            tuple(range(10, 5_618, 53)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 3_402, 5_300),
+                (38, 4_038, 5_300),
+                (62, 4_462, 5_300),
+                (98, 5_098, 5_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 53 * parameter_t + 10
+            first_coefficient = (
+                392 * parameter_t * parameter_t + 125 * parameter_t + 10
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_twenty_eight_forty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (28 * first_coefficient, 45 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (28, 45), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 5_300)
+            self.assertEqual((base - 10) % 53, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+                (1, -43)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+                (1, 9)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_sixty_eleven_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((60, 11), 1),
+            tuple(range(39, 7_442, 61)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 5_102, 6_100),
+                (38, 3_638, 6_100),
+                (62, 2_662, 6_100),
+                (98, 1_198, 6_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 61 * parameter_t + 39
+            first_coefficient = (
+                1800 * parameter_t * parameter_t + 2291 * parameter_t + 729
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_sixty_eleven_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (60 * first_coefficient, 11 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (60, 11), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS:
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 6_100)
+            self.assertEqual((base - 39) % 61, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+                (1, -22)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+                (1, 38)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_forty_eight_fifty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((48, 55), 1),
+            tuple(range(31, 10_658, 73)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 2_002, 7_300),
+                (38, 4_338, 7_300),
+                (62, 3_462, 7_300),
+                (98, 5_798, 7_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 73 * parameter_t + 31
+            first_coefficient = (
+                1152 * parameter_t * parameter_t + 943 * parameter_t + 193
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_forty_eight_fifty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (48 * first_coefficient, 55 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (48, 55), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 7_300)
+            self.assertEqual((base - 31) % 73, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+                (1, -42)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+                (1, 30)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_eighty_thirty_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((80, 39), 1),
+            tuple(range(71, 15_842, 89)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 7_102, 8_900),
+                (38, 338, 8_900),
+                (62, 1_762, 8_900),
+                (98, 3_898, 8_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 89 * parameter_t + 71
+            first_coefficient = (
+                3200 * parameter_t * parameter_t + 5071 * parameter_t + 2009
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_eighty_thirty_nine_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (80 * first_coefficient, 39 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (80, 39), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 8_900)
+            self.assertEqual((base - 71) % 89, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+                (1, -18)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+                (1, 70)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_seventy_two_sixty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((72, 65), 1),
+            tuple(range(78, 18_818, 97)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 9_002, 9_700),
+                (38, 7_838, 9_700),
+                (62, 7_062, 9_700),
+                (98, 5_898, 9_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 97 * parameter_t + 78
+            first_coefficient = (
+                2592 * parameter_t * parameter_t + 4121 * parameter_t + 1638
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_seventy_two_sixty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (72 * first_coefficient, 65 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (72, 65), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 9_700)
+            self.assertEqual((base - 78) % 97, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, -19)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, 77)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_twenty_ninety_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((20, 99), 1),
+            tuple(range(60, 20_402, 101)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 4_302, 10_100),
+                (38, 7_938, 10_100),
+                (62, 262, 10_100),
+                (98, 3_898, 10_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 101 * parameter_t + 60
+            first_coefficient = 200 * parameter_t * parameter_t + 219 * parameter_t + 60
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_twenty_ninety_nine_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (20 * first_coefficient, 99 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (20, 99), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 10_100)
+            self.assertEqual((base - 60) % 101, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, -41)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, 59)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_sixty_ninety_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((60, 91), 1),
+            tuple(range(82, 23_844, 109)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 8_802, 10_900),
+                (38, 9_238, 10_900),
+                (62, 2_262, 10_900),
+                (98, 2_698, 10_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 109 * parameter_t + 82
+            first_coefficient = (
+                1800 * parameter_t * parameter_t + 2659 * parameter_t + 982
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_sixty_ninety_one_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (60 * first_coefficient, 91 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (60, 91), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 10_900)
+            self.assertEqual((base - 82) % 109, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+                (1, -27)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+                (1, 81)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((112, 15), 1),
+            tuple(range(83, 25_538, 113)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 7_202, 11_300),
+                (38, 4_038, 11_300),
+                (62, 9_462, 11_300),
+                (98, 6_298, 11_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 113 * parameter_t + 83
+            first_coefficient = (
+                6272 * parameter_t * parameter_t + 9199 * parameter_t + 3373
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (112 * first_coefficient, 15 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (112, 15), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 11_300)
+            self.assertEqual((base - 83) % 113, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+                (1, -30)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+                (1, 82)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((88, 105), 1),
+            tuple(range(7, 37_545, 137)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 4_802, 13_700),
+                (38, 8_638, 13_700),
+                (62, 2_062, 13_700),
+                (98, 5_898, 13_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 137 * parameter_t + 7
+            first_coefficient = (
+                3872 * parameter_t * parameter_t + 329 * parameter_t + 7
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (88 * first_coefficient, 105 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (88, 105), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 13_700)
+            self.assertEqual((base - 7) % 137, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+                (1, -130)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+                (1, 6)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((140, 51), 1),
+            tuple(range(82, 44_484, 149)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 12_002, 14_900),
+                (38, 6_638, 14_900),
+                (62, 3_062, 14_900),
+                (98, 12_598, 14_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 149 * parameter_t + 82
+            first_coefficient = (
+                9800 * parameter_t * parameter_t + 10739 * parameter_t + 2942
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (140 * first_coefficient, 51 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (140, 51), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 14_900)
+            self.assertEqual((base - 82) % 149, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+                (1, -67)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+                (1, 81)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((132, 85), 1),
+            tuple(range(4, 49_302, 157)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 2_202, 15_700),
+                (38, 9_738, 15_700),
+                (62, 14_762, 15_700),
+                (98, 6_598, 15_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 157 * parameter_t + 4
+            first_coefficient = (
+                8712 * parameter_t * parameter_t + 373 * parameter_t + 4
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (132 * first_coefficient, 85 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (132, 85), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 15_700)
+            self.assertEqual((base - 4) % 157, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+                (1, -153)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+                (1, 3)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((120, 119), 1),
+            tuple(range(168, 57_290, 169)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 14_702, 16_900),
+                (38, 5_238, 16_900),
+                (62, 4_562, 16_900),
+                (98, 11_998, 16_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 169 * parameter_t + 168
+            first_coefficient = (
+                7200 * parameter_t * parameter_t + 14231 * parameter_t + 7032
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (120 * first_coefficient, 119 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (120, 119), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 16_900)
+            self.assertEqual((base - 168) % 169, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (1, -1)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (1, 167)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((52, 165), 1),
+            tuple(range(28, 59_886, 173)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 6_602, 17_300),
+                (38, 12_138, 17_300),
+                (62, 10_062, 17_300),
+                (98, 15_598, 17_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 173 * parameter_t + 28
+            first_coefficient = (
+                1352 * parameter_t * parameter_t + 389 * parameter_t + 28
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (52 * first_coefficient, 165 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (52, 165), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 17_300)
+            self.assertEqual((base - 28) % 173, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, -145)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, 27)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((180, 19), 1),
+            tuple(range(143, 65_665, 181)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 7_202, 18_100),
+                (38, 17_338, 18_100),
+                (62, 18_062, 18_100),
+                (98, 10_098, 18_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 181 * parameter_t + 143
+            first_coefficient = (
+                16200 * parameter_t * parameter_t + 25579 * parameter_t + 10097
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (180 * first_coefficient, 19 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (180, 19), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 18_100)
+            self.assertEqual((base - 143) % 181, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+                (1, -38)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+                (1, 142)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((168, 95), 1),
+            tuple(range(47, 74_545, 193)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 6_802, 19_300),
+                (38, 16_838, 19_300),
+                (62, 10_662, 19_300),
+                (98, 1_398, 19_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 193 * parameter_t + 47
+            first_coefficient = (
+                14112 * parameter_t * parameter_t + 6791 * parameter_t + 817
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (168 * first_coefficient, 95 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (168, 95), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 19_300)
+            self.assertEqual((base - 47) % 193, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+                (1, -146)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+                (1, 46)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((28, 195), 1),
+            tuple(range(112, 77_730, 197)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 13_902, 19_700),
+                (38, 11_538, 19_700),
+                (62, 9_962, 19_700),
+                (98, 7_598, 19_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 197 * parameter_t + 112
+            first_coefficient = (
+                392 * parameter_t * parameter_t + 419 * parameter_t + 112
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (28 * first_coefficient, 195 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (28, 195), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 19_700)
+            self.assertEqual((base - 112) % 197, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+                (1, -85)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+                (1, 111)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((60, 221), 1),
+            tuple(range(36, 104_918, 229)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 12_402, 22_900),
+                (38, 8_738, 22_900),
+                (62, 21_562, 22_900),
+                (98, 17_898, 22_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 229 * parameter_t + 36
+            first_coefficient = (
+                1800 * parameter_t * parameter_t + 509 * parameter_t + 36
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (60 * first_coefficient, 221 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (60, 221), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 22_900)
+            self.assertEqual((base - 36) % 229, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+                (1, -193)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+                (1, 35)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((312, 25), 1),
+            tuple(range(263, 196_201, 313)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 1_202, 31_300),
+                (38, 23_738, 31_300),
+                (62, 7_462, 31_300),
+                (98, 29_998, 31_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 313 * parameter_t + 263
+            first_coefficient = (
+                48672 * parameter_t * parameter_t + 81769 * parameter_t + 34343
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (312 * first_coefficient, 25 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (312, 25), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 31_300)
+            self.assertEqual((base - 263) % 313, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, -50)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, 262)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((308, 75), 1),
+            tuple(range(296, 200_958, 317)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 6_002, 31_700),
+                (38, 8_538, 31_700),
+                (62, 31_362, 31_700),
+                (98, 2_198, 31_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 317 * parameter_t + 296
+            first_coefficient = (
+                47432 * parameter_t * parameter_t + 88507 * parameter_t + 41288
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (308 * first_coefficient, 75 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (308, 75), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 31_700)
+            self.assertEqual((base - 296) % 317, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, -21)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, 295)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((288, 175), 1),
+            tuple(range(241, 227_043, 337)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 18_102, 33_700),
+                (38, 27_538, 33_700),
+                (62, 11_362, 33_700),
+                (98, 20_798, 33_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 337 * parameter_t + 241
+            first_coefficient = (
+                41472 * parameter_t * parameter_t + 59167 * parameter_t + 21103
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (288 * first_coefficient, 175 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (288, 175), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 33_700)
+            self.assertEqual((base - 241) % 337, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, -96)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, 240)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((180, 299), 1),
+            tuple(range(206, 243_460, 349)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 1_602, 34_900),
+                (38, 23_938, 34_900),
+                (62, 15_562, 34_900),
+                (98, 2_998, 34_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 349 * parameter_t + 206
+            first_coefficient = (
+                16200 * parameter_t * parameter_t + 18971 * parameter_t + 5554
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (180 * first_coefficient, 299 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (180, 299), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 34_900)
+            self.assertEqual((base - 206) % 349, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, -143)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, 205)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((272, 225), 1),
+            tuple(range(49, 248_915, 353)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 402, 35_300),
+                (38, 4_638, 35_300),
+                (62, 7_462, 35_300),
+                (98, 11_698, 35_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 353 * parameter_t + 49
+            first_coefficient = (
+                36992 * parameter_t * parameter_t + 10097 * parameter_t + 689
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (272 * first_coefficient, 225 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (272, 225), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 35_300)
+            self.assertEqual((base - 49) % 353, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, -304)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, 48)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((252, 275), 1),
+            tuple(range(151, 278_037, 373)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 32_602, 37_300),
+                (38, 7_238, 37_300),
+                (62, 2_762, 37_300),
+                (98, 14_698, 37_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 373 * parameter_t + 151
+            first_coefficient = (
+                31752 * parameter_t * parameter_t + 25523 * parameter_t + 5129
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (252 * first_coefficient, 275 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (252, 275), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 37_300)
+            self.assertEqual((base - 151) % 373, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, -222)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, 150)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((352, 135), 1),
+            tuple(range(299, 284_181, 377)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 15_002, 37_700),
+                (38, 2_938, 37_700),
+                (62, 7_462, 37_700),
+                (98, 33_098, 37_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 377 * parameter_t + 299
+            first_coefficient = (
+                61952 * parameter_t * parameter_t + 98143 * parameter_t + 38869
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (352 * first_coefficient, 135 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (352, 135), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 37_700)
+            self.assertEqual((base - 299) % 377, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+                (1, -78)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+                (1, 298)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((340, 189), 1),
+            tuple(range(97, 302_351, 389)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 17_602, 38_900),
+                (38, 26_938, 38_900),
+                (62, 33_162, 38_900),
+                (98, 3_598, 38_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 389 * parameter_t + 97
+            first_coefficient = (
+                57800 * parameter_t * parameter_t + 28661 * parameter_t + 3553
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (340 * first_coefficient, 189 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (340, 189), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 38_900)
+            self.assertEqual((base - 97) % 389, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+                (1, -292)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+                (1, 96)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((228, 325), 1),
+            tuple(range(141, 314_963, 397)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 5_302, 39_700),
+                (38, 538, 39_700),
+                (62, 37_062, 39_700),
+                (98, 32_298, 39_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 397 * parameter_t + 141
+            first_coefficient = (
+                25992 * parameter_t * parameter_t + 18277 * parameter_t + 3213
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (228 * first_coefficient, 325 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (228, 325), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 39_700)
+            self.assertEqual((base - 141) % 397, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, -256)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, 140)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((40, 399), 1),
+            tuple(range(220, 321_422, 401)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 33_102, 40_100),
+                (38, 7_438, 40_100),
+                (62, 17_062, 40_100),
+                (98, 31_498, 40_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 401 * parameter_t + 220
+            first_coefficient = 800 * parameter_t * parameter_t + 839 * parameter_t + 220
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (40 * first_coefficient, 399 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (40, 399), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 40_100)
+            self.assertEqual((base - 220) % 401, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, -181)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (1, 219)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((120, 391), 1),
+            tuple(range(302, 334_456, 409)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 302, 40_900),
+                (38, 1_938, 40_900),
+                (62, 16_662, 40_900),
+                (98, 18_298, 40_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 409 * parameter_t + 302
+            first_coefficient = (
+                7200 * parameter_t * parameter_t + 10519 * parameter_t + 3842
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (120 * first_coefficient, 391 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (120, 391), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 40_900)
+            self.assertEqual((base - 302) % 409, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+                (1, -107)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+                (1, 301)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((420, 29), 1),
+            tuple(range(363, 354_482, 421)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 25_202, 42_100),
+                (38, 31_938, 42_100),
+                (62, 8_362, 42_100),
+                (98, 15_098, 42_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 421 * parameter_t + 363
+            first_coefficient = (
+                88_200 * parameter_t * parameter_t
+                + 152_069 * parameter_t
+                + 65_547
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (420 * first_coefficient, 29 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (420, 29), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 42_100)
+            self.assertEqual((base - 363) % 421, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+                (1, -58)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+                (1, 362)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((408, 145), 1),
+            tuple(range(39, 375_017, 433)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 4_802, 43_300),
+                (38, 1_338, 43_300),
+                (62, 13_462, 43_300),
+                (98, 9_998, 43_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 433 * parameter_t + 39
+            first_coefficient = (
+                83_232 * parameter_t * parameter_t
+                + 14_857 * parameter_t
+                + 663
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (408 * first_coefficient, 145 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (408, 145), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 43_300)
+            self.assertEqual((base - 39) % 433, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+                (1, -394)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+                (1, 38)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((280, 351), 1),
+            tuple(range(264, 403_466, 449)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 28_102, 44_900),
+                (38, 11_938, 44_900),
+                (62, 1_162, 44_900),
+                (98, 29_898, 44_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 449 * parameter_t + 264
+            first_coefficient = (
+                39_200 * parameter_t * parameter_t
+                + 45_879 * parameter_t
+                + 13_424
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (280 * first_coefficient, 351 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (280, 351), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 44_900)
+            self.assertEqual((base - 264) % 449, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+                (1, -185)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+                (1, 263)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((168, 425), 1),
+            tuple(range(248, 417_946, 457)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 10_302, 45_700),
+                (38, 32_238, 45_700),
+                (62, 1_162, 45_700),
+                (98, 23_098, 45_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 457 * parameter_t + 248
+            first_coefficient = (
+                14_112 * parameter_t * parameter_t
+                + 15_161 * parameter_t
+                + 4_072
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (168 * first_coefficient, 425 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (168, 425), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 45_700)
+            self.assertEqual((base - 248) % 457, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, -209)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, 247)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((380, 261), 1),
+            tuple(range(373, 425_415, 461)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 41_402, 46_100),
+                (38, 30_338, 46_100),
+                (62, 22_962, 46_100),
+                (98, 11_898, 46_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 461 * parameter_t + 373
+            first_coefficient = (
+                72_200 * parameter_t * parameter_t
+                + 116_621 * parameter_t
+                + 47_093
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (380 * first_coefficient, 261 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (380, 261), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 46_100)
+            self.assertEqual((base - 373) % 461, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+                (1, -88)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+                (1, 372)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((360, 319), 1),
+            tuple(range(23, 462_745, 481)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 28_402, 48_100),
+                (38, 7_238, 48_100),
+                (62, 9_162, 48_100),
+                (98, 36_098, 48_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 481 * parameter_t + 23
+            first_coefficient = (
+                64_800 * parameter_t * parameter_t
+                + 5_959 * parameter_t
+                + 137
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (360 * first_coefficient, 319 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (360, 319), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 48_100)
+            self.assertEqual((base - 23) % 481, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (1, -458)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (1, 22)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((132, 475), 1),
+            tuple(range(199, 486_297, 493)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 35_202, 49_300),
+                (38, 11_538, 49_300),
+                (62, 45_062, 49_300),
+                (98, 21_398, 49_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 493 * parameter_t + 199
+            first_coefficient = (
+                8_712 * parameter_t * parameter_t
+                + 6_907 * parameter_t
+                + 1_369
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (132 * first_coefficient, 475 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (132, 475), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 49_300)
+            self.assertEqual((base - 199) % 493, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, -294)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (1, 198)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((220, 459), 1),
+            tuple(range(96, 518_258, 509)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 17_402, 50_900),
+                (38, 19_438, 50_900),
+                (62, 37_762, 50_900),
+                (98, 39_798, 50_900),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 509 * parameter_t + 96
+            first_coefficient = (
+                24_200 * parameter_t * parameter_t
+                + 8_931 * parameter_t
+                + 824
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (220 * first_coefficient, 459 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (220, 459), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 50_900)
+            self.assertEqual((base - 96) % 509, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+                (1, -413)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+                (1, 95)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((440, 279), 1),
+            tuple(range(103, 542_985, 521)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 10_002, 52_100),
+                (38, 18_338, 52_100),
+                (62, 41_262, 52_100),
+                (98, 49_598, 52_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 521 * parameter_t + 103
+            first_coefficient = (
+                96_800 * parameter_t * parameter_t
+                + 38_039 * parameter_t
+                + 3_737
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (440 * first_coefficient, 279 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (440, 279), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 52_100)
+            self.assertEqual((base - 103) % 521, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+                (1, -418)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+                (1, 102)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((92, 525), 1),
+            tuple(range(78, 568_256, 533)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 15_002, 53_300),
+                (38, 10_738, 53_300),
+                (62, 25_662, 53_300),
+                (98, 21_398, 53_300),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 533 * parameter_t + 78
+            first_coefficient = (
+                4_232 * parameter_t * parameter_t + 1_149 * parameter_t + 78
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (92 * first_coefficient, 525 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (92, 525), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 53_300)
+            self.assertEqual((base - 78) % 533, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, -455)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (1, 77)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((420, 341), 1),
+            tuple(range(113, 585_475, 541)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 15_802, 54_100),
+                (38, 13_638, 54_100),
+                (62, 48_262, 54_100),
+                (98, 46_098, 54_100),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 541 * parameter_t + 113
+            first_coefficient = (
+                88_200 * parameter_t * parameter_t
+                + 36_581 * parameter_t
+                + 3_793
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (420 * first_coefficient, 341 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (420, 341), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 54_100)
+            self.assertEqual((base - 113) % 541, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+                (1, -428)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+                (1, 112)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((532, 165), 1),
+            tuple(range(412, 620_910, 557)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS,
+            (
+                (2, 39_402, 55_700),
+                (38, 10_438, 55_700),
+                (62, 28_262, 55_700),
+                (98, 54_998, 55_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 557 * parameter_t + 412
+            first_coefficient = (
+                141_512 * parameter_t * parameter_t
+                + 209_189 * parameter_t
+                + 77_308
+            )
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+                parameter_t
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (532 * first_coefficient, 165 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (532, 165), 1),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 55_700)
+            self.assertEqual((base - 412) % 557, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, -145)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (1, 411)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
+    def test_unit_coordinate_fifteen_eight_factor_two_parallel_family(self):
+        self.assertEqual(
+            unit_coordinate_parallel_factor_residues((15, 8), 2),
+            tuple(range(26, 1_156, 34)),
+        )
+        self.assertEqual(
+            UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS,
+            (
+                (2, 502, 1_700),
+                (38, 638, 1_700),
+                (62, 162, 1_700),
+                (98, 298, 1_700),
+            ),
+        )
+
+        for parameter_t in range(-5, 6):
+            fixed_coordinate = 34 * parameter_t + 26
+            first_coefficient = (
+                225 * parameter_t * parameter_t + 338 * parameter_t + 127
+            )
+            target = (1, fixed_coordinate)
+            certificate = (
+                unit_coordinate_fifteen_eight_factor_two_parallel_certificate(
+                    parameter_t
+                )
+            )
+            self.assertEqual(certificate.target, target)
+            self.assertEqual(
+                certificate.midpoint,
+                (15 * first_coefficient, 8 * first_coefficient),
+            )
+            self.assertTrue(certificate.valid())
+            self.assertEqual(
+                parallel_direction_factor_certificate(target, (15, 8), 2),
+                certificate,
+            )
+
+            for orbit_target in sign_swap_orbit(target):
+                orbit_certificate = (
+                    unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+                        orbit_target
+                    )
+                )
+                self.assertIsNotNone(orbit_certificate)
+                self.assertEqual(orbit_certificate.target, orbit_target)
+                self.assertTrue(orbit_certificate.valid())
+
+        for residue, base, period in (
+            UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS
+        ):
+            self.assertIn(residue, UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES)
+            self.assertEqual(base % 100, residue)
+            self.assertEqual(period, 1_700)
+            self.assertEqual((base - 26) % 34, 0)
+
+            for parameter_t in range(-2, 3):
+                fixed_coordinate = base + period * parameter_t
+                target = (1, fixed_coordinate)
+                self.assertIsNone(
+                    unit_coordinate_promoted_mod_hundred_certificate(target)
+                )
+                certificate = (
+                    unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(certificate)
+                self.assertEqual(certificate.target, target)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNotNone(
+            unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+                (1, 8)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+                (1, 10)
+            )
+        )
+        self.assertIsNone(
+            unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+                (2, 3)
+            )
+        )
+
     def test_four_three_factor_five_parallel_congruence_family(self):
         modulus = parallel_direction_factor_modulus((4, 3), 5)
         residues = parallel_direction_factor_residue_classes((4, 3), 5)
@@ -2274,14 +6413,95 @@ class CertificateTests(unittest.TestCase):
 
         factor_four_residues = unit_coordinate_parallel_factor_residues((-3, -4), 4)
         self.assertEqual(factor_four_residues, tuple(range(12, 200, 20)))
-        certificate = unit_coordinate_parallel_factor_orbit_certificate(
-            (1, 92),
-            (-3, -4),
-            4,
+        for fixed_coordinate in (-68, -8, 12, 32, 92, 112, 212):
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_parallel_factor_orbit_certificate(
+                target,
+                (-3, -4),
+                4,
+            )
+            explicit = unit_coordinate_factor_four_parallel_certificate(
+                (fixed_coordinate - 12) // 20
+            )
+            self.assertEqual(certificate, explicit)
+            self.assertIsNotNone(certificate)
+            self.assertTrue(certificate.valid())
+
+        one_mod_five_residues = unit_coordinate_parallel_factor_residues((4, -3), 1)
+        self.assertEqual(one_mod_five_residues, tuple(range(1, 50, 5)))
+        for fixed_coordinate in (-24, -4, 1, 6, 16, 26, 51):
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_parallel_factor_orbit_certificate(
+                target,
+                (4, -3),
+                1,
+            )
+            explicit = unit_coordinate_one_mod_five_parallel_certificate(
+                (fixed_coordinate - 1) // 5
+            )
+            self.assertEqual(certificate, explicit)
+            self.assertIsNotNone(certificate)
+            self.assertTrue(certificate.valid())
+
+        seven_mod_ten_residues = unit_coordinate_parallel_factor_residues((3, 4), 1)
+        self.assertEqual(seven_mod_ten_residues, tuple(range(7, 50, 10)))
+        for fixed_coordinate in (-23, -3, 7, 17, 27, 37, 57):
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_parallel_factor_orbit_certificate(
+                target,
+                (3, 4),
+                1,
+            )
+            explicit = unit_coordinate_seven_mod_ten_parallel_certificate(
+                (fixed_coordinate - 7) // 10
+            )
+            self.assertEqual(certificate, explicit)
+            self.assertIsNotNone(certificate)
+            self.assertTrue(certificate.valid())
+
+        factor_twenty_five_residues = unit_coordinate_parallel_factor_residues(
+            (4, -3),
+            25,
         )
-        self.assertIsNotNone(certificate)
-        self.assertEqual(certificate.midpoint, (-1065, -1420))
-        self.assertTrue(certificate.valid())
+        self.assertEqual(factor_twenty_five_residues, tuple(range(18, 1250, 25)))
+        for fixed_coordinate in (-32, -7, 18, 43, 68, 93, 118):
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_parallel_factor_orbit_certificate(
+                target,
+                (4, -3),
+                25,
+            )
+            explicit = unit_coordinate_factor_twenty_five_parallel_certificate(
+                (fixed_coordinate - 18) // 25
+            )
+            self.assertEqual(certificate, explicit)
+            self.assertIsNotNone(certificate)
+            self.assertTrue(certificate.valid())
+
+        twenty_two_mod_twenty_five_residues = unit_coordinate_parallel_factor_residues(
+            (-4, -3),
+            5,
+        )
+        self.assertEqual(
+            twenty_two_mod_twenty_five_residues,
+            tuple(range(22, 250, 25)),
+        )
+        for fixed_coordinate in (-53, -28, -3, 22, 47, 72, 97, 122):
+            target = (1, fixed_coordinate)
+            certificate = unit_coordinate_parallel_factor_orbit_certificate(
+                target,
+                (-4, -3),
+                5,
+            )
+            explicit = unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate(
+                (fixed_coordinate - 22) // 25
+            )
+            self.assertEqual(certificate, explicit)
+            if fixed_coordinate == -3:
+                self.assertIsNone(certificate)
+            else:
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
 
         self.assertIsNone(
             unit_coordinate_parallel_factor_orbit_certificate((1, 16), (4, 3), 5)
@@ -3808,6 +8028,814 @@ class CertificateTests(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_divisor_obligation_discharge_witnesses(self):
+        obligations = tuple(
+            row[:-1]
+            for row in parallel_direction_conjugate_ideal_root_spine_divisor_obligation_census(
+                500,
+                8,
+            ).obligation_counts
+        )
+        self.assertEqual(obligations, PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS)
+
+        divisor_witness = (
+            parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                (151, 338),
+                (-9, 40),
+                PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS[6],
+            )
+        )
+        self.assertIsNotNone(divisor_witness)
+        self.assertEqual(divisor_witness.branch, "divisor")
+        self.assertEqual(divisor_witness.determinant_leg, -9082)
+        self.assertEqual(divisor_witness.quotient, 4541)
+        self.assertIsNone(divisor_witness.structural_row)
+        self.assertIsNotNone(divisor_witness.exponent_profile)
+        self.assertEqual(divisor_witness.exponent_profile.saturation_branch, "short_success")
+        self.assertEqual(divisor_witness.exponent_profile.required_exponent, 9)
+        self.assertEqual(divisor_witness.exponent_profile.exponent_closure, (0, 9, 19, 28))
+
+        fallback_examples = (
+            (
+                "promoted_345",
+                (1, 15),
+                (-12, -5),
+                ((-4, -3), 1, 43, 0, 1, 650),
+            ),
+            (
+                "lattice_pair",
+                (2, 49),
+                (-12, -5),
+                ((-21, -20), (-40, 9), 989, 5, 4, 7, 13, 1),
+            ),
+            (
+                "orthogonal",
+                (38, 1),
+                (-5, 12),
+                ((-15, -8), (8, -15), 289, 12, 5, 7, 13, 1),
+            ),
+            (
+                "standard_completion",
+                (119, 62),
+                (-12, -5),
+                ((-21, -20), 0, 1078, 466, 3364, 1078, 0, 1, 43732),
+            ),
+        )
+        for branch, target, direction, row in fallback_examples:
+            with self.subTest(branch=branch):
+                witness = (
+                    parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                        target,
+                        direction,
+                        PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS[0],
+                    )
+                )
+                self.assertIsNotNone(witness)
+                self.assertEqual(witness.branch, branch)
+                self.assertEqual(witness.structural_row, row)
+                self.assertIsNotNone(witness.exponent_profile)
+                self.assertEqual(witness.exponent_profile.saturation_branch, "short_failure")
+
+        profile = parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            (1, 15),
+            (-12, -5),
+            PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS[0],
+        )
+        self.assertIsNotNone(profile)
+        self.assertEqual(profile.modulus, 13)
+        self.assertEqual(profile.generator, 2)
+        self.assertEqual(profile.required_exponent, 7)
+        self.assertEqual(profile.effective_length, 3)
+        self.assertEqual(profile.kneser_lower_bound, 4)
+        self.assertEqual(profile.saturation_gap, 8)
+        self.assertEqual(profile.saturation_branch, "short_failure")
+
+    def test_pinned_strip_local_discharge_counterexample(self):
+        target, direction, obligation = PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE
+        self.assertEqual(target, (108638, 24031))
+        self.assertEqual(direction, (-40, -9))
+        self.assertEqual(obligation, PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS[6])
+        self.assertTrue(
+            parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                target,
+                direction,
+                obligation,
+            )
+        )
+        self.assertFalse(
+            parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                target,
+                direction,
+                obligation,
+            )
+        )
+        self.assertIsNone(
+            parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                target,
+                direction,
+                obligation,
+            )
+        )
+        self.assertIsNone(pythagorean_layered_structural_label(target))
+
+        global_discharge = (
+            parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness(
+                target,
+                direction,
+                obligation,
+            )
+        )
+        self.assertIsNotNone(global_discharge)
+        self.assertEqual(global_discharge.branch, "alternate_root_spine")
+        self.assertEqual(global_discharge.determinant_leg, 16502)
+        self.assertEqual(global_discharge.quotient, 8251)
+        self.assertEqual(global_discharge.exponent_profile.saturation_branch, "short_failure")
+
+        alternate_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+            target,
+            8,
+        )
+        self.assertIsNotNone(alternate_witness)
+        self.assertTrue(alternate_witness.certificate.valid())
+        self.assertEqual(alternate_witness.direction, (-3, 4))
+        self.assertEqual(alternate_witness.root_shape, (1, 2))
+        self.assertEqual(alternate_witness.squareclass, 535)
+        self.assertEqual(alternate_witness.split_factor, 1)
+        self.assertEqual(alternate_witness.signed_paired_split_factor, -947)
+        self.assertEqual(alternate_witness.beta, (-379, 189))
+        promoted_certificate = promoted_root_spine_line_certificate_from_witness(
+            alternate_witness
+        )
+        self.assertIsNotNone(promoted_certificate)
+        self.assertEqual(promoted_certificate, alternate_witness.certificate)
+        self.assertEqual(
+            global_discharge.structural_row,
+            ((-3, 4), (1, 2), 535, 1, -947, (-379, 189), 9586654),
+        )
+        self.assertEqual(
+            parallel_direction_conjugate_ideal_divisor_obligation_key(
+                alternate_witness
+            ),
+            ((1, 2), 535, 5, 3, 3, 1, 1),
+        )
+        self.assertEqual(
+            pythagorean_layered_parallel_certificate(target),
+            alternate_witness.certificate,
+        )
+
+    @pytest.mark.perf
+    def test_pinned_strip_global_root_choice_coverage(self):
+        max_coordinate = 500
+        finite_root_shape_exceptions = {
+            (151, 338),
+            (158, 391),
+            (338, 151),
+            (391, 158),
+        }
+        primary_root_shape_families = {
+            (1, 2),
+            (1, 4),
+            (2, 3),
+            (2, 5),
+        }
+        exceptional_secondary_shapes = {
+            (3, 8),
+            (4, 5),
+        }
+
+        for obligation in PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS:
+            for direction in parallel_direction_conjugate_ideal_divisor_obligation_directions(
+                obligation
+            ):
+                for g in range(1, max_coordinate + 1):
+                    for h in range(1, max_coordinate + 1):
+                        target = (g, h)
+                        if target in KNOWN_DISTANCE_THREE_ORBIT or edge((0, 0), target):
+                            continue
+                        if gcd(g, h) != 1:
+                            continue
+                        if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+                            target,
+                            direction,
+                            obligation,
+                        ):
+                            continue
+                        if parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+                            target,
+                            direction,
+                            obligation,
+                        ):
+                            continue
+
+                        local_witness = (
+                            parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+                                target,
+                                direction,
+                                obligation,
+                            )
+                        )
+                        if local_witness is not None:
+                            continue
+
+                        global_witness = parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness(
+                            target,
+                            direction,
+                            obligation,
+                        )
+                        self.assertIsNotNone(
+                            global_witness,
+                            msg=f"no global branch for {target} with U={direction} on {obligation}",
+                        )
+                        self.assertEqual(
+                            global_witness.branch,
+                            "alternate_root_spine",
+                            msg=f"non-local discharge not through root spine for {target} with U={direction} on {obligation}",
+                        )
+                        self.assertIsNotNone(
+                            global_witness.structural_row,
+                            msg=f"alternate root spine missing data for {target} with U={direction} on {obligation}",
+                        )
+                        alternate_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                            target,
+                            8,
+                        )
+                        self.assertIsNotNone(alternate_witness)
+                        self.assertEqual(
+                            promoted_root_spine_line_certificate_from_witness(
+                                alternate_witness
+                            ),
+                            alternate_witness.certificate,
+                            msg=(
+                                f"alternate root spine not reconstructed by promoted line "
+                                f"for {target} with U={direction} on {obligation}"
+                            ),
+                        )
+                        alternate_root_shape = gaussian_root_shape(global_witness.structural_row[1])
+                        if target in finite_root_shape_exceptions:
+                            self.assertIn(
+                                alternate_root_shape,
+                                exceptional_secondary_shapes,
+                                msg=(
+                                    f"expected exceptional secondary family for {target} with "
+                                    f"U={direction} on {obligation}"
+                                ),
+                            )
+                            continue
+                        self.assertIn(
+                            alternate_root_shape,
+                            primary_root_shape_families,
+                            msg=(
+                                f"unexpected global branch {alternate_root_shape} for {target} with "
+                                f"U={direction} on {obligation}"
+                            ),
+                        )
+
+    def test_one_two_root_spine_line_certificate(self):
+        counterexample_certificate = one_two_root_spine_line_certificate(
+            535,
+            -95,
+            9586654,
+        )
+        self.assertIsNotNone(counterexample_certificate)
+        self.assertEqual(counterexample_certificate.target, (108638, 24031))
+        self.assertEqual(counterexample_certificate.midpoint, (-28759962, 38346616))
+        self.assertTrue(counterexample_certificate.valid())
+
+        for q, t, r in (
+            (1, 1, 1),
+            (-3, 2, 5),
+            (6, -2, -7),
+            (11, 3, -13),
+        ):
+            with self.subTest(q=q, t=t, r=r):
+                certificate = one_two_root_spine_line_certificate(q, t, r)
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
+                self.assertEqual(certificate.midpoint, (-3 * r, 4 * r))
+
+        self.assertIsNone(one_two_root_spine_line_certificate(0, 1, 1))
+        self.assertIsNone(one_two_root_spine_line_certificate(1, 0, 1))
+        self.assertIsNone(one_two_root_spine_line_certificate(1, 1, 0))
+
+    def test_one_even_root_spine_line_certificate(self):
+        for spine_parameter_k in range(1, 8):
+            first_direction = (
+                1 - 4 * spine_parameter_k * spine_parameter_k,
+                4 * spine_parameter_k,
+            )
+            self.assertTrue(edge((0, 0), first_direction))
+
+            for q, t, r in (
+                (1, 1, 1),
+                (-3, 2, 5),
+                (6, -2, -7),
+                (11, 3, -13),
+            ):
+                with self.subTest(k=spine_parameter_k, q=q, t=t, r=r):
+                    certificate = one_even_root_spine_line_certificate(
+                        spine_parameter_k,
+                        q,
+                        t,
+                        r,
+                    )
+                    self.assertIsNotNone(certificate)
+                    self.assertEqual(
+                        certificate.midpoint,
+                        (first_direction[0] * r, first_direction[1] * r),
+                    )
+                    self.assertTrue(certificate.valid())
+                    for orbit_target in sign_swap_orbit(certificate.target):
+                        orbit_certificate = one_even_root_spine_line_orbit_certificate(
+                            spine_parameter_k,
+                            q,
+                            t,
+                            r,
+                            orbit_target,
+                        )
+                        self.assertIsNotNone(orbit_certificate)
+                        self.assertEqual(orbit_certificate.target, orbit_target)
+                        self.assertTrue(orbit_certificate.valid())
+
+        for q, t, r in ((1, 1, 1), (-3, 2, 5), (6, -2, -7)):
+            self.assertEqual(
+                one_even_root_spine_line_certificate(1, q, t, r),
+                one_two_root_spine_line_certificate(q, t, r),
+            )
+
+        certificate = one_even_root_spine_line_certificate(2, 269, 124, 8317762)
+        self.assertIsNotNone(certificate)
+        self.assertEqual(
+            certificate.target,
+            (52_798, -103_999),
+        )
+        self.assertEqual(certificate.midpoint, (-124766430, 66542096))
+        self.assertTrue(certificate.valid())
+
+        self.assertIsNone(one_even_root_spine_line_certificate(1, 0, 1, 1))
+        self.assertIsNone(one_even_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(one_even_root_spine_line_certificate(1, 1, 1, 0))
+        self.assertIsNone(
+            one_even_root_spine_line_orbit_certificate(1, 0, 1, 1, (1, 1))
+        )
+        self.assertIsNone(
+            one_even_root_spine_line_orbit_certificate(1, 1, 1, 1, (1, 1))
+        )
+        with self.assertRaises(ValueError):
+            one_even_root_spine_line_certificate(0, 1, 1, 1)
+
+    def test_one_four_root_spine_line_certificate(self):
+        base_certificate = one_four_root_spine_line_certificate(
+            269,
+            124,
+            8317762,
+        )
+        self.assertIsNotNone(base_certificate)
+        self.assertEqual(base_certificate.target, (103999, 52798))
+        self.assertEqual(base_certificate.midpoint, (-66542096, -124766430))
+        self.assertTrue(base_certificate.valid())
+
+        swapped_certificate = one_four_root_spine_line_certificate(
+            269,
+            124,
+            8317762,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(swapped_certificate)
+        self.assertEqual(swapped_certificate.target, (52798, 103999))
+        self.assertEqual(swapped_certificate.midpoint, (-124766430, -66542096))
+        self.assertTrue(swapped_certificate.valid())
+
+        for q, t, r, swap_coordinates in (
+            (1, 0, 1, False),
+            (-3, 2, 5, True),
+            (6, -2, -7, False),
+            (11, 3, -13, True),
+        ):
+            with self.subTest(q=q, t=t, r=r, swap_coordinates=swap_coordinates):
+                certificate = one_four_root_spine_line_certificate(
+                    q,
+                    t,
+                    r,
+                    swap_coordinates=swap_coordinates,
+                )
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(one_four_root_spine_line_certificate(0, 1, 1))
+        self.assertIsNone(one_four_root_spine_line_certificate(1, 1, 0))
+
+    def test_two_three_root_spine_line_certificates(self):
+        base_certificate = two_three_odd_root_spine_line_certificate(
+            11,
+            459,
+            4619042,
+        )
+        self.assertIsNotNone(base_certificate)
+        self.assertEqual(base_certificate.target, (140801, 69602))
+        self.assertEqual(base_certificate.midpoint, (-55428504, -23095210))
+        self.assertTrue(base_certificate.valid())
+
+        swapped_certificate = two_three_odd_root_spine_line_certificate(
+            11,
+            459,
+            4619042,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(swapped_certificate)
+        self.assertEqual(swapped_certificate.target, (69602, 140801))
+        self.assertEqual(swapped_certificate.midpoint, (-23095210, -55428504))
+        self.assertTrue(swapped_certificate.valid())
+
+        even_certificate = two_three_even_root_spine_line_certificate(
+            1,
+            -953,
+            425,
+            22769,
+        )
+        self.assertIsNotNone(even_certificate)
+        self.assertEqual(even_certificate.target, (536822, 613739))
+        self.assertEqual(even_certificate.midpoint, (-273228, -113845))
+        self.assertTrue(even_certificate.valid())
+
+        for q, t, r, swap_coordinates in (
+            (1, 1, 1, False),
+            (-3, 2, 5, True),
+            (6, -2, -7, False),
+            (11, 3, -13, True),
+        ):
+            with self.subTest(q=q, t=t, r=r, swap_coordinates=swap_coordinates):
+                certificate = two_three_odd_root_spine_line_certificate(
+                    q,
+                    t,
+                    r,
+                    swap_coordinates=swap_coordinates,
+                )
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
+
+        for m, beta_x, beta_y, r in (
+            (1, 2, 3, 1),
+            (-3, -5, 7, 11),
+            (6, 4, -9, -13),
+        ):
+            with self.subTest(m=m, beta_x=beta_x, beta_y=beta_y, r=r):
+                certificate = two_three_even_root_spine_line_certificate(
+                    m,
+                    beta_x,
+                    beta_y,
+                    r,
+                )
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(two_three_odd_root_spine_line_certificate(0, 1, 1))
+        self.assertIsNone(two_three_odd_root_spine_line_certificate(1, 0, 1))
+        self.assertIsNone(two_three_odd_root_spine_line_certificate(1, 1, 0))
+        self.assertIsNone(two_three_even_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(two_three_even_root_spine_line_certificate(1, 0, 2, 1))
+        self.assertIsNone(two_three_even_root_spine_line_certificate(1, 2, 0, 1))
+        self.assertIsNone(two_three_even_root_spine_line_certificate(1, 2, 2, 1))
+        self.assertIsNone(two_three_even_root_spine_line_certificate(1, 1, 2, 0))
+
+    def test_two_odd_root_spine_line_certificate(self):
+        for spine_parameter_k in range(1, 8):
+            odd_coordinate = 2 * spine_parameter_k + 1
+            first_direction = (-4 * odd_coordinate, 4 - odd_coordinate * odd_coordinate)
+            self.assertTrue(edge((0, 0), first_direction))
+
+            for q, t, r, swap_coordinates in (
+                (1, 1, 1, False),
+                (-3, 2, 5, True),
+                (6, -2, -7, False),
+                (11, 3, -13, True),
+            ):
+                with self.subTest(
+                    k=spine_parameter_k,
+                    q=q,
+                    t=t,
+                    r=r,
+                    swap_coordinates=swap_coordinates,
+                ):
+                    certificate = two_odd_root_spine_line_certificate(
+                        spine_parameter_k,
+                        q,
+                        t,
+                        r,
+                        swap_coordinates=swap_coordinates,
+                    )
+                    self.assertIsNotNone(certificate)
+                    if swap_coordinates:
+                        self.assertEqual(
+                            certificate.midpoint,
+                            (first_direction[1] * r, first_direction[0] * r),
+                        )
+                    else:
+                        self.assertEqual(
+                            certificate.midpoint,
+                            (first_direction[0] * r, first_direction[1] * r),
+                        )
+                    self.assertTrue(certificate.valid())
+                    for orbit_target in sign_swap_orbit(certificate.target):
+                        orbit_certificate = two_odd_root_spine_line_orbit_certificate(
+                            spine_parameter_k,
+                            q,
+                            t,
+                            r,
+                            orbit_target,
+                            swap_coordinates=swap_coordinates,
+                        )
+                        self.assertIsNotNone(orbit_certificate)
+                        self.assertEqual(orbit_certificate.target, orbit_target)
+                        self.assertTrue(orbit_certificate.valid())
+
+        for q, t, r, swap_coordinates in (
+            (1, 1, 1, False),
+            (-3, 2, 5, True),
+            (6, -2, -7, False),
+        ):
+            self.assertEqual(
+                two_odd_root_spine_line_certificate(
+                    1,
+                    q,
+                    t,
+                    r,
+                    swap_coordinates=swap_coordinates,
+                ),
+                two_three_odd_root_spine_line_certificate(
+                    q,
+                    t,
+                    r,
+                    swap_coordinates=swap_coordinates,
+                ),
+            )
+
+        certificate = two_odd_root_spine_line_certificate(2, 5, -3, 11)
+        self.assertIsNotNone(certificate)
+        self.assertEqual(certificate.target, (1_795, 1_749))
+        self.assertEqual(certificate.midpoint, (-220, -231))
+        self.assertTrue(certificate.valid())
+
+        self.assertIsNone(two_odd_root_spine_line_certificate(1, 0, 1, 1))
+        self.assertIsNone(two_odd_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(two_odd_root_spine_line_certificate(1, 1, 1, 0))
+        self.assertIsNone(
+            two_odd_root_spine_line_orbit_certificate(1, 0, 1, 1, (1, 1))
+        )
+        self.assertIsNone(
+            two_odd_root_spine_line_orbit_certificate(1, 1, 1, 1, (1, 1))
+        )
+        with self.assertRaises(ValueError):
+            two_odd_root_spine_line_certificate(0, 1, 1, 1)
+
+    def test_two_five_root_spine_line_certificate(self):
+        counterexample_certificate = two_five_root_spine_line_certificate(
+            5,
+            -109,
+            273,
+            -14897,
+        )
+        self.assertIsNotNone(counterexample_certificate)
+        self.assertEqual(counterexample_certificate.target, (370, 403))
+        self.assertEqual(counterexample_certificate.midpoint, (297940, -312837))
+        self.assertTrue(counterexample_certificate.valid())
+
+        swapped_certificate = two_five_root_spine_line_certificate(
+            5,
+            -273,
+            109,
+            14897,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(swapped_certificate)
+        self.assertEqual(swapped_certificate.target, (403, 370))
+        self.assertEqual(swapped_certificate.midpoint, (-312837, 297940))
+        self.assertTrue(swapped_certificate.valid())
+
+        for m, beta_x, beta_y, r, swap_coordinates in (
+            (1, 1, 2, 1, False),
+            (2, -3, 4, -5, False),
+            (3, -5, 4, 7, True),
+            (7, 9, 4, -11, True),
+        ):
+            with self.subTest(
+                m=m,
+                beta_x=beta_x,
+                beta_y=beta_y,
+                r=r,
+                swap_coordinates=swap_coordinates,
+            ):
+                certificate = two_five_root_spine_line_certificate(
+                    m,
+                    beta_x,
+                    beta_y,
+                    r,
+                    swap_coordinates=swap_coordinates,
+                )
+                self.assertIsNotNone(certificate)
+                self.assertTrue(certificate.valid())
+
+        self.assertIsNone(two_five_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(two_five_root_spine_line_certificate(1, 0, 2, 1))
+        self.assertIsNone(two_five_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(two_five_root_spine_line_certificate(1, 1, 1, 0))
+
+    def test_secondary_root_spine_line_certificates(self):
+        one_four_even = one_four_even_root_spine_line_certificate(
+            1,
+            -13,
+            -57,
+            -227,
+        )
+        self.assertIsNotNone(one_four_even)
+        self.assertEqual(one_four_even.target, (334, 325))
+        self.assertEqual(one_four_even.midpoint, (1816, 3405))
+        self.assertTrue(one_four_even.valid())
+
+        one_four_even_swapped = one_four_even_root_spine_line_certificate(
+            1,
+            -13,
+            57,
+            -227,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(one_four_even_swapped)
+        self.assertEqual(one_four_even_swapped.target, (325, 334))
+        self.assertEqual(one_four_even_swapped.midpoint, (3405, 1816))
+        self.assertTrue(one_four_even_swapped.valid())
+
+        two_three_general = two_three_odd_general_root_spine_line_certificate(
+            1,
+            -31,
+            18,
+            166,
+        )
+        self.assertIsNotNone(two_three_general)
+        self.assertEqual(two_three_general.target, (265, 346))
+        self.assertEqual(two_three_general.midpoint, (-1992, -830))
+        self.assertTrue(two_three_general.valid())
+
+        two_three_general_swapped = two_three_odd_general_root_spine_line_certificate(
+            1,
+            -31,
+            -19,
+            166,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(two_three_general_swapped)
+        self.assertEqual(two_three_general_swapped.target, (346, 265))
+        self.assertEqual(two_three_general_swapped.midpoint, (-830, -1992))
+        self.assertTrue(two_three_general_swapped.valid())
+
+        four_five_certificate = four_five_root_spine_line_certificate(
+            1,
+            -31,
+            21,
+            41,
+        )
+        self.assertIsNotNone(four_five_certificate)
+        self.assertEqual(four_five_certificate.target, (151, 338))
+        self.assertEqual(four_five_certificate.midpoint, (-369, 1640))
+        self.assertTrue(four_five_certificate.valid())
+
+        four_five_swapped = four_five_root_spine_line_certificate(
+            1,
+            -21,
+            31,
+            -41,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(four_five_swapped)
+        self.assertEqual(four_five_swapped.target, (338, 151))
+        self.assertEqual(four_five_swapped.midpoint, (1640, -369))
+        self.assertTrue(four_five_swapped.valid())
+
+        for target in sign_swap_orbit((151, 338)):
+            witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                target,
+                8,
+            )
+            self.assertIsNotNone(witness)
+            self.assertEqual(gaussian_root_shape(witness.root_shape), (4, 5))
+            self.assertEqual(
+                promoted_root_spine_line_certificate_from_witness(witness),
+                witness.certificate,
+            )
+
+        three_four_certificate = three_four_root_spine_line_certificate(
+            1,
+            5,
+            7,
+            11,
+        )
+        self.assertIsNotNone(three_four_certificate)
+        self.assertEqual(three_four_certificate.target, (-101, 334))
+        self.assertEqual(three_four_certificate.midpoint, (-77, 264))
+        self.assertTrue(three_four_certificate.valid())
+
+        three_four_swapped = three_four_root_spine_line_certificate(
+            3,
+            -5,
+            4,
+            7,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(three_four_swapped)
+        self.assertEqual(three_four_swapped.target, (48, 22))
+        self.assertEqual(three_four_swapped.midpoint, (168, 49))
+        self.assertTrue(three_four_swapped.valid())
+
+        three_four_odd = three_four_odd_root_spine_line_certificate(
+            37,
+            -16,
+            11,
+            1130,
+        )
+        self.assertIsNotNone(three_four_odd)
+        self.assertEqual(three_four_odd.target, (82, 739))
+        self.assertEqual(three_four_odd.midpoint, (-7910, 27120))
+        self.assertTrue(three_four_odd.valid())
+
+        signed_three_four_targets = (
+            (2, 701),
+            (5, 14),
+            (14, 5),
+            (14, 365),
+            (22, 119),
+            (34, 385),
+            (41, 718),
+            (50, 77),
+            (62, 401),
+            (77, 50),
+        )
+        for target in signed_three_four_targets:
+            witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                target,
+                8,
+            )
+            self.assertIsNotNone(witness)
+            self.assertEqual(gaussian_root_shape(witness.root_shape), (3, 4))
+            self.assertEqual(
+                promoted_root_spine_line_certificate_from_witness(witness),
+                witness.certificate,
+            )
+
+        three_eight_certificate = three_eight_odd_root_spine_line_certificate(
+            1,
+            -33,
+            -84,
+            -218,
+        )
+        self.assertIsNotNone(three_eight_certificate)
+        self.assertEqual(three_eight_certificate.target, (158, 391))
+        self.assertEqual(three_eight_certificate.midpoint, (11990, -10464))
+        self.assertTrue(three_eight_certificate.valid())
+
+        three_eight_swapped = three_eight_odd_root_spine_line_certificate(
+            1,
+            83,
+            32,
+            218,
+            swap_coordinates=True,
+        )
+        self.assertIsNotNone(three_eight_swapped)
+        self.assertEqual(three_eight_swapped.target, (391, 158))
+        self.assertEqual(three_eight_swapped.midpoint, (-10464, 11990))
+        self.assertTrue(three_eight_swapped.valid())
+
+        for target in sign_swap_orbit((158, 391)):
+            witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+                target,
+                8,
+            )
+            self.assertIsNotNone(witness)
+            self.assertEqual(gaussian_root_shape(witness.root_shape), (3, 8))
+            self.assertEqual(
+                promoted_root_spine_line_certificate_from_witness(witness),
+                witness.certificate,
+            )
+
+        self.assertIsNone(four_five_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(four_five_root_spine_line_certificate(1, 0, 2, 1))
+        self.assertIsNone(four_five_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(four_five_root_spine_line_certificate(1, 1, 1, 1))
+        self.assertIsNone(three_four_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(three_four_root_spine_line_certificate(1, 0, 2, 1))
+        self.assertIsNone(three_four_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(three_four_root_spine_line_certificate(1, 1, 1, 1))
+        self.assertIsNone(three_four_odd_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(three_four_odd_root_spine_line_certificate(1, 1, 2, 0))
+        self.assertIsNone(three_four_odd_root_spine_line_certificate(1, 0, 0, 1))
+        self.assertIsNone(one_four_even_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(one_four_even_root_spine_line_certificate(1, 0, 2, 1))
+        self.assertIsNone(one_four_even_root_spine_line_certificate(1, 1, 0, 1))
+        self.assertIsNone(one_four_even_root_spine_line_certificate(1, 1, 1, 1))
+        self.assertIsNone(two_three_odd_general_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(two_three_odd_general_root_spine_line_certificate(1, 1, 2, 0))
+        self.assertIsNone(two_three_odd_general_root_spine_line_certificate(1, 0, 0, 1))
+        self.assertIsNone(three_eight_odd_root_spine_line_certificate(0, 1, 2, 1))
+        self.assertIsNone(three_eight_odd_root_spine_line_certificate(1, 1, 2, 0))
+        self.assertIsNone(three_eight_odd_root_spine_line_certificate(1, 0, 0, 1))
 
     @pytest.mark.perf
     def test_conjugate_ideal_divisor_obligation_census(self):
@@ -7354,10 +12382,13 @@ class CertificateTests(unittest.TestCase):
                     t * (u * u - v)
                     + u * v * (1 + 2 * v - u * u) * t * t // 4
                 )
+                z = v // 4
+                coefficient = u * t - z * (u * u - 1) * t * t
                 expected = half_leg_strip_certificate(direction, 1, t)
                 self.assertEqual(cert, expected)
                 self.assertIsNotNone(cert)
                 self.assertEqual(cert.target, (expected_x, 1))
+                self.assertEqual(cert.midpoint, (u * coefficient, v * coefficient))
                 self.assertTrue(cert.valid())
 
         for m in range(2, 18):
@@ -7781,6 +12812,77 @@ class CertificateTests(unittest.TestCase):
         for target in ((2, 1), (6, 3), (14, 7), (18, 9), (26, 13), (0, 5), (10, 0)):
             self.assertIsNone(
                 two_one_ray_five_or_seventeen_mod_twenty_orbit_certificate(target)
+            )
+
+    def test_two_one_ray_two_or_three_mod_five_parallel_family(self):
+        for multiplier in range(2, 500):
+            cert = two_one_ray_two_or_three_mod_five_parallel_certificate(multiplier)
+            if multiplier % 5 not in (2, 3):
+                self.assertIsNone(cert, multiplier)
+                continue
+
+            self.assertIsNotNone(cert, multiplier)
+            self.assertEqual(cert.target, (2 * multiplier, multiplier))
+            self.assertTrue(cert.valid())
+
+            if multiplier == 2:
+                self.assertEqual(cert, two_one_ray_even_certificate(multiplier))
+            elif multiplier == 3:
+                self.assertEqual(
+                    cert,
+                    two_one_ray_multiple_of_three_theorem3_certificate(multiplier),
+                )
+            elif multiplier % 5 == 2:
+                self.assertEqual(
+                    cert,
+                    ray_parallel_factor_certificate(
+                        (2 * multiplier, multiplier),
+                        (2, 1),
+                        (4, 3),
+                        2,
+                    ),
+                )
+            else:
+                self.assertEqual(
+                    cert,
+                    ray_parallel_factor_certificate(
+                        (2 * multiplier, multiplier),
+                        (2, 1),
+                        (-4, -3),
+                        2,
+                    ),
+                )
+
+            for target in (
+                (2 * multiplier, multiplier),
+                (-2 * multiplier, multiplier),
+                (2 * multiplier, -multiplier),
+                (multiplier, 2 * multiplier),
+                (-multiplier, 2 * multiplier),
+                (multiplier, -2 * multiplier),
+            ):
+                orbit_cert = (
+                    two_one_ray_two_or_three_mod_five_parallel_orbit_certificate(
+                        target
+                    )
+                )
+                self.assertIsNotNone(orbit_cert, target)
+                self.assertEqual(orbit_cert.target, target)
+                self.assertTrue(orbit_cert.valid())
+
+        self.assertEqual(
+            two_one_ray_two_or_three_mod_five_parallel_certificate(7).midpoint,
+            (20, 15),
+        )
+        self.assertEqual(
+            two_one_ray_two_or_three_mod_five_parallel_certificate(8).midpoint,
+            (4, 3),
+        )
+        for target in ((2, 1), (10, 5), (18, 9), (7, 1), (0, 3), (6, 0)):
+            self.assertIsNone(
+                two_one_ray_two_or_three_mod_five_parallel_orbit_certificate(
+                    target
+                )
             )
 
     def test_two_one_ray_mod20_skeleton_family(self):
@@ -10057,7 +15159,15 @@ class CertificateTests(unittest.TestCase):
 
                 base = consecutive_hypotenuse_unit_coordinate_certificate(m, t)
                 self.assertIsNotNone(base)
+                coefficient = (2 * m - 1) * t - 2 * (m * (m - 1) * t) ** 2
                 self.assertEqual(base.target, (hypotenuse * t, 1))
+                self.assertEqual(
+                    base.midpoint,
+                    (
+                        (2 * m - 1) * coefficient,
+                        2 * m * (m - 1) * coefficient,
+                    ),
+                )
                 self.assertTrue(base.valid())
 
                 for target in (
@@ -10260,6 +15370,245 @@ class CertificateTests(unittest.TestCase):
         self.assertEqual(theorem3_ray_divisor((1, 2), triple_3_4_5, -1, 1), 10)
         self.assertEqual(theorem3_ray_divisor_modulus((1, 2), triple_3_4_5, -1, 1), 5)
         self.assertIsNone(theorem3_ray_divisor_modulus((0, 1), triple_3_4_5, 1, -1))
+
+    def test_theorem3_unit_divisor_progression_family(self):
+        rows = (
+            (PythagoreanTriple(3, 4, 5), 1, -1, (1, 3)),
+            (PythagoreanTriple(5, 12, 13), 1, 1, (3, 1)),
+            (PythagoreanTriple(8, 15, 17), -1, 1, (23, 18)),
+        )
+
+        for triple, x_sign, y_sign, base_ray in rows:
+            a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+            p_step = c + y_sign * b
+            q_step = c - x_sign * a
+            for parameter in (0, 1, 7):
+                ray = theorem3_unit_divisor_progression_ray(
+                    triple,
+                    x_sign,
+                    y_sign,
+                    base_ray,
+                    parameter,
+                )
+                self.assertEqual(
+                    ray,
+                    (
+                        base_ray[0] + p_step * parameter,
+                        base_ray[1] + q_step * parameter,
+                    ),
+                )
+                self.assertEqual(theorem3_ray_divisor(ray, triple, x_sign, y_sign), 1)
+
+                for multiplier in (1, 2, 101):
+                    certificate = theorem3_unit_divisor_progression_certificate(
+                        triple,
+                        x_sign,
+                        y_sign,
+                        base_ray,
+                        parameter,
+                        multiplier,
+                    )
+                    self.assertEqual(
+                        certificate,
+                        theorem3_ray_divisor_certificate(
+                            ray,
+                            multiplier,
+                            triple,
+                            x_sign,
+                            y_sign,
+                        ),
+                    )
+                    self.assertIsNotNone(certificate)
+                    self.assertEqual(
+                        certificate.target,
+                        (ray[0] * multiplier, ray[1] * multiplier),
+                    )
+                    self.assertTrue(certificate.valid())
+                    self.assertEqual(
+                        theorem3_unit_divisor_progression_parameters_for_base(
+                            ray[0] * multiplier,
+                            ray[1] * multiplier,
+                            triple,
+                            x_sign,
+                            y_sign,
+                            base_ray,
+                        ),
+                        (parameter, multiplier),
+                    )
+
+                    orbit_target = (-ray[1] * multiplier, ray[0] * multiplier)
+                    orbit_certificate = theorem3_unit_divisor_progression_orbit_certificate(
+                        orbit_target,
+                        triple,
+                        x_sign,
+                        y_sign,
+                        base_ray,
+                    )
+                    self.assertIsNotNone(orbit_certificate)
+                    self.assertEqual(orbit_certificate.target, orbit_target)
+                    self.assertTrue(orbit_certificate.valid())
+
+        self.assertEqual(
+            theorem3_unit_divisor_progression_certificate(
+                PythagoreanTriple(8, 15, 17),
+                1,
+                -1,
+                (1, 5),
+                3,
+                17,
+            ),
+            eight_fifteen_seventeen_unit_divisor_ray_certificate(
+                "two_nine",
+                3,
+                17,
+            ),
+        )
+        self.assertIsNone(
+            theorem3_unit_divisor_progression_ray(
+                PythagoreanTriple(3, 4, 5),
+                1,
+                -1,
+                (1, 3),
+                -1,
+            )
+        )
+        self.assertIsNone(
+            theorem3_unit_divisor_progression_ray(
+                PythagoreanTriple(3, 4, 5),
+                1,
+                -1,
+                (2, 1),
+                0,
+            )
+        )
+        self.assertIsNone(
+            theorem3_unit_divisor_progression_parameters_for_base(
+                2,
+                1,
+                PythagoreanTriple(3, 4, 5),
+                1,
+                -1,
+                (1, 3),
+            )
+        )
+        with self.assertRaises(ValueError):
+            theorem3_unit_divisor_progression_ray(
+                PythagoreanTriple(3, 4, 5),
+                0,
+                -1,
+                (1, 3),
+                0,
+            )
+
+    def test_theorem3_coprime_unit_divisor_progression_family(self):
+        triples = (
+            PythagoreanTriple(3, 4, 5),
+            PythagoreanTriple(5, 12, 13),
+            PythagoreanTriple(7, 24, 25),
+            PythagoreanTriple(20, 21, 29),
+        )
+
+        for triple in triples:
+            self.assertEqual(gcd(triple.leg_a, triple.leg_b), 1)
+            for x_sign in (-1, 1):
+                for y_sign in (-1, 1):
+                    q_step, p_step = theorem3_unit_divisor_step_coefficients(
+                        triple,
+                        x_sign,
+                        y_sign,
+                    )
+                    self.assertEqual(gcd(q_step, p_step), 1)
+                    seed = theorem3_coprime_unit_divisor_seed(
+                        triple,
+                        x_sign,
+                        y_sign,
+                    )
+                    self.assertIsNotNone(seed, (triple, x_sign, y_sign))
+                    self.assertEqual(
+                        theorem3_ray_divisor(seed, triple, x_sign, y_sign),
+                        1,
+                    )
+
+                    for parameter in (0, 1, 4):
+                        ray = theorem3_coprime_unit_divisor_progression_ray(
+                            triple,
+                            x_sign,
+                            y_sign,
+                            parameter,
+                        )
+                        self.assertEqual(
+                            ray,
+                            (
+                                seed[0] + p_step * parameter,
+                                seed[1] + q_step * parameter,
+                            ),
+                        )
+                        self.assertEqual(
+                            theorem3_ray_divisor(ray, triple, x_sign, y_sign),
+                            1,
+                        )
+                        for multiplier in (1, 3, 77):
+                            certificate = (
+                                theorem3_coprime_unit_divisor_progression_certificate(
+                                    triple,
+                                    x_sign,
+                                    y_sign,
+                                    parameter,
+                                    multiplier,
+                                )
+                            )
+                            self.assertIsNotNone(certificate)
+                            self.assertEqual(
+                                certificate.target,
+                                (ray[0] * multiplier, ray[1] * multiplier),
+                            )
+                            self.assertTrue(certificate.valid())
+
+                            orbit_target = (
+                                ray[1] * multiplier,
+                                -ray[0] * multiplier,
+                            )
+                            orbit_certificate = (
+                                theorem3_coprime_unit_divisor_progression_orbit_certificate(
+                                    orbit_target,
+                                    triple,
+                                    x_sign,
+                                    y_sign,
+                                )
+                            )
+                            self.assertIsNotNone(orbit_certificate)
+                            self.assertEqual(orbit_certificate.target, orbit_target)
+                            self.assertTrue(orbit_certificate.valid())
+
+        self.assertEqual(
+            theorem3_coprime_unit_divisor_seed(PythagoreanTriple(3, 4, 5), 1, -1),
+            (1, 3),
+        )
+        self.assertEqual(
+            theorem3_coprime_unit_divisor_seed(PythagoreanTriple(8, 15, 17), -1, 1),
+            (23, 18),
+        )
+        self.assertEqual(
+            theorem3_coprime_unit_divisor_progression_certificate(
+                PythagoreanTriple(8, 15, 17),
+                1,
+                -1,
+                3,
+                17,
+            ),
+            eight_fifteen_seventeen_unit_divisor_ray_certificate(
+                "two_nine",
+                3,
+                17,
+            ),
+        )
+        self.assertIsNone(
+            theorem3_coprime_unit_divisor_seed(PythagoreanTriple(6, 8, 10), 1, -1)
+        )
+        with self.assertRaises(ValueError):
+            theorem3_coprime_unit_divisor_seed(PythagoreanTriple(3, 4, 5), 0, -1)
+        with self.assertRaises(ValueError):
+            theorem3_coprime_unit_divisor_seed(PythagoreanTriple(1, 1, 2), 1, -1)
 
     def test_theorem3_ray_pell_divisor_family(self):
         certificate = theorem3_ray_pell_divisor_certificate((1, 3), 1, 1, 1)
@@ -10567,6 +15916,101 @@ class CertificateTests(unittest.TestCase):
         for target in ((2, 1), (1, 2), (3, 10), (2, 7), (11, 10), (1, 18), (0, 9)):
             self.assertIsNone(
                 five_twelve_thirteen_unit_divisor_ray_orbit_certificate(target)
+            )
+
+    def test_eight_fifteen_seventeen_unit_divisor_ray_table(self):
+        triple = PythagoreanTriple(8, 15, 17)
+        families = {
+            "two_nine": ((0, 1, 8), 1, -1),
+            "two_twentyfive": ((0, 1, 5), -1, -1),
+            "thirtytwo_nine": ((0, 1, 3), 1, 1),
+            "thirtytwo_twentyfive": ((0, 1, 4), -1, 1),
+        }
+
+        for family, (parameters, x_sign, y_sign) in families.items():
+            for parameter in parameters:
+                data = eight_fifteen_seventeen_unit_divisor_ray_data(
+                    family,
+                    parameter,
+                )
+                self.assertIsNotNone(data, (family, parameter))
+                ray, row_x_sign, row_y_sign = data
+                self.assertEqual((row_x_sign, row_y_sign), (x_sign, y_sign))
+                self.assertEqual(
+                    theorem3_ray_divisor(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+                self.assertEqual(
+                    theorem3_ray_divisor_modulus(ray, triple, x_sign, y_sign),
+                    1,
+                    (family, parameter),
+                )
+
+                for multiplier in (1, 2, 17, 3003):
+                    cert = eight_fifteen_seventeen_unit_divisor_ray_certificate(
+                        family,
+                        parameter,
+                        multiplier,
+                    )
+                    self.assertIsNotNone(cert, (family, parameter, multiplier))
+                    product = ray[0] * ray[1] * multiplier
+                    self.assertEqual(
+                        cert.target,
+                        (ray[0] * multiplier, ray[1] * multiplier),
+                    )
+                    self.assertEqual(
+                        cert.midpoint,
+                        (x_sign * 8 * product, y_sign * 15 * product),
+                    )
+                    self.assertTrue(cert.valid())
+                    self.assertEqual(
+                        cert,
+                        theorem3_ray_divisor_certificate(
+                            ray,
+                            multiplier,
+                            triple,
+                            x_sign,
+                            y_sign,
+                        ),
+                    )
+
+        self.assertIsNone(
+            eight_fifteen_seventeen_unit_divisor_ray_certificate("two_nine", -1, 1)
+        )
+        self.assertIsNone(
+            eight_fifteen_seventeen_unit_divisor_ray_certificate(
+                "thirtytwo_nine",
+                0,
+                0,
+            )
+        )
+        with self.assertRaises(ValueError):
+            eight_fifteen_seventeen_unit_divisor_ray_data("missing", 1)
+
+        for target in (
+            (1, 5),
+            (5, 1),
+            (2, 10),
+            (1, 13),
+            (-13, -1),
+            (7, 2),
+            (-14, -4),
+            (39, 11),
+            (11, 39),
+            (23, 18),
+            (110, -86),
+        ):
+            orbit_cert = eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate(
+                target
+            )
+            self.assertIsNotNone(orbit_cert, target)
+            self.assertEqual(orbit_cert.target, target)
+            self.assertTrue(orbit_cert.valid())
+
+        for target in ((2, 1), (1, 2), (3, 10), (1, 9), (11, 10), (0, 5)):
+            self.assertIsNone(
+                eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate(target)
             )
 
     def test_consecutive_euclid_unit_divisor_ray_family(self):

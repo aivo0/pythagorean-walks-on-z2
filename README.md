@@ -52,12 +52,199 @@ What is now proved or encoded:
 - The signed `5-12-13` row now closes its unit-divisor ray-fan table:
   `(p,8p+1)`, `(p,18p+1)`, `(25t+3,8t+1)`, and `(25t+18,18t+13)`, with their
   sign/swap orbits.
+- The signed `8-15-17` row now closes another unit-divisor ray-fan table:
+  `(2t+1,9t+5)`, `(2t+1,25t+13)`, `(32t+7,9t+2)`, and
+  `(32t+23,25t+18)`, with their sign/swap orbits.
+- The generic signed Theorem 3 unit-divisor progression is closed: whenever a
+  signed triple row has one positive seed ray with divisor `1`, the full
+  arithmetic progression of seed rays and all nonzero multiples have two-step
+  certificates.
+- For every primitive Pythagorean triple and every sign choice, the signed
+  Theorem 3 unit-divisor seed is now constructive: the coprime coefficients
+  `A=c-sx*a`, `B=c+sy*b` determine a canonical positive seed ray, hence an
+  infinite unit-divisor fan.
 - The consecutive-Euclid unit-divisor fan is closed: for every `r,p >= 1`,
   every nonzero multiple of `(p, 2r^2 p + 1)` and every sign/swap image has a
   two-step certificate from the triple `(2r+1, 2r(r+1), 2r^2+2r+1)`.
 - The swapped-leg consecutive-Euclid affine strip is closed: for every
   `r,h >= 1`, `(2r^2 h - 1,h)` and its sign/swap orbit has a two-step
   certificate.
+- The consecutive-hypotenuse unit-coordinate subline is closed: for every
+  `m >= 2` and nonzero `t`, with `c=m^2+(m-1)^2`, `(ct,1)` and its sign/swap
+  orbit has a two-step certificate.
+- The half-leg unit-coordinate row is Lean-backed for every odd Pythagorean
+  direction `(u,4z)`: all nonzero parameters `t` in the half-leg formula have
+  two-step certificates, with automatic nondegeneracy.
+- The nonstandard factor-five unit-coordinate congruence row is closed:
+  `(1,25t+17)` and its sign/swap orbit have two-step certificates for every
+  integer `t`.
+- The companion factor-four unit-coordinate congruence row is closed:
+  `(1,20t+12)` and its sign/swap orbit have two-step certificates for every
+  integer `t`.
+- The factor-one one-mod-five unit-coordinate congruence row is closed:
+  `(1,5t+1)` and its sign/swap orbit have two-step certificates for every
+  integer `t`.
+- The factor-one seven-mod-ten unit-coordinate congruence row is closed:
+  `(1,10t+7)` and its sign/swap orbit have two-step certificates for every
+  integer `t`.
+- The factor-twenty-five unit-coordinate congruence row is closed:
+  `(1,25t+18)` and its sign/swap orbit have two-step certificates for every
+  integer `t`.
+- The twenty-two-mod-twenty-five unit-coordinate congruence row is closed:
+  `(1,25t+22)` and its sign/swap orbit have two-step certificates for every
+  integer `t`; the single degenerate fixed-factor parameter is discharged by
+  the seven-mod-ten row.
+- The promoted unit-coordinate row package now gives an infinite mod-100 cover:
+  every unit-coordinate target with nonzero other coordinate outside
+  `2,38,62,98 mod 100` has a two-step certificate.
+- The `(8,15,17)` orthogonal lattice row now gives named infinite subfamilies
+  inside all four remaining unit-coordinate mod-100 residual classes.
+- The `(15,8,17)` factor-two parallel row closes the unit-coordinate class
+  `(1,34t+26)` and its sign/swap orbit; its fixed row intersects all four
+  remaining mod-100 residual classes with period `1700`.
+- The `(12,35,37)` factor-one parallel row closes the unit-coordinate class
+  `(1,37t+25)` and its sign/swap orbit; because `gcd(37,100)=1`, it also
+  cuts through all four remaining mod-100 residual classes with period `3700`.
+- The `(40,9,41)` factor-one parallel row closes the unit-coordinate class
+  `(1,41t+23)` and its sign/swap orbit, adding another coprime-period slice
+  through all four mod-100 residual classes.
+- The `(28,45,53)` factor-one parallel row closes the unit-coordinate class
+  `(1,53t+10)` and its sign/swap orbit, giving a third coprime-period slice
+  through the same residual layer.
+- The `(60,11,61)` factor-one parallel row closes the unit-coordinate class
+  `(1,61t+39)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(48,55,73)` factor-one parallel row closes the unit-coordinate class
+  `(1,73t+31)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(80,39,89)` factor-one parallel row closes the unit-coordinate class
+  `(1,89t+71)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(72,65,97)` factor-one parallel row closes the unit-coordinate class
+  `(1,97t+78)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(20,99,101)` factor-one parallel row closes the unit-coordinate class
+  `(1,101t+60)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(60,91,109)` factor-one parallel row closes the unit-coordinate class
+  `(1,109t+82)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(112,15,113)` factor-one parallel row closes the unit-coordinate class
+  `(1,113t+83)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(88,105,137)` factor-one parallel row closes the unit-coordinate class
+  `(1,137t+7)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(140,51,149)` factor-one parallel row closes the unit-coordinate class
+  `(1,149t+82)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(132,85,157)` factor-one parallel row closes the unit-coordinate class
+  `(1,157t+4)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(120,119,169)` factor-one parallel row closes the unit-coordinate class
+  `(1,169t+168)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(52,165,173)` factor-one parallel row closes the unit-coordinate class
+  `(1,173t+28)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(180,19,181)` factor-one parallel row closes the unit-coordinate class
+  `(1,181t+143)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(168,95,193)` factor-one parallel row closes the unit-coordinate class
+  `(1,193t+47)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(28,195,197)` factor-one parallel row closes the unit-coordinate class
+  `(1,197t+112)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(60,221,229)` factor-one parallel row closes the unit-coordinate class
+  `(1,229t+36)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(312,25,313)` factor-one parallel row closes the unit-coordinate class
+  `(1,313t+263)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(308,75,317)` factor-one parallel row closes the unit-coordinate class
+  `(1,317t+296)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(288,175,337)` factor-one parallel row closes the unit-coordinate class
+  `(1,337t+241)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(180,299,349)` factor-one parallel row closes the unit-coordinate class
+  `(1,349t+206)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(272,225,353)` factor-one parallel row closes the unit-coordinate class
+  `(1,353t+49)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(252,275,373)` factor-one parallel row closes the unit-coordinate class
+  `(1,373t+151)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(352,135,377)` factor-one parallel row closes the unit-coordinate class
+  `(1,377t+299)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(340,189,389)` factor-one parallel row closes the unit-coordinate class
+  `(1,389t+97)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(228,325,397)` factor-one parallel row closes the unit-coordinate class
+  `(1,397t+141)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(40,399,401)` factor-one parallel row closes the unit-coordinate class
+  `(1,401t+220)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(120,391,409)` factor-one parallel row closes the unit-coordinate class
+  `(1,409t+302)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(420,29,421)` factor-one parallel row closes the unit-coordinate class
+  `(1,421t+363)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(408,145,433)` factor-one parallel row closes the unit-coordinate class
+  `(1,433t+39)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(280,351,449)` factor-one parallel row closes the unit-coordinate class
+  `(1,449t+264)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(168,425,457)` factor-one parallel row closes the unit-coordinate class
+  `(1,457t+248)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(380,261,461)` factor-one parallel row closes the unit-coordinate class
+  `(1,461t+373)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(360,319,481)` factor-one parallel row closes the unit-coordinate class
+  `(1,481t+23)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(132,475,493)` factor-one parallel row closes the unit-coordinate class
+  `(1,493t+199)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(220,459,509)` factor-one parallel row closes the unit-coordinate class
+  `(1,509t+96)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(440,279,521)` factor-one parallel row closes the unit-coordinate class
+  `(1,521t+103)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(92,525,533)` factor-one parallel row closes the unit-coordinate class
+  `(1,533t+78)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The `(420,341,541)` factor-one parallel row closes the unit-coordinate class
+  `(1,541t+113)` and its sign/swap orbit, continuing the primitive
+  coprime-period residual sequence.
+- The `(532,165,557)` factor-one parallel row closes the unit-coordinate class
+  `(1,557t+412)` and its sign/swap orbit, adding the next primitive
+  coprime-period residual slice.
+- The exceptional `(2,1)` ray has a named fixed-direction parallel-factor
+  slice for multipliers `n ≡ 2,3 mod 5`; the infinite tails use signed
+  `3-4-5` directions with factor `2`, and the small boundary multipliers are
+  discharged by earlier theorem rows.
+- The first full Gaussian-root primary spine is closed: for every `k >= 1`
+  and nonzero `q,t,r`, the `(1,2k)` root-spine line from direction
+  `(1-4k^2,4k)` and beta `(4kt+2k-1,-(2t+1))` has a two-step certificate,
+  as do all sign/swap images of the target.
+- The companion Gaussian-root primary spine is closed: for every `k >= 1`
+  and nonzero `q,t,r`, the `(2,2k+1)` root-spine line from direction
+  `(-4(2k+1),4-(2k+1)^2)` and beta `(1-2(2k+1)t,4t-1)` has a two-step
+  certificate, again with its full sign/swap target orbit.
+- The secondary Gaussian-root shape `(3,4)` now has named even- and odd-beta
+  line rows: midpoint `r(-7,24)` certifies both the integral beta-square
+  translate and the odd-beta half-square translate, with swapped forms. The
+  promotion helper recognizes the full signed beta and sign/swap orbits of the
+  observed secondary rows `(3,4)`, `(3,8)`, and `(4,5)`.
 - The full exceptional `(2,1)` ray is classified. For every integer `n` with
   `|n| > 1`, the target `(2n,n)` and all sign/swap images have two-step
   certificates; the primitive `|n| = 1` targets are exactly the known
@@ -78,9 +265,13 @@ What is now proved or encoded:
   proof program: scaling and sign/swap transport, Gaussian multiplication and
   divisor transport, an explicit diagonal Gaussian row, Cramer-style lattice
   certificates, fixed-direction parallel-factor certificates, CRT compatibility
-  and existence, an affine consecutive-hypotenuse strip row, and a Gaussian
-  root-residue lemma. It also now proves several theorem-shaped certificate rows
-  used by the written proof program: even-axis midpoint certificates, shared-leg
+  and existence, affine consecutive-hypotenuse strip and unit-coordinate rows,
+  the half-leg unit-coordinate row, the
+  factor-five/factor-four/one-mod-five/seven-mod-ten/factor-twenty-five/
+  twenty-two-mod-twenty-five unit-coordinate rows, and a Gaussian root-residue
+  lemma. It also now proves several theorem-shaped certificate rows used by
+  the written proof program: even-axis midpoint
+  certificates, shared-leg
   axis difference/sum rows, signed length-difference rows,
   signed/divisor-strengthened Theorem 3 rows, and factor-pair parallel rows.
 
@@ -128,6 +319,18 @@ with p >= 1 and t >= 0.
 
 The midpoint is the signed `(5,12)` direction scaled by the product of the ray
 coordinates and `|n|`.
+
+The generic signed Theorem 3 unit-divisor progression now explains these tables
+uniformly. For a triple `(a,b,c)` and signs `(sx,sy)`, put
+`A=c-sx*a` and `B=c+sy*b`. If a positive seed ray `(p0,q0)` satisfies
+`B*q0 - A*p0 = 1`, then every ray
+`(p0+B*t, q0+A*t)` with `t >= 0` and every nonzero multiplier is certified by
+the signed `(a,b)` midpoint scaled by the product of the ray coordinates.
+
+In particular, every primitive Pythagorean triple/sign row has such a seed:
+any common divisor of `A=c-sx*a` and `B=c+sy*b` divides both `a^2` and `b^2`,
+so primitivity forces `gcd(A,B)=1`. The seed is computed by a modular inverse
+when `B>1`, and by `(1,A+1)` when `B=1`.
 
 The consecutive-Euclid unit-divisor theorem packages the first row of every
 consecutive Euclid triple:
@@ -337,16 +540,50 @@ the algebraic reductions. `PythagoreanWalks/Certificate.lean` currently proves:
 - the base diagonal certificate for `(1,1)` and its parametrized Gaussian row;
 - the signed length-difference row behind `linear_delta_direction_certificate`;
 - the affine consecutive-hypotenuse strip row
-  `certificateValid_affineConsecutiveHypotenuseStrip`;
+  `certificateValid_affineConsecutiveHypotenuseStrip` and its unit-coordinate
+  specialization `certificateValid_consecutiveHypotenuseUnitCoordinate`;
+- the half-leg unit-coordinate row `certificateValid_halfLegUnitCoordinate`;
+- the factor-five unit-coordinate parallel row
+  `certificateValid_unitCoordinateFactorFiveParallel`;
+- the factor-four unit-coordinate parallel row
+  `certificateValid_unitCoordinateFactorFourParallel`;
+- the one-mod-five unit-coordinate parallel row
+  `certificateValid_unitCoordinateOneModFiveParallel`;
+- the seven-mod-ten unit-coordinate parallel row
+  `certificateValid_unitCoordinateSevenModTenParallel`;
+- the factor-twenty-five unit-coordinate parallel row
+  `certificateValid_unitCoordinateFactorTwentyFiveParallel`;
+- the twenty-two-mod-twenty-five unit-coordinate parallel row
+  `certificateValid_unitCoordinateTwentyTwoModTwentyFiveParallel`;
+- the `(15,8,17)` factor-two unit-coordinate parallel row
+  `certificateValid_unitCoordinateFifteenEightFactorTwoParallel`;
+- the `(8,15,17)` orthogonal-lattice seed row inside all four remaining
+  unit-coordinate mod-100 residual classes, backed by the existing
+  Cramer/lattice certificate rows;
 - signed and divisor-strengthened Theorem 3 certificate rows, including the
-  unit-divisor case, the full `(1,3)` ray row, and an explicit
-  multiple-of-three row on the exceptional `(2,1)` ray;
+  primitive coprime unit-divisor fan, the signed `8-15-17` ray fan, the full
+  `(1,3)` ray row, and an explicit multiple-of-three row on the exceptional
+  `(2,1)` ray;
+- the generic `(1,2k)` Gaussian-root primary spine row
+  `certificateValid_oneEvenRootSpineLine`;
+- the generic `(2,2k+1)` Gaussian-root primary spine row
+  `certificateValid_twoOddRootSpineLine`;
+- the secondary `(3,4)` Gaussian-root row
+  `certificateValid_threeFourRootSpineLine`, its swapped form, and the odd-beta
+  variants;
 - Cramer-style two-edge lattice certificate constructors;
 - a fixed-direction parallel-factor certificate criterion, including
   factor-pair row data matching the executable witness format;
 - integer CRT compatibility and existence lemmas;
 - a Gaussian root-residue lemma proving that a conjugate-divisibility residue is
   a square root of `-1` modulo the Gaussian norm.
+- explicit Gaussian root-spine line rows:
+  `certificateValid_oneTwoRootSpineLine`,
+  `certificateValid_oneFourRootSpineLine`,
+  `certificateValid_oneFourRootSpineLineSwap`,
+  `certificateValid_twoThreeOddRootSpineLine`,
+  `certificateValid_twoThreeOddRootSpineLineSwap`, and
+  `certificateValid_twoThreeEvenRootSpineLine`.
 
 These Lean row proofs cover more of the algebra used in the written axis and
 non-axis proof program. The full axis theorem, the non-primitive exceptional-ray

@@ -2055,6 +2055,37 @@ class ParallelDirectionConjugateIdealDivisorObligationStripCensus:
 
 
 @dataclass(frozen=True)
+class DivisorObligationExponentProfile:
+    target: Point
+    direction: Point
+    obligation: DivisorObligationKey
+    determinant_leg: int
+    quotient: int
+    modulus: int
+    generator: int
+    required_exponent: int
+    zero_residue_possible: bool
+    summands: tuple[DivisorExponentSummand, ...]
+    exponent_closure: tuple[int, ...]
+    effective_length: int
+    kneser_lower_bound: int
+    saturation_gap: int
+    saturation_branch: str
+
+
+@dataclass(frozen=True)
+class DivisorObligationDischargeWitness:
+    target: Point
+    direction: Point
+    obligation: DivisorObligationKey
+    branch: str
+    determinant_leg: int
+    quotient: int
+    exponent_profile: DivisorObligationExponentProfile | None
+    structural_row: tuple[object, ...] | None
+
+
+@dataclass(frozen=True)
 class PythagoreanLatticePairWitness:
     target: Point
     first_direction: Point
@@ -4168,6 +4199,2699 @@ def unit_coordinate_factor_five_parallel_orbit_certificate(
     return None
 
 
+def unit_coordinate_factor_four_parallel_certificate(parameter_t: int) -> Certificate:
+    """Certificate for the companion factor-four family ``(1, 20t + 12)``."""
+
+    fixed_coordinate = 20 * parameter_t + 12
+    first_coefficient = 18 * parameter_t * parameter_t + 16 * parameter_t + 3
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(-3 * first_coefficient, -4 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError("factor-four parallel certificate formula is invalid")
+    return certificate
+
+
+def unit_coordinate_factor_four_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 20t + 12)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 12) % 20 != 0:
+                    continue
+
+                base = unit_coordinate_factor_four_parallel_certificate(
+                    (candidate_target[1] - 12) // 20
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_mod_five_parallel_certificate(parameter_t: int) -> Certificate:
+    """Certificate for the factor-one family ``(1, 5t + 1)``."""
+
+    fixed_coordinate = 5 * parameter_t + 1
+    first_coefficient = 8 * parameter_t * parameter_t + 5 * parameter_t + 1
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(4 * first_coefficient, -3 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError("one-mod-five parallel certificate formula is invalid")
+    return certificate
+
+
+def unit_coordinate_one_mod_five_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 5t + 1)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 1) % 5 != 0:
+                    continue
+
+                base = unit_coordinate_one_mod_five_parallel_certificate(
+                    (candidate_target[1] - 1) // 5
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_seven_mod_ten_parallel_certificate(parameter_t: int) -> Certificate:
+    """Certificate for the factor-one family ``(1, 10t + 7)``."""
+
+    fixed_coordinate = 10 * parameter_t + 7
+    first_coefficient = 18 * parameter_t * parameter_t + 22 * parameter_t + 7
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(3 * first_coefficient, 4 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError("seven-mod-ten parallel certificate formula is invalid")
+    return certificate
+
+
+def unit_coordinate_seven_mod_ten_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 10t + 7)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 7) % 10 != 0:
+                    continue
+
+                base = unit_coordinate_seven_mod_ten_parallel_certificate(
+                    (candidate_target[1] - 7) // 10
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_factor_twenty_five_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-twenty-five family ``(1, 25t + 18)``."""
+
+    fixed_coordinate = 25 * parameter_t + 18
+    first_coefficient = 8 * parameter_t * parameter_t + 9 * parameter_t + 2
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(4 * first_coefficient, -3 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "factor-twenty-five parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_factor_twenty_five_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 25t + 18)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 18) % 25 != 0:
+                    continue
+
+                base = unit_coordinate_factor_twenty_five_parallel_certificate(
+                    (candidate_target[1] - 18) // 25
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate(
+    parameter_t: int,
+) -> Certificate | None:
+    """Certificate for the factor-five family ``(1, 25t + 22)``, if nondegenerate."""
+
+    if parameter_t == -1:
+        return None
+
+    fixed_coordinate = 25 * parameter_t + 22
+    first_coefficient = 40 * parameter_t * parameter_t + 65 * parameter_t + 26
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(-4 * first_coefficient, -3 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "twenty-two-mod-twenty-five parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 25t + 22)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 22) % 25 != 0:
+                    continue
+
+                parameter_t = (candidate_target[1] - 22) // 25
+                base = unit_coordinate_twenty_two_mod_twenty_five_parallel_certificate(
+                    parameter_t
+                )
+                if base is None:
+                    base = unit_coordinate_seven_mod_ten_parallel_certificate(-1)
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES: frozenset[int] = frozenset(
+    {2, 38, 62, 98}
+)
+
+
+def unit_coordinate_other_coordinate(target: Point) -> int | None:
+    """Return the non-unit coordinate of a unit-coordinate target, if present."""
+
+    g, h = target
+    if abs(g) == 1:
+        return h
+    if abs(h) == 1:
+        return g
+    return None
+
+
+def unit_coordinate_promoted_mod_hundred_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Promoted row cover outside the four residual unit-coordinate classes."""
+
+    other_coordinate = unit_coordinate_other_coordinate(target)
+    if other_coordinate is None:
+        return None
+    if other_coordinate == 0:
+        return None
+    if other_coordinate % 100 in UNIT_COORDINATE_PROMOTED_MOD_HUNDRED_RESIDUES:
+        return None
+
+    for constructor in (
+        unit_coordinate_multiple_of_five_certificate,
+        unit_coordinate_factor_five_parallel_orbit_certificate,
+        unit_coordinate_factor_four_parallel_orbit_certificate,
+        unit_coordinate_one_mod_five_parallel_orbit_certificate,
+        unit_coordinate_seven_mod_ten_parallel_orbit_certificate,
+        unit_coordinate_factor_twenty_five_parallel_orbit_certificate,
+        unit_coordinate_twenty_two_mod_twenty_five_parallel_orbit_certificate,
+    ):
+        certificate = constructor(target)
+        if certificate is not None:
+            return certificate
+
+    raise AssertionError("promoted mod-hundred unit-coordinate cover missed target")
+
+
+UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS: tuple[
+    tuple[int, int, int, tuple[int, int, int]],
+    ...,
+] = (
+    (2, 22_002, 28_900, (8, 15, 17)),
+    (38, 38, 28_900, (8, 15, 17)),
+    (62, 4_662, 28_900, (8, 15, 17)),
+    (98, 11_598, 28_900, (8, 15, 17)),
+)
+
+
+def unit_coordinate_residual_orthogonal_seed_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Orthogonal seed rows inside each promoted mod-hundred residual class."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+
+                fixed_coordinate = candidate_target[1]
+                for _residue, base, period, triple_data in (
+                    UNIT_COORDINATE_RESIDUAL_ORTHOGONAL_SEED_ROWS
+                ):
+                    if fixed_coordinate % period != base:
+                        continue
+
+                    base_certificate = pythagorean_triple_orthogonal_lattice_certificate(
+                        candidate_target,
+                        PythagoreanTriple(*triple_data),
+                    )
+                    if base_certificate is None:
+                        raise AssertionError(
+                            "residual orthogonal seed row unexpectedly degenerated"
+                        )
+                    certificate = sign_swap_certificate(base_certificate, target)
+                    if certificate is not None:
+                        return certificate
+
+    return None
+
+
+UNIT_COORDINATE_FIFTEEN_EIGHT_FACTOR_TWO_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 502, 1_700),
+    (38, 638, 1_700),
+    (62, 162, 1_700),
+    (98, 298, 1_700),
+)
+
+
+UNIT_COORDINATE_TWELVE_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 802, 3_700),
+    (38, 1_838, 3_700),
+    (62, 62, 3_700),
+    (98, 1_098, 3_700),
+)
+
+
+UNIT_COORDINATE_FORTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 802, 4_100),
+    (38, 638, 4_100),
+    (62, 3_262, 4_100),
+    (98, 3_098, 4_100),
+)
+
+
+UNIT_COORDINATE_TWENTY_EIGHT_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 3_402, 5_300),
+    (38, 4_038, 5_300),
+    (62, 4_462, 5_300),
+    (98, 5_098, 5_300),
+)
+
+
+UNIT_COORDINATE_SIXTY_ELEVEN_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 5_102, 6_100),
+    (38, 3_638, 6_100),
+    (62, 2_662, 6_100),
+    (98, 1_198, 6_100),
+)
+
+
+UNIT_COORDINATE_FORTY_EIGHT_FIFTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 2_002, 7_300),
+    (38, 4_338, 7_300),
+    (62, 3_462, 7_300),
+    (98, 5_798, 7_300),
+)
+
+
+UNIT_COORDINATE_EIGHTY_THIRTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 7_102, 8_900),
+    (38, 338, 8_900),
+    (62, 1_762, 8_900),
+    (98, 3_898, 8_900),
+)
+
+
+UNIT_COORDINATE_SEVENTY_TWO_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 9_002, 9_700),
+    (38, 7_838, 9_700),
+    (62, 7_062, 9_700),
+    (98, 5_898, 9_700),
+)
+
+
+UNIT_COORDINATE_TWENTY_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 4_302, 10_100),
+    (38, 7_938, 10_100),
+    (62, 262, 10_100),
+    (98, 3_898, 10_100),
+)
+
+
+UNIT_COORDINATE_SIXTY_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 8_802, 10_900),
+    (38, 9_238, 10_900),
+    (62, 2_262, 10_900),
+    (98, 2_698, 10_900),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_TWELVE_FIFTEEN_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 7_202, 11_300),
+    (38, 4_038, 11_300),
+    (62, 9_462, 11_300),
+    (98, 6_298, 11_300),
+)
+
+
+UNIT_COORDINATE_EIGHTY_EIGHT_ONE_HUNDRED_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 4_802, 13_700),
+    (38, 8_638, 13_700),
+    (62, 2_062, 13_700),
+    (98, 5_898, 13_700),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_FORTY_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 12_002, 14_900),
+    (38, 6_638, 14_900),
+    (62, 3_062, 14_900),
+    (98, 12_598, 14_900),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_EIGHTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 2_202, 15_700),
+    (38, 9_738, 15_700),
+    (62, 14_762, 15_700),
+    (98, 6_598, 15_700),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_TWENTY_ONE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 14_702, 16_900),
+    (38, 5_238, 16_900),
+    (62, 4_562, 16_900),
+    (98, 11_998, 16_900),
+)
+
+
+UNIT_COORDINATE_FIFTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 6_602, 17_300),
+    (38, 12_138, 17_300),
+    (62, 10_062, 17_300),
+    (98, 15_598, 17_300),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 7_202, 18_100),
+    (38, 17_338, 18_100),
+    (62, 18_062, 18_100),
+    (98, 10_098, 18_100),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 6_802, 19_300),
+    (38, 16_838, 19_300),
+    (62, 10_662, 19_300),
+    (98, 1_398, 19_300),
+)
+
+
+UNIT_COORDINATE_TWENTY_EIGHT_ONE_HUNDRED_NINETY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 13_902, 19_700),
+    (38, 11_538, 19_700),
+    (62, 9_962, 19_700),
+    (98, 7_598, 19_700),
+)
+
+
+UNIT_COORDINATE_SIXTY_TWO_HUNDRED_TWENTY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 12_402, 22_900),
+    (38, 8_738, 22_900),
+    (62, 21_562, 22_900),
+    (98, 17_898, 22_900),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_TWELVE_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 1_202, 31_300),
+    (38, 23_738, 31_300),
+    (62, 7_462, 31_300),
+    (98, 29_998, 31_300),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_EIGHT_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 6_002, 31_700),
+    (38, 8_538, 31_700),
+    (62, 31_362, 31_700),
+    (98, 2_198, 31_700),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_EIGHT_ONE_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 18_102, 33_700),
+    (38, 27_538, 33_700),
+    (62, 11_362, 33_700),
+    (98, 20_798, 33_700),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_EIGHTY_TWO_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 1_602, 34_900),
+    (38, 23_938, 34_900),
+    (62, 15_562, 34_900),
+    (98, 2_998, 34_900),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_SEVENTY_TWO_TWO_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 402, 35_300),
+    (38, 4_638, 35_300),
+    (62, 7_462, 35_300),
+    (98, 11_698, 35_300),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_FIFTY_TWO_TWO_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 32_602, 37_300),
+    (38, 7_238, 37_300),
+    (62, 2_762, 37_300),
+    (98, 14_698, 37_300),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_FIFTY_TWO_ONE_HUNDRED_THIRTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 15_002, 37_700),
+    (38, 2_938, 37_700),
+    (62, 7_462, 37_700),
+    (98, 33_098, 37_700),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_FORTY_ONE_HUNDRED_EIGHTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 17_602, 38_900),
+    (38, 26_938, 38_900),
+    (62, 33_162, 38_900),
+    (98, 3_598, 38_900),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_TWENTY_EIGHT_THREE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 5_302, 39_700),
+    (38, 538, 39_700),
+    (62, 37_062, 39_700),
+    (98, 32_298, 39_700),
+)
+
+
+UNIT_COORDINATE_FORTY_THREE_HUNDRED_NINETY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 33_102, 40_100),
+    (38, 7_438, 40_100),
+    (62, 17_062, 40_100),
+    (98, 31_498, 40_100),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_TWENTY_THREE_HUNDRED_NINETY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 302, 40_900),
+    (38, 1_938, 40_900),
+    (62, 16_662, 40_900),
+    (98, 18_298, 40_900),
+)
+
+
+UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_TWENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 25_202, 42_100),
+    (38, 31_938, 42_100),
+    (62, 8_362, 42_100),
+    (98, 15_098, 42_100),
+)
+
+
+UNIT_COORDINATE_FOUR_HUNDRED_EIGHT_ONE_HUNDRED_FORTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 4_802, 43_300),
+    (38, 1_338, 43_300),
+    (62, 13_462, 43_300),
+    (98, 9_998, 43_300),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_EIGHTY_THREE_HUNDRED_FIFTY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 28_102, 44_900),
+    (38, 11_938, 44_900),
+    (62, 1_162, 44_900),
+    (98, 29_898, 44_900),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_SIXTY_EIGHT_FOUR_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 10_302, 45_700),
+    (38, 32_238, 45_700),
+    (62, 1_162, 45_700),
+    (98, 23_098, 45_700),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_EIGHTY_TWO_HUNDRED_SIXTY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 41_402, 46_100),
+    (38, 30_338, 46_100),
+    (62, 22_962, 46_100),
+    (98, 11_898, 46_100),
+)
+
+
+UNIT_COORDINATE_THREE_HUNDRED_SIXTY_THREE_HUNDRED_NINETEEN_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 28_402, 48_100),
+    (38, 7_238, 48_100),
+    (62, 9_162, 48_100),
+    (98, 36_098, 48_100),
+)
+
+
+UNIT_COORDINATE_ONE_HUNDRED_THIRTY_TWO_FOUR_HUNDRED_SEVENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 35_202, 49_300),
+    (38, 11_538, 49_300),
+    (62, 45_062, 49_300),
+    (98, 21_398, 49_300),
+)
+
+
+UNIT_COORDINATE_TWO_HUNDRED_TWENTY_FOUR_HUNDRED_FIFTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 17_402, 50_900),
+    (38, 19_438, 50_900),
+    (62, 37_762, 50_900),
+    (98, 39_798, 50_900),
+)
+
+
+UNIT_COORDINATE_FOUR_HUNDRED_FORTY_TWO_HUNDRED_SEVENTY_NINE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 10_002, 52_100),
+    (38, 18_338, 52_100),
+    (62, 41_262, 52_100),
+    (98, 49_598, 52_100),
+)
+
+
+UNIT_COORDINATE_NINETY_TWO_FIVE_HUNDRED_TWENTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 15_002, 53_300),
+    (38, 10_738, 53_300),
+    (62, 25_662, 53_300),
+    (98, 21_398, 53_300),
+)
+
+
+UNIT_COORDINATE_FOUR_HUNDRED_TWENTY_THREE_HUNDRED_FORTY_ONE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 15_802, 54_100),
+    (38, 13_638, 54_100),
+    (62, 48_262, 54_100),
+    (98, 46_098, 54_100),
+)
+
+
+UNIT_COORDINATE_FIVE_HUNDRED_THIRTY_TWO_ONE_HUNDRED_SIXTY_FIVE_FACTOR_ONE_RESIDUAL_ROWS: tuple[
+    tuple[int, int, int],
+    ...,
+] = (
+    (2, 39_402, 55_700),
+    (38, 10_438, 55_700),
+    (62, 28_262, 55_700),
+    (98, 54_998, 55_700),
+)
+
+
+def unit_coordinate_twelve_thirty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 37t + 25)``."""
+
+    fixed_coordinate = 37 * parameter_t + 25
+    first_coefficient = 72 * parameter_t * parameter_t + 85 * parameter_t + 25
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(-12 * first_coefficient, -35 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "twelve-thirty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_twelve_thirty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 37t + 25)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 25) % 37 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_twelve_thirty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 25) // 37
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_forty_eight_fifty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 73t + 31)``."""
+
+    fixed_coordinate = 73 * parameter_t + 31
+    first_coefficient = 1152 * parameter_t * parameter_t + 943 * parameter_t + 193
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(48 * first_coefficient, 55 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "forty-eight-fifty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_forty_eight_fifty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 73t + 31)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 31) % 73 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_forty_eight_fifty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 31) // 73
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_eighty_thirty_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 89t + 71)``."""
+
+    fixed_coordinate = 89 * parameter_t + 71
+    first_coefficient = 3200 * parameter_t * parameter_t + 5071 * parameter_t + 2009
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(80 * first_coefficient, 39 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "eighty-thirty-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_eighty_thirty_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 89t + 71)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 71) % 89 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_eighty_thirty_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 71) // 89
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_seventy_two_sixty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 97t + 78)``."""
+
+    fixed_coordinate = 97 * parameter_t + 78
+    first_coefficient = 2592 * parameter_t * parameter_t + 4121 * parameter_t + 1638
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(72 * first_coefficient, 65 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "seventy-two-sixty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_seventy_two_sixty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 97t + 78)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 78) % 97 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_seventy_two_sixty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 78) // 97
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_twenty_ninety_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 101t + 60)``."""
+
+    fixed_coordinate = 101 * parameter_t + 60
+    first_coefficient = 200 * parameter_t * parameter_t + 219 * parameter_t + 60
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(20 * first_coefficient, 99 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "twenty-ninety-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_twenty_ninety_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 101t + 60)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 60) % 101 != 0:
+                    continue
+
+                base = unit_coordinate_twenty_ninety_nine_factor_one_parallel_certificate(
+                    (candidate_target[1] - 60) // 101
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_sixty_ninety_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 109t + 82)``."""
+
+    fixed_coordinate = 109 * parameter_t + 82
+    first_coefficient = 1800 * parameter_t * parameter_t + 2659 * parameter_t + 982
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(60 * first_coefficient, 91 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "sixty-ninety-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_sixty_ninety_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 109t + 82)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 82) % 109 != 0:
+                    continue
+
+                base = unit_coordinate_sixty_ninety_one_factor_one_parallel_certificate(
+                    (candidate_target[1] - 82) // 109
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 113t + 83)``."""
+
+    fixed_coordinate = 113 * parameter_t + 83
+    first_coefficient = 6272 * parameter_t * parameter_t + 9199 * parameter_t + 3373
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(112 * first_coefficient, 15 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-twelve-fifteen factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 113t + 83)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 83) % 113 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_twelve_fifteen_factor_one_parallel_certificate(
+                        (candidate_target[1] - 83) // 113
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 137t + 7)``."""
+
+    fixed_coordinate = 137 * parameter_t + 7
+    first_coefficient = 3872 * parameter_t * parameter_t + 329 * parameter_t + 7
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(88 * first_coefficient, 105 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "eighty-eight-one-hundred-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 137t + 7)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 7) % 137 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_eighty_eight_one_hundred_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 7) // 137
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 149t + 82)``."""
+
+    fixed_coordinate = 149 * parameter_t + 82
+    first_coefficient = 9800 * parameter_t * parameter_t + 10739 * parameter_t + 2942
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(140 * first_coefficient, 51 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-forty-fifty-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 149t + 82)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 82) % 149 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_forty_fifty_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 82) // 149
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 157t + 4)``."""
+
+    fixed_coordinate = 157 * parameter_t + 4
+    first_coefficient = 8712 * parameter_t * parameter_t + 373 * parameter_t + 4
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(132 * first_coefficient, 85 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-thirty-two-eighty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 157t + 4)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 4) % 157 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_thirty_two_eighty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 4) // 157
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 169t + 168)``."""
+
+    fixed_coordinate = 169 * parameter_t + 168
+    first_coefficient = 7200 * parameter_t * parameter_t + 14231 * parameter_t + 7032
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(120 * first_coefficient, 119 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-twenty-one-hundred-nineteen factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 169t + 168)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 168) % 169 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_twenty_one_hundred_nineteen_factor_one_parallel_certificate(
+                        (candidate_target[1] - 168) // 169
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 173t + 28)``."""
+
+    fixed_coordinate = 173 * parameter_t + 28
+    first_coefficient = 1352 * parameter_t * parameter_t + 389 * parameter_t + 28
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(52 * first_coefficient, 165 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "fifty-two-one-hundred-sixty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 173t + 28)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 28) % 173 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_fifty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 28) // 173
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 181t + 143)``."""
+
+    fixed_coordinate = 181 * parameter_t + 143
+    first_coefficient = 16200 * parameter_t * parameter_t + 25579 * parameter_t + 10097
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(180 * first_coefficient, 19 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-eighty-nineteen factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 181t + 143)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 143) % 181 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_eighty_nineteen_factor_one_parallel_certificate(
+                        (candidate_target[1] - 143) // 181
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 193t + 47)``."""
+
+    fixed_coordinate = 193 * parameter_t + 47
+    first_coefficient = 14112 * parameter_t * parameter_t + 6791 * parameter_t + 817
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(168 * first_coefficient, 95 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-sixty-eight-ninety-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 193t + 47)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 47) % 193 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_sixty_eight_ninety_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 47) // 193
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 197t + 112)``."""
+
+    fixed_coordinate = 197 * parameter_t + 112
+    first_coefficient = 392 * parameter_t * parameter_t + 419 * parameter_t + 112
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(28 * first_coefficient, 195 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "twenty-eight-one-hundred-ninety-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 197t + 112)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 112) % 197 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_twenty_eight_one_hundred_ninety_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 112) // 197
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 229t + 36)``."""
+
+    fixed_coordinate = 229 * parameter_t + 36
+    first_coefficient = 1800 * parameter_t * parameter_t + 509 * parameter_t + 36
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(60 * first_coefficient, 221 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "sixty-two-hundred-twenty-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 229t + 36)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 36) % 229 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_sixty_two_hundred_twenty_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 36) // 229
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 313t + 263)``."""
+
+    fixed_coordinate = 313 * parameter_t + 263
+    first_coefficient = (
+        48672 * parameter_t * parameter_t + 81769 * parameter_t + 34343
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(312 * first_coefficient, 25 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-twelve-twenty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 313t + 263)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 263) % 313 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_twelve_twenty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 263) // 313
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 317t + 296)``."""
+
+    fixed_coordinate = 317 * parameter_t + 296
+    first_coefficient = (
+        47432 * parameter_t * parameter_t + 88507 * parameter_t + 41288
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(308 * first_coefficient, 75 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-eight-seventy-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 317t + 296)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 296) % 317 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_eight_seventy_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 296) // 317
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 337t + 241)``."""
+
+    fixed_coordinate = 337 * parameter_t + 241
+    first_coefficient = (
+        41472 * parameter_t * parameter_t + 59167 * parameter_t + 21103
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(288 * first_coefficient, 175 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-eighty-eight-one-hundred-seventy-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 337t + 241)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 241) % 337 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_eighty_eight_one_hundred_seventy_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 241) // 337
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 349t + 206)``."""
+
+    fixed_coordinate = 349 * parameter_t + 206
+    first_coefficient = (
+        16200 * parameter_t * parameter_t + 18971 * parameter_t + 5554
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(180 * first_coefficient, 299 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-eighty-two-hundred-ninety-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 349t + 206)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 206) % 349 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_eighty_two_hundred_ninety_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 206) // 349
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 353t + 49)``."""
+
+    fixed_coordinate = 353 * parameter_t + 49
+    first_coefficient = (
+        36992 * parameter_t * parameter_t + 10097 * parameter_t + 689
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(272 * first_coefficient, 225 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-seventy-two-two-hundred-twenty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 353t + 49)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 49) % 353 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_seventy_two_two_hundred_twenty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 49) // 353
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 373t + 151)``."""
+
+    fixed_coordinate = 373 * parameter_t + 151
+    first_coefficient = (
+        31752 * parameter_t * parameter_t + 25523 * parameter_t + 5129
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(252 * first_coefficient, 275 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-fifty-two-two-hundred-seventy-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 373t + 151)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 151) % 373 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_fifty_two_two_hundred_seventy_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 151) // 373
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 377t + 299)``."""
+
+    fixed_coordinate = 377 * parameter_t + 299
+    first_coefficient = (
+        61952 * parameter_t * parameter_t + 98143 * parameter_t + 38869
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(352 * first_coefficient, 135 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-fifty-two-one-hundred-thirty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 377t + 299)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 299) % 377 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_fifty_two_one_hundred_thirty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 299) // 377
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 389t + 97)``."""
+
+    fixed_coordinate = 389 * parameter_t + 97
+    first_coefficient = (
+        57800 * parameter_t * parameter_t + 28661 * parameter_t + 3553
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(340 * first_coefficient, 189 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-forty-one-hundred-eighty-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 389t + 97)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 97) % 389 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_forty_one_hundred_eighty_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 97) // 389
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 397t + 141)``."""
+
+    fixed_coordinate = 397 * parameter_t + 141
+    first_coefficient = (
+        25992 * parameter_t * parameter_t + 18277 * parameter_t + 3213
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(228 * first_coefficient, 325 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-twenty-eight-three-hundred-twenty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 397t + 141)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 141) % 397 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_twenty_eight_three_hundred_twenty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 141) // 397
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 401t + 220)``."""
+
+    fixed_coordinate = 401 * parameter_t + 220
+    first_coefficient = 800 * parameter_t * parameter_t + 839 * parameter_t + 220
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(40 * first_coefficient, 399 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "forty-three-hundred-ninety-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 401t + 220)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 220) % 401 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_forty_three_hundred_ninety_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 220) // 401
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 409t + 302)``."""
+
+    fixed_coordinate = 409 * parameter_t + 302
+    first_coefficient = 7200 * parameter_t * parameter_t + 10519 * parameter_t + 3842
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(120 * first_coefficient, 391 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-twenty-three-hundred-ninety-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 409t + 302)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 302) % 409 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_twenty_three_hundred_ninety_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 302) // 409
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 421t + 363)``."""
+
+    fixed_coordinate = 421 * parameter_t + 363
+    first_coefficient = (
+        88_200 * parameter_t * parameter_t + 152_069 * parameter_t + 65_547
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(420 * first_coefficient, 29 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "four-hundred-twenty-twenty-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 421t + 363)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 363) % 421 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_four_hundred_twenty_twenty_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 363) // 421
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 433t + 39)``."""
+
+    fixed_coordinate = 433 * parameter_t + 39
+    first_coefficient = (
+        83_232 * parameter_t * parameter_t + 14_857 * parameter_t + 663
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(408 * first_coefficient, 145 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "four-hundred-eight-one-hundred-forty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 433t + 39)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 39) % 433 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_four_hundred_eight_one_hundred_forty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 39) // 433
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 449t + 264)``."""
+
+    fixed_coordinate = 449 * parameter_t + 264
+    first_coefficient = (
+        39_200 * parameter_t * parameter_t + 45_879 * parameter_t + 13_424
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(280 * first_coefficient, 351 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-eighty-three-hundred-fifty-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 449t + 264)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 264) % 449 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_eighty_three_hundred_fifty_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 264) // 449
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 457t + 248)``."""
+
+    fixed_coordinate = 457 * parameter_t + 248
+    first_coefficient = (
+        14_112 * parameter_t * parameter_t + 15_161 * parameter_t + 4_072
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(168 * first_coefficient, 425 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-sixty-eight-four-hundred-twenty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 457t + 248)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 248) % 457 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_sixty_eight_four_hundred_twenty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 248) // 457
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 461t + 373)``."""
+
+    fixed_coordinate = 461 * parameter_t + 373
+    first_coefficient = (
+        72_200 * parameter_t * parameter_t + 116_621 * parameter_t + 47_093
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(380 * first_coefficient, 261 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-eighty-two-hundred-sixty-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 461t + 373)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 373) % 461 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_eighty_two_hundred_sixty_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 373) // 461
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 481t + 23)``."""
+
+    fixed_coordinate = 481 * parameter_t + 23
+    first_coefficient = (
+        64_800 * parameter_t * parameter_t + 5_959 * parameter_t + 137
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(360 * first_coefficient, 319 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "three-hundred-sixty-three-hundred-nineteen factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 481t + 23)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 23) % 481 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_three_hundred_sixty_three_hundred_nineteen_factor_one_parallel_certificate(
+                        (candidate_target[1] - 23) // 481
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 493t + 199)``."""
+
+    fixed_coordinate = 493 * parameter_t + 199
+    first_coefficient = (
+        8_712 * parameter_t * parameter_t + 6_907 * parameter_t + 1_369
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(132 * first_coefficient, 475 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "one-hundred-thirty-two-four-hundred-seventy-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 493t + 199)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 199) % 493 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_one_hundred_thirty_two_four_hundred_seventy_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 199) // 493
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 509t + 96)``."""
+
+    fixed_coordinate = 509 * parameter_t + 96
+    first_coefficient = (
+        24_200 * parameter_t * parameter_t + 8_931 * parameter_t + 824
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(220 * first_coefficient, 459 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "two-hundred-twenty-four-hundred-fifty-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 509t + 96)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 96) % 509 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_two_hundred_twenty_four_hundred_fifty_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 96) // 509
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 521t + 103)``."""
+
+    fixed_coordinate = 521 * parameter_t + 103
+    first_coefficient = (
+        96_800 * parameter_t * parameter_t + 38_039 * parameter_t + 3_737
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(440 * first_coefficient, 279 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "four-hundred-forty-two-hundred-seventy-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 521t + 103)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 103) % 521 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_four_hundred_forty_two_hundred_seventy_nine_factor_one_parallel_certificate(
+                        (candidate_target[1] - 103) // 521
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 533t + 78)``."""
+
+    fixed_coordinate = 533 * parameter_t + 78
+    first_coefficient = 4_232 * parameter_t * parameter_t + 1_149 * parameter_t + 78
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(92 * first_coefficient, 525 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "ninety-two-five-hundred-twenty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 533t + 78)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 78) % 533 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_ninety_two_five_hundred_twenty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 78) // 533
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 541t + 113)``."""
+
+    fixed_coordinate = 541 * parameter_t + 113
+    first_coefficient = (
+        88_200 * parameter_t * parameter_t + 36_581 * parameter_t + 3_793
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(420 * first_coefficient, 341 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "four-hundred-twenty-three-hundred-forty-one factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 541t + 113)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 113) % 541 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_four_hundred_twenty_three_hundred_forty_one_factor_one_parallel_certificate(
+                        (candidate_target[1] - 113) // 541
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 557t + 412)``."""
+
+    fixed_coordinate = 557 * parameter_t + 412
+    first_coefficient = (
+        141_512 * parameter_t * parameter_t
+        + 209_189 * parameter_t
+        + 77_308
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(532 * first_coefficient, 165 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "five-hundred-thirty-two-one-hundred-sixty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 557t + 412)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 412) % 557 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_five_hundred_thirty_two_one_hundred_sixty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 412) // 557
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_sixty_eleven_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 61t + 39)``."""
+
+    fixed_coordinate = 61 * parameter_t + 39
+    first_coefficient = 1800 * parameter_t * parameter_t + 2291 * parameter_t + 729
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(60 * first_coefficient, 11 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "sixty-eleven factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_sixty_eleven_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 61t + 39)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 39) % 61 != 0:
+                    continue
+
+                base = unit_coordinate_sixty_eleven_factor_one_parallel_certificate(
+                    (candidate_target[1] - 39) // 61
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_twenty_eight_forty_five_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 53t + 10)``."""
+
+    fixed_coordinate = 53 * parameter_t + 10
+    first_coefficient = 392 * parameter_t * parameter_t + 125 * parameter_t + 10
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(28 * first_coefficient, 45 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "twenty-eight-forty-five factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_twenty_eight_forty_five_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 53t + 10)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 10) % 53 != 0:
+                    continue
+
+                base = (
+                    unit_coordinate_twenty_eight_forty_five_factor_one_parallel_certificate(
+                        (candidate_target[1] - 10) // 53
+                    )
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_forty_nine_factor_one_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-one family ``(1, 41t + 23)``."""
+
+    fixed_coordinate = 41 * parameter_t + 23
+    first_coefficient = 800 * parameter_t * parameter_t + 889 * parameter_t + 247
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(40 * first_coefficient, 9 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "forty-nine factor-one parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_forty_nine_factor_one_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 41t + 23)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 23) % 41 != 0:
+                    continue
+
+                base = unit_coordinate_forty_nine_factor_one_parallel_certificate(
+                    (candidate_target[1] - 23) // 41
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
+def unit_coordinate_fifteen_eight_factor_two_parallel_certificate(
+    parameter_t: int,
+) -> Certificate:
+    """Certificate for the factor-two family ``(1, 34t + 26)``."""
+
+    fixed_coordinate = 34 * parameter_t + 26
+    first_coefficient = (
+        225 * parameter_t * parameter_t + 338 * parameter_t + 127
+    )
+    certificate = Certificate(
+        target=(1, fixed_coordinate),
+        midpoint=(15 * first_coefficient, 8 * first_coefficient),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "fifteen-eight factor-two parallel certificate formula is invalid"
+        )
+    return certificate
+
+
+def unit_coordinate_fifteen_eight_factor_two_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the orbit of ``(1, 34t + 26)``."""
+
+    for swap in (False, True):
+        for x_sign in (-1, 1):
+            for y_sign in (-1, 1):
+                candidate_target = signed_swap_point(target, x_sign, y_sign, swap)
+                if candidate_target[0] != 1:
+                    continue
+                if (candidate_target[1] - 26) % 34 != 0:
+                    continue
+
+                base = unit_coordinate_fifteen_eight_factor_two_parallel_certificate(
+                    (candidate_target[1] - 26) // 34
+                )
+                certificate = sign_swap_certificate(base, target)
+                if certificate is not None:
+                    return certificate
+
+    return None
+
+
 @cache
 def unit_coordinate_parallel_factor_residues(
     direction: Point,
@@ -4313,6 +7037,27 @@ PYTHAGOREAN_LAYERED_SPLIT_MAX_SQUARECLASS = 23
 PYTHAGOREAN_LAYERED_SPLIT_MAX_FACTOR = 179
 PYTHAGOREAN_LAYERED_PARALLEL_MAX_PARAMETER = 8
 PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE = 8
+PINNED_ROOT_SPINE_DIVISOR_OBLIGATIONS: tuple[DivisorObligationKey, ...] = (
+    ((2, 3), 1, 13, 5, 7, 4, 11),
+    ((2, 3), 1, 13, 8, 6, 4, 11),
+    ((1, 4), 2, 17, 4, 2, 9, 3),
+    ((1, 4), 2, 17, 13, 15, 9, 3),
+    ((2, 5), 10, 29, 12, 12, 1, 1),
+    ((2, 5), 10, 29, 17, 12, 28, 17),
+    ((4, 5), 2, 41, 9, 10, 33, 19),
+    ((4, 5), 2, 41, 32, 10, 8, 34),
+    ((3, 8), 1, 73, 27, 38, 69, 19),
+    ((3, 8), 1, 73, 46, 38, 4, 71),
+)
+PINNED_STRIP_LOCAL_DISCHARGE_COUNTEREXAMPLE: tuple[
+    Point,
+    Point,
+    DivisorObligationKey,
+] = (
+    (108638, 24031),
+    (-40, -9),
+    ((4, 5), 2, 41, 9, 10, 33, 19),
+)
 
 
 @cache
@@ -5248,6 +7993,1066 @@ def pythagorean_layered_structural_certificate(target: Point) -> Certificate | N
         return certificate
 
     return None
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+) -> DivisorObligationExponentProfile | None:
+    """Prime-modulus exponent profile for one divisor-obligation strip target."""
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    _shape, squareclass, modulus, _rho, _quotient, _square, split = obligation
+    if not is_prime(modulus):
+        return None
+
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        raise AssertionError("strip target lost its squareclass")
+
+    quotient = abs(determinant_leg // squareclass)
+    zero_possible, summands = prime_modulus_divisor_exponent_summands(
+        quotient,
+        modulus,
+    )
+    exponent_closure = cyclic_sumset(
+        modulus - 1,
+        (summand[3] for summand in summands),
+    )
+    required_exponent = discrete_log_table_mod_prime(modulus)[split % modulus]
+    if required_exponent < 0:
+        raise AssertionError("required divisor class was zero modulo a prime")
+
+    effective_length, kneser_lower_bound, saturation_gap = (
+        cyclic_sumset_saturation_gap(
+            modulus - 1,
+            (summand[3] for summand in summands),
+        )
+    )
+    if saturation_gap <= 0:
+        saturation_branch = "saturation_success"
+    elif required_exponent in exponent_closure:
+        saturation_branch = "short_success"
+    else:
+        saturation_branch = "short_failure"
+
+    return DivisorObligationExponentProfile(
+        target=target,
+        direction=direction,
+        obligation=obligation,
+        determinant_leg=determinant_leg,
+        quotient=quotient,
+        modulus=modulus,
+        generator=primitive_root_mod_prime(modulus),
+        required_exponent=required_exponent,
+        zero_residue_possible=zero_possible,
+        summands=summands,
+        exponent_closure=exponent_closure,
+        effective_length=effective_length,
+        kneser_lower_bound=kneser_lower_bound,
+        saturation_gap=saturation_gap,
+        saturation_branch=saturation_branch,
+    )
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+) -> DivisorObligationDischargeWitness | None:
+    """Return the proof branch discharging one obligation-strip target."""
+
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    _shape, squareclass, _modulus, _rho, _quotient, _square, _split = obligation
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        raise AssertionError("strip target lost its squareclass")
+
+    quotient = abs(determinant_leg // squareclass)
+    exponent_profile = (
+        parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            target,
+            direction,
+            obligation,
+        )
+    )
+    divisor_holds = (
+        parallel_direction_conjugate_ideal_divisor_obligation_divisor_holds(
+            target,
+            direction,
+            obligation,
+        )
+    )
+    if exponent_profile is not None:
+        if exponent_profile.saturation_branch == "saturation_success" and not divisor_holds:
+            raise AssertionError("Kneser-saturated exponent sumset missed the divisor class")
+
+    if divisor_holds:
+        return DivisorObligationDischargeWitness(
+            target=target,
+            direction=direction,
+            obligation=obligation,
+            branch="divisor",
+            determinant_leg=determinant_leg,
+            quotient=quotient,
+            exponent_profile=exponent_profile,
+            structural_row=None,
+        )
+
+    strip_modulus = parallel_direction_conjugate_ideal_divisor_obligation_strip_modulus(
+        obligation
+    )
+    strip_residue = parallel_direction_conjugate_ideal_divisor_obligation_strip_residue(
+        obligation
+    )
+    structural_label = pythagorean_layered_structural_label(target)
+
+    if structural_label == "promoted_345":
+        promoted_witness = parallel_direction_promoted_345_factor_witness(target)
+        if promoted_witness is None:
+            raise AssertionError("promoted structural label had no witness")
+        linear_row = (
+            parallel_direction_primitive_factor_integrality_strip_intersection_linear_row_witness(
+                target,
+                direction,
+                strip_modulus,
+                strip_residue,
+                promoted_witness.direction,
+                promoted_witness.factor,
+            )
+        )
+        if linear_row is None:
+            raise AssertionError("promoted strip failure had no linear row witness")
+        return DivisorObligationDischargeWitness(
+            target=target,
+            direction=direction,
+            obligation=obligation,
+            branch=structural_label,
+            determinant_leg=determinant_leg,
+            quotient=quotient,
+            exponent_profile=exponent_profile,
+            structural_row=(
+                promoted_witness.direction,
+                promoted_witness.factor,
+                *linear_row,
+            ),
+        )
+
+    if structural_label == "lattice_pair":
+        lattice_pair_witness = pythagorean_lattice_pair_witness(
+            target,
+            PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_PARAMETER,
+            PYTHAGOREAN_LAYERED_LATTICE_PAIR_MAX_DETERMINANT,
+        )
+        if lattice_pair_witness is None:
+            raise AssertionError("lattice-pair structural label had no witness")
+        if not pythagorean_lattice_pair_strip_intersection_holds(
+            target,
+            direction,
+            strip_modulus,
+            strip_residue,
+            lattice_pair_witness.first_direction,
+            lattice_pair_witness.second_direction,
+        ):
+            raise AssertionError("lattice-pair strip failure had no linear congruence")
+        linear_row = pythagorean_lattice_pair_strip_linear_congruence(
+            direction,
+            strip_modulus,
+            strip_residue,
+            lattice_pair_witness.first_direction,
+            lattice_pair_witness.second_direction,
+        )
+        return DivisorObligationDischargeWitness(
+            target=target,
+            direction=direction,
+            obligation=obligation,
+            branch=structural_label,
+            determinant_leg=determinant_leg,
+            quotient=quotient,
+            exponent_profile=exponent_profile,
+            structural_row=(
+                lattice_pair_witness.first_direction,
+                lattice_pair_witness.second_direction,
+                lattice_pair_witness.determinant,
+                *linear_row,
+            ),
+        )
+
+    if structural_label == "orthogonal":
+        orthogonal_witness = pythagorean_orthogonal_lattice_witness(
+            target,
+            PYTHAGOREAN_LAYERED_ORTHOGONAL_MAX_PARAMETER,
+        )
+        if orthogonal_witness is None:
+            raise AssertionError("orthogonal structural label had no witness")
+        if not pythagorean_lattice_pair_strip_intersection_holds(
+            target,
+            direction,
+            strip_modulus,
+            strip_residue,
+            orthogonal_witness.first_direction,
+            orthogonal_witness.second_direction,
+        ):
+            raise AssertionError("orthogonal strip failure had no linear congruence")
+        linear_row = pythagorean_lattice_pair_strip_linear_congruence(
+            direction,
+            strip_modulus,
+            strip_residue,
+            orthogonal_witness.first_direction,
+            orthogonal_witness.second_direction,
+        )
+        return DivisorObligationDischargeWitness(
+            target=target,
+            direction=direction,
+            obligation=obligation,
+            branch=structural_label,
+            determinant_leg=determinant_leg,
+            quotient=quotient,
+            exponent_profile=exponent_profile,
+            structural_row=(
+                orthogonal_witness.first_direction,
+                orthogonal_witness.second_direction,
+                orthogonal_witness.determinant,
+                *linear_row,
+            ),
+        )
+
+    if structural_label == "standard_completion":
+        standard_witness = parallel_direction_standard_completion_cover_witness(
+            target,
+            PYTHAGOREAN_LAYERED_STANDARD_COMPLETION_MAX_PARAMETER,
+        )
+        if standard_witness is None:
+            raise AssertionError("standard-completion structural label had no witness")
+        branch = parallel_direction_standard_completion_branch(
+            standard_witness.determinant_leg,
+            standard_witness.factor,
+        )
+        if branch is None:
+            raise AssertionError("standard-completion witness used nonstandard factor")
+        quadratic_row = parallel_direction_standard_completion_quadratic_row_witness(
+            target,
+            standard_witness.direction,
+            branch,
+        )
+        if quadratic_row is None:
+            raise AssertionError("standard-completion failure had no quadratic row")
+        linear_row = (
+            parallel_direction_standard_completion_strip_intersection_linear_row_witness(
+                target,
+                direction,
+                strip_modulus,
+                strip_residue,
+                standard_witness.direction,
+                branch,
+            )
+        )
+        if linear_row is None:
+            raise AssertionError("standard-completion failure had no linear row")
+        return DivisorObligationDischargeWitness(
+            target=target,
+            direction=direction,
+            obligation=obligation,
+            branch=structural_label,
+            determinant_leg=determinant_leg,
+            quotient=quotient,
+            exponent_profile=exponent_profile,
+            structural_row=(
+                standard_witness.direction,
+                branch,
+                *quadratic_row,
+                *linear_row,
+            ),
+        )
+
+    return None
+
+
+def parallel_direction_conjugate_ideal_divisor_obligation_global_discharge_witness(
+    target: Point,
+    direction: Point,
+    obligation: DivisorObligationKey,
+    max_root_coordinate: int = PYTHAGOREAN_LAYERED_CONJUGATE_ROOT_MAX_COORDINATE,
+) -> DivisorObligationDischargeWitness | None:
+    """Discharge a strip target, allowing a different generated root-spine row.
+
+    This is the corrected target-facing branch for the global proof program.
+    A pinned strip can fail both its own divisor class and the structural
+    fallback stack, yet still be certified by a different root-spine witness.
+    """
+
+    local_witness = parallel_direction_conjugate_ideal_divisor_obligation_discharge_witness(
+        target,
+        direction,
+        obligation,
+    )
+    if local_witness is not None:
+        return local_witness
+    if not parallel_direction_conjugate_ideal_divisor_obligation_strip_holds(
+        target,
+        direction,
+        obligation,
+    ):
+        return None
+
+    _shape, squareclass, _modulus, _rho, _quotient, _square, _split = obligation
+    determinant_leg = determinant(direction, target)
+    if determinant_leg % squareclass != 0:
+        raise AssertionError("strip target lost its squareclass")
+
+    alternate_witness = parallel_direction_conjugate_ideal_root_spine_cover_witness(
+        target,
+        max_root_coordinate,
+    )
+    if alternate_witness is None:
+        return None
+
+    certificate = alternate_witness.certificate
+    if not certificate.valid():
+        raise AssertionError("alternate root-spine witness produced an invalid certificate")
+
+    return DivisorObligationDischargeWitness(
+        target=target,
+        direction=direction,
+        obligation=obligation,
+        branch="alternate_root_spine",
+        determinant_leg=determinant_leg,
+        quotient=abs(determinant_leg // squareclass),
+        exponent_profile=parallel_direction_conjugate_ideal_divisor_obligation_exponent_profile(
+            target,
+            direction,
+            obligation,
+        ),
+        structural_row=(
+            alternate_witness.direction,
+            alternate_witness.root_shape,
+            alternate_witness.squareclass,
+            alternate_witness.split_factor,
+            alternate_witness.signed_paired_split_factor,
+            alternate_witness.beta,
+            alternate_witness.first_coefficient,
+        ),
+    )
+
+
+def one_two_root_spine_line_certificate(
+    q: int,
+    t: int,
+    r: int,
+) -> Certificate | None:
+    """Explicit ``(1,2)`` Gaussian-root spine line certificate.
+
+    This is the row with first direction ``(-3,4)`` and
+    ``beta=(4t+1,-(2t+1))``.  For ``q*r*t != 0``, the midpoint is
+    ``r*(-3,4)`` and the second step is ``q*beta^2/2``.
+    """
+
+    if q == 0 or t == 0 or r == 0:
+        return None
+
+    target = (
+        -3 * r + 2 * q * t * (3 * t + 1),
+        4 * r - q * (4 * t + 1) * (2 * t + 1),
+    )
+    midpoint = (-3 * r, 4 * r)
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(1,2)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def one_even_root_spine_line_certificate(
+    spine_parameter_k: int,
+    q: int,
+    t: int,
+    r: int,
+) -> Certificate | None:
+    """Uniform primary ``(1,2k)`` Gaussian-root spine line certificate.
+
+    The first direction is ``(1 - 4k^2, 4k)`` and the second step is
+    ``q*beta^2/2`` with ``beta=(4kt+2k-1, -(2t+1))``.  The ``t != 0``
+    hypothesis keeps the ``k=1`` endpoint nondegenerate.
+    """
+
+    if spine_parameter_k < 1:
+        raise ValueError("spine parameter must be positive")
+    if q == 0 or t == 0 or r == 0:
+        return None
+
+    first_x = 1 - 4 * spine_parameter_k * spine_parameter_k
+    first_y = 4 * spine_parameter_k
+    beta_x = 4 * spine_parameter_k * t + 2 * spine_parameter_k - 1
+    beta_y_abs = 2 * t + 1
+    second_x = q * (beta_x * beta_x - beta_y_abs * beta_y_abs) // 2
+    second_y = -q * beta_x * beta_y_abs
+    certificate = Certificate(
+        target=(first_x * r + second_x, first_y * r + second_y),
+        midpoint=(first_x * r, first_y * r),
+    )
+    if not certificate.valid():
+        raise AssertionError(
+            "(1,2k)-root spine line formula produced an invalid certificate"
+        )
+    return certificate
+
+
+def one_even_root_spine_line_orbit_certificate(
+    spine_parameter_k: int,
+    q: int,
+    t: int,
+    r: int,
+    target: Point,
+) -> Certificate | None:
+    """Sign/swap orbit certificate for the primary ``(1,2k)`` spine row."""
+
+    certificate = one_even_root_spine_line_certificate(spine_parameter_k, q, t, r)
+    if certificate is None:
+        return None
+    return sign_swap_certificate(certificate, target)
+
+
+def one_four_root_spine_line_certificate(
+    q: int,
+    t: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit ``(1,4)`` Gaussian-root spine line certificate.
+
+    The unswapped row has first direction ``(-8,-15)`` and
+    ``beta=(8t+3,-(2t+1))``.  The swapped row exchanges the two coordinates,
+    giving first direction ``(-15,-8)``.  For ``q*r != 0`` this constructs the
+    midpoint on that first direction and the second step ``q*unit*beta^2/2``.
+    """
+
+    if q == 0 or r == 0:
+        return None
+
+    narrow = q * (2 * t + 1) * (8 * t + 3)
+    wide = 2 * q * (5 * t + 2) * (3 * t + 1)
+    if swap_coordinates:
+        target = (-15 * r + wide, -8 * r + narrow)
+        midpoint = (-15 * r, -8 * r)
+    else:
+        target = (-8 * r + narrow, -15 * r + wide)
+        midpoint = (-8 * r, -15 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(1,4)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def one_four_even_root_spine_line_certificate(
+    m: int,
+    beta_x: int,
+    beta_y: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit even-squareclass ``(1,4)`` Gaussian-root spine line certificate."""
+
+    if (
+        m == 0
+        or beta_x == 0
+        or beta_y == 0
+        or beta_x * beta_x == beta_y * beta_y
+        or r == 0
+    ):
+        return None
+
+    narrow = m * (beta_x * beta_x - beta_y * beta_y)
+    wide = 2 * m * beta_x * beta_y
+    if swap_coordinates:
+        target = (-15 * r + narrow, -8 * r + wide)
+        midpoint = (-15 * r, -8 * r)
+    else:
+        target = (-8 * r - wide, -15 * r + narrow)
+        midpoint = (-8 * r, -15 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("even (1,4)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def two_three_odd_root_spine_line_certificate(
+    q: int,
+    t: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit odd-integral ``(2,3)`` Gaussian-root spine line certificate.
+
+    The unswapped row has first direction ``(-12,-5)`` and
+    ``beta=(1-6t,4t-1)``.  The swapped row exchanges the two coordinates,
+    giving first direction ``(-5,-12)``.  The parameter ``t`` must be nonzero
+    so that the second step is not horizontal.
+    """
+
+    if q == 0 or t == 0 or r == 0:
+        return None
+
+    wide = q * (4 * t - 1) * (6 * t - 1)
+    narrow = 2 * q * t * (5 * t - 1)
+    if swap_coordinates:
+        target = (-5 * r + narrow, -12 * r + wide)
+        midpoint = (-5 * r, -12 * r)
+    else:
+        target = (-12 * r + wide, -5 * r + narrow)
+        midpoint = (-12 * r, -5 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(2,3)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def two_odd_root_spine_line_certificate(
+    spine_parameter_k: int,
+    q: int,
+    t: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Uniform primary ``(2,2k+1)`` Gaussian-root spine line certificate.
+
+    The unswapped row uses first direction ``(-4n, 4-n^2)`` with
+    ``n=2k+1`` and ``beta=(1-2nt, 4t-1)``.  The second step is
+    ``q*i*beta^2/2``; the optional swapped row exchanges coordinates.
+    """
+
+    if spine_parameter_k < 1:
+        raise ValueError("spine parameter must be positive")
+    if q == 0 or t == 0 or r == 0:
+        return None
+
+    odd_coordinate = 2 * spine_parameter_k + 1
+    first_x = -4 * odd_coordinate
+    first_y = 4 - odd_coordinate * odd_coordinate
+    wide = q * (4 * t - 1) * (2 * odd_coordinate * t - 1)
+    narrow = (
+        2
+        * q
+        * t
+        * (odd_coordinate - 2)
+        * (odd_coordinate * t + 2 * t - 1)
+    )
+    if swap_coordinates:
+        target = (first_y * r + narrow, first_x * r + wide)
+        midpoint = (first_y * r, first_x * r)
+    else:
+        target = (first_x * r + wide, first_y * r + narrow)
+        midpoint = (first_x * r, first_y * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError(
+            "(2,2k+1)-root spine line formula produced an invalid certificate"
+        )
+    return certificate
+
+
+def two_odd_root_spine_line_orbit_certificate(
+    spine_parameter_k: int,
+    q: int,
+    t: int,
+    r: int,
+    target: Point,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Sign/swap orbit certificate for the primary ``(2,2k+1)`` spine row."""
+
+    certificate = two_odd_root_spine_line_certificate(
+        spine_parameter_k,
+        q,
+        t,
+        r,
+        swap_coordinates=swap_coordinates,
+    )
+    if certificate is None:
+        return None
+    return sign_swap_certificate(certificate, target)
+
+
+def two_three_odd_general_root_spine_line_certificate(
+    m: int,
+    beta_x_half: int,
+    beta_y_half: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit odd-beta ``(2,3)`` Gaussian-root spine line certificate.
+
+    The beta coordinates are ``2*beta_x_half+1`` and ``2*beta_y_half+1``.
+    """
+
+    if m == 0 or r == 0:
+        return None
+
+    beta_x = 2 * beta_x_half + 1
+    beta_y = 2 * beta_y_half + 1
+    delta = 2 * beta_x_half * beta_x_half + 2 * beta_x_half
+    delta -= 2 * beta_y_half * beta_y_half + 2 * beta_y_half
+    if delta == 0:
+        return None
+
+    paired = beta_x * beta_y
+    if swap_coordinates:
+        target = (-5 * r + m * delta, -12 * r + m * paired)
+        midpoint = (-5 * r, -12 * r)
+    else:
+        target = (-12 * r - m * paired, -5 * r + m * delta)
+        midpoint = (-12 * r, -5 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("general odd (2,3)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def two_three_even_root_spine_line_certificate(
+    m: int,
+    beta_x: int,
+    beta_y: int,
+    r: int,
+) -> Certificate | None:
+    """Explicit even-squareclass ``(2,3)`` Gaussian-root spine line certificate.
+
+    This fixes the first direction ``(-12,-5)`` and uses the second step
+    ``m*i*beta^2``.  Equivalently it is the ``q=2m`` integral branch of the
+    beta-square construction.
+    """
+
+    if (
+        m == 0
+        or beta_x == 0
+        or beta_y == 0
+        or beta_x * beta_x == beta_y * beta_y
+        or r == 0
+    ):
+        return None
+
+    second_step = (-2 * m * beta_x * beta_y, m * (beta_x * beta_x - beta_y * beta_y))
+    target = (-12 * r + second_step[0], -5 * r + second_step[1])
+    midpoint = (-12 * r, -5 * r)
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("even (2,3)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def two_five_root_spine_line_certificate(
+    m: int,
+    beta_x: int,
+    beta_y: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit ``(2,5)`` Gaussian-root spine line certificate.
+
+    The unswapped row uses first direction ``(-20,21)`` and second step
+    ``(2m*xy, -m*(x^2-y^2))``.  The swapped row uses
+    first direction ``(-21,20)`` and swaps the two coordinates.
+    """
+
+    if (
+        m == 0
+        or beta_x == 0
+        or beta_y == 0
+        or beta_x * beta_x == beta_y * beta_y
+        or r == 0
+    ):
+        return None
+
+    wide = 2 * m * beta_x * beta_y
+    narrow = m * (beta_x * beta_x - beta_y * beta_y)
+    if swap_coordinates:
+        target = (-21 * r + narrow, 20 * r + wide)
+        midpoint = (-21 * r, 20 * r)
+    else:
+        target = (-20 * r + wide, 21 * r - narrow)
+        midpoint = (-20 * r, 21 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(2,5)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def four_five_root_spine_line_certificate(
+    m: int,
+    beta_x: int,
+    beta_y: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit ``(4,5)`` secondary Gaussian-root spine line certificate."""
+
+    if (
+        m == 0
+        or beta_x == 0
+        or beta_y == 0
+        or beta_x * beta_x == beta_y * beta_y
+        or r == 0
+    ):
+        return None
+
+    narrow = m * (beta_x * beta_x - beta_y * beta_y)
+    wide = 2 * m * beta_x * beta_y
+    if swap_coordinates:
+        target = (-40 * r + wide, 9 * r - narrow)
+        midpoint = (-40 * r, 9 * r)
+    else:
+        target = (-9 * r + narrow, 40 * r + wide)
+        midpoint = (-9 * r, 40 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(4,5)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def three_four_root_spine_line_certificate(
+    m: int,
+    beta_x: int,
+    beta_y: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit ``(3,4)`` secondary Gaussian-root spine line certificate."""
+
+    if (
+        m == 0
+        or beta_x == 0
+        or beta_y == 0
+        or beta_x * beta_x == beta_y * beta_y
+        or r == 0
+    ):
+        return None
+
+    narrow = m * (beta_x * beta_x - beta_y * beta_y)
+    wide = 2 * m * beta_x * beta_y
+    if swap_coordinates:
+        target = (24 * r + wide, 7 * r - narrow)
+        midpoint = (24 * r, 7 * r)
+    else:
+        target = (-7 * r + narrow, 24 * r + wide)
+        midpoint = (-7 * r, 24 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(3,4)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def three_four_odd_root_spine_line_certificate(
+    m: int,
+    beta_x_half: int,
+    beta_y_half: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit odd-beta ``(3,4)`` secondary Gaussian-root spine line certificate.
+
+    The beta coordinates are ``2*beta_x_half+1`` and ``2*beta_y_half+1``.
+    """
+
+    if m == 0 or r == 0:
+        return None
+
+    beta_x = 2 * beta_x_half + 1
+    beta_y = 2 * beta_y_half + 1
+    delta = 2 * beta_x_half * beta_x_half + 2 * beta_x_half
+    delta -= 2 * beta_y_half * beta_y_half + 2 * beta_y_half
+    if delta == 0:
+        return None
+
+    paired = beta_x * beta_y
+    if swap_coordinates:
+        target = (24 * r + m * paired, 7 * r - m * delta)
+        midpoint = (24 * r, 7 * r)
+    else:
+        target = (-7 * r + m * delta, 24 * r + m * paired)
+        midpoint = (-7 * r, 24 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError(
+            "(3,4) odd-root spine line formula produced an invalid certificate"
+        )
+    return certificate
+
+
+def three_eight_odd_root_spine_line_certificate(
+    m: int,
+    beta_x_half: int,
+    beta_y_half: int,
+    r: int,
+    *,
+    swap_coordinates: bool = False,
+) -> Certificate | None:
+    """Explicit odd-beta ``(3,8)`` secondary Gaussian-root spine line certificate.
+
+    The beta coordinates are ``2*beta_x_half+1`` and ``2*beta_y_half+1``.
+    """
+
+    if m == 0 or r == 0:
+        return None
+
+    beta_x = 2 * beta_x_half + 1
+    beta_y = 2 * beta_y_half + 1
+    delta = 2 * beta_x_half * beta_x_half + 2 * beta_x_half
+    delta -= 2 * beta_y_half * beta_y_half + 2 * beta_y_half
+    if delta == 0:
+        return None
+
+    paired = beta_x * beta_y
+    if swap_coordinates:
+        target = (-48 * r + m * paired, 55 * r - m * delta)
+        midpoint = (-48 * r, 55 * r)
+    else:
+        target = (-55 * r + m * delta, 48 * r + m * paired)
+        midpoint = (-55 * r, 48 * r)
+
+    certificate = Certificate(target=target, midpoint=midpoint)
+    if not certificate.valid():
+        raise AssertionError("(3,8)-root spine line formula produced an invalid certificate")
+    return certificate
+
+
+def _sign_swap_match_certificate(
+    certificate: Certificate | None,
+    witness_certificate: Certificate,
+) -> Certificate | None:
+    """Return the transported certificate only when it matches the witness."""
+
+    if certificate is None:
+        return None
+    transported = sign_swap_certificate(certificate, witness_certificate.target)
+    if transported != witness_certificate:
+        return None
+    return transported
+
+
+def promoted_root_spine_line_certificate_from_witness(
+    witness: ParallelDirectionConjugateIdealWitness,
+) -> Certificate | None:
+    """Reconstruct a promoted explicit line certificate from a root-spine witness."""
+
+    direction = witness.direction
+    root_shape = gaussian_root_shape(witness.root_shape)
+    squareclass = witness.squareclass
+    beta_x, beta_y = witness.beta
+    r = witness.first_coefficient
+
+    certificate: Certificate | None = None
+    if root_shape == (1, 2) and direction == (-3, 4):
+        if beta_y % 2 == 0:
+            return None
+        t = (-beta_y - 1) // 2
+        certificate = one_even_root_spine_line_certificate(1, squareclass, t, r)
+    elif root_shape == (1, 4) and squareclass % 2 == 0:
+        m = squareclass // 2
+        if direction == (-8, -15):
+            certificate = one_four_even_root_spine_line_certificate(m, beta_x, beta_y, r)
+        elif direction == (-15, -8):
+            certificate = one_four_even_root_spine_line_certificate(
+                m,
+                beta_x,
+                beta_y,
+                r,
+                swap_coordinates=True,
+            )
+    elif root_shape == (2, 3) and squareclass % 2 == 1:
+        if beta_x % 2 == 0 or beta_y % 2 == 0:
+            return None
+        beta_x_half = (beta_x - 1) // 2
+        beta_y_half = (beta_y - 1) // 2
+        if direction == (-12, -5):
+            certificate = two_three_odd_general_root_spine_line_certificate(
+                squareclass,
+                beta_x_half,
+                beta_y_half,
+                r,
+            )
+        elif direction == (-5, -12):
+            certificate = two_three_odd_general_root_spine_line_certificate(
+                squareclass,
+                beta_x_half,
+                beta_y_half,
+                r,
+                swap_coordinates=True,
+            )
+    elif root_shape == (2, 5) and squareclass % 2 == 0:
+        m = squareclass // 2
+        if direction == (-20, 21):
+            certificate = two_five_root_spine_line_certificate(m, beta_x, beta_y, r)
+        elif direction == (-21, 20):
+            certificate = two_five_root_spine_line_certificate(
+                m,
+                beta_x,
+                beta_y,
+                r,
+                swap_coordinates=True,
+            )
+    elif root_shape == (4, 5) and squareclass % 2 == 0:
+        m = squareclass // 2
+        if direction in sign_swap_orbit((-9, 40)):
+            for candidate_beta_x, candidate_beta_y in (
+                (beta_x, beta_y),
+                (-beta_x, beta_y),
+                (beta_x, -beta_y),
+                (-beta_x, -beta_y),
+            ):
+                certificate = _sign_swap_match_certificate(
+                    four_five_root_spine_line_certificate(
+                        m,
+                        candidate_beta_x,
+                        candidate_beta_y,
+                        r,
+                    ),
+                    witness.certificate,
+                )
+                if certificate is None:
+                    certificate = _sign_swap_match_certificate(
+                        four_five_root_spine_line_certificate(
+                            m,
+                            candidate_beta_x,
+                            candidate_beta_y,
+                            r,
+                            swap_coordinates=True,
+                        ),
+                        witness.certificate,
+                    )
+                if certificate is not None:
+                    break
+    elif root_shape == (3, 4) and squareclass % 2 == 0:
+        m = squareclass // 2
+        if direction in sign_swap_orbit((-7, 24)):
+            for candidate_beta_x, candidate_beta_y in (
+                (beta_x, beta_y),
+                (-beta_x, beta_y),
+                (beta_x, -beta_y),
+                (-beta_x, -beta_y),
+            ):
+                certificate = _sign_swap_match_certificate(
+                    three_four_root_spine_line_certificate(
+                        m,
+                        candidate_beta_x,
+                        candidate_beta_y,
+                        r,
+                    ),
+                    witness.certificate,
+                )
+                if certificate is None:
+                    certificate = _sign_swap_match_certificate(
+                        three_four_root_spine_line_certificate(
+                            m,
+                            candidate_beta_x,
+                            candidate_beta_y,
+                            r,
+                            swap_coordinates=True,
+                        ),
+                        witness.certificate,
+                    )
+                if certificate is not None:
+                    break
+    elif root_shape == (3, 4) and squareclass % 2 == 1:
+        if beta_x % 2 == 0 or beta_y % 2 == 0:
+            return None
+        if direction in sign_swap_orbit((-7, 24)):
+            for candidate_beta_x, candidate_beta_y in (
+                (beta_x, beta_y),
+                (-beta_x, beta_y),
+                (beta_x, -beta_y),
+                (-beta_x, -beta_y),
+            ):
+                beta_x_half = (candidate_beta_x - 1) // 2
+                beta_y_half = (candidate_beta_y - 1) // 2
+                certificate = _sign_swap_match_certificate(
+                    three_four_odd_root_spine_line_certificate(
+                        squareclass,
+                        beta_x_half,
+                        beta_y_half,
+                        r,
+                    ),
+                    witness.certificate,
+                )
+                if certificate is None:
+                    certificate = _sign_swap_match_certificate(
+                        three_four_odd_root_spine_line_certificate(
+                            squareclass,
+                            beta_x_half,
+                            beta_y_half,
+                            r,
+                            swap_coordinates=True,
+                        ),
+                        witness.certificate,
+                    )
+                if certificate is not None:
+                    break
+    elif root_shape == (3, 8) and squareclass % 2 == 1:
+        if beta_x % 2 == 0 or beta_y % 2 == 0:
+            return None
+        if direction in sign_swap_orbit((-55, 48)):
+            for candidate_beta_x, candidate_beta_y in (
+                (beta_x, beta_y),
+                (-beta_x, beta_y),
+                (beta_x, -beta_y),
+                (-beta_x, -beta_y),
+            ):
+                beta_x_half = (candidate_beta_x - 1) // 2
+                beta_y_half = (candidate_beta_y - 1) // 2
+                certificate = _sign_swap_match_certificate(
+                    three_eight_odd_root_spine_line_certificate(
+                        squareclass,
+                        beta_x_half,
+                        beta_y_half,
+                        r,
+                    ),
+                    witness.certificate,
+                )
+                if certificate is None:
+                    certificate = _sign_swap_match_certificate(
+                        three_eight_odd_root_spine_line_certificate(
+                            squareclass,
+                            beta_x_half,
+                            beta_y_half,
+                            r,
+                            swap_coordinates=True,
+                        ),
+                        witness.certificate,
+                    )
+                if certificate is not None:
+                    break
+
+    if certificate is None or certificate != witness.certificate:
+        return None
+    return certificate
 
 
 @cache
@@ -11711,6 +15516,85 @@ def two_one_ray_five_or_seventeen_mod_twenty_orbit_certificate(
     return None
 
 
+def two_one_ray_two_or_three_mod_five_parallel_certificate(
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate for ``n = 2`` or ``3 mod 5`` on the ``(2, 1)`` ray.
+
+    The infinite tails are the signed ``3-4-5`` parallel-factor rows with
+    factor ``2``.  The boundary multipliers ``2`` and ``3`` are discharged by
+    the existing even and Theorem 3 rows.
+    """
+
+    if multiplier <= 0 or multiplier % 5 not in (2, 3):
+        return None
+
+    target = (2 * multiplier, multiplier)
+    if multiplier % 5 == 2:
+        certificate = ray_parallel_factor_certificate(
+            target,
+            (2, 1),
+            (4, 3),
+            2,
+        )
+        if certificate is not None:
+            return certificate
+        if multiplier == 2:
+            return two_one_ray_even_certificate(multiplier)
+        return None
+
+    certificate = ray_parallel_factor_certificate(
+        target,
+        (2, 1),
+        (-4, -3),
+        2,
+    )
+    if certificate is not None:
+        return certificate
+    if multiplier == 3:
+        return two_one_ray_multiple_of_three_theorem3_certificate(multiplier)
+    return None
+
+
+def two_one_ray_two_or_three_mod_five_parallel_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the ``2``/``3 mod 5`` exceptional-ray slice."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    if abs_g == 2 * abs_h:
+        base = two_one_ray_two_or_three_mod_five_parallel_certificate(abs_h)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    if abs_h == 2 * abs_g:
+        base = two_one_ray_two_or_three_mod_five_parallel_certificate(abs_g)
+        if base is None:
+            return None
+        midpoint_x, midpoint_y = base.midpoint
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_y,
+                (1 if h > 0 else -1) * midpoint_x,
+            ),
+        )
+
+    return None
+
+
 def two_one_ray_mod20_skeleton_certificate(multiplier: int) -> Certificate | None:
     """Certificate for the main modular skeleton on the ``(2, 1)`` ray.
 
@@ -15122,6 +19006,256 @@ def theorem3_ray_divisor_modulus(
     return abs(ray_divisor) // gcd(abs(ray_divisor), abs(p * q))
 
 
+def theorem3_unit_divisor_progression_ray(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    base_ray: Point,
+    parameter: int,
+) -> Point | None:
+    """Ray in a signed Theorem 3 unit-divisor arithmetic progression.
+
+    If ``A = c - sx*a`` and ``B = c + sy*b`` and the positive seed ray
+    ``(p0,q0)`` has ``B*q0 - A*p0 = 1``, then every
+    ``(p0 + B*t, q0 + A*t)`` has the same unit ray divisor.
+    """
+
+    if parameter < 0:
+        return None
+    p0, q0 = base_ray
+    if p0 <= 0 or q0 <= 0:
+        return None
+
+    if theorem3_ray_divisor(base_ray, triple, x_sign, y_sign) != 1:
+        return None
+
+    a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+    p_step = c + y_sign * b
+    q_step = c - x_sign * a
+    return (p0 + p_step * parameter, q0 + q_step * parameter)
+
+
+def theorem3_unit_divisor_progression_certificate(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    base_ray: Point,
+    parameter: int,
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate for one signed Theorem 3 unit-divisor progression row."""
+
+    if multiplier <= 0:
+        return None
+    ray = theorem3_unit_divisor_progression_ray(
+        triple,
+        x_sign,
+        y_sign,
+        base_ray,
+        parameter,
+    )
+    if ray is None:
+        return None
+    return theorem3_ray_divisor_certificate(ray, multiplier, triple, x_sign, y_sign)
+
+
+def theorem3_unit_divisor_progression_parameters_for_base(
+    x_coordinate: int,
+    y_coordinate: int,
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    base_ray: Point,
+) -> tuple[int, int] | None:
+    """Recover ``(parameter, multiplier)`` for a positive progression target."""
+
+    if x_coordinate <= 0 or y_coordinate <= 0:
+        return None
+    p0, q0 = base_ray
+    if p0 <= 0 or q0 <= 0:
+        return None
+
+    if theorem3_ray_divisor(base_ray, triple, x_sign, y_sign) != 1:
+        return None
+
+    a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+    p_step = c + y_sign * b
+    q_step = c - x_sign * a
+    multiplier = p_step * y_coordinate - q_step * x_coordinate
+    if multiplier <= 0:
+        return None
+    if x_coordinate % multiplier != 0 or y_coordinate % multiplier != 0:
+        return None
+
+    ray_x = x_coordinate // multiplier
+    ray_y = y_coordinate // multiplier
+    if ray_x < p0 or ray_y < q0:
+        return None
+    if (ray_x - p0) % p_step != 0:
+        return None
+    parameter = (ray_x - p0) // p_step
+    if ray_y != q0 + q_step * parameter:
+        return None
+    return (parameter, multiplier)
+
+
+def theorem3_unit_divisor_progression_orbit_certificate(
+    target: Point,
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    base_ray: Point,
+) -> Certificate | None:
+    """Symmetric recognizer for one signed Theorem 3 unit-divisor progression."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    for swap in (False, True):
+        base_x, base_y = (abs_h, abs_g) if swap else (abs_g, abs_h)
+        parameters = theorem3_unit_divisor_progression_parameters_for_base(
+            base_x,
+            base_y,
+            triple,
+            x_sign,
+            y_sign,
+            base_ray,
+        )
+        if parameters is None:
+            continue
+        parameter, multiplier = parameters
+        base = theorem3_unit_divisor_progression_certificate(
+            triple,
+            x_sign,
+            y_sign,
+            base_ray,
+            parameter,
+            multiplier,
+        )
+        if base is None:
+            continue
+        midpoint_x, midpoint_y = base.midpoint
+        if swap:
+            midpoint_x, midpoint_y = midpoint_y, midpoint_x
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    return None
+
+
+def theorem3_unit_divisor_step_coefficients(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+) -> tuple[int, int]:
+    """Return ``(A,B)=(c-sx*a,c+sy*b)`` for a signed Theorem 3 row."""
+
+    if x_sign not in (-1, 1) or y_sign not in (-1, 1):
+        raise ValueError("x_sign and y_sign must be -1 or 1")
+    if not triple.valid():
+        raise ValueError("triple must be a positive Pythagorean triple")
+
+    a, b, c = triple.leg_a, triple.leg_b, triple.hypotenuse
+    return (c - x_sign * a, c + y_sign * b)
+
+
+def theorem3_coprime_unit_divisor_seed(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+) -> Point | None:
+    """Canonical positive seed ray for a coprime signed Theorem 3 unit fan."""
+
+    q_step, p_step = theorem3_unit_divisor_step_coefficients(
+        triple,
+        x_sign,
+        y_sign,
+    )
+    if gcd(q_step, p_step) != 1:
+        return None
+
+    if p_step == 1:
+        seed = (1, q_step + 1)
+    else:
+        seed_x = (-pow(q_step % p_step, -1, p_step)) % p_step
+        if seed_x == 0:
+            raise AssertionError("coprime inverse produced a zero seed")
+        seed = (seed_x, (1 + q_step * seed_x) // p_step)
+
+    if theorem3_ray_divisor(seed, triple, x_sign, y_sign) != 1:
+        raise AssertionError("coprime seed did not have unit ray divisor")
+    return seed
+
+
+def theorem3_coprime_unit_divisor_progression_ray(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    parameter: int,
+) -> Point | None:
+    """Ray in the canonical coprime signed Theorem 3 unit-divisor fan."""
+
+    seed = theorem3_coprime_unit_divisor_seed(triple, x_sign, y_sign)
+    if seed is None:
+        return None
+    return theorem3_unit_divisor_progression_ray(
+        triple,
+        x_sign,
+        y_sign,
+        seed,
+        parameter,
+    )
+
+
+def theorem3_coprime_unit_divisor_progression_certificate(
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+    parameter: int,
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate for the canonical coprime signed Theorem 3 unit fan."""
+
+    seed = theorem3_coprime_unit_divisor_seed(triple, x_sign, y_sign)
+    if seed is None:
+        return None
+    return theorem3_unit_divisor_progression_certificate(
+        triple,
+        x_sign,
+        y_sign,
+        seed,
+        parameter,
+        multiplier,
+    )
+
+
+def theorem3_coprime_unit_divisor_progression_orbit_certificate(
+    target: Point,
+    triple: PythagoreanTriple,
+    x_sign: int,
+    y_sign: int,
+) -> Certificate | None:
+    """Symmetric recognizer for the canonical coprime Theorem 3 unit fan."""
+
+    seed = theorem3_coprime_unit_divisor_seed(triple, x_sign, y_sign)
+    if seed is None:
+        return None
+    return theorem3_unit_divisor_progression_orbit_certificate(
+        target,
+        triple,
+        x_sign,
+        y_sign,
+        seed,
+    )
+
+
 def theorem3_ray_pell_divisor_certificate(
     ray: Point,
     multiplier: int,
@@ -15555,6 +19689,168 @@ def five_twelve_thirteen_unit_divisor_ray_orbit_certificate(
             continue
         family, parameter, multiplier = parameters
         base = five_twelve_thirteen_unit_divisor_ray_certificate(
+            family,
+            parameter,
+            multiplier,
+        )
+        if base is None:
+            continue
+        midpoint_x, midpoint_y = base.midpoint
+        if swap:
+            midpoint_x, midpoint_y = midpoint_y, midpoint_x
+        return Certificate(
+            target=target,
+            midpoint=(
+                (1 if g > 0 else -1) * midpoint_x,
+                (1 if h > 0 else -1) * midpoint_y,
+            ),
+        )
+
+    return None
+
+
+def eight_fifteen_seventeen_unit_divisor_ray_data(
+    family: str,
+    parameter: int,
+) -> tuple[Point, int, int] | None:
+    """Return ``(ray, x_sign, y_sign)`` for a signed ``8-15-17`` unit fan."""
+
+    if family == "two_nine":
+        if parameter < 0:
+            return None
+        return ((2 * parameter + 1, 9 * parameter + 5), 1, -1)
+    if family == "two_twentyfive":
+        if parameter < 0:
+            return None
+        return ((2 * parameter + 1, 25 * parameter + 13), -1, -1)
+    if family == "thirtytwo_nine":
+        if parameter < 0:
+            return None
+        return ((32 * parameter + 7, 9 * parameter + 2), 1, 1)
+    if family == "thirtytwo_twentyfive":
+        if parameter < 0:
+            return None
+        return ((32 * parameter + 23, 25 * parameter + 18), -1, 1)
+    raise ValueError("unknown signed 8-15-17 unit-divisor family")
+
+
+def eight_fifteen_seventeen_unit_divisor_ray_certificate(
+    family: str,
+    parameter: int,
+    multiplier: int,
+) -> Certificate | None:
+    """Certificate for the signed ``8-15-17`` unit-divisor ray-fan table."""
+
+    if multiplier <= 0:
+        return None
+
+    data = eight_fifteen_seventeen_unit_divisor_ray_data(family, parameter)
+    if data is None:
+        return None
+    ray, x_sign, y_sign = data
+    ray_x, ray_y = ray
+    product = ray_x * ray_y * multiplier
+    certificate = Certificate(
+        target=(ray_x * multiplier, ray_y * multiplier),
+        midpoint=(x_sign * 8 * product, y_sign * 15 * product),
+    )
+    if not certificate.valid():
+        raise AssertionError("8-15-17 unit-divisor ray formula is invalid")
+    return certificate
+
+
+def _eight_fifteen_seventeen_unit_divisor_parameters_for_base(
+    x_coordinate: int,
+    y_coordinate: int,
+) -> tuple[str, int, int] | None:
+    """Recover ``(family, parameter, multiplier)`` from positive base coordinates."""
+
+    if x_coordinate <= 0 or y_coordinate <= 0:
+        return None
+
+    two_nine_multiplier = 2 * y_coordinate - 9 * x_coordinate
+    if two_nine_multiplier > 0 and x_coordinate % two_nine_multiplier == 0:
+        quotient = x_coordinate // two_nine_multiplier
+        if quotient % 2 == 1:
+            parameter = (quotient - 1) // 2
+            if (
+                parameter >= 0
+                and y_coordinate == (9 * parameter + 5) * two_nine_multiplier
+            ):
+                return ("two_nine", parameter, two_nine_multiplier)
+
+    two_twentyfive_multiplier = 2 * y_coordinate - 25 * x_coordinate
+    if (
+        two_twentyfive_multiplier > 0
+        and x_coordinate % two_twentyfive_multiplier == 0
+    ):
+        quotient = x_coordinate // two_twentyfive_multiplier
+        if quotient % 2 == 1:
+            parameter = (quotient - 1) // 2
+            if (
+                parameter >= 0
+                and y_coordinate
+                == (25 * parameter + 13) * two_twentyfive_multiplier
+            ):
+                return ("two_twentyfive", parameter, two_twentyfive_multiplier)
+
+    thirtytwo_nine_multiplier = 32 * y_coordinate - 9 * x_coordinate
+    if (
+        thirtytwo_nine_multiplier > 0
+        and y_coordinate % thirtytwo_nine_multiplier == 0
+    ):
+        quotient = y_coordinate // thirtytwo_nine_multiplier
+        if quotient % 9 == 2:
+            parameter = (quotient - 2) // 9
+            if (
+                parameter >= 0
+                and x_coordinate
+                == (32 * parameter + 7) * thirtytwo_nine_multiplier
+            ):
+                return ("thirtytwo_nine", parameter, thirtytwo_nine_multiplier)
+
+    thirtytwo_twentyfive_multiplier = 32 * y_coordinate - 25 * x_coordinate
+    if (
+        thirtytwo_twentyfive_multiplier > 0
+        and y_coordinate % thirtytwo_twentyfive_multiplier == 0
+    ):
+        quotient = y_coordinate // thirtytwo_twentyfive_multiplier
+        if quotient % 25 == 18:
+            parameter = (quotient - 18) // 25
+            if (
+                parameter >= 0
+                and x_coordinate
+                == (32 * parameter + 23) * thirtytwo_twentyfive_multiplier
+            ):
+                return (
+                    "thirtytwo_twentyfive",
+                    parameter,
+                    thirtytwo_twentyfive_multiplier,
+                )
+
+    return None
+
+
+def eight_fifteen_seventeen_unit_divisor_ray_orbit_certificate(
+    target: Point,
+) -> Certificate | None:
+    """Symmetric certificate for the signed ``8-15-17`` unit-divisor table."""
+
+    g, h = target
+    abs_g, abs_h = abs(g), abs(h)
+    if abs_g == 0 or abs_h == 0:
+        return None
+
+    for swap in (False, True):
+        base_x, base_y = (abs_h, abs_g) if swap else (abs_g, abs_h)
+        parameters = _eight_fifteen_seventeen_unit_divisor_parameters_for_base(
+            base_x,
+            base_y,
+        )
+        if parameters is None:
+            continue
+        family, parameter, multiplier = parameters
+        base = eight_fifteen_seventeen_unit_divisor_ray_certificate(
             family,
             parameter,
             multiplier,
